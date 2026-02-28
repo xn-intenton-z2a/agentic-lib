@@ -54,6 +54,18 @@ The system includes built-in safety mechanisms:
 - **TDD mode** -- optionally require tests before implementation
 - **Mission protection** -- MISSION.md is read-only to the agent
 
+## Testing
+
+307 tests across 22 test files covering all task handlers, safety checks, configuration loading, workflow structure, packaging, and distribution.
+
+```bash
+npm test              # Run all tests (vitest)
+npm run linting       # ESLint
+npm run lint:workflows # Validate workflow YAML
+npm run security      # npm audit
+npm run test:smoke    # Connectivity smoke test (needs GITHUB_TOKEN)
+```
+
 ## Demo
 
 Run the interactive demo to see the system in action:

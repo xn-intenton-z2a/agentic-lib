@@ -5,14 +5,21 @@
   "type": "module",
   "scripts": {
     "build": "echo \"Nothing to build\"",
-    "formatting": "prettier --check",
-    "formatting-fix": "prettier --write",
+    "formatting": "prettier --check '**/*.{js,json,yml,md}'",
+    "formatting-fix": "prettier --write '**/*.{js,json,yml,md}'",
     "linting": "eslint",
     "linting-json": "eslint --format=@microsoft/eslint-formatter-sarif",
     "linting-fix": "eslint --fix",
     "update-to-minor": "npx npm-check-updates --upgrade --enginesNode --target minor --verbose --install always",
     "update-to-greatest": "npx npm-check-updates --upgrade --enginesNode --target greatest --verbose --install always --reject \"alpha\"",
+    "lint:workflows": "node scripts/validate-workflows.js",
+    "security": "npm audit --audit-level=high",
     "test": "vitest --run",
+    "test:record-golden": "node scripts/record-golden-prompts.js",
+    "test:smoke": "node scripts/smoke-test-connectivity.js",
+    "distribute": "node scripts/distribute.js",
+    "distribute:check": "node scripts/distribute.js --dry-run ../repository0",
+    "distribute:apply": "node scripts/distribute.js --commit ../repository0",
     "start": "echo \"agentic-lib is a workflow SDK — see README.md\""
   },
   "keywords": [],
@@ -28,7 +35,7 @@
     "eslint-plugin-promise": "^7.2.1",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-security": "^4.0.0",
-    "eslint-plugin-sonarjs": "^3.0.5",
+    "eslint-plugin-sonarjs": "^4.0.0",
     "js-yaml": "^4.1.0",
     "markdown-it": "^14.1.0",
     "markdown-it-github": "^0.5.0",
@@ -42,6 +49,9 @@
   "files": [
     "package.json"
   ],
+  "overrides": {
+    "minimatch": ">=10.2.3"
+  },
   "publishConfig": {
     "registry": "https://npm.pkg.github.com"
   }

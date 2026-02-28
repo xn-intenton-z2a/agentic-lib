@@ -24,7 +24,6 @@ import yaml from 'js-yaml';
  * @property {number} maintenanceIssuesWipLimit - Max concurrent maintenance issues
  * @property {number} attemptsPerBranch - Max attempts per branch
  * @property {number} attemptsPerIssue - Max attempts per issue
- * @property {string} docRoot - Documentation root directory
  * @property {Object} seeding - Seed file configuration
  * @property {Object} intentionBot - Bot configuration
  * @property {boolean} tdd - Whether TDD mode is enabled
@@ -81,7 +80,6 @@ export function loadConfig(configPath) {
     maintenanceIssuesWipLimit: config.maintenanceIssuesWipLimit || 1,
     attemptsPerBranch: config.attemptsPerBranch || 3,
     attemptsPerIssue: config.attemptsPerIssue || 2,
-    docRoot: config.docRoot || 'public',
     seeding: config.seeding || {},
     intentionBot: config.intentionBot || {},
     tdd: config.tdd === true,

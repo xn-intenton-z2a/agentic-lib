@@ -30,7 +30,7 @@ The **core SDK** of the intentïon project. A collection of reusable GitHub Acti
 - **Package**: `@xn-intenton-z2a/agentic-lib`
 - **Organisation**: `xn-intenton-z2a`
 - **License**: GPL (with MIT-licensed examples)
-- **Entry point**: `sandbox/source/main.js`
+- **Production code**: `src/` (workflows, actions, agents, scripts, seeds)
 
 ## What This Repository Is NOT
 
@@ -58,8 +58,13 @@ The **core SDK** of the intentïon project. A collection of reusable GitHub Acti
 ## Test Commands
 
 ```bash
-npm test          # Unit tests
-npm run build     # Build
+npm test              # 307 unit tests (vitest)
+npm run linting       # ESLint
+npm run lint:workflows # Validate workflow YAML (16 files)
+npm run security      # npm audit (0 vulnerabilities)
+npm run test:smoke    # Connectivity smoke test (needs GITHUB_TOKEN)
+npm run test:record-golden  # Re-record golden prompt templates
+npm run distribute:check    # Dry-run distribution to repository0
 ```
 
 ## Git Workflow

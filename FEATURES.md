@@ -497,7 +497,7 @@ Port all LLM tasks to `agentic-step`. Implement all 8 task handlers (`evolve`, `
 
 ### Phase 3: Hardening (Done)
 
-Make it reliable and safe. Implement workflow hardening items, discussions bot intelligence, supervisor workflow, TDD mode, test suite (32 tests), and integration test structure.
+Make it reliable and safe. Implement workflow hardening items, discussions bot intelligence, supervisor workflow, TDD mode, test suite (307 tests across 22 files on reboot branch), CI pipeline (5 jobs: test, lint, lint-workflows, security, smoke), and integration test structure.
 
 ### Phase 4: Template & Launch (Done)
 

@@ -57,9 +57,6 @@ maintenanceIssuesWipLimit: 1
 attemptsPerBranch: 3
 attemptsPerIssue: 2
 
-# Web publishing
-docRoot: 'public'
-
 # Repository seeding
 seeding:
   missionFilepath: 'src/seeds/zero-MISSION.md'
