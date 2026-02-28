@@ -69,6 +69,20 @@ Feature #27 — make the MVP compact and information-dense.
 
 **Decision: Option A — Inline in both repos simultaneously.** The user wants to flatten nested workflows first, then simplify and abstract. Pattern: inline → flatten → simplify → abstract.
 
+### Execution Progress
+
+| Phase | Files inlined | Into | Net lines | Status |
+|-------|--------------|------|-----------|--------|
+| Phase 1 | 4 ci-automerge wfr-* | ci-automerge.yml | -497 | DONE |
+| Phase 2 | 3 publish wfr-* | publish-web.yml, publish-stats.yml | -714 | DONE |
+| Phase 3 | 4 publish/update wfr-* | publish-packages.yml, ci-update.yml | -577 (agentic-lib) | DONE |
+| **Total** | **11 files deleted** | | **-1,788** (agentic-lib) | **COMPLETE** |
+
+All 11 single-caller wfr-* files have been inlined and deleted.
+4 shared keepers remain: `wfr-agent-config.yml`, `wfr-github-select-issue.yml`, `wfr-github-create-pr.yml`, `wfr-npm-run-script-and-commit-to-branch.yml`.
+
+**Bug fix during Phase 3:** Added `agentic-lib` to `needs:` for `publish-npm` and `update-npm` jobs. Previously, config values from `wfr-agent-config.yml` were silently dropped (falling back to defaults) because the dependency wasn't declared.
+
 ## Step 2: Identify dead code paths
 
 - Grep for any JS files, scripts, or configs that reference deleted workflows
