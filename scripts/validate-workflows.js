@@ -4,21 +4,16 @@
 // Loads all .yml files from .github/workflows/ and src/workflows/,
 // parses them (stripping GHA expressions), and checks required fields.
 
-import { readFileSync, readdirSync, existsSync } from 'fs';
-import { join } from 'path';
-import yaml from 'js-yaml';
+import { readFileSync, readdirSync, existsSync } from "fs";
+import { join } from "path";
+import yaml from "js-yaml";
 
-const ROOT = join(import.meta.dirname, '..');
+const ROOT = join(import.meta.dirname, "..");
 
-const WORKFLOW_DIRS = [
-  join(ROOT, '.github/workflows'),
-  join(ROOT, 'src/workflows'),
-];
+const WORKFLOW_DIRS = [join(ROOT, ".github/workflows"), join(ROOT, "src/workflows")];
 
 function stripForYaml(content) {
-  return content
-    .replace(/\$\{\{[^}]*\}\}/g, 'x')
-    .replace(/^(\s*run:\s*)(?!['"|>])(.+:.+)$/gm, "$1'$2'");
+  return content.replace(/\$\{\{[^}]*\}\}/g, "x").replace(/^(\s*run:\s*)(?!['"|>])([^\n]*:[^\n]*)$/gm, "$1'$2'"); // eslint-disable-line sonarjs/slow-regex
 }
 
 let errors = 0;
@@ -27,10 +22,10 @@ let checked = 0;
 for (const dir of WORKFLOW_DIRS) {
   if (!existsSync(dir)) continue;
 
-  const files = readdirSync(dir).filter(f => f.endsWith('.yml'));
+  const files = readdirSync(dir).filter((f) => f.endsWith(".yml"));
   for (const file of files) {
     const filepath = join(dir, file);
-    const content = readFileSync(filepath, 'utf8');
+    const content = readFileSync(filepath, "utf8");
     checked++;
 
     try {

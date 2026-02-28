@@ -11,17 +11,15 @@
 //   --dry-run   Show what would change without writing files
 //   --commit    Create a branch and commit changes in the target repo
 
-import { readFileSync, writeFileSync, readdirSync, existsSync, mkdirSync, copyFileSync } from 'fs';
-import { join, basename } from 'path';
-import yaml from 'js-yaml';
+import { readFileSync, writeFileSync, readdirSync, existsSync, mkdirSync, copyFileSync } from "fs";
+import { join } from "path";
+import yaml from "js-yaml";
 
-const ROOT = join(import.meta.dirname, '..');
-const SRC_WORKFLOWS = join(ROOT, 'src/workflows');
+const ROOT = join(import.meta.dirname, "..");
+const SRC_WORKFLOWS = join(ROOT, "src/workflows");
 
 function stripForYaml(content) {
-  return content
-    .replace(/\$\{\{[^}]*\}\}/g, 'x')
-    .replace(/^(\s*run:\s*)(?!['"|>])(.+:.+)$/gm, "$1'$2'");
+  return content.replace(/\$\{\{[^}]*\}\}/g, "x").replace(/^(\s*run:\s*)(?!['"|>])([^\n]*:[^\n]*)$/gm, "$1'$2'"); // eslint-disable-line sonarjs/slow-regex
 }
 
 /**
@@ -29,10 +27,10 @@ function stripForYaml(content) {
  */
 export function buildManifest() {
   const manifest = {};
-  const files = readdirSync(SRC_WORKFLOWS).filter(f => f.endsWith('.yml'));
+  const files = readdirSync(SRC_WORKFLOWS).filter((f) => f.endsWith(".yml"));
 
   for (const file of files) {
-    const content = readFileSync(join(SRC_WORKFLOWS, file), 'utf8');
+    const content = readFileSync(join(SRC_WORKFLOWS, file), "utf8");
     const doc = yaml.load(stripForYaml(content));
     const trigger = doc.on || doc.true || {};
     const workflowCall = trigger.workflow_call || {};
@@ -49,11 +47,29 @@ export function buildManifest() {
   return manifest;
 }
 
+function checkWorkflowCompat(targetWorkflows, targetFile, info) {
+  const targetContent = readFileSync(join(targetWorkflows, targetFile), "utf8");
+  const targetDoc = yaml.load(stripForYaml(targetContent));
+  const issues = [];
+
+  for (const [, job] of Object.entries(targetDoc.jobs || {})) {
+    if (typeof job.uses === "string" && job.with) {
+      for (const param of Object.keys(job.with)) {
+        if (!info.inputs.includes(param)) {
+          issues.push(`Unknown input: ${param}`);
+        }
+      }
+    }
+  }
+
+  return issues;
+}
+
 /**
  * Check compatibility between source workflows and a target repo's workflow files.
  */
 export function checkCompatibility(manifest, targetPath) {
-  const targetWorkflows = join(targetPath, '.github/workflows');
+  const targetWorkflows = join(targetPath, ".github/workflows");
   const report = { compatible: [], incompatible: [], missing: [], extra: [] };
 
   if (!existsSync(targetWorkflows)) {
@@ -61,38 +77,19 @@ export function checkCompatibility(manifest, targetPath) {
     return report;
   }
 
-  const targetFiles = readdirSync(targetWorkflows).filter(f => f.endsWith('.yml'));
+  const targetFiles = readdirSync(targetWorkflows).filter((f) => f.endsWith(".yml"));
 
   for (const [file, info] of Object.entries(manifest)) {
-    if (!info.hasWorkflowCall) continue; // Not a reusable workflow
+    if (!info.hasWorkflowCall) continue;
 
-    const targetFile = targetFiles.find(f => f === file);
-    if (!targetFile) {
+    if (!targetFiles.includes(file)) {
       report.missing.push(file);
       continue;
     }
 
     try {
-      const targetContent = readFileSync(join(targetWorkflows, targetFile), 'utf8');
-      const targetDoc = yaml.load(stripForYaml(targetContent));
-
-      // Check if target uses `with:` params that match source `inputs:`
-      let compatible = true;
-      const issues = [];
-
-      for (const [, job] of Object.entries(targetDoc.jobs || {})) {
-        if (typeof job.uses === 'string' && job.with) {
-          const usedParams = Object.keys(job.with);
-          for (const param of usedParams) {
-            if (!info.inputs.includes(param)) {
-              issues.push(`Unknown input: ${param}`);
-              compatible = false;
-            }
-          }
-        }
-      }
-
-      if (compatible) {
+      const issues = checkWorkflowCompat(targetWorkflows, file, info);
+      if (issues.length === 0) {
         report.compatible.push(file);
       } else {
         report.incompatible.push({ file, issues });
@@ -102,7 +99,6 @@ export function checkCompatibility(manifest, targetPath) {
     }
   }
 
-  // Extra files in target not in source
   for (const file of targetFiles) {
     if (!manifest[file]) {
       report.extra.push(file);
@@ -112,63 +108,62 @@ export function checkCompatibility(manifest, targetPath) {
   return report;
 }
 
+const USES_REF_RE = /uses:\s+xn-intenton-z2a\/agentic-lib\/[^@]+@\S+/g; // eslint-disable-line sonarjs/slow-regex
+
+function rewriteVersionRefs(content, version) {
+  return content.replace(USES_REF_RE, (match) => match.replace(/@\S+$/, `@v${version}`)); // eslint-disable-line sonarjs/slow-regex
+}
+
+function distributeAgents(targetPath, dryRun) {
+  const agentsSrc = join(ROOT, "src/agents");
+  const agentsDest = join(targetPath, ".github/agentic-lib/agents");
+  const actions = [];
+
+  if (!existsSync(agentsSrc)) return actions;
+  if (!dryRun) mkdirSync(agentsDest, { recursive: true });
+
+  for (const file of readdirSync(agentsSrc)) {
+    actions.push({ action: existsSync(join(agentsDest, file)) ? "update" : "create", file: `agents/${file}` });
+    if (!dryRun) copyFileSync(join(agentsSrc, file), join(agentsDest, file));
+  }
+
+  return actions;
+}
+
 /**
  * Distribute workflow files to target repository.
  */
-export function distribute(targetPath, { dryRun = false, version = '7.0.0' } = {}) {
+export function distribute(targetPath, { dryRun = false, version = "7.0.0" } = {}) {
   const manifest = buildManifest();
-  const targetWorkflows = join(targetPath, '.github/workflows');
+  const targetWorkflows = join(targetPath, ".github/workflows");
   const actions = [];
 
-  if (!dryRun) {
-    mkdirSync(targetWorkflows, { recursive: true });
-  }
+  if (!dryRun) mkdirSync(targetWorkflows, { recursive: true });
 
   for (const [file, info] of Object.entries(manifest)) {
-    if (!info.hasWorkflowCall) continue; // Only distribute reusable workflows
+    if (!info.hasWorkflowCall) continue;
 
-    const srcFile = join(SRC_WORKFLOWS, file);
     const destFile = join(targetWorkflows, file);
-
-    if (existsSync(destFile)) {
-      actions.push({ action: 'update', file });
-    } else {
-      actions.push({ action: 'create', file });
-    }
+    actions.push({ action: existsSync(destFile) ? "update" : "create", file });
 
     if (!dryRun) {
-      let content = readFileSync(srcFile, 'utf8');
-      // Update version refs
-      content = content.replace(
-        /uses:\s+xn-intenton-z2a\/agentic-lib\/[^@]+@\S+/g,
-        (match) => match.replace(/@\S+$/, `@v${version}`)
-      );
-      writeFileSync(destFile, content);
+      const content = readFileSync(join(SRC_WORKFLOWS, file), "utf8");
+      writeFileSync(destFile, rewriteVersionRefs(content, version));
     }
   }
 
-  // Also distribute agent configs and seeds
-  const agentsSrc = join(ROOT, 'src/agents');
-  const agentsDest = join(targetPath, '.github/agentic-lib/agents');
-  if (existsSync(agentsSrc)) {
-    if (!dryRun) mkdirSync(agentsDest, { recursive: true });
-    for (const file of readdirSync(agentsSrc)) {
-      actions.push({ action: existsSync(join(agentsDest, file)) ? 'update' : 'create', file: `agents/${file}` });
-      if (!dryRun) copyFileSync(join(agentsSrc, file), join(agentsDest, file));
-    }
-  }
-
+  actions.push(...distributeAgents(targetPath, dryRun));
   return { manifest, actions, report: checkCompatibility(manifest, targetPath) };
 }
 
 // CLI entry point
 if (import.meta.url === `file://${process.argv[1]}`) {
   const args = process.argv.slice(2);
-  const dryRun = args.includes('--dry-run');
-  const targetPath = args.filter(a => !a.startsWith('--'))[0];
+  const dryRun = args.includes("--dry-run");
+  const targetPath = args.filter((a) => !a.startsWith("--"))[0];
 
   if (!targetPath) {
-    console.error('Usage: node scripts/distribute.js [--dry-run] [--commit] <target-repo-path>');
+    console.error("Usage: node scripts/distribute.js [--dry-run] [--commit] <target-repo-path>");
     process.exit(1);
   }
 
@@ -189,12 +184,12 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   console.log(`  Compatible: ${report.compatible.length}`);
   console.log(`  Incompatible: ${report.incompatible.length}`);
   for (const item of report.incompatible) {
-    console.log(`    ${item.file}: ${item.issues.join(', ')}`);
+    console.log(`    ${item.file}: ${item.issues.join(", ")}`);
   }
   console.log(`  Missing: ${report.missing.length}`);
   console.log(`  Extra: ${report.extra.length}`);
 
   if (dryRun) {
-    console.log('\n(dry-run mode — no files written)');
+    console.log("\n(dry-run mode — no files written)");
   }
 }
