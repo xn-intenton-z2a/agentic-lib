@@ -3,9 +3,9 @@
 // Appends structured entries to the intentïon.md activity log,
 // including commit URLs and safety-check outcomes.
 
-import { readFileSync, writeFileSync, appendFileSync, existsSync, mkdirSync } from 'fs';
-import { dirname } from 'path';
-import * as core from '@actions/core';
+import { writeFileSync, appendFileSync, existsSync, mkdirSync } from "fs";
+import { dirname } from "path";
+import * as core from "@actions/core";
 
 /**
  * Log an activity to the intentïon.md file.
@@ -40,11 +40,7 @@ export function logActivity({
   }
 
   const isoDate = new Date().toISOString();
-  const parts = [
-    `\n## ${task} at ${isoDate}`,
-    '',
-    `**Outcome:** ${outcome}`,
-  ];
+  const parts = [`\n## ${task} at ${isoDate}`, "", `**Outcome:** ${outcome}`];
 
   if (issueNumber) parts.push(`**Issue:** #${issueNumber}`);
   if (prNumber) parts.push(`**PR:** #${prNumber}`);
@@ -53,13 +49,13 @@ export function logActivity({
   if (tokensUsed !== undefined) parts.push(`**Tokens:** ${tokensUsed}`);
   if (workflowUrl) parts.push(`**Workflow:** [${workflowUrl}](${workflowUrl})`);
   if (details) {
-    parts.push('');
+    parts.push("");
     parts.push(details);
   }
-  parts.push('');
-  parts.push('---');
+  parts.push("");
+  parts.push("---");
 
-  const entry = parts.join('\n');
+  const entry = parts.join("\n");
 
   if (existsSync(filepath)) {
     appendFileSync(filepath, entry);
@@ -76,8 +72,12 @@ export function logActivity({
  * @param {Object} [details] - Additional details about the check
  */
 export function logSafetyCheck(checkName, passed, details = {}) {
-  const detailStr = Object.entries(details).map(([k, v]) => `${k}=${v}`).join(', ');
-  const message = `Safety check [${checkName}]: ${passed ? 'PASSED' : 'BLOCKED'}${detailStr ? ` (${detailStr})` : ''}`;
+  const detailStr = Object.entries(details)
+    .map(([k, v]) => `${k}=${v}`)
+    .join(", ");
+  const status = passed ? "PASSED" : "BLOCKED";
+  const suffix = detailStr ? ` (${detailStr})` : "";
+  const message = `Safety check [${checkName}]: ${status}${suffix}`;
   if (passed) {
     core.info(message);
   } else {

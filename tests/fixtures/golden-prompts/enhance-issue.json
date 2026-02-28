@@ -1,10 +1,4 @@
 {
   "systemMessage": "You are a requirements analyst. Enhance GitHub issues with clear, testable acceptance criteria.",
-  "promptSections": [
-    "## Instructions",
-    "## Issue",
-    "## Contributing Guidelines",
-    "## Related Features",
-    "## Your Task"
-  ]
+  "promptSections": ["## Instructions", "## Issue", "## Contributing Guidelines", "## Related Features", "## Your Task"]
 }

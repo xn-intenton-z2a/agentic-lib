@@ -3,8 +3,8 @@
 // Reads the agent configuration file and provides a structured config object
 // with resolved paths, limits, and execution parameters.
 
-import { readFileSync } from 'fs';
-import yaml from 'js-yaml';
+import { readFileSync } from "fs";
+import yaml from "js-yaml";
 
 /**
  * @typedef {Object} PathConfig
@@ -37,45 +37,46 @@ import yaml from 'js-yaml';
  * @param {string} configPath - Path to the YAML config file
  * @returns {AgenticConfig} Parsed configuration object
  */
-export function loadConfig(configPath) {
-  const raw = readFileSync(configPath, 'utf8');
-  const config = yaml.load(raw);
-
-  // Resolve paths into structured objects
+function resolvePaths(configPaths) {
   const paths = {};
   const writablePaths = [];
   const readOnlyPaths = [];
 
-  if (config.paths) {
-    for (const [key, value] of Object.entries(config.paths)) {
-      if (typeof value === 'string') {
-        paths[key] = { path: value, permissions: [] };
-        readOnlyPaths.push(value);
-      } else if (value && value.path) {
-        paths[key] = {
-          path: value.path,
-          permissions: value.permissions || [],
-          limit: value.limit,
-        };
-        if (value.permissions && value.permissions.includes('write')) {
-          writablePaths.push(value.path);
-        } else {
-          readOnlyPaths.push(value.path);
-        }
-      } else if (value && value.paths) {
-        // Array-style paths (e.g. otherTestsPaths, otherSourcePaths)
-        paths[key] = { paths: value.paths, permissions: [] };
-        readOnlyPaths.push(...value.paths);
+  for (const [key, value] of Object.entries(configPaths || {})) {
+    if (typeof value === "string") {
+      paths[key] = { path: value, permissions: [] };
+      readOnlyPaths.push(value);
+    } else if (value && value.path) {
+      paths[key] = {
+        path: value.path,
+        permissions: value.permissions || [],
+        limit: value.limit,
+      };
+      if (value.permissions && value.permissions.includes("write")) {
+        writablePaths.push(value.path);
+      } else {
+        readOnlyPaths.push(value.path);
       }
+    } else if (value && value.paths) {
+      paths[key] = { paths: value.paths, permissions: [] };
+      readOnlyPaths.push(...value.paths);
     }
   }
 
+  return { paths, writablePaths, readOnlyPaths };
+}
+
+export function loadConfig(configPath) {
+  const raw = readFileSync(configPath, "utf8");
+  const config = yaml.load(raw);
+  const { paths, writablePaths, readOnlyPaths } = resolvePaths(config.paths);
+
   return {
-    schedule: config.schedule || 'schedule-1',
+    schedule: config.schedule || "schedule-1",
     paths,
-    buildScript: config.buildScript || 'npm run build',
-    testScript: config.testScript || 'npm test',
-    mainScript: config.mainScript || 'npm run start',
+    buildScript: config.buildScript || "npm run build",
+    testScript: config.testScript || "npm test",
+    mainScript: config.mainScript || "npm run start",
     featureDevelopmentIssuesWipLimit: config.featureDevelopmentIssuesWipLimit || 2,
     maintenanceIssuesWipLimit: config.maintenanceIssuesWipLimit || 1,
     attemptsPerBranch: config.attemptsPerBranch || 3,
@@ -97,7 +98,10 @@ export function loadConfig(configPath) {
  */
 export function getWritablePaths(config, override) {
   if (override) {
-    return override.split(';').map(p => p.trim()).filter(Boolean);
+    return override
+      .split(";")
+      .map((p) => p.trim())
+      .filter(Boolean);
   }
   return config.writablePaths;
 }

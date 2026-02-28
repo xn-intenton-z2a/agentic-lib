@@ -2,9 +2,9 @@
 //
 // Extracts repeated patterns from the 8 task handlers into reusable functions.
 
-import { CopilotClient, approveAll } from '@github/copilot-sdk';
-import { readFileSync, readdirSync, existsSync } from 'fs';
-import { createAgentTools } from './tools.js';
+import { CopilotClient, approveAll } from "@github/copilot-sdk";
+import { readFileSync, readdirSync, existsSync } from "fs";
+import { createAgentTools } from "./tools.js";
 
 /**
  * Run a Copilot SDK session and return the response.
@@ -31,7 +31,7 @@ export async function runCopilotTask({ model, systemMessage, prompt, writablePat
 
     const response = await session.sendAndWait({ prompt });
     const tokensUsed = response?.data?.usage?.totalTokens || 0;
-    const content = response?.data?.content || '';
+    const content = response?.data?.content || "";
 
     return { content, tokensUsed };
   } finally {
@@ -48,10 +48,10 @@ export async function runCopilotTask({ model, systemMessage, prompt, writablePat
  */
 export function readOptionalFile(filePath, limit) {
   try {
-    const content = readFileSync(filePath, 'utf8');
+    const content = readFileSync(filePath, "utf8");
     return limit ? content.substring(0, limit) : content;
   } catch {
-    return '';
+    return "";
   }
 }
 
@@ -73,14 +73,14 @@ export function scanDirectory(dirPath, extensions, options = {}) {
   if (!existsSync(dirPath)) return [];
 
   return readdirSync(dirPath, recursive ? { recursive: true } : undefined)
-    .filter(f => exts.some(ext => f.endsWith(ext)))
+    .filter((f) => exts.some((ext) => f.endsWith(ext)))
     .slice(0, fileLimit)
-    .map(f => {
+    .map((f) => {
       try {
-        const content = readFileSync(`${dirPath}${f}`, 'utf8');
+        const content = readFileSync(`${dirPath}${f}`, "utf8");
         return { name: f, content: contentLimit ? content.substring(0, contentLimit) : content };
       } catch {
-        return { name: f, content: '' };
+        return { name: f, content: "" };
       }
     });
 }
@@ -94,11 +94,11 @@ export function scanDirectory(dirPath, extensions, options = {}) {
  */
 export function formatPathsSection(writablePaths, readOnlyPaths = []) {
   return [
-    '## File Paths',
-    '### Writable (you may modify these)',
-    writablePaths.length > 0 ? writablePaths.map(p => `- ${p}`).join('\n') : '- (none)',
-    '',
-    '### Read-Only (for context only, do NOT modify)',
-    readOnlyPaths.length > 0 ? readOnlyPaths.map(p => `- ${p}`).join('\n') : '- (none)',
-  ].join('\n');
+    "## File Paths",
+    "### Writable (you may modify these)",
+    writablePaths.length > 0 ? writablePaths.map((p) => `- ${p}`).join("\n") : "- (none)",
+    "",
+    "### Read-Only (for context only, do NOT modify)",
+    readOnlyPaths.length > 0 ? readOnlyPaths.map((p) => `- ${p}`).join("\n") : "- (none)",
+  ].join("\n");
 }

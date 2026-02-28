@@ -8,12 +8,12 @@ Uplift to best practice from diy-accounting-limited. Not an MVP feature — prod
 
 diy-accounting-limited uses a consistent four-tier domain naming scheme:
 
-| Name | Pattern | Example | Purpose |
-|------|---------|---------|---------|
-| `base-domain` | `{deployment}.{service}.{root}` | `ci-feature-x.submit.diyaccounting.co.uk` | Unique per deployment |
-| `apex-domain` | `{environment}-{service}.{root}` | `ci-submit.diyaccounting.co.uk` | Latest for environment |
-| `holding-domain` | `holding-{service}.{root}` | `holding-submit.diyaccounting.co.uk` | Placeholder before first deploy |
-| `public-domain` | `{service}.{root}` | `submit.diyaccounting.co.uk` | Production alias (prod only) |
+| Name             | Pattern                          | Example                                   | Purpose                         |
+| ---------------- | -------------------------------- | ----------------------------------------- | ------------------------------- |
+| `base-domain`    | `{deployment}.{service}.{root}`  | `ci-feature-x.submit.diyaccounting.co.uk` | Unique per deployment           |
+| `apex-domain`    | `{environment}-{service}.{root}` | `ci-submit.diyaccounting.co.uk`           | Latest for environment          |
+| `holding-domain` | `holding-{service}.{root}`       | `holding-submit.diyaccounting.co.uk`      | Placeholder before first deploy |
+| `public-domain`  | `{service}.{root}`               | `submit.diyaccounting.co.uk`              | Production alias (prod only)    |
 
 - Every deployment gets a unique `base-domain` that never changes (immutable URL)
 - The `apex-domain` always points to the latest deployment in that environment
@@ -32,6 +32,7 @@ aws cloudformation describe-stacks --stack-name $STACK_NAME \
 This is then used to create/update Route53 CNAME records.
 
 **Applicability to intentïon:**
+
 - xn--intenton-z2a.com currently has a single domain (`xn--intenton-z2a.com`)
 - For CI previews, could use `ci.xn--intenton-z2a.com` or `{branch}.xn--intenton-z2a.com`
 - Showcase page could live at `showcase.xn--intenton-z2a.com`

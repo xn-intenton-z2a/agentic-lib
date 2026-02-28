@@ -6,15 +6,15 @@
 
 name: release
 concurrency: agentic-lib-release
-run-name: 'release ${{ inputs.versionIncrement }} [${{ github.ref_name }}]'
+run-name: "release ${{ inputs.versionIncrement }} [${{ github.ref_name }}]"
 
 on:
   workflow_dispatch:
     inputs:
       versionIncrement:
-        description: 'Semantic version increment'
+        description: "Semantic version increment"
         required: true
-        default: 'prerelease'
+        default: "prerelease"
         type: choice
         options:
           - prerelease
@@ -27,9 +27,9 @@ on:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-  npmAuthOrganisation: '@xn-intenton-z2a'
-  gitUserEmail: 'action@github.com'
-  gitUserName: 'GitHub Actions[bot]'
+  npmAuthOrganisation: "@xn-intenton-z2a"
+  gitUserEmail: "action@github.com"
+  gitUserName: "GitHub Actions[bot]"
 
 jobs:
   test:
@@ -43,7 +43,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 24
-          cache: 'npm'
+          cache: "npm"
 
       - name: Set up ~/.npmrc
         shell: bash
@@ -63,8 +63,8 @@ jobs:
       packages: write
     env:
       versionIncrement: ${{ inputs.versionIncrement || 'prerelease' }}
-      buildScript: 'npm run build'
-      releaseNotes: 'Release increment: ${{ inputs.versionIncrement }}.'
+      buildScript: "npm run build"
+      releaseNotes: "Release increment: ${{ inputs.versionIncrement }}."
     outputs:
       releasedVersion: ${{ steps.released.outputs.releasedVersion }}
       newVersion: ${{ steps.rotated.outputs.newVersion }}
@@ -76,7 +76,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 24
-          cache: 'npm'
+          cache: "npm"
 
       - name: Set up .npmrc for install (PAT)
         shell: bash

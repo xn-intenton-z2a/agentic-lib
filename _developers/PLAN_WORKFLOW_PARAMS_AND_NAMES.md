@@ -15,6 +15,7 @@ Every deployment workflow in diy-accounting-limited follows a consistent three-j
 3. **Action jobs** — The actual work (deploy, test, etc.) receives computed names as inputs, never raw branch/SHA values.
 
 **Why this matters:**
+
 - Single source of truth for naming conventions
 - Every job gets consistent, pre-computed values
 - Easy to change naming schemes without touching every workflow
@@ -23,12 +24,14 @@ Every deployment workflow in diy-accounting-limited follows a consistent three-j
 ### get-names Composite Action
 
 A reusable composite action at `.github/actions/get-names/action.yml` that:
+
 - Takes `ref` and `sha` as inputs
 - Computes `environment-name`: `prod` if ref is `refs/heads/main`, otherwise `ci`
 - Computes `deployment-name`: `prod-{sha7}` for main, `ci-{sanitised-branch}` for others
 - Computes domain names using the deployment name as a prefix
 
 **Applicability to intentïon:**
+
 - agentic-lib workflows currently hardcode branch detection logic
 - A `get-names` action would centralise environment/branch logic
 - Could extend to compute experiment names for repository0 sandbox instances
@@ -38,9 +41,9 @@ A reusable composite action at `.github/actions/get-names/action.yml` that:
 ```yaml
 inputs:
   ref:
-    description: 'Git ref to deploy'
+    description: "Git ref to deploy"
     required: false
-    default: '(auto)'
+    default: "(auto)"
 ```
 
 The `params` job detects `(auto)` and replaces it with the actual context value (e.g., `github.ref`). This lets workflow_dispatch callers override values for manual runs while automation gets the right defaults.

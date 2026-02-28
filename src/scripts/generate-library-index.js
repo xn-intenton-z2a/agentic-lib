@@ -15,11 +15,12 @@ const getLibraryFiles = () => {
       fs.mkdirSync(libraryDocumentsPath, { recursive: true });
       return [];
     }
-    return fs.readdirSync(libraryDocumentsPath)
-      .filter(file => file.endsWith('.md'))
-      .map(file => ({
+    return fs
+      .readdirSync(libraryDocumentsPath)
+      .filter((file) => file.endsWith(".md"))
+      .map((file) => ({
         name: file,
-        path: path.join(libraryDocumentsPath, file)
+        path: path.join(libraryDocumentsPath, file),
       }));
   } catch (error) {
     console.error(`Error reading library directory: ${error.message}`);
@@ -40,31 +41,34 @@ const getLsOutput = () => {
 // Generate HTML content for the library index
 const generateHTML = (files, lsOutput) => {
   const now = new Date().toISOString();
-  
+
   // Create list items for each file
-  const fileItems = files.length > 0 
-    ? files.map(file => {
-        // Extract title from the file (first line after removing # prefix)
-        let title = file.name.replace('.md', '');
-        try {
-          const content = fs.readFileSync(file.path, 'utf8');
-          const firstLine = content.split('\n')[0];
-          if (firstLine.startsWith('# ')) {
-            title = firstLine.substring(2).trim();
-          }
-        } catch (error) {
-          console.error(`Error reading file ${file.path}: ${error.message}`);
-        }
-        
-        return `
+  const fileItems =
+    files.length > 0
+      ? files
+          .map((file) => {
+            // Extract title from the file (first line after removing # prefix)
+            let title = file.name.replace(".md", "");
+            try {
+              const content = fs.readFileSync(file.path, "utf8");
+              const firstLine = content.split("\n")[0];
+              if (firstLine.startsWith("# ")) {
+                title = firstLine.substring(2).trim();
+              }
+            } catch (error) {
+              console.error(`Error reading file ${file.path}: ${error.message}`);
+            }
+
+            return `
         <li>
           <div class="doc-title">${title}</div>
-          <a href="${file.name.replace('.md', '.html')}" class="source-link">View Document</a>
+          <a href="${file.name.replace(".md", ".html")}" class="source-link">View Document</a>
           <a href="${file.path}" class="source-link">View Source</a>
           <p class="description">Document: ${file.name}</p>
         </li>`;
-      }).join('\n')
-    : '<li>No documents found in the library directory.</li>';
+          })
+          .join("\n")
+      : "<li>No documents found in the library directory.</li>";
 
   return `
 <!DOCTYPE html>
@@ -125,8 +129,8 @@ const main = () => {
     const files = getLibraryFiles();
     const lsOutput = getLsOutput();
     const html = generateHTML(files, lsOutput);
-    
-    fs.writeFileSync(outputFile, html, 'utf8');
+
+    fs.writeFileSync(outputFile, html, "utf8");
     console.log(`Successfully generated ${outputFile}`);
   } catch (error) {
     console.error(`Error generating library index: ${error.message}`);

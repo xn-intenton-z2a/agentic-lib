@@ -31,16 +31,16 @@ See the [Getting Started Guide](https://github.com/xn-intenton-z2a/repository0/b
 
 The core of the system is a single GitHub Action at `.github/actions/agentic-step/` that handles all autonomous tasks:
 
-| Task | Purpose |
-|------|---------|
-| `resolve-issue` | Read an issue and generate code to resolve it |
-| `fix-code` | Fix failing tests or lint errors |
-| `evolve` | Evolve the codebase toward the mission |
-| `maintain-features` | Generate and maintain feature definitions |
-| `maintain-library` | Update library documentation and sources |
-| `enhance-issue` | Add detail and acceptance criteria to issues |
-| `review-issue` | Review and close resolved issues |
-| `discussions` | Respond to GitHub Discussions |
+| Task                | Purpose                                       |
+| ------------------- | --------------------------------------------- |
+| `resolve-issue`     | Read an issue and generate code to resolve it |
+| `fix-code`          | Fix failing tests or lint errors              |
+| `evolve`            | Evolve the codebase toward the mission        |
+| `maintain-features` | Generate and maintain feature definitions     |
+| `maintain-library`  | Update library documentation and sources      |
+| `enhance-issue`     | Add detail and acceptance criteria to issues  |
+| `review-issue`      | Review and close resolved issues              |
+| `discussions`       | Respond to GitHub Discussions                 |
 
 See [API.md](API.md) for full input/output documentation.
 

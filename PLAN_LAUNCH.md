@@ -13,6 +13,7 @@ Operational steps to get from "code written" to "publicly available."
 ## Step 1: Commit changes on refresh branch
 
 All three repos have uncommitted changes on the `refresh` branch:
+
 - `agentic-lib` — consolidated docs, deleted workflows, new plan files
 - `repository0` — deleted legacy workflows, template cleanup
 - `xn--intenton-z2a.com` — website updates (showcase, submission box)
@@ -22,6 +23,7 @@ All three repos have uncommitted changes on the `refresh` branch:
 ## Step 2: Create pull requests
 
 For each repo, open a PR from `refresh` → `main`:
+
 - `agentic-lib` — "v7.0.0: Copilot SDK migration, workflow consolidation, doc consolidation"
 - `repository0` — "v7.0.0: Simplified template with Copilot SDK"
 - `xn--intenton-z2a.com` — "Website updates: showcase, submission box, branding"
@@ -29,6 +31,7 @@ For each repo, open a PR from `refresh` → `main`:
 ## Step 3: Publish agentic-step to GitHub Marketplace
 
 Prerequisites:
+
 - agentic-step `action.yml` has required Marketplace metadata (name, description, branding)
 - Action is tested (see PLAN_VERIFICATION.md)
 
@@ -37,6 +40,7 @@ Prerequisites:
 ## Step 4: Tag v7.0.0 release
 
 After PRs are merged:
+
 - Tag `v7.0.0` in agentic-lib
 - Create GitHub Release with changelog
 - npm publish triggers from the release workflow
@@ -52,13 +56,13 @@ After PRs are merged:
 
 ## Dependencies
 
-| Step | Depends on |
-|------|-----------|
-| Step 1 | Current work complete |
-| Step 2 | Step 1 |
+| Step   | Depends on                           |
+| ------ | ------------------------------------ |
+| Step 1 | Current work complete                |
+| Step 2 | Step 1                               |
 | Step 3 | Step 2 merged + PLAN_VERIFICATION.md |
-| Step 4 | Step 2 merged |
-| Step 5 | Steps 3 + 4 + PLAN_DEMO_REPOS.md |
+| Step 4 | Step 2 merged                        |
+| Step 5 | Steps 3 + 4 + PLAN_DEMO_REPOS.md     |
 
 ---
 

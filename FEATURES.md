@@ -6,37 +6,37 @@ All features for the intentïon project. Core features (#1-17) power the autonom
 
 ## Status
 
-| # | Feature | Status |
-|---|---------|--------|
-| 1 | Autonomous Code Evolution | Done |
-| 2 | Issue Lifecycle Management | Done |
-| 3 | Feature Lifecycle Management | Done |
-| 4 | Code Generation & Fixing | Done |
-| 5 | Auto-Merge & Branch Management | Done |
-| 6 | Discussions Bot | Done |
-| 7 | Statistics & Observability | Done |
-| 8 | Publishing Pipeline | Done |
-| 9 | Website & Brand | Done |
-| 10 | AWS Infrastructure — agentic-lib | Done |
-| 11 | AWS Infrastructure — Website | Done |
-| 12 | CI/CD & Code Quality | Done |
-| 13 | Configuration & Safety | Done |
-| 14 | Template System | Done |
-| 15 | Library & Knowledge Management | Done |
-| 16 | Maintenance & Hygiene | Done |
-| 17 | Scripts & Utilities | Done |
-| 18 | Copilot Migration | Done |
-| 19 | Workflow Hardening (Critical Subset) | Done |
-| 20 | Discussions Bot Intelligence | Done |
-| 21 | Onboarding Experience | Done |
-| 22 | Supervisor (Reactive Orchestration) | Done |
-| 23 | TDD Workflow | Done |
-| 24 | Showcase Page | Done |
-| 25 | Submission Box | Done |
-| 26 | Verification & Testing | Pending |
-| 27 | Code Reduction & Optimization | Pending |
-| 28 | Library Demo Repository | Pending |
-| 29 | Website Demo Repository | Pending |
+| #   | Feature                              | Status  |
+| --- | ------------------------------------ | ------- |
+| 1   | Autonomous Code Evolution            | Done    |
+| 2   | Issue Lifecycle Management           | Done    |
+| 3   | Feature Lifecycle Management         | Done    |
+| 4   | Code Generation & Fixing             | Done    |
+| 5   | Auto-Merge & Branch Management       | Done    |
+| 6   | Discussions Bot                      | Done    |
+| 7   | Statistics & Observability           | Done    |
+| 8   | Publishing Pipeline                  | Done    |
+| 9   | Website & Brand                      | Done    |
+| 10  | AWS Infrastructure — agentic-lib     | Done    |
+| 11  | AWS Infrastructure — Website         | Done    |
+| 12  | CI/CD & Code Quality                 | Done    |
+| 13  | Configuration & Safety               | Done    |
+| 14  | Template System                      | Done    |
+| 15  | Library & Knowledge Management       | Done    |
+| 16  | Maintenance & Hygiene                | Done    |
+| 17  | Scripts & Utilities                  | Done    |
+| 18  | Copilot Migration                    | Done    |
+| 19  | Workflow Hardening (Critical Subset) | Done    |
+| 20  | Discussions Bot Intelligence         | Done    |
+| 21  | Onboarding Experience                | Done    |
+| 22  | Supervisor (Reactive Orchestration)  | Done    |
+| 23  | TDD Workflow                         | Done    |
+| 24  | Showcase Page                        | Done    |
+| 25  | Submission Box                       | Done    |
+| 26  | Verification & Testing               | Pending |
+| 27  | Code Reduction & Optimization        | Pending |
+| 28  | Library Demo Repository              | Pending |
+| 29  | Website Demo Repository              | Pending |
 
 ### Outstanding items
 
@@ -57,7 +57,7 @@ A clonable GitHub template that turns a mission statement into working, tested, 
 
 **Target audience:** Any developer with a GitHub Copilot subscription who wants to describe what they want and watch it build itself.
 
-**Tagline:** *"What is your intentïon?"*
+**Tagline:** _"What is your intentïon?"_
 
 ### What makes this unique (February 2026)
 
@@ -102,22 +102,22 @@ GitHub Copilot SDK ──→ agentic-step action (1 action, published to Marketp
 
 ### Dependency Changes
 
-| Dependency | Before | After |
-|-----------|--------|-------|
-| OpenAI API (CHATGPT_API_SECRET_KEY) | Required | Removed |
-| GitHub Copilot subscription | Not used | Required |
-| @github/copilot-sdk | Not used | Core dependency |
-| AWS S3/SQS/Lambda | Used | Unchanged |
-| GitHub Actions minutes | ~99 workflows | ~32 workflows |
+| Dependency                          | Before        | After           |
+| ----------------------------------- | ------------- | --------------- |
+| OpenAI API (CHATGPT_API_SECRET_KEY) | Required      | Removed         |
+| GitHub Copilot subscription         | Not used      | Required        |
+| @github/copilot-sdk                 | Not used      | Core dependency |
+| AWS S3/SQS/Lambda                   | Used          | Unchanged       |
+| GitHub Actions minutes              | ~99 workflows | ~32 workflows   |
 
 ### Workflow Reduction
 
-| Repository | Before | After | Reduction |
-|-----------|--------|-------|-----------|
-| agentic-lib | 59 workflows | ~15 workflows + 1 action | -75% |
-| repository0 | 31 workflows | ~8 workflows | -74% |
-| xn--intenton-z2a.com | 9 workflows | 9 workflows | 0% |
-| **Total** | **99 workflows** | **~32 workflows + 1 action** | **-68%** |
+| Repository           | Before           | After                        | Reduction |
+| -------------------- | ---------------- | ---------------------------- | --------- |
+| agentic-lib          | 59 workflows     | ~15 workflows + 1 action     | -75%      |
+| repository0          | 31 workflows     | ~8 workflows                 | -74%      |
+| xn--intenton-z2a.com | 9 workflows      | 9 workflows                  | 0%        |
+| **Total**            | **99 workflows** | **~32 workflows + 1 action** | **-68%**  |
 
 ---
 
@@ -264,6 +264,7 @@ Port from OpenAI API to GitHub Copilot SDK. The `agentic-step` action wraps the 
 **Status:** Done
 
 **Acceptance Criteria:**
+
 - [ ] `agentic-step` action authenticates with Copilot SDK and returns output
 - [ ] All 8 task handlers produce equivalent outcomes to the OpenAI-based workflows
 - [ ] No `CHATGPT_API_SECRET_KEY` or `openai` package anywhere in the codebase
@@ -277,6 +278,7 @@ Port from OpenAI API to GitHub Copilot SDK. The `agentic-step` action wraps the 
 **Status:** Done
 
 **Acceptance Criteria:**
+
 - [ ] intentïon.md entries include commit URLs
 - [ ] Attempt check outcomes are logged
 - [ ] Resolved issues return nop without generating code
@@ -291,6 +293,7 @@ Extends the bot with proactive feature management and mission protection. The bo
 **Status:** Done
 
 **Acceptance Criteria:**
+
 - [ ] Bot creates features when requested via Discussion
 - [ ] Bot declines requests that violate the mission with an explanation
 - [ ] Bot can delete/update existing features through Discussion interaction
@@ -303,6 +306,7 @@ The critical path from discovery to running autonomous development. Includes `de
 **Status:** Done
 
 **Acceptance Criteria:**
+
 - [ ] `demo.sh` runs end-to-end without manual intervention
 - [ ] GETTING-STARTED.md describes 3-step Copilot setup (no OpenAI key)
 - [ ] repository0 initial state produces "Hello World!" output
@@ -315,6 +319,7 @@ The critical path from discovery to running autonomous development. Includes `de
 **Status:** Done
 
 **Acceptance Criteria:**
+
 - [ ] Build failure on agentic branch triggers fix-code within 5 minutes
 - [ ] Stale issues trigger review automatically
 - [ ] Supervisor does not create infinite dispatch loops
@@ -326,6 +331,7 @@ Feature development that starts with a failing test. The `evolve` task in TDD mo
 **Status:** Done
 
 **Acceptance Criteria:**
+
 - [ ] Evolve task in TDD mode creates a failing test first
 - [ ] Second step makes the test pass
 - [ ] PR contains both test and implementation
@@ -339,6 +345,7 @@ A page on xn--intenton-z2a.com showing live experiment status from stats JSON on
 **Status:** Done
 
 **Acceptance Criteria:**
+
 - [ ] Showcase page loads and renders experiment data
 - [ ] At least 2 experiments displayed with stats
 - [ ] Links to repositories, PRs, and activity logs work
@@ -352,6 +359,7 @@ A page on xn--intenton-z2a.com showing live experiment status from stats JSON on
 **Status:** Done
 
 **Acceptance Criteria:**
+
 - [ ] Submission box renders on the website
 - [ ] Submitting creates a GitHub Discussion
 - [ ] Terms and conditions are displayed and must be accepted
@@ -363,11 +371,11 @@ A page on xn--intenton-z2a.com showing live experiment status from stats JSON on
 
 Integration testing to prove the system works end-to-end against real infrastructure.
 
-| Aspect | Detail |
-|--------|--------|
+| Aspect           | Detail                                                                                                                                                                                                                                                                                       |
+| ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **What it does** | Tests the agentic-step action against the real Copilot SDK. Tests what agentic-lib publishes for repository0 consumption. Tests agentic flows in repository0 (model flows in agentic-lib first, repository0 is showcase). Tests demo repository fitness — examining output from #28 and #29. |
-| **Repositories** | agentic-lib, repository0 |
-| **Why now** | The code is written but untested against real infrastructure. Without verification, we can't know if the MVP actually works. |
+| **Repositories** | agentic-lib, repository0                                                                                                                                                                                                                                                                     |
+| **Why now**      | The code is written but untested against real infrastructure. Without verification, we can't know if the MVP actually works.                                                                                                                                                                 |
 
 **Status:** Pending
 
@@ -375,11 +383,11 @@ Integration testing to prove the system works end-to-end against real infrastruc
 
 Make the MVP compact and information-dense — fewer files, less redundancy, easier to understand.
 
-| Aspect | Detail |
-|--------|--------|
+| Aspect           | Detail                                                                                                                                                                                                           |
+| ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **What it does** | Inline or remove remaining legacy `wfr-*` files that are only used by keeper workflows. Consolidate redundant workflows. Remove dead code paths. Minimize the number of files a contributor needs to understand. |
-| **Repositories** | agentic-lib, repository0 |
-| **Why now** | MVP should be lean. Every unnecessary file is cognitive overhead for new users who clone the template. |
+| **Repositories** | agentic-lib, repository0                                                                                                                                                                                         |
+| **Why now**      | MVP should be lean. Every unnecessary file is cognitive overhead for new users who clone the template.                                                                                                           |
 
 **Status:** Pending
 
@@ -387,11 +395,11 @@ Make the MVP compact and information-dense — fewer files, less redundancy, eas
 
 A JS library that evolves autonomously from a mission, demonstrating the "library" repository type.
 
-| Aspect | Detail |
-|--------|--------|
+| Aspect           | Detail                                                                                                                                                                                              |
+| ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **What it does** | A new repository created from the repository0 template with a library-focused mission. Evolves autonomously. Published to npm. Output is captured and examined as part of a fitness test (see #26). |
-| **Repositories** | New repository (from repository0 template) |
-| **Why now** | The showcase needs real examples. A library that built itself from a mission statement is the most compelling proof. |
+| **Repositories** | New repository (from repository0 template)                                                                                                                                                          |
+| **Why now**      | The showcase needs real examples. A library that built itself from a mission statement is the most compelling proof.                                                                                |
 
 **Status:** Pending
 
@@ -399,11 +407,11 @@ A JS library that evolves autonomously from a mission, demonstrating the "librar
 
 A website that evolves autonomously from a mission, demonstrating the "website" repository type.
 
-| Aspect | Detail |
-|--------|--------|
+| Aspect           | Detail                                                                                                                                                                                                   |
+| ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **What it does** | A new repository created from the repository0 template with a website-focused mission. Evolves autonomously. Deployed to GitHub Pages. The deployed site is examined/tested as a fitness test (see #26). |
-| **Repositories** | New repository (from repository0 template) |
-| **Why now** | Websites are visual — a self-evolving website is immediately impressive and shareable. |
+| **Repositories** | New repository (from repository0 template)                                                                                                                                                               |
+| **Why now**      | Websites are visual — a self-evolving website is immediately impressive and shareable.                                                                                                                   |
 
 **Status:** Pending
 
@@ -453,11 +461,11 @@ If the answer to all three is "no," it's post-MVP work.
 
 **Three audiences, three framings:**
 
-| Audience | Pitch | Distribution |
-|----------|-------|-------------|
-| Solo devs / side-project builders | "Set it and forget it. Write what you want, come back tomorrow to a PR." | Show HN, Reddit r/programming, dev Twitter/Bluesky |
-| Teams / open source maintainers | "An AI contributor that handles dependency updates, linting fixes, and feature requests from Discussions — you just review PRs." | Dev advocacy, conference talks, blog posts |
-| Microsoft / GitHub | "This is the most advanced Copilot SDK integration in the wild." | GitHub Universe talk, GitHub Stars program, Marketplace listing |
+| Audience                          | Pitch                                                                                                                            | Distribution                                                    |
+| --------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
+| Solo devs / side-project builders | "Set it and forget it. Write what you want, come back tomorrow to a PR."                                                         | Show HN, Reddit r/programming, dev Twitter/Bluesky              |
+| Teams / open source maintainers   | "An AI contributor that handles dependency updates, linting fixes, and feature requests from Discussions — you just review PRs." | Dev advocacy, conference talks, blog posts                      |
+| Microsoft / GitHub                | "This is the most advanced Copilot SDK integration in the wild."                                                                 | GitHub Universe talk, GitHub Stars program, Marketplace listing |
 
 **Launch moves (priority order):**
 
@@ -475,13 +483,13 @@ intentïon is one of the first projects to build a full autonomous development l
 
 The MVP is pre-revenue. Revenue follows attention.
 
-| Phase | Revenue Model | Target |
-|-------|--------------|--------|
-| Launch | Free Marketplace action + showcase | GitHub stars, visibility |
-| +3 months | Freemium tier — Pro features ($9-29/mo per repo) | Active repos using free tier |
-| +6 months | Consulting — autonomous dev setup ($2-5k) | Teams who've seen the demo |
-| +12 months | Managed service ($99-499/mo) | Teams wanting the loop without setup |
-| +18 months | Enterprise license ($500-2k/mo per team) | Orgs with security requirements |
+| Phase      | Revenue Model                                    | Target                               |
+| ---------- | ------------------------------------------------ | ------------------------------------ |
+| Launch     | Free Marketplace action + showcase               | GitHub stars, visibility             |
+| +3 months  | Freemium tier — Pro features ($9-29/mo per repo) | Active repos using free tier         |
+| +6 months  | Consulting — autonomous dev setup ($2-5k)        | Teams who've seen the demo           |
+| +12 months | Managed service ($99-499/mo)                     | Teams wanting the loop without setup |
+| +18 months | Enterprise license ($500-2k/mo per team)         | Orgs with security requirements      |
 
 ---
 
@@ -514,4 +522,4 @@ Clean repository0 to pristine template state. Write `demo.sh` + `DEMO.md`, updat
 ## Related Documents
 
 - **[FEATURES_ROADMAP.md](FEATURES_ROADMAP.md)** — Post-MVP features (#30-41)
-- **[_archive/PLAN_COPILOT_LIVE.md](_archive/PLAN_COPILOT_LIVE.md)** — Archived execution plan (Option E delivered)
+- **[\_archive/PLAN_COPILOT_LIVE.md](_archive/PLAN_COPILOT_LIVE.md)** — Archived execution plan (Option E delivered)

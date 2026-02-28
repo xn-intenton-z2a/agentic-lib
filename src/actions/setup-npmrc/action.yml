@@ -3,24 +3,24 @@
 # Composite action: Set up .npmrc for GitHub Packages authentication.
 # Replaces the 7-line block repeated across 11+ workflows.
 
-name: 'Setup .npmrc'
-description: 'Configure .npmrc for GitHub Packages authentication'
+name: "Setup .npmrc"
+description: "Configure .npmrc for GitHub Packages authentication"
 
 inputs:
   npm-auth-organisation:
-    description: 'npm scope (e.g. @xn-intenton-z2a). If empty, skip setup.'
+    description: "npm scope (e.g. @xn-intenton-z2a). If empty, skip setup."
     required: false
-    default: ''
+    default: ""
   token:
-    description: 'GitHub token for npm authentication'
+    description: "GitHub token for npm authentication"
     required: true
   target:
     description: 'Where to write .npmrc: "home" (~/.npmrc) or "project" (.npmrc)'
     required: false
-    default: 'project'
+    default: "project"
 
 runs:
-  using: 'composite'
+  using: "composite"
   steps:
     - name: Set up .npmrc
       if: ${{ inputs.npm-auth-organisation != '' }}

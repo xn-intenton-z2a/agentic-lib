@@ -4,22 +4,23 @@ Get all the moving parts working end-to-end before tightening verification and e
 
 **12-task hardening sprint: COMPLETE**
 
-| # | Task | Status |
-|---|------|--------|
-| 1 | Remove GitHub Pages (workflow, config, branch) | Done |
-| 2 | Deep unit tests for all 8 task handlers | Done (46 tests) |
-| 3 | Package structural tests (`npm pack` validation) | Done (15 tests) |
-| 4 | System connectivity testing (3 tiers) | Done (smoke script + integration workflow) |
-| 5 | LLM transformation testing (3 tiers) | Done (54 fixture tests + golden prompts + verify workflow) |
-| 6 | Import tooling from submit project | Done (workflow validation, security audit, prettier glob) |
-| 7 | CI pipeline: lint, security, workflow validation jobs | Done (5 CI jobs) |
-| 8 | Update all documents to match current state | Done |
-| 9 | Update PLAN_FOCUS_REBOOT.md | Done |
-| 10 | Scripted distribution to repository0 | Done (distribute.js + 8 compat tests) |
-| 11 | Fix npm audit (eslint-plugin-sonarjs → ^4.0.0 + minimatch override) | Done (0 vulnerabilities) |
-| 12 | Fix CI pipeline, verify release.yml | Done |
+| #   | Task                                                                | Status                                                     |
+| --- | ------------------------------------------------------------------- | ---------------------------------------------------------- |
+| 1   | Remove GitHub Pages (workflow, config, branch)                      | Done                                                       |
+| 2   | Deep unit tests for all 8 task handlers                             | Done (46 tests)                                            |
+| 3   | Package structural tests (`npm pack` validation)                    | Done (15 tests)                                            |
+| 4   | System connectivity testing (3 tiers)                               | Done (smoke script + integration workflow)                 |
+| 5   | LLM transformation testing (3 tiers)                                | Done (54 fixture tests + golden prompts + verify workflow) |
+| 6   | Import tooling from submit project                                  | Done (workflow validation, security audit, prettier glob)  |
+| 7   | CI pipeline: lint, security, workflow validation jobs               | Done (5 CI jobs)                                           |
+| 8   | Update all documents to match current state                         | Done                                                       |
+| 9   | Update PLAN_FOCUS_REBOOT.md                                         | Done                                                       |
+| 10  | Scripted distribution to repository0                                | Done (distribute.js + 8 compat tests)                      |
+| 11  | Fix npm audit (eslint-plugin-sonarjs → ^4.0.0 + minimatch override) | Done (0 vulnerabilities)                                   |
+| 12  | Fix CI pipeline, verify release.yml                                 | Done                                                       |
 
 Current repo structure:
+
 ```text
 agentic-lib/
 ├── src/                              # ALL DISTRIBUTED PRODUCTION CODE
@@ -67,7 +68,7 @@ agentic-lib/
 ## User Assertions
 
 - Get all moving parts working before tightening verification or expanding demos
-- This plan touches all 3 repos and takes priority over other PLAN_*.md files
+- This plan touches all 3 repos and takes priority over other PLAN\_\*.md files
 - PLAN_VERIFICATION.md, PLAN_LAUNCH.md, PLAN_DEMO_REPOS.md remain but are deferred
 - Numbered version tags (not `@main`) for workflow references
 - Publication is a deliberate choice (workflow dispatch), not automatic on every merge
@@ -107,12 +108,14 @@ The action defaults to model `claude-sonnet-4-5`. Whether this model name is val
 ### Goal 1: Website presents live content from repository0
 
 **xn--intenton-z2a.com** shows:
+
 - The ongoing intentïon log from repository0 (`intentïon.md`)
 - The discussions thread from repository0
 
 There should be **one canonical discussions thread** (the General thread) in repository0. Clear out stale/duplicate threads so there is a single clean thread. It should be possible to **comment from xn--intenton-z2a.com** into that discussions thread and have the bot in repository0 answer.
 
 **Deliverables:**
+
 - [ ] Consolidate to 1 General discussion thread in repository0 (close/archive others)
 - [ ] Website fetches and renders intentïon.md content from repository0
 - [ ] Website fetches and renders discussion comments from the single thread
@@ -122,11 +125,13 @@ There should be **one canonical discussions thread** (the General thread) in rep
 ### Goal 2: repository0 is a multi-style template
 
 repository0 is a repository template that can spawn new repositories in one of 3 styles:
+
 - **library** — a publishable npm package evolved from a MISSION.md
 - **website** — a deployable site evolved from a MISSION.md
 - **demo** (default) — the repository0 default state where only a single JS source file and test are mutated
 
 **Deliverables:**
+
 - [ ] Seed files for each style (library, website, demo) in `.github/agentic-lib/seeds/`
 - [ ] Style selection mechanism (MISSION.md convention or config flag)
 - [ ] Each style has appropriate: package.json, test setup, CI workflows, deploy target
@@ -135,12 +140,14 @@ repository0 is a repository template that can spawn new repositories in one of 3
 ### Goal 3: repository0 is reduced to coarse-grained adaptors
 
 As much as possible, repository0 workflows are **thin adaptors** that delegate to:
+
 - Standard `gh` tools (including Copilot SDK and `github-script`)
 - Libraries/workflows exposed by agentic-lib
 
 The pattern: `delegateMassiveWork(lots, of, parameters)` — no/minimal control flow, just what cannot be delegated. The intelligence lives in agentic-lib, not in repository0.
 
 **Deliverables:**
+
 - [ ] Audit repository0 workflows — identify inline logic that should move to agentic-lib
 - [ ] Extract shared logic into agentic-lib reusable workflows or actions
 - [ ] repository0 workflows become thin callers with parameter pass-through
@@ -149,10 +156,12 @@ The pattern: `delegateMassiveWork(lots, of, parameters)` — no/minimal control 
 ### Goal 4: agentic-lib exposes tools via unauthenticated npm package
 
 agentic-lib exposes useful tools so that repository0 (or its templated descendants) can:
+
 - `import` from `@xn-intenton-z2a/agentic-lib/some-module` via the published npm package
 - The imported tools can be **aware of the caller's GitHub auth status** so they can interact with GitHub resources on that user's behalf (token passed at call time, not baked in)
 
 **Deliverables:**
+
 - [ ] Define the public API surface: what modules does agentic-lib export?
 - [ ] Package exports configured in package.json (`exports` field)
 - [ ] Tools accept a `githubToken` parameter for authenticated operations
@@ -164,6 +173,7 @@ agentic-lib exposes useful tools so that repository0 (or its templated descendan
 All code evolution logic and transitions can be tested inside the agentic-lib repository using fast, traditional test mechanisms (vitest). This means abstracting logic out of GitHub Actions so it can be unit-tested without running workflows.
 
 **Deliverables:**
+
 - [x] Extract shared SDK lifecycle into `copilot.js` (`runCopilotTask`, `readOptionalFile`, `scanDirectory`, `formatPathsSection`)
 - [x] Unit tests for shared utilities (11 tests in `copilot.test.js`)
 - [x] CI runs the full test suite on every push (307 tests, all passing)
@@ -180,6 +190,7 @@ All code evolution logic and transitions can be tested inside the agentic-lib re
 A clean mechanism to publish updated and tested workflows from agentic-lib to repository0 and named descendants.
 
 **Deliverables:**
+
 - [ ] Tag-based versioning: `publish-packages` workflow dispatch creates a git tag + npm publish
 - [ ] repository0 pins to exact tag (e.g. `@7.0.0`) — no `@main` references
 - [x] Script to distribute and verify workflows to consumer repos (`scripts/distribute.js`)
@@ -192,6 +203,7 @@ A clean mechanism to publish updated and tested workflows from agentic-lib to re
 A test suite in repository0 that confirms the workflows are working and generates demo output as evidence.
 
 **Deliverables:**
+
 - [ ] Workflow smoke tests: dispatch key workflows and verify they complete
 - [ ] Demo output generation: each test run produces an artifact (log, diff, or screenshot)
 - [ ] Test results surfaced in CI (check annotations or summary)
@@ -202,6 +214,7 @@ A test suite in repository0 that confirms the workflows are working and generate
 The discussions bot logic in agentic-lib should have its own library code and test suite, independent of the GitHub Actions wrapper.
 
 **Deliverables:**
+
 - [x] Unit tests for discussions handler (8 tests covering URL parsing, GraphQL, actions, edge cases)
 - [x] Mock GitHub GraphQL responses for test isolation (via vi.mock + fixtures)
 - [ ] Extract discussions bot logic from `tasks/discussions.js` into a testable library
@@ -212,6 +225,7 @@ The discussions bot logic in agentic-lib should have its own library code and te
 Tests in repository0 that verify the discussions bot is wired up to the discussions thread and can manipulate code.
 
 **Deliverables:**
+
 - [ ] Integration test: post a comment → bot responds → verify response
 - [ ] Integration test: request a feature → bot creates feature file → verify file exists
 - [ ] Integration test: bot-created feature → evolve workflow picks it up → code changes
@@ -222,6 +236,7 @@ Tests in repository0 that verify the discussions bot is wired up to the discussi
 Behaviour tests in xn--intenton-z2a.com that test the full feature set of the deployed website. Multiple Playwright tests can run concurrently in a workflow.
 
 **Deliverables:**
+
 - [ ] Playwright test suite covering: index page, showcase page, submission form, navigation
 - [ ] Tests run against the deployed website URL (not local)
 - [ ] Concurrent execution in CI workflow (Playwright sharding)
@@ -240,6 +255,7 @@ Behaviour tests in xn--intenton-z2a.com that test the full feature set of the de
 **Status: Complete** (Node 24 uplift done; SDK runtime re-test pending CI run)
 
 **Work done:**
+
 - [x] All `node-version` bumped from 22 → 24 across all workflows, seeds, CI, and release
 - [x] `action.yml` updated from `node20` → `node24`
 - [x] All `package.json` files updated: `engines.node >= 24.0.0`
@@ -254,6 +270,7 @@ Behaviour tests in xn--intenton-z2a.com that test the full feature set of the de
 4. **Risk #13 (Model availability):** NOT yet tested — needs real workflow run after Node 24 uplift.
 
 **Verification gate:**
+
 - [x] All `node-version` references are 24 (verified: `grep -r 'node-version.*22' src/ .github/` returns nothing)
 - [x] No `node20` references remain (verified: `grep -r 'node20' src/` returns nothing)
 - [x] `npm test` passes on Node 24 locally
@@ -272,18 +289,19 @@ Behaviour tests in xn--intenton-z2a.com that test the full feature set of the de
 
 A systematic file-by-file review of `src/` delivered 8 steps of technical debt reduction:
 
-| Step | What | Impact |
-|------|------|--------|
-| 1. Dead code removal | Maven/CDK/Java jobs, AWS env vars, CHATGPT_API_SECRET_KEY, Docker blocks | -219 lines |
-| 2. Dependency upgrades | @actions/core 3.x, @actions/github 9.x, vitest 4.x, root devDeps | Quality |
-| 3. Seed file fixes | sandbox/ → src/lib/, engines >=22, stripped heavy deps, version reset | Correctness |
-| 4. Config-driven paths | Replaced hardcoded sandbox/ writable-paths with yq config reads | Correctness |
-| 5. Shared utilities | `copilot.js`: runCopilotTask, readOptionalFile, scanDirectory, formatPathsSection | -318 lines, +11 tests |
-| 6. Composite actions | `setup-npmrc`, `commit-if-changed` — used by 8 workflows | DRY |
-| 7. ci-automerge cleanup | Removed 7 echo-event jobs, unused env, commented triggers | -62 lines (618→550) |
-| 8. Orphaned prompts | Removed `agent-maintain-sources.md` (disabled in config) | -22 lines |
+| Step                    | What                                                                              | Impact                |
+| ----------------------- | --------------------------------------------------------------------------------- | --------------------- |
+| 1. Dead code removal    | Maven/CDK/Java jobs, AWS env vars, CHATGPT_API_SECRET_KEY, Docker blocks          | -219 lines            |
+| 2. Dependency upgrades  | @actions/core 3.x, @actions/github 9.x, vitest 4.x, root devDeps                  | Quality               |
+| 3. Seed file fixes      | sandbox/ → src/lib/, engines >=22, stripped heavy deps, version reset             | Correctness           |
+| 4. Config-driven paths  | Replaced hardcoded sandbox/ writable-paths with yq config reads                   | Correctness           |
+| 5. Shared utilities     | `copilot.js`: runCopilotTask, readOptionalFile, scanDirectory, formatPathsSection | -318 lines, +11 tests |
+| 6. Composite actions    | `setup-npmrc`, `commit-if-changed` — used by 8 workflows                          | DRY                   |
+| 7. ci-automerge cleanup | Removed 7 echo-event jobs, unused env, commented triggers                         | -62 lines (618→550)   |
+| 8. Orphaned prompts     | Removed `agent-maintain-sources.md` (disabled in config)                          | -22 lines             |
 
 **Post-uplift metrics:**
+
 - Workflows: 12 files, ~2,100 lines (was 14 files, ~2,800 lines)
 - Task handlers: 845 lines (was 1,163)
 - Dependencies: all on latest major except ESLint 10 (deferred — eslint-config-google compatibility)
@@ -298,6 +316,7 @@ A systematic file-by-file review of `src/` delivered 8 steps of technical debt r
 **Status: Deep coverage complete** — 307 tests passing across 22 files.
 
 **Done:**
+
 - [x] Root `vitest.config.js` with `tests/**/*.test.js` pattern
 - [x] Root `package.json` test script runs `vitest --run` (no more `npm test --prefix`)
 - [x] Moved 5 existing tests from `src/actions/agentic-step/tests/` → `tests/actions/agentic-step/`
@@ -316,47 +335,49 @@ A systematic file-by-file review of `src/` delivered 8 steps of technical debt r
 
 **Test method table:**
 
-| Test file | Tests | What it validates |
-|-----------|-------|-------------------|
-| `config-loader.test.js` | 11 | YAML config loading, writable paths, defaults, overrides |
-| `copilot.test.js` | 11 | readOptionalFile, scanDirectory, formatPathsSection |
-| `logging.test.js` | 13 | Activity log creation/append, safety check output |
-| `safety.test.js` | 12 | Path writability, issue state, WIP limits, attempt limits |
-| `tools.test.js` | 10 | Agent tools: read/write/list files, run commands |
-| `index.test.js` | 4 | TASKS map: 8 entries, correct names, async functions |
-| `resolve-issue.test.js` | 9 | Missing input, closed issue, attempt/WIP limits, happy path |
-| `fix-code.test.js` | 5 | Missing input, no failures, failure details, happy path |
-| `evolve.test.js` | 6 | No mission, features/source in prompt, TDD mode, client cleanup |
-| `maintain-features.test.js` | 4 | Mission/features/library reads, closed issues, happy path |
-| `maintain-library.test.js` | 4 | Empty sources, whitespace, library docs, happy path |
-| `enhance-issue.test.js` | 5 | Missing input, resolved, ready label, update/label/comment |
-| `review-issue.test.js` | 5 | Auto-select oldest, no issues, closed, RESOLVED/OPEN verdicts |
-| `discussions.test.js` | 8 | Missing URL, parsing, GraphQL, actions, graceful degradation |
-| `workflows.test.js` | 73 | 12 workflows: valid YAML, name/on/jobs, ubuntu-latest, node 24 |
-| `scripts.test.js` | 10 | 2 JS syntax checks, 5 shell script existence |
-| `agents.test.js` | 20 | Config YAML keys, 7 prompts non-empty |
-| `seeds.test.js` | 14 | zero-package.json fields, engines >=24, seed YAML validity |
-| `fixtures.test.js` | 54 | LLM response structure, parsing patterns, golden prompts |
-| `packaging.test.js` | 15 | Package fields, npm pack contents, no secrets/dev files |
-| `distribute.test.js` | 5 | Manifest generation, compatibility check, dry-run, write |
-| `consumer-compat.test.js` | 3 | workflow_call consistency, no @main refs, cross-repo check |
+| Test file                   | Tests | What it validates                                               |
+| --------------------------- | ----- | --------------------------------------------------------------- |
+| `config-loader.test.js`     | 11    | YAML config loading, writable paths, defaults, overrides        |
+| `copilot.test.js`           | 11    | readOptionalFile, scanDirectory, formatPathsSection             |
+| `logging.test.js`           | 13    | Activity log creation/append, safety check output               |
+| `safety.test.js`            | 12    | Path writability, issue state, WIP limits, attempt limits       |
+| `tools.test.js`             | 10    | Agent tools: read/write/list files, run commands                |
+| `index.test.js`             | 4     | TASKS map: 8 entries, correct names, async functions            |
+| `resolve-issue.test.js`     | 9     | Missing input, closed issue, attempt/WIP limits, happy path     |
+| `fix-code.test.js`          | 5     | Missing input, no failures, failure details, happy path         |
+| `evolve.test.js`            | 6     | No mission, features/source in prompt, TDD mode, client cleanup |
+| `maintain-features.test.js` | 4     | Mission/features/library reads, closed issues, happy path       |
+| `maintain-library.test.js`  | 4     | Empty sources, whitespace, library docs, happy path             |
+| `enhance-issue.test.js`     | 5     | Missing input, resolved, ready label, update/label/comment      |
+| `review-issue.test.js`      | 5     | Auto-select oldest, no issues, closed, RESOLVED/OPEN verdicts   |
+| `discussions.test.js`       | 8     | Missing URL, parsing, GraphQL, actions, graceful degradation    |
+| `workflows.test.js`         | 73    | 12 workflows: valid YAML, name/on/jobs, ubuntu-latest, node 24  |
+| `scripts.test.js`           | 10    | 2 JS syntax checks, 5 shell script existence                    |
+| `agents.test.js`            | 20    | Config YAML keys, 7 prompts non-empty                           |
+| `seeds.test.js`             | 14    | zero-package.json fields, engines >=24, seed YAML validity      |
+| `fixtures.test.js`          | 54    | LLM response structure, parsing patterns, golden prompts        |
+| `packaging.test.js`         | 15    | Package fields, npm pack contents, no secrets/dev files         |
+| `distribute.test.js`        | 5     | Manifest generation, compatibility check, dry-run, write        |
+| `consumer-compat.test.js`   | 3     | workflow_call consistency, no @main refs, cross-repo check      |
 
 **CI pipeline:**
 
-| Job | Command | Purpose |
-|-----|---------|---------|
-| `test` | `npm test` | Full vitest suite (307 tests) |
-| `lint` | `npm run linting` | ESLint |
-| `lint-workflows` | `npm run lint:workflows` | Workflow YAML validation (16 files) |
-| `security` | `npm run security` | npm audit (0 vulnerabilities) |
-| `smoke` | `npm run test:smoke` | Connectivity smoke test (continue-on-error) |
+| Job              | Command                  | Purpose                                     |
+| ---------------- | ------------------------ | ------------------------------------------- |
+| `test`           | `npm test`               | Full vitest suite (307 tests)               |
+| `lint`           | `npm run linting`        | ESLint                                      |
+| `lint-workflows` | `npm run lint:workflows` | Workflow YAML validation (16 files)         |
+| `security`       | `npm run security`       | npm audit (0 vulnerabilities)               |
+| `smoke`          | `npm run test:smoke`     | Connectivity smoke test (continue-on-error) |
 
 **Remaining:**
+
 - [ ] Extract discussions bot logic from `tasks/discussions.js` into testable library
 - [ ] Unit tests for discussions library: parse, respond, action-directive generation
 - [ ] Test coverage reporting in CI
 
 **Verification gate:**
+
 - [x] `npm test` runs all tests and passes (307 tests)
 - [x] Test tree mirrors `src/` structure
 - [x] Each task handler has deep unit tests with mocked dependencies
@@ -376,6 +397,7 @@ A systematic file-by-file review of `src/` delivered 8 steps of technical debt r
 **Status: Not started**
 
 **Work:**
+
 - Define `exports` field in agentic-lib `package.json` exposing library modules
 - All exported functions accept `githubToken` as a parameter (no ambient auth)
 - Implement the release workflow: `publish-packages` creates git tag + npm publish on manual dispatch
@@ -384,6 +406,7 @@ A systematic file-by-file review of `src/` delivered 8 steps of technical debt r
 - Create a version-bump script that updates all `@x.y.z` refs in a consumer repo
 
 **Verification gate:**
+
 - [ ] `npm install @xn-intenton-z2a/agentic-lib@7.0.0` succeeds
 - [ ] `import { ... } from '@xn-intenton-z2a/agentic-lib/discussions'` resolves
 - [ ] repository0 workflows reference `@7.0.0` (no `@6.10.2` or `@main` refs remain)
@@ -398,12 +421,14 @@ A systematic file-by-file review of `src/` delivered 8 steps of technical debt r
 **Status: Not started**
 
 **Work:**
+
 - Audit each repository0 workflow and move inline logic to agentic-lib
 - repository0 workflows become thin callers: just `uses:` and `with:` blocks
 - Build workflow smoke tests in repository0 that dispatch workflows via `gh workflow run` and verify completion
 - Each smoke test produces a demo artifact (log or diff)
 
 **Verification gate:**
+
 - [ ] Every repository0 workflow is <50 lines (excluding comments/headers)
 - [ ] Smoke tests dispatch at least: evolve, CI test, discussions bot
 - [ ] All smoke tests pass
@@ -418,12 +443,14 @@ A systematic file-by-file review of `src/` delivered 8 steps of technical debt r
 **Status: Not started**
 
 **Work:**
+
 - Create seed file sets for library, website, and demo styles
 - Style selection: config flag in `.github/agentic-lib/agents/agentic-lib.yml` or MISSION.md convention
 - Build integration tests that exercise the discussions bot end-to-end
 - Test: post comment → bot responds → feature created → evolve picks it up
 
 **Verification gate:**
+
 - [ ] Each of the 3 styles can be instantiated (seed files applied, tests pass)
 - [ ] Bot integration test: comment posted → response received within 5 minutes
 - [ ] Bot integration test: feature request → feature file created
@@ -438,6 +465,7 @@ A systematic file-by-file review of `src/` delivered 8 steps of technical debt r
 **Status: Not started**
 
 **Work:**
+
 - Consolidate repository0 discussions to 1 General thread
 - Website fetches and renders intentïon.md and discussion comments
 - Submission form posts to the discussions thread via GitHub API
@@ -445,6 +473,7 @@ A systematic file-by-file review of `src/` delivered 8 steps of technical debt r
 - Concurrent test execution in CI
 
 **Verification gate:**
+
 - [ ] Only 1 active discussion thread in repository0
 - [ ] Website renders intentïon.md content (visible on page load)
 - [ ] Website renders discussion comments (visible on page load)
@@ -465,28 +494,30 @@ After this hardening sprint, the recommended priority order is:
 
 ## Summary
 
-| Phase | Goals | Repos | Status | Key outcome |
-|-------|-------|-------|--------|-------------|
-| 0 | — | agentic-lib | **Complete** | Node 24 LTS uplift; SDK installs; CI pending |
-| Uplift | 5 | agentic-lib | **Complete** | -600+ lines, +11 tests, deps upgraded, DRY |
-| 1 | 5, 8 | agentic-lib | **Complete** | 307 tests / 22 files; deep handler tests; CI pipeline |
-| 2 | 4, 6 | agentic-lib, repo0 | Not started | npm package + v7.0.0 tagged + version pinning |
-| 3 | 3, 7 | repo0, agentic-lib | Not started | Thin workflows + smoke tests + demo output |
-| 4 | 2, 9 | repo0, agentic-lib | Not started | 3 template styles + bot integration tests |
-| 5 | 1, 10 | website, repo0 | Not started | Live content + Playwright tests + full loop |
+| Phase  | Goals | Repos              | Status       | Key outcome                                           |
+| ------ | ----- | ------------------ | ------------ | ----------------------------------------------------- |
+| 0      | —     | agentic-lib        | **Complete** | Node 24 LTS uplift; SDK installs; CI pending          |
+| Uplift | 5     | agentic-lib        | **Complete** | -600+ lines, +11 tests, deps upgraded, DRY            |
+| 1      | 5, 8  | agentic-lib        | **Complete** | 307 tests / 22 files; deep handler tests; CI pipeline |
+| 2      | 4, 6  | agentic-lib, repo0 | Not started  | npm package + v7.0.0 tagged + version pinning         |
+| 3      | 3, 7  | repo0, agentic-lib | Not started  | Thin workflows + smoke tests + demo output            |
+| 4      | 2, 9  | repo0, agentic-lib | Not started  | 3 template styles + bot integration tests             |
+| 5      | 1, 10 | website, repo0     | Not started  | Live content + Playwright tests + full loop           |
 
 ---
 
 ## Archived Plans
 
 The following plans are superseded by this document:
-- `PLAN_CODE_REDUCTION.md` — Step 1 complete (11 wfr-* files inlined). Steps 2-4 fold into Goals 3 and 5.
+
+- `PLAN_CODE_REDUCTION.md` — Step 1 complete (11 wfr-\* files inlined). Steps 2-4 fold into Goals 3 and 5.
 - `PLAN_STABILISE_AND_DEPLOY.md` — All pre-merge work complete. Runtime verification folds into Phase 0 and Goals 7 and 9.
 - `PLAN_UPLIFT.md` (archived to `_developers/_archive/`) — All 8 steps complete. Technical debt reduction, dependency upgrades, shared utilities, composite actions. Findings absorbed into this document.
 
 ## Deferred Plans
 
 These remain active but are deprioritised until the reboot phases are complete:
+
 - `PLAN_VERIFICATION.md` — Feature #26 acceptance criteria verification
 - `PLAN_LAUNCH.md` — Marketplace publishing, release tagging
 - `PLAN_DEMO_REPOS.md` — Features #28 and #29 demo repositories

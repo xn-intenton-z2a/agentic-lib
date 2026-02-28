@@ -7,6 +7,7 @@ Uplift to best practice from diy-accounting-limited. Not an MVP feature — prod
 ### Prettier + ESLint (JavaScript/TypeScript)
 
 diy-accounting-limited uses:
+
 - **Prettier** for formatting (consistent whitespace, quotes, semicolons)
 - **ESLint** for linting (code quality rules, unused vars, etc.)
 - Separate scripts: `format` (Prettier) and `lint` (ESLint)
@@ -24,6 +25,7 @@ diy-accounting-limited uses:
 ### Spotless (Java/CDK)
 
 For the Java CDK code, Spotless enforces formatting:
+
 ```xml
 <plugin>
   <groupId>com.diffplug.spotless</groupId>
@@ -39,6 +41,7 @@ For the Java CDK code, Spotless enforces formatting:
 ### Pre-commit Hooks
 
 husky + lint-staged for pre-commit formatting:
+
 ```json
 {
   "lint-staged": {
@@ -50,11 +53,11 @@ husky + lint-staged for pre-commit formatting:
 
 **Applicability to intentïon:**
 
-| Repo | Current State | Uplift |
-|------|--------------|--------|
-| agentic-lib | No formatter configured | Add Prettier + ESLint |
-| repository0 | No formatter configured | Add Prettier + ESLint (minimal — template should be lightweight) |
-| xn--intenton-z2a.com | No formatter configured | Add Prettier (JS) + Spotless (Java CDK) |
+| Repo                 | Current State           | Uplift                                                           |
+| -------------------- | ----------------------- | ---------------------------------------------------------------- |
+| agentic-lib          | No formatter configured | Add Prettier + ESLint                                            |
+| repository0          | No formatter configured | Add Prettier + ESLint (minimal — template should be lightweight) |
+| xn--intenton-z2a.com | No formatter configured | Add Prettier (JS) + Spotless (Java CDK)                          |
 
 **Note:** The CLAUDE.md rule "only run linting/formatting fixes when specifically asked" applies to Claude's behaviour, not to CI. CI should always enforce formatting.
 

@@ -13,7 +13,7 @@ on:
   workflow_dispatch:
     inputs:
       pr-number:
-        description: 'PR number to fix'
+        description: "PR number to fix"
         required: true
         type: string
 
@@ -23,7 +23,7 @@ permissions:
   checks: read
 
 env:
-  configPath: '.github/agentic-lib/agents/agentic-lib.yml'
+  configPath: ".github/agentic-lib/agents/agentic-lib.yml"
 
 jobs:
   find-failing-pr:
@@ -66,7 +66,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '24'
+          node-version: "24"
 
       - name: Checkout PR branch
         run: |
@@ -83,13 +83,13 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          task: 'fix-code'
+          task: "fix-code"
           config: ${{ env.configPath }}
-          instructions: '.github/agentic-lib/agents/agent-apply-fix.md'
+          instructions: ".github/agentic-lib/agents/agent-apply-fix.md"
           pr-number: ${{ needs.find-failing-pr.outputs.prNumber }}
-          test-command: 'npm test'
+          test-command: "npm test"
 
       - name: Commit and push fixes
         uses: ./.github/agentic-lib/actions/commit-if-changed
         with:
-          commit-message: 'agentic-step: fix failing tests'
+          commit-message: "agentic-step: fix failing tests"

@@ -20,6 +20,7 @@ Features #28 (Library Demo) and #29 (Website Demo) — create real examples that
 6. Let it evolve autonomously
 
 **Success criteria:**
+
 - Repository creates features from the mission
 - Code is generated with tests
 - Package is published to npm
@@ -35,6 +36,7 @@ Features #28 (Library Demo) and #29 (Website Demo) — create real examples that
 6. Let it evolve autonomously
 
 **Success criteria:**
+
 - Repository creates features from the mission
 - Code is generated with tests
 - Site is deployed to GitHub Pages
@@ -51,6 +53,7 @@ Define automated checks for demo repository health (feeds into PLAN_VERIFICATION
 ## Step 4: Showcase Integration
 
 Once both repos have evolved enough content:
+
 - Add them to the showcase page on xn--intenton-z2a.com
 - Link to their intentïon.md activity logs
 - Feature them in the stats dashboard

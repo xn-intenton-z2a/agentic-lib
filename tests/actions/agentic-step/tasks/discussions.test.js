@@ -1,7 +1,7 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from "vitest";
 
 // Mock @actions/core
-vi.mock('@actions/core', () => ({
+vi.mock("@actions/core", () => ({
   info: vi.fn(),
   warning: vi.fn(),
   setOutput: vi.fn(),
@@ -10,22 +10,22 @@ vi.mock('@actions/core', () => ({
 }));
 
 // Mock the copilot module
-vi.mock('../../../../src/actions/agentic-step/copilot.js', () => ({
-  runCopilotTask: vi.fn().mockResolvedValue({ content: 'Great question! [ACTION:nop]', tokensUsed: 110 }),
-  readOptionalFile: vi.fn().mockReturnValue('mock content'),
+vi.mock("../../../../src/actions/agentic-step/copilot.js", () => ({
+  runCopilotTask: vi.fn().mockResolvedValue({ content: "Great question! [ACTION:nop]", tokensUsed: 110 }),
+  readOptionalFile: vi.fn().mockReturnValue("mock content"),
   scanDirectory: vi.fn().mockReturnValue([]),
-  formatPathsSection: vi.fn().mockReturnValue('## File Paths\n- mock'),
+  formatPathsSection: vi.fn().mockReturnValue("## File Paths\n- mock"),
 }));
 
 // Mock fs
-vi.mock('fs', async (importOriginal) => {
+vi.mock("fs", async (importOriginal) => {
   const actual = await importOriginal();
   return { ...actual, existsSync: vi.fn().mockReturnValue(true) };
 });
 
-import { discussions } from '../../../../src/actions/agentic-step/tasks/discussions.js';
-import { runCopilotTask, readOptionalFile, scanDirectory } from '../../../../src/actions/agentic-step/copilot.js';
-import { existsSync } from 'fs';
+import { discussions } from "../../../../src/actions/agentic-step/tasks/discussions.js";
+import { runCopilotTask, readOptionalFile, scanDirectory } from "../../../../src/actions/agentic-step/copilot.js";
+import { existsSync } from "fs";
 
 // --- Helpers ---
 
@@ -33,7 +33,7 @@ function createMockOctokit(overrides = {}) {
   return {
     rest: {
       issues: {
-        get: vi.fn().mockResolvedValue({ data: { state: 'open', title: 'Test Issue', body: 'Test body', labels: [] } }),
+        get: vi.fn().mockResolvedValue({ data: { state: "open", title: "Test Issue", body: "Test body", labels: [] } }),
         listForRepo: vi.fn().mockResolvedValue({ data: [] }),
         listComments: vi.fn().mockResolvedValue({ data: [] }),
         update: vi.fn().mockResolvedValue({}),
@@ -41,7 +41,7 @@ function createMockOctokit(overrides = {}) {
         createComment: vi.fn().mockResolvedValue({}),
       },
       pulls: {
-        get: vi.fn().mockResolvedValue({ data: { title: 'Test PR', body: '', head: { sha: 'abc123' } } }),
+        get: vi.fn().mockResolvedValue({ data: { title: "Test PR", body: "", head: { sha: "abc123" } } }),
       },
       checks: {
         listForRef: vi.fn().mockResolvedValue({ data: { check_runs: [] } }),
@@ -54,12 +54,10 @@ function createMockOctokit(overrides = {}) {
     graphql: vi.fn().mockResolvedValue({
       repository: {
         discussion: {
-          title: 'Test Discussion',
-          body: 'Discussion body text',
+          title: "Test Discussion",
+          body: "Discussion body text",
           comments: {
-            nodes: [
-              { body: 'First comment', author: { login: 'user1' }, createdAt: '2026-01-01T00:00:00Z' },
-            ],
+            nodes: [{ body: "First comment", author: { login: "user1" }, createdAt: "2026-01-01T00:00:00Z" }],
           },
         },
       },
@@ -70,39 +68,39 @@ function createMockOctokit(overrides = {}) {
 function createMockConfig(overrides = {}) {
   return {
     paths: {
-      missionFilepath: { path: 'MISSION.md' },
-      contributingFilepath: { path: 'CONTRIBUTING.md' },
-      featuresPath: { path: 'features/', permissions: ['write'], limit: 4 },
-      targetSourcePath: { path: 'src/' },
-      targetTestsPath: { path: 'tests/' },
-      librarySourcesFilepath: { path: 'SOURCES.md' },
-      libraryDocumentsPath: { path: 'library/' },
+      missionFilepath: { path: "MISSION.md" },
+      contributingFilepath: { path: "CONTRIBUTING.md" },
+      featuresPath: { path: "features/", permissions: ["write"], limit: 4 },
+      targetSourcePath: { path: "src/" },
+      targetTestsPath: { path: "tests/" },
+      librarySourcesFilepath: { path: "SOURCES.md" },
+      libraryDocumentsPath: { path: "library/" },
     },
     attemptsPerIssue: 2,
     attemptsPerBranch: 3,
     featureDevelopmentIssuesWipLimit: 2,
     maintenanceIssuesWipLimit: 1,
-    readOnlyPaths: ['README.md'],
-    writablePaths: ['src/', 'tests/'],
+    readOnlyPaths: ["README.md"],
+    writablePaths: ["src/", "tests/"],
     tdd: false,
-    intentionBot: { intentionFilepath: 'intenti\u00F6n.md' },
+    intentionBot: { intentionFilepath: "intenti\u00F6n.md" },
     ...overrides,
   };
 }
 
 function createMockContext(overrides = {}) {
   return {
-    task: 'discussions',
+    task: "discussions",
     config: createMockConfig(),
-    instructions: '',
-    issueNumber: '',
-    prNumber: '',
+    instructions: "",
+    issueNumber: "",
+    prNumber: "",
     writablePaths: [],
-    testCommand: 'npm test',
-    discussionUrl: 'https://github.com/test-owner/test-repo/discussions/123',
-    model: 'claude-sonnet-4.5',
+    testCommand: "npm test",
+    discussionUrl: "https://github.com/test-owner/test-repo/discussions/123",
+    model: "claude-sonnet-4.5",
     octokit: createMockOctokit(),
-    repo: { owner: 'test-owner', repo: 'test-repo' },
+    repo: { owner: "test-owner", repo: "test-repo" },
     github: { runId: 12345 },
     ...overrides,
   };
@@ -110,21 +108,21 @@ function createMockContext(overrides = {}) {
 
 // --- Tests ---
 
-describe('tasks/discussions', () => {
+describe("tasks/discussions", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    runCopilotTask.mockResolvedValue({ content: 'Great question! [ACTION:nop]', tokensUsed: 110 });
-    readOptionalFile.mockReturnValue('mock content');
-    scanDirectory.mockReturnValue([{ name: 'FEAT_A.md', content: 'Feature A' }]);
+    runCopilotTask.mockResolvedValue({ content: "Great question! [ACTION:nop]", tokensUsed: 110 });
+    readOptionalFile.mockReturnValue("mock content");
+    scanDirectory.mockReturnValue([{ name: "FEAT_A.md", content: "Feature A" }]);
     existsSync.mockReturnValue(true);
   });
 
-  it('throws if discussionUrl is missing', async () => {
-    const ctx = createMockContext({ discussionUrl: '' });
-    await expect(discussions(ctx)).rejects.toThrow('discussions task requires discussion-url input');
+  it("throws if discussionUrl is missing", async () => {
+    const ctx = createMockContext({ discussionUrl: "" });
+    await expect(discussions(ctx)).rejects.toThrow("discussions task requires discussion-url input");
   });
 
-  it('parses URL to extract owner/repo/number and fetches via GraphQL', async () => {
+  it("parses URL to extract owner/repo/number and fetches via GraphQL", async () => {
     const octokit = createMockOctokit();
     const ctx = createMockContext({ octokit });
 
@@ -132,89 +130,89 @@ describe('tasks/discussions', () => {
 
     expect(octokit.graphql).toHaveBeenCalledTimes(1);
     const graphqlQuery = octokit.graphql.mock.calls[0][0];
-    expect(graphqlQuery).toContain('test-owner');
-    expect(graphqlQuery).toContain('test-repo');
-    expect(graphqlQuery).toContain('123');
+    expect(graphqlQuery).toContain("test-owner");
+    expect(graphqlQuery).toContain("test-repo");
+    expect(graphqlQuery).toContain("123");
   });
 
-  it('constructs prompt with mission, features, and discussion content', async () => {
+  it("constructs prompt with mission, features, and discussion content", async () => {
     readOptionalFile
-      .mockReturnValueOnce('Build an awesome tool') // mission
-      .mockReturnValueOnce('contributing guidelines') // contributing
-      .mockReturnValueOnce('recent activity log'); // intention file
-    scanDirectory.mockReturnValue([{ name: 'HTTP.md', content: 'HTTP feature' }]);
+      .mockReturnValueOnce("Build an awesome tool") // mission
+      .mockReturnValueOnce("contributing guidelines") // contributing
+      .mockReturnValueOnce("recent activity log"); // intention file
+    scanDirectory.mockReturnValue([{ name: "HTTP.md", content: "HTTP feature" }]);
     const ctx = createMockContext();
 
     await discussions(ctx);
 
     const callArgs = runCopilotTask.mock.calls[0][0];
-    expect(callArgs.prompt).toContain('Test Discussion');
-    expect(callArgs.prompt).toContain('Discussion body text');
-    expect(callArgs.prompt).toContain('First comment');
-    expect(callArgs.prompt).toContain('user1');
-    expect(callArgs.prompt).toContain('Build an awesome tool');
-    expect(callArgs.prompt).toContain('HTTP');
-    expect(callArgs.systemMessage).toContain('repository bot');
+    expect(callArgs.prompt).toContain("Test Discussion");
+    expect(callArgs.prompt).toContain("Discussion body text");
+    expect(callArgs.prompt).toContain("First comment");
+    expect(callArgs.prompt).toContain("user1");
+    expect(callArgs.prompt).toContain("Build an awesome tool");
+    expect(callArgs.prompt).toContain("HTTP");
+    expect(callArgs.systemMessage).toContain("repository bot");
   });
 
-  it('parses ACTION:nop from response', async () => {
-    runCopilotTask.mockResolvedValue({ content: 'Thanks for the feedback! [ACTION:nop]', tokensUsed: 50 });
+  it("parses ACTION:nop from response", async () => {
+    runCopilotTask.mockResolvedValue({ content: "Thanks for the feedback! [ACTION:nop]", tokensUsed: 50 });
     const ctx = createMockContext();
 
     const result = await discussions(ctx);
 
-    expect(result.outcome).toBe('discussion-nop');
-    expect(result.action).toBe('nop');
-    expect(result.actionArg).toBe('');
-    expect(result.replyBody).toContain('Thanks for the feedback!');
+    expect(result.outcome).toBe("discussion-nop");
+    expect(result.action).toBe("nop");
+    expect(result.actionArg).toBe("");
+    expect(result.replyBody).toContain("Thanks for the feedback!");
     expect(result.tokensUsed).toBe(50);
   });
 
-  it('parses ACTION:create-feature with argument', async () => {
+  it("parses ACTION:create-feature with argument", async () => {
     runCopilotTask.mockResolvedValue({
-      content: 'I will create a new feature for you. [ACTION:create-feature] WebSocket Support',
+      content: "I will create a new feature for you. [ACTION:create-feature] WebSocket Support",
       tokensUsed: 80,
     });
     const ctx = createMockContext();
 
     const result = await discussions(ctx);
 
-    expect(result.outcome).toBe('discussion-create-feature');
-    expect(result.action).toBe('create-feature');
-    expect(result.actionArg).toBe('WebSocket Support');
-    expect(result.replyBody).toContain('I will create a new feature');
+    expect(result.outcome).toBe("discussion-create-feature");
+    expect(result.action).toBe("create-feature");
+    expect(result.actionArg).toBe("WebSocket Support");
+    expect(result.replyBody).toContain("I will create a new feature");
   });
 
-  it('defaults to nop if no action tag found in response', async () => {
-    runCopilotTask.mockResolvedValue({ content: 'Just a plain response with no action tag', tokensUsed: 30 });
+  it("defaults to nop if no action tag found in response", async () => {
+    runCopilotTask.mockResolvedValue({ content: "Just a plain response with no action tag", tokensUsed: 30 });
     const ctx = createMockContext();
 
     const result = await discussions(ctx);
 
-    expect(result.outcome).toBe('discussion-nop');
-    expect(result.action).toBe('nop');
+    expect(result.outcome).toBe("discussion-nop");
+    expect(result.action).toBe("nop");
   });
 
-  it('handles GraphQL failure gracefully and still calls Copilot', async () => {
+  it("handles GraphQL failure gracefully and still calls Copilot", async () => {
     const octokit = createMockOctokit();
-    octokit.graphql.mockRejectedValue(new Error('GraphQL query failed'));
+    octokit.graphql.mockRejectedValue(new Error("GraphQL query failed"));
     const ctx = createMockContext({ octokit });
 
     const result = await discussions(ctx);
 
     // Should still proceed and call runCopilotTask
     expect(runCopilotTask).toHaveBeenCalled();
-    expect(result.outcome).toContain('discussion-');
+    expect(result.outcome).toContain("discussion-");
   });
 
-  it('still proceeds when discussion URL cannot be parsed', async () => {
-    const ctx = createMockContext({ discussionUrl: 'https://not-github.com/invalid/url' });
+  it("still proceeds when discussion URL cannot be parsed", async () => {
+    const ctx = createMockContext({ discussionUrl: "https://not-github.com/invalid/url" });
 
     const result = await discussions(ctx);
 
     // Should still proceed -- GraphQL should not be called since URL did not match
     expect(ctx.octokit.graphql).not.toHaveBeenCalled();
     expect(runCopilotTask).toHaveBeenCalled();
-    expect(result.outcome).toContain('discussion-');
+    expect(result.outcome).toContain("discussion-");
   });
 });

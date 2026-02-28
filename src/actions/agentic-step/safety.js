@@ -5,7 +5,7 @@
 // - Retrying failed branches/issues beyond configured limits
 // - Writing to paths outside the allowed set
 
-import { logSafetyCheck } from './logging.js';
+import { logSafetyCheck } from "./logging.js";
 
 /**
  * Check if the number of open issues with a given label is below the WIP limit.
@@ -19,13 +19,13 @@ import { logSafetyCheck } from './logging.js';
 export async function checkWipLimit(octokit, repo, label, limit) {
   const { data: issues } = await octokit.rest.issues.listForRepo({
     ...repo,
-    state: 'open',
+    state: "open",
     labels: label,
     per_page: limit + 1,
   });
   const count = issues.length;
   const allowed = count < limit;
-  logSafetyCheck('wip-limit', allowed, { label, count, limit });
+  logSafetyCheck("wip-limit", allowed, { label, count, limit });
   return { allowed, count };
 }
 
@@ -64,7 +64,7 @@ export async function countBranchAttempts(octokit, repo, issueNumber, branchPref
 export async function checkAttemptLimit(octokit, repo, issueNumber, branchPrefix, maxAttempts) {
   const attempts = await countBranchAttempts(octokit, repo, issueNumber, branchPrefix);
   const allowed = attempts < maxAttempts;
-  logSafetyCheck('attempt-limit', allowed, { issueNumber, attempts, maxAttempts });
+  logSafetyCheck("attempt-limit", allowed, { issueNumber, attempts, maxAttempts });
   return { allowed, attempts };
 }
 
@@ -76,13 +76,13 @@ export async function checkAttemptLimit(octokit, repo, issueNumber, branchPrefix
  * @returns {boolean} True if the path is allowed
  */
 export function isPathWritable(targetPath, writablePaths) {
-  const writable = writablePaths.some(allowed => {
+  const writable = writablePaths.some((allowed) => {
     if (targetPath === allowed) return true;
-    if (allowed.endsWith('/') && targetPath.startsWith(allowed)) return true;
-    if (targetPath.startsWith(allowed + '/')) return true;
+    if (allowed.endsWith("/") && targetPath.startsWith(allowed)) return true;
+    if (targetPath.startsWith(allowed + "/")) return true;
     return false;
   });
-  logSafetyCheck('path-writable', writable, { targetPath });
+  logSafetyCheck("path-writable", writable, { targetPath });
   return writable;
 }
 
@@ -99,7 +99,7 @@ export async function isIssueResolved(octokit, repo, issueNumber) {
     ...repo,
     issue_number: Number(issueNumber),
   });
-  const resolved = issue.state === 'closed';
-  logSafetyCheck('issue-resolved', !resolved, { issueNumber, state: issue.state });
+  const resolved = issue.state === "closed";
+  logSafetyCheck("issue-resolved", !resolved, { issueNumber, state: issue.state });
   return resolved;
 }

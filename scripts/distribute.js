@@ -108,7 +108,7 @@ export function checkCompatibility(manifest, targetPath) {
   return report;
 }
 
-const USES_REF_RE = /uses:\s+xn-intenton-z2a\/agentic-lib\/[^@]+@\S+/g; // eslint-disable-line sonarjs/slow-regex
+const USES_REF_RE = /uses:\s+xn-intenton-z2a\/agentic-lib\/[^@]+@\S+/g;
 
 function rewriteVersionRefs(content, version) {
   return content.replace(USES_REF_RE, (match) => match.replace(/@\S+$/, `@v${version}`)); // eslint-disable-line sonarjs/slow-regex

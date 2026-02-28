@@ -8,16 +8,16 @@ concurrency: agentic-lib-main
 
 on:
   schedule:
-    - cron: '47 8 */3 * *' # schedule-1: every 3 days at 08:47 UTC
+    - cron: "47 8 */3 * *" # schedule-1: every 3 days at 08:47 UTC
     #- cron: '47 */8 * * *' # schedule-2
     #- cron: '47 * * * *' # schedule-3
     #- cron: '47,17 * * * *' # schedule-4
   workflow_dispatch:
     inputs:
       step:
-        description: 'Which review step to run'
+        description: "Which review step to run"
         required: false
-        default: 'all'
+        default: "all"
         type: choice
         options:
           - all
@@ -29,7 +29,7 @@ permissions:
   issues: write
 
 env:
-  configPath: '.github/agentic-lib/agents/agentic-lib.yml'
+  configPath: ".github/agentic-lib/agents/agentic-lib.yml"
 
 jobs:
   review-issues:
@@ -40,7 +40,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '24'
+          node-version: "24"
 
       - name: Install agentic-step dependencies
         working-directory: .github/agentic-lib/actions/agentic-step
@@ -51,9 +51,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          task: 'review-issue'
+          task: "review-issue"
           config: ${{ env.configPath }}
-          instructions: '.github/agentic-lib/agents/agent-review-issue.md'
+          instructions: ".github/agentic-lib/agents/agent-review-issue.md"
 
   enhance-issues:
     if: inputs.step == 'all' || inputs.step == 'enhance' || github.event_name == 'schedule'
@@ -63,7 +63,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '24'
+          node-version: "24"
 
       - name: Find issue to enhance
         id: find-issue
@@ -92,7 +92,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          task: 'enhance-issue'
+          task: "enhance-issue"
           config: ${{ env.configPath }}
-          instructions: '.github/agentic-lib/agents/agent-ready-issue.md'
+          instructions: ".github/agentic-lib/agents/agent-ready-issue.md"
           issue-number: ${{ steps.find-issue.outputs.issueNumber }}

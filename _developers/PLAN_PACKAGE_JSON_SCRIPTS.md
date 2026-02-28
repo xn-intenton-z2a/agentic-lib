@@ -60,11 +60,11 @@ Different test suites for different contexts — unit tests run fast locally, in
 
 **Applicability to intentïon:**
 
-| Repo | Current State | Uplift |
-|------|--------------|--------|
-| agentic-lib | Basic `test` and `build` scripts | Add `update-to-minor`, `update-to-greatest`, `everything`, `test:unit`, `test:integration` |
-| repository0 | Minimal `test` script | Add `update-to-*` scripts, `everything` |
-| xn--intenton-z2a.com | CDK scripts exist but are basic | Add `synth:ci`, `synth:prod`, `diff`, `update-to-*`, `everything` |
+| Repo                 | Current State                    | Uplift                                                                                     |
+| -------------------- | -------------------------------- | ------------------------------------------------------------------------------------------ |
+| agentic-lib          | Basic `test` and `build` scripts | Add `update-to-minor`, `update-to-greatest`, `everything`, `test:unit`, `test:integration` |
+| repository0          | Minimal `test` script            | Add `update-to-*` scripts, `everything`                                                    |
+| xn--intenton-z2a.com | CDK scripts exist but are basic  | Add `synth:ci`, `synth:prod`, `diff`, `update-to-*`, `everything`                          |
 
 ## Steps
 

@@ -3,20 +3,20 @@
 # Composite action: Commit and push if there are staged changes.
 # Replaces the 8-line block repeated across 6 agent workflows.
 
-name: 'Commit if changed'
-description: 'Stage all changes, commit if any exist, and push'
+name: "Commit if changed"
+description: "Stage all changes, commit if any exist, and push"
 
 inputs:
   commit-message:
-    description: 'Commit message'
+    description: "Commit message"
     required: true
   push-ref:
-    description: 'Branch ref to push to (default: current ref_name)'
+    description: "Branch ref to push to (default: current ref_name)"
     required: false
-    default: ''
+    default: ""
 
 runs:
-  using: 'composite'
+  using: "composite"
   steps:
     - name: Commit and push if changed
       shell: bash

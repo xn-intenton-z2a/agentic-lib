@@ -7,10 +7,12 @@ Uplift to best practice from diy-accounting-limited. Not an MVP feature — prod
 ### Branch-Based Environment Selection
 
 diy-accounting-limited uses a simple, deterministic rule:
+
 - `main` branch → `prod` environment
 - Everything else → `ci` environment
 
 This is computed in the `get-names` composite action and used everywhere:
+
 - GitHub Actions environment protection rules (prod requires approval)
 - AWS resource naming (`ci-*` vs `prod-*`)
 - Domain naming (`ci-submit.diyaccounting.co.uk` vs `submit.diyaccounting.co.uk`)
@@ -33,6 +35,7 @@ jobs:
 ### SSM Parameter Store for Last-Known-Good
 
 After a successful deployment, the deployment name is written to SSM Parameter Store:
+
 ```
 /submit/ci/last-known-good-deployment → ci-feature-branch-abc1234
 /submit/prod/last-known-good-deployment → prod-abc1234
@@ -41,6 +44,7 @@ After a successful deployment, the deployment name is written to SSM Parameter S
 This enables rollback and provides an audit trail of what's deployed.
 
 **Applicability to intentïon:**
+
 - Currently no CI/prod distinction — everything runs on main or refresh
 - For production readiness, repository0 experiments should have CI and prod environments
 - The stats pipeline could use environment-scoped S3 paths

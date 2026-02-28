@@ -17,23 +17,22 @@ on:
         description: 'Was this workflow called by another workflow?, e.g. "true"'
         type: string
         required: false
-        default: 'true'
+        default: "true"
     secrets:
       PERSONAL_ACCESS_TOKEN:
         required: false
   schedule:
-    - cron: '53 4 */7 * *' # schedule-1
+    - cron: "53 4 */7 * *" # schedule-1
     #- cron: '53 */4 * * *' # schedule-2
     #- cron: '23,53 * * * *' # schedule-3
     #- cron: '23,53 * * * *' # schedule-4
 
 env:
-  pullRequestLabel: 'automerge'
-  branchPrefix: 'agentic-lib-issue-'
-  copilotBranchPrefix: 'copilot/'
+  pullRequestLabel: "automerge"
+  branchPrefix: "agentic-lib-issue-"
+  copilotBranchPrefix: "copilot/"
 
 jobs:
-
   label:
     runs-on: ubuntu-latest
     steps:
@@ -459,8 +458,8 @@ jobs:
     if: ${{ !cancelled() && needs.merge-check.outputs.shouldSkipMerge != 'true' && needs.merge-check.outputs.pullNumber != '' }}
     runs-on: ubuntu-latest
     env:
-      gitUserEmail: 'action@github.com'
-      gitUserName: 'GitHub Actions[bot]'
+      gitUserEmail: "action@github.com"
+      gitUserName: "GitHub Actions[bot]"
     steps:
       - uses: actions/checkout@v4
         with:
@@ -506,11 +505,11 @@ jobs:
             const intentionFilepath = process.env.intentionFilepath;
 
             const activity = `When attempting to merge PR #${pullNumber} for branch name "${branchName}" to resolve issue number "${issueNumber}" the decision to skip merge was "${shouldSkipMerge}":
-            
+
             then the PR was merged "${prMerged}"
-            
+
             with message: "${message}"
-            
+
             with outcome "${outcome}".`;
 
             core.info(`Activity: ${activity}`);
@@ -525,9 +524,9 @@ jobs:
             }
             const isoDate = new Date().toISOString();
             const activityLogContent = `\n## Merge PR activity at ${isoDate}
-            
+
             ${activity}
-            
+
             ---
             `;
             if (fs.existsSync(intentionFilepath)) {

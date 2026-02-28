@@ -7,6 +7,7 @@ Uplift to best practice from diy-accounting-limited. Not an MVP feature — prod
 ### S3 Upload from Deployment
 
 diy-accounting-limited uploads static assets to S3 as part of the CDK deployment:
+
 - CDK stack creates the S3 bucket with CloudFront distribution
 - Post-deploy step syncs built assets to S3 (`aws s3 sync`)
 - CloudFront invalidation triggered after sync
@@ -15,6 +16,7 @@ diy-accounting-limited uploads static assets to S3 as part of the CDK deployment
 ### Test Reports Published to Deployed Site
 
 After tests run, HTML test reports are uploaded to the deployment's S3 bucket:
+
 ```
 {base-domain}/test-reports/unit/index.html
 {base-domain}/test-reports/integration/index.html
@@ -26,6 +28,7 @@ This means every deployment carries its own test evidence — reviewers can chec
 ### Diagram Generation
 
 Package.json includes scripts to generate architecture diagrams from CDK:
+
 ```json
 {
   "diagram": "cdk-dia --stacks '*' --output docs/architecture.png"

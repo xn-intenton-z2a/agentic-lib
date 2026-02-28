@@ -10,7 +10,7 @@ run-name: "ci formating [${{ github.ref_name }}]"
 on:
   workflow_dispatch:
   schedule:
-    - cron: '24 3 */28 * *' # schedule-1
+    - cron: "24 3 */28 * *" # schedule-1
     #- cron: '24 3 * * *' # schedule-2
     #- cron: '24 3 * * *' # schedule-3
     #- cron: '24 3 * * *' # schedule-4
@@ -19,14 +19,13 @@ env:
   npmAuthOrganisation: ${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}
 
 jobs:
-
   check-branch:
     runs-on: ubuntu-latest
     permissions:
       contents: read
       id-token: write
     env:
-      branchPrefix: 'agentic-lib-'
+      branchPrefix: "agentic-lib-"
     steps:
       - uses: actions/checkout@v4
         with:
@@ -52,12 +51,12 @@ jobs:
       id-token: write
     runs-on: ubuntu-latest
     env:
-      testScript: 'npm test'
-      branch: 'agentic-lib-formatting'
+      testScript: "npm test"
+      branch: "agentic-lib-formatting"
       npmAuthOrganisation: ${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}
-      gitUserEmail: 'action@github.com'
-      gitUserName: 'GitHub Actions[bot]'
-      gitCommitMessage: 'chore: formatting fixes'
+      gitUserEmail: "action@github.com"
+      gitUserName: "GitHub Actions[bot]"
+      gitCommitMessage: "chore: formatting fixes"
     steps:
       - uses: actions/checkout@v4
         with:
@@ -67,7 +66,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 24
-          cache: 'npm'
+          cache: "npm"
 
       - name: Load config
         id: config
@@ -160,10 +159,10 @@ jobs:
       id-token: write
     runs-on: ubuntu-latest
     env:
-      branch: 'agentic-lib-formatting'
-      baseBranch: 'main'
-      gitCommitMessage: 'chore: formatting fixes'
-      label: 'automerge'
+      branch: "agentic-lib-formatting"
+      baseBranch: "main"
+      gitCommitMessage: "chore: formatting fixes"
+      label: "automerge"
     steps:
       - uses: actions/checkout@v4
         with:
@@ -233,6 +232,6 @@ jobs:
       issues: write
       id-token: write
       pages: write
-    uses: './.github/workflows/ci-automerge.yml'
+    uses: "./.github/workflows/ci-automerge.yml"
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}

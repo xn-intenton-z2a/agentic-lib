@@ -5,7 +5,7 @@
 # If templates break, this still works.
 
 name: ci
-run-name: 'ci [${{ github.ref_name }}]'
+run-name: "ci [${{ github.ref_name }}]"
 
 on:
   push:
@@ -13,12 +13,12 @@ on:
       - main
       - reboot
     paths:
-      - '**/*.js'
-      - '**/*.json'
-      - '**/*.yml'
-      - '**/*.sh'
-      - '!_developers/**'
-      - '!exports/**'
+      - "**/*.js"
+      - "**/*.json"
+      - "**/*.yml"
+      - "**/*.sh"
+      - "!_developers/**"
+      - "!exports/**"
   pull_request:
     branches:
       - main
@@ -26,7 +26,7 @@ on:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-  npmAuthOrganisation: '@xn-intenton-z2a'
+  npmAuthOrganisation: "@xn-intenton-z2a"
 
 jobs:
   test:
@@ -40,7 +40,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 24
-          cache: 'npm'
+          cache: "npm"
 
       - name: Set up ~/.npmrc
         shell: bash
@@ -68,7 +68,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 24
-          cache: 'npm'
+          cache: "npm"
 
       - name: Set up ~/.npmrc
         shell: bash
@@ -92,7 +92,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 24
-          cache: 'npm'
+          cache: "npm"
 
       - name: Set up ~/.npmrc
         shell: bash
@@ -116,7 +116,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 24
-          cache: 'npm'
+          cache: "npm"
 
       - name: Set up ~/.npmrc
         shell: bash
@@ -141,7 +141,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 24
-          cache: 'npm'
+          cache: "npm"
 
       - name: Set up ~/.npmrc
         shell: bash
