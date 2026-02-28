@@ -105,9 +105,9 @@ Getting from the `refresh` branch to a working system on `main` — a single-fil
 
 ## Steps to Get a Single-File Experiment Looping
 
-### Step 1: Merge agentic-lib to main — READY
+### Step 1: Merge agentic-lib to main — PR #1762 OPEN
 
-All code changes committed and pushed. Tests pass locally (40 tests across 3 suites). PR can be opened.
+All code changes committed and pushed. Tests pass locally (49 tests across 4 suites). PR #1762 open. Copilot reviewed (PR #1763) — SDK integration validated, version pinned to 0.1.29.
 
 ### Step 2: Resolve the Copilot SDK question — DONE
 
@@ -132,9 +132,9 @@ Published to npm as `@xn-intenton-z2a/repository0`. Includes a CLI that demonstr
 - `intentïon.md` created
 - Seed MISSION updated
 
-### Step 6: Merge repository0 to main — READY (after agentic-lib)
+### Step 6: Merge repository0 to main — PR #2402 OPEN (after agentic-lib)
 
-All changes committed and pushed. Tests pass. PR can be opened after agentic-lib is merged.
+All changes committed and pushed. Tests, formatting, and linting all pass. PR #2402 open.
 
 ### Step 7: Trigger the loop — PENDING
 
@@ -155,9 +155,9 @@ Watch for the full cycle:
 
 ## Steps to Get the Discussions Bot Taking Instruction
 
-### Step 1: Verify Discussions are enabled — NEEDS MANUAL CHECK
+### Step 1: Verify Discussions are enabled — DONE
 
-On GitHub: repository0 → Settings → Features → Discussions ✓
+Verified: Discussions enabled on both repository0 and agentic-lib. Discussion #2401 exists and the ChatGPT bot responded.
 
 ### Step 2: Verify the bot workflow — DONE (code review)
 
@@ -199,12 +199,21 @@ This establishes an agent-to-agent communication channel where:
 ## Merge Strategy
 
 ```
-1. agentic-lib: PR refresh → main (merge first — repository0 depends on it)
-2. repository0: PR refresh → main (merge second)
-3. xn--intenton-z2a.com: PR refresh → main (independent, merge anytime)
+1. agentic-lib: PR #1762 refresh → main (merge first — repository0 depends on it)
+2. repository0: PR #2402 refresh → main (merge second)
+3. xn--intenton-z2a.com: PR #42 refresh → main (independent, merge anytime)
 ```
 
 **Do NOT merge repository0 before agentic-lib** — repository0's workflows do a sparse checkout of agentic-lib's main branch to get the agentic-step action.
+
+### Website (xn--intenton-z2a.com) — PR #42
+
+- License changed to AGPL-3.0
+- Showcase page added (`public/showcase.html`)
+- Index page updated with submission box linking to repository0 Discussions
+- Dev files moved to `_developers/`
+- Build fix: removed `--enable-preview` from pom.xml
+- Pre-existing issue: JUnit Platform + Java 25 compatibility (affects both main and refresh)
 
 ---
 
@@ -230,6 +239,21 @@ This establishes an agent-to-agent communication channel where:
 | Assign Copilot issue #1760 | Done |
 | Run all tests (40 pass) | Done |
 | Commit and push both repos | Done |
+| Add `defineTool()` file ops (read, write, list, run) | Done — tools.js + 10 tools tests |
+| Add `onPermissionRequest: approveAll` to all sessions | Done — required by SDK |
+| Re-add `workingDirectory` to all sessions | Done — valid per SDK types |
+| Fix `discussions.js` GraphQL content fetch | Done — fetches title, body, comments |
+| Fix model name `claude-sonnet-4-5` → `4.5` | Done |
+| Pin SDK to exact `0.1.29` | Done — Copilot review recommendation |
+| Fix repository0 prettier formatting | Done — double quotes |
+| Fix website pom.xml `--enable-preview` | Done |
+| Write multi-agent citizenship guidelines | Done — in CLAUDE.md |
+| Open PR for agentic-lib (#1762) | Done |
+| Open PR for repository0 (#2402) | Done |
+| Open PR for website (#42) | Done |
+| Copilot SDK review (PR #1763) | Done — all 7 areas validated |
+| Agent coordination issue (#1765) | Open — Copilot created WIP PR #1766 |
+| Run all tests (49 pass: 46 agentic-step + 3 root) | Done |
 
 ---
 
@@ -241,7 +265,13 @@ This establishes an agent-to-agent communication channel where:
 - [x] Fresh mission, clean features, intentïon.md in place
 - [x] No broken output references in workflows
 - [x] No stale workflow_run triggers
-- [x] All tests pass locally (40 tests)
+- [x] All tests pass locally (49 tests: 46 agentic-step + 3 root)
+- [x] `defineTool()` file operations added to all task handlers
+- [x] `onPermissionRequest: approveAll` added (SDK requirement)
+- [x] SDK pinned to 0.1.29 (Copilot review)
+- [x] Copilot validated SDK integration (PR #1763)
+- [x] PRs open for all 3 repos
+- [x] Multi-agent citizenship guidelines documented
 - [ ] `agent-flow-evolve` runs successfully in repository0
 - [ ] Evolve step produces a code change and commits it
 - [ ] CI tests pass on the committed change
