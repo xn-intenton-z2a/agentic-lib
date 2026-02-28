@@ -191,32 +191,49 @@ Behaviour tests in xn--intenton-z2a.com that test the full feature set of the de
 
 **User direction (2026-02-28):** Fast iteration in agentic-lib only. repository0 is a showcase (not a test bed), website is a display. Focus on tested workflows in agentic-lib with versioned distribution.
 
-### Workflow Separation (2026-02-28)
+### Repo Restructure (2026-02-28)
 
-**Problem:** agentic-lib had a circular dependency — the CI workflows that build/test/release it were the SAME files as the workflow templates distributed to consumers. When CI broke, you couldn't fix it because the broken tool IS the CI.
+**Problem:** agentic-lib had a circular dependency — the CI workflows that build/test/release it were the SAME files as the workflow templates distributed to consumers. Plus, sandbox/src/tests/unit were "eating our own dog food" testing infrastructure that added complexity without testing the actual product.
 
-**Solution:** Physical separation into three categories:
+**Solution:** Clean separation into production code (`src/`), release tooling (`scripts/`), and internal CI (`.github/workflows/`).
 
-| Category | Location | Purpose |
-|----------|----------|---------|
-| Libraries | `.github/agentic-lib/` | Code consumed via checkout (actions, agents) |
-| Output workflows | `./workflows/` (15 files) | Primary product — template workflows distributed to consumers |
-| Internal workflows | `.github/workflows/` (8 files) | Build, test, and release agentic-lib itself |
+**Current structure:**
 
-**`.github/workflows/` (internal — 8 files):**
-- `ci.yml` — Self-contained CI, no wfr-* dependency
-- `release.yml` — Manual dispatch: test → tag → npm publish
-- `agent-supervisor.yml` — Reactive orchestration (internal only)
-- `publish-stats.yml` — S3 telemetry (internal only)
-- `wfr-agent-config.yml` — Reusable workflow (must stay here per GitHub)
-- `wfr-github-create-pr.yml` — Reusable workflow
-- `wfr-github-select-issue.yml` — Reusable workflow
-- `wfr-npm-run-script-and-commit-to-branch.yml` — Reusable workflow
+```
+agentic-lib/
+├── src/                              # PRODUCTION CODE (distributed to consumers)
+│   ├── workflows/ (14 files)         #   → consumer .github/workflows/
+│   ├── scripts/ (8 files)            #   → consumer scripts/
+│   ├── agents/ (8+1 files)           #   → consumer .github/agentic-lib/agents/
+│   └── actions/agentic-step/         #   → consumer .github/agentic-lib/actions/agentic-step/
+├── seeds/                            # Repo initialization templates + starter test workflows
+│   ├── zero-* (4 files)              #   Seed source/test/package/mission
+│   ├── test-demo.yml                 #   Starter: single JS lib
+│   ├── test-library.yml              #   Starter: distributed library
+│   └── test-website.yml              #   Starter: website project
+├── scripts/ (5 files)                # RELEASE PIPELINE (agentic-lib only)
+│   ├── release-version-to-repository.sh
+│   ├── release-to-every-repository.sh
+│   ├── release-to-and-accept-for-every-repository.sh
+│   ├── accept-for-every-repository.sh
+│   └── deactivate-schedule.sh
+├── .github/workflows/ (2 files)      # INTERNAL CI (never distributed)
+│   ├── ci.yml                        #   Self-contained test runner
+│   └── release.yml                   #   Manual dispatch: test → tag → publish
+└── [docs, config, licenses]
+```
 
-**`./workflows/` (output — 15 template files):**
-- 6 agent-* workflows, 5 ci-* workflows, 2 publish-* workflows, 2 utils-* workflows
-- These are source files for distribution — they don't run on agentic-lib
-- Version-stamped during release (`sed @main → @version`)
+**Key changes from previous state:**
+- Deleted: sandbox/, src/ (old), tests/unit/, CONTRIBUTING.md, DEMO.md, MISSION.md, demo.sh
+- Deleted: 4 wfr-* reusable workflows (inlined into templates)
+- Deleted: publish-stats.yml, utils-truncate-*.yml (non-core fluff)
+- Deleted: 6 scripts (AWS/infra/orphaned)
+- Deleted: Java/CDK/Docker infrastructure, intention log
+- Moved: All distributed code into `src/` as single source of truth
+- Added: 3 seed test workflows (test-demo, test-library, test-website)
+- All 14 template workflows now self-contained (no remote agentic-lib refs)
+- `npm test` runs agentic-step tests only (46 tests, all passing)
+- Release script now distributes agentic-step action (was missing)
 
 **Key design property:** If template workflows break, `ci.yml` still runs and you can merge fixes.
 
@@ -227,7 +244,7 @@ Behaviour tests in xn--intenton-z2a.com that test the full feature set of the de
 **Repos:** agentic-lib
 
 **Work:**
-- Extract task handler logic from `.github/agentic-lib/actions/agentic-step/tasks/*.js` into library modules under `src/lib/`
+- Extract task handler logic from `src/actions/agentic-step/tasks/*.js` into library modules under `src/lib/`
 - Each module exports pure functions that can be tested without GitHub Actions context
 - Extract discussions bot logic into `src/lib/discussions.js` with its own test suite
 - Extend existing test suite (currently 46 tests for config-loader, safety, logging, tools)
