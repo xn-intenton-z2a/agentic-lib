@@ -64,7 +64,7 @@ The **core SDK** of the intentïon project. A collection of reusable GitHub Acti
 ```bash
 npm test              # 307 unit tests (vitest)
 npm run linting       # ESLint
-npm run lint:workflows # Validate workflow YAML (16 files)
+npm run lint:workflows # Validate workflow YAML (19 files)
 npm run security      # npm audit (0 vulnerabilities)
 npm run test:smoke    # Connectivity smoke test (needs GITHUB_TOKEN)
 npm run test:record-golden  # Re-record golden prompt templates

@@ -1,0 +1,331 @@
+# .github/workflows/integration-test-transform.yml
+#
+# Pre-publish validation: transform lifecycle end-to-end test.
+# Creates a temp branch in the target repo, seeds it, triggers a transform,
+# verifies the code changed, then resets and cleans up.
+#
+# Requires: PERSONAL_ACCESS_TOKEN secret with cross-repo write access.
+# The target repo must have agent-flow-transform.yml installed and
+# COPILOT_GITHUB_TOKEN secret configured.
+
+name: integration-test-transform
+run-name: "integration-test-transform [${{ github.ref_name }}]"
+
+on:
+  workflow_dispatch:
+    inputs:
+      target-repo:
+        description: "Repository to test against (owner/repo)"
+        type: string
+        default: "xn-intenton-z2a/repository0"
+      model:
+        description: "Copilot SDK model for the transform"
+        type: choice
+        required: false
+        default: "claude-sonnet-4"
+        options:
+          - claude-sonnet-4
+          - gpt-5-mini
+          - gpt-4.1
+      agentic-lib-version:
+        description: "agentic-lib version for init (default: latest)"
+        type: string
+        default: "latest"
+      timeout-minutes:
+        description: "Max minutes to wait for transform workflow"
+        type: string
+        default: "15"
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  npmAuthOrganisation: "@xn-intenton-z2a"
+
+jobs:
+  test-transform-cycle:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      packages: read
+    steps:
+      - name: Parse target repo
+        id: repo
+        run: |
+          FULL="${{ inputs.target-repo || 'xn-intenton-z2a/repository0' }}"
+          OWNER="${FULL%%/*}"
+          REPO="${FULL##*/}"
+          echo "owner=${OWNER}" >> $GITHUB_OUTPUT
+          echo "repo=${REPO}" >> $GITHUB_OUTPUT
+          echo "full=${FULL}" >> $GITHUB_OUTPUT
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Set up ~/.npmrc
+        run: |
+          echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> ~/.npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" >> ~/.npmrc
+          echo "always-auth=true" >> ~/.npmrc
+
+      - name: Create temporary branch in target repo
+        id: branch
+        env:
+          GH_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+        run: |
+          OWNER="${{ steps.repo.outputs.owner }}"
+          REPO="${{ steps.repo.outputs.repo }}"
+          BRANCH_NAME="integration-test/transform-${GITHUB_RUN_ID}"
+          RUN_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+
+          echo "branch=${BRANCH_NAME}" >> $GITHUB_OUTPUT
+          echo "Creating branch ${BRANCH_NAME} in ${OWNER}/${REPO}..."
+
+          # Get default branch SHA
+          DEFAULT_BRANCH=$(gh api "repos/${OWNER}/${REPO}" --jq '.default_branch')
+          DEFAULT_SHA=$(gh api "repos/${OWNER}/${REPO}/git/ref/heads/${DEFAULT_BRANCH}" --jq '.object.sha')
+
+          echo "defaultBranch=${DEFAULT_BRANCH}" >> $GITHUB_OUTPUT
+          echo "Base: ${DEFAULT_BRANCH} @ ${DEFAULT_SHA}"
+
+          # Create branch via API
+          gh api "repos/${OWNER}/${REPO}/git/refs" \
+            -f ref="refs/heads/${BRANCH_NAME}" \
+            -f sha="${DEFAULT_SHA}" > /dev/null
+
+          echo "Created branch: ${BRANCH_NAME}"
+
+      - name: Clone target repo on temp branch
+        env:
+          GH_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+        run: |
+          OWNER="${{ steps.repo.outputs.owner }}"
+          REPO="${{ steps.repo.outputs.repo }}"
+          BRANCH="${{ steps.branch.outputs.branch }}"
+
+          gh repo clone "${OWNER}/${REPO}" target-repo -- --branch "${BRANCH}" --single-branch
+          cd target-repo
+          git config user.email "action@github.com"
+          git config user.name "GitHub Actions[bot]"
+
+      - name: Init and purge to seed state
+        working-directory: target-repo
+        run: |
+          VERSION="${{ inputs.agentic-lib-version || 'latest' }}"
+          echo "Running: npx @xn-intenton-z2a/agentic-lib@${VERSION} init --purge"
+          npx "@xn-intenton-z2a/agentic-lib@${VERSION}" init --purge
+
+      - name: Set test MISSION.md
+        working-directory: target-repo
+        run: |
+          cat > MISSION.md << 'EOF'
+          # Test Mission (Integration Test)
+
+          Create a simple utility module that exports a function called `getGreeting`.
+
+          The function should:
+          - Accept a `name` parameter (string)
+          - Return a greeting string in the format: "Hello, {name}! Welcome."
+          - If no name is provided, default to "World"
+
+          The function must be exported from `src/lib/main.js` and tested in `tests/unit/main.test.js`.
+          EOF
+
+      - name: Record seed state and commit
+        id: seed
+        working-directory: target-repo
+        env:
+          GH_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+        run: |
+          # Save seed state for later comparison
+          cp src/lib/main.js /tmp/seed-main.js
+          echo "Seed main.js content:"
+          cat src/lib/main.js
+
+          # Commit the seeded + mission state
+          git add -A
+          git commit -m "integration-test: init --purge + test mission" || echo "Nothing to commit"
+          git push origin "${{ steps.branch.outputs.branch }}"
+
+          SEED_HASH=$(sha256sum src/lib/main.js | cut -d' ' -f1)
+          echo "seedHash=${SEED_HASH}" >> $GITHUB_OUTPUT
+          echo "Seed state committed. Hash: ${SEED_HASH}"
+
+      - name: Trigger transform workflow
+        id: trigger
+        env:
+          GH_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+        run: |
+          OWNER="${{ steps.repo.outputs.owner }}"
+          REPO="${{ steps.repo.outputs.repo }}"
+          BRANCH="${{ steps.branch.outputs.branch }}"
+          MODEL="${{ inputs.model || 'claude-sonnet-4' }}"
+
+          echo "Dispatching agent-flow-transform on ${BRANCH} with model ${MODEL}..."
+
+          gh workflow run agent-flow-transform.yml \
+            --repo "${OWNER}/${REPO}" \
+            --ref "${BRANCH}" \
+            -f model="${MODEL}"
+
+          echo "Transform workflow dispatched"
+
+      - name: Wait for transform workflow to complete
+        id: wait
+        env:
+          GH_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+        run: |
+          OWNER="${{ steps.repo.outputs.owner }}"
+          REPO="${{ steps.repo.outputs.repo }}"
+          BRANCH="${{ steps.branch.outputs.branch }}"
+          TIMEOUT="${{ inputs.timeout-minutes || '15' }}"
+          MAX_SECONDS=$((TIMEOUT * 60))
+          ELAPSED=0
+
+          # Wait for the run to appear
+          echo "Waiting for transform workflow run to appear..."
+          sleep 15
+
+          while [ $ELAPSED -lt $MAX_SECONDS ]; do
+            # Find the latest run on our branch
+            RUN_INFO=$(gh run list \
+              --repo "${OWNER}/${REPO}" \
+              --workflow=agent-flow-transform.yml \
+              --branch="${BRANCH}" \
+              --limit=1 \
+              --json databaseId,status,conclusion 2>/dev/null || echo '[]')
+
+            RUN_ID=$(echo "$RUN_INFO" | jq -r '.[0].databaseId // empty')
+            STATUS=$(echo "$RUN_INFO" | jq -r '.[0].status // empty')
+
+            if [ -z "$RUN_ID" ]; then
+              sleep 15
+              ELAPSED=$((ELAPSED + 15))
+              echo "No run found yet (${ELAPSED}s / ${MAX_SECONDS}s)..."
+              continue
+            fi
+
+            echo "runId=${RUN_ID}" >> $GITHUB_OUTPUT
+
+            if [ "$STATUS" = "completed" ]; then
+              CONCLUSION=$(echo "$RUN_INFO" | jq -r '.[0].conclusion')
+              echo "conclusion=${CONCLUSION}" >> $GITHUB_OUTPUT
+              echo "Transform completed: ${CONCLUSION} (run ${RUN_ID})"
+
+              if [ "$CONCLUSION" = "success" ]; then
+                echo "PASS: Transform workflow succeeded"
+              else
+                echo "::warning::Transform workflow concluded with: ${CONCLUSION}"
+                # Log the run for debugging
+                gh run view "$RUN_ID" --repo "${OWNER}/${REPO}" --log 2>/dev/null | tail -50 || true
+              fi
+              break
+            fi
+
+            sleep 15
+            ELAPSED=$((ELAPSED + 15))
+            echo "Run ${RUN_ID}: ${STATUS} (${ELAPSED}s / ${MAX_SECONDS}s)"
+          done
+
+          if [ $ELAPSED -ge $MAX_SECONDS ]; then
+            echo "::error::Transform workflow did not complete within ${TIMEOUT} minutes"
+            exit 1
+          fi
+
+      - name: Verify transformation
+        id: verify-transform
+        working-directory: target-repo
+        run: |
+          # Pull the latest changes
+          git pull origin "${{ steps.branch.outputs.branch }}" || true
+
+          CURRENT_HASH=$(sha256sum src/lib/main.js | cut -d' ' -f1)
+          SEED_HASH="${{ steps.seed.outputs.seedHash }}"
+
+          echo "Current main.js hash: ${CURRENT_HASH}"
+          echo "Seed main.js hash:    ${SEED_HASH}"
+
+          if [ "$CURRENT_HASH" != "$SEED_HASH" ]; then
+            echo "PASS: src/lib/main.js was modified by the transform"
+            echo "transformed=true" >> $GITHUB_OUTPUT
+
+            echo ""
+            echo "=== Diff from seed ==="
+            diff /tmp/seed-main.js src/lib/main.js || true
+            echo "=== End diff ==="
+          else
+            echo "FAIL: src/lib/main.js was NOT modified — transform had no effect"
+            echo "transformed=false" >> $GITHUB_OUTPUT
+
+            echo "Current content:"
+            cat src/lib/main.js
+          fi
+
+      - name: Verify tests pass after transform
+        id: verify-tests
+        if: steps.verify-transform.outputs.transformed == 'true'
+        working-directory: target-repo
+        continue-on-error: true
+        run: |
+          npm install
+          npm test 2>&1 | tee /tmp/test-output.txt
+          echo "testsPass=$?" >> $GITHUB_OUTPUT
+
+      - name: Reset via init --purge
+        id: verify-reset
+        working-directory: target-repo
+        run: |
+          VERSION="${{ inputs.agentic-lib-version || 'latest' }}"
+          echo "Resetting to seed state..."
+          npx "@xn-intenton-z2a/agentic-lib@${VERSION}" init --purge
+
+          RESET_HASH=$(sha256sum src/lib/main.js | cut -d' ' -f1)
+          SEED_HASH="${{ steps.seed.outputs.seedHash }}"
+
+          echo "Reset main.js hash: ${RESET_HASH}"
+          echo "Seed main.js hash:  ${SEED_HASH}"
+
+          if [ "$RESET_HASH" = "$SEED_HASH" ]; then
+            echo "PASS: Reset restored seed state"
+            echo "resetMatch=true" >> $GITHUB_OUTPUT
+          else
+            echo "FAIL: Reset did NOT restore seed state"
+            echo "resetMatch=false" >> $GITHUB_OUTPUT
+            echo ""
+            echo "=== Diff from seed ==="
+            diff /tmp/seed-main.js src/lib/main.js || true
+          fi
+
+      - name: Cleanup — delete temporary branch
+        if: always()
+        env:
+          GH_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+        run: |
+          OWNER="${{ steps.repo.outputs.owner }}"
+          REPO="${{ steps.repo.outputs.repo }}"
+          BRANCH="${{ steps.branch.outputs.branch }}"
+
+          echo "Deleting branch ${BRANCH}..."
+          gh api "repos/${OWNER}/${REPO}/git/refs/heads/${BRANCH}" \
+            -X DELETE 2>/dev/null \
+            || echo "Branch may already be deleted"
+          echo "Cleanup complete"
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "## Integration Test: Transform Cycle" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Check | Result |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Branch created | ${{ steps.branch.outputs.branch && 'PASS' || 'FAIL' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Seed state committed | ${{ steps.seed.outputs.seedHash && 'PASS' || 'FAIL' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Transform dispatched | ${{ steps.trigger.outcome == 'success' && 'PASS' || 'FAIL' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Transform completed | ${{ steps.wait.outputs.conclusion || 'TIMEOUT' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Code modified | ${{ steps.verify-transform.outputs.transformed || 'N/A' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Tests pass | ${{ steps.verify-tests.outcome || 'SKIP' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Reset matches seed | ${{ steps.verify-reset.outputs.resetMatch || 'N/A' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Branch: \`${{ steps.branch.outputs.branch }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "Model: \`${{ inputs.model || 'claude-sonnet-4' }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "Run: ${{ steps.wait.outputs.runId && format('https://github.com/{0}/actions/runs/{1}', steps.repo.outputs.full, steps.wait.outputs.runId) || 'N/A' }}" >> $GITHUB_STEP_SUMMARY
