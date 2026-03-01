@@ -163,13 +163,20 @@ jobs:
       - name: Install sub-project dependencies
         run: cd src/actions/agentic-step && npm ci
 
-      - name: Self-init
-        run: bash scripts/self-init.sh
+      - name: Snapshot baseline
+        run: rsync -a --exclude=.git --exclude=node_modules . /tmp/baseline/
 
-      - name: Seed workspace
+      - name: Self-init + seed
         run: |
+          bash scripts/self-init.sh
           cp src/seeds/zero-MISSION.md MISSION.md
           mkdir -p .github/agentic-lib/features
+
+      - name: Show init changes
+        run: diff -rN --exclude=.git --exclude=node_modules /tmp/baseline . || true
+
+      - name: Snapshot post-init
+        run: rsync -a --exclude=.git --exclude=node_modules . /tmp/post-init/
 
       - name: Run agentic-step (maintain-features)
         uses: ./.github/agentic-lib/actions/agentic-step
@@ -181,20 +188,23 @@ jobs:
           config: agentic-lib.toml
           model: ${{ inputs.model || 'gpt-5-mini' }}
 
-      - name: Verify transform produced output
+      - name: Show agent changes
         run: |
-          git add -N .
-          echo "## maintain-features results" | tee -a $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
-          git diff --stat | tee -a $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
-          echo '```diff' >> $GITHUB_STEP_SUMMARY
-          git diff | tee -a $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
-          if [ "$(find .github/agentic-lib/features -name '*.md' | wc -l)" -eq 0 ]; then
-            echo "ERROR: maintain-features produced no feature files"
+          OUTPUT=$(diff -rN --exclude=.git --exclude=node_modules /tmp/post-init . || true)
+          echo "$OUTPUT"
+          if [ -z "$OUTPUT" ]; then
+            echo "ERROR: maintain-features produced no changes"
             exit 1
           fi
+
+      - name: Re-init + seed
+        run: |
+          bash scripts/self-init.sh
+          cp src/seeds/zero-MISSION.md MISSION.md
+          mkdir -p .github/agentic-lib/features
+
+      - name: Show re-init changes
+        run: diff -rN --exclude=.git --exclude=node_modules /tmp/post-init . || true
 
   test-maintain-library:
     runs-on: ubuntu-latest
@@ -220,11 +230,12 @@ jobs:
       - name: Install sub-project dependencies
         run: cd src/actions/agentic-step && npm ci
 
-      - name: Self-init
-        run: bash scripts/self-init.sh
+      - name: Snapshot baseline
+        run: rsync -a --exclude=.git --exclude=node_modules . /tmp/baseline/
 
-      - name: Seed workspace
+      - name: Self-init + seed
         run: |
+          bash scripts/self-init.sh
           cp src/seeds/zero-MISSION.md MISSION.md
           mkdir -p library
           cat > SOURCES.md << 'SEED_EOF'
@@ -233,6 +244,12 @@ jobs:
           - https://docs.github.com/en/actions/creating-actions/about-custom-actions
           - https://docs.github.com/en/rest/overview/resources-in-the-rest-api
           SEED_EOF
+
+      - name: Show init changes
+        run: diff -rN --exclude=.git --exclude=node_modules /tmp/baseline . || true
+
+      - name: Snapshot post-init
+        run: rsync -a --exclude=.git --exclude=node_modules . /tmp/post-init/
 
       - name: Run agentic-step (maintain-library)
         uses: ./.github/agentic-lib/actions/agentic-step
@@ -245,20 +262,29 @@ jobs:
           model: ${{ inputs.model || 'gpt-5-mini' }}
           writable-paths: "library/"
 
-      - name: Verify transform produced output
+      - name: Show agent changes
         run: |
-          git add -N .
-          echo "## maintain-library results" | tee -a $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
-          git diff --stat | tee -a $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
-          echo '```diff' >> $GITHUB_STEP_SUMMARY
-          git diff | tee -a $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
-          if [ "$(find library -name '*.md' | wc -l)" -eq 0 ]; then
-            echo "ERROR: maintain-library produced no library documents"
+          OUTPUT=$(diff -rN --exclude=.git --exclude=node_modules /tmp/post-init . || true)
+          echo "$OUTPUT"
+          if [ -z "$OUTPUT" ]; then
+            echo "ERROR: maintain-library produced no changes"
             exit 1
           fi
+
+      - name: Re-init + seed
+        run: |
+          bash scripts/self-init.sh
+          cp src/seeds/zero-MISSION.md MISSION.md
+          mkdir -p library
+          cat > SOURCES.md << 'SEED_EOF'
+          # Library Sources
+
+          - https://docs.github.com/en/actions/creating-actions/about-custom-actions
+          - https://docs.github.com/en/rest/overview/resources-in-the-rest-api
+          SEED_EOF
+
+      - name: Show re-init changes
+        run: diff -rN --exclude=.git --exclude=node_modules /tmp/post-init . || true
 
   test-transform:
     runs-on: ubuntu-latest
@@ -284,11 +310,12 @@ jobs:
       - name: Install sub-project dependencies
         run: cd src/actions/agentic-step && npm ci
 
-      - name: Self-init
-        run: bash scripts/self-init.sh
+      - name: Snapshot baseline
+        run: rsync -a --exclude=.git --exclude=node_modules . /tmp/baseline/
 
-      - name: Seed workspace
+      - name: Self-init + seed
         run: |
+          bash scripts/self-init.sh
           mkdir -p src/lib tests/unit .github/agentic-lib/features
           cp src/seeds/zero-main.js src/lib/main.js
           cp src/seeds/zero-main.test.js tests/unit/main.test.js
@@ -299,6 +326,12 @@ jobs:
           The main function should accept a name argument and print "Hello, <name>!" to stdout.
           When no name is provided, it should default to "World".
           SEED_EOF
+
+      - name: Show init changes
+        run: diff -rN --exclude=.git --exclude=node_modules /tmp/baseline . || true
+
+      - name: Snapshot post-init
+        run: rsync -a --exclude=.git --exclude=node_modules . /tmp/post-init/
 
       - name: Run agentic-step (transform)
         uses: ./.github/agentic-lib/actions/agentic-step
@@ -315,16 +348,31 @@ jobs:
       - name: Verify tests pass after transform
         run: npm test
 
-      - name: Show results
+      - name: Show agent changes
         run: |
-          git add -N .
-          echo "## transform results" | tee -a $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
-          git diff --stat | tee -a $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
-          echo '```diff' >> $GITHUB_STEP_SUMMARY
-          git diff | tee -a $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
+          OUTPUT=$(diff -rN --exclude=.git --exclude=node_modules /tmp/post-init . || true)
+          echo "$OUTPUT"
+          if [ -z "$OUTPUT" ]; then
+            echo "ERROR: transform produced no changes"
+            exit 1
+          fi
+
+      - name: Re-init + seed
+        run: |
+          bash scripts/self-init.sh
+          mkdir -p src/lib tests/unit .github/agentic-lib/features
+          cp src/seeds/zero-main.js src/lib/main.js
+          cp src/seeds/zero-main.test.js tests/unit/main.test.js
+          cp src/seeds/zero-MISSION.md MISSION.md
+          cat > .github/agentic-lib/features/hello-world.md << 'SEED_EOF'
+          # Feature: Hello World
+
+          The main function should accept a name argument and print "Hello, <name>!" to stdout.
+          When no name is provided, it should default to "World".
+          SEED_EOF
+
+      - name: Show re-init changes
+        run: diff -rN --exclude=.git --exclude=node_modules /tmp/post-init . || true
 
   # ─── CLI transforms: real Copilot SDK round-trips via CLI ──────────
 
@@ -352,6 +400,9 @@ jobs:
       - name: Install sub-project dependencies
         run: cd src/actions/agentic-step && npm ci
 
+      - name: Snapshot baseline
+        run: rsync -a --exclude=.git --exclude=node_modules . /tmp/baseline/
+
       - name: Seed workspace
         run: |
           mkdir -p src/lib tests/unit .github/agentic-lib/features
@@ -365,6 +416,12 @@ jobs:
           When no name is provided, it should default to "World".
           SEED_EOF
 
+      - name: Show seed changes
+        run: diff -rN --exclude=.git --exclude=node_modules /tmp/baseline . || true
+
+      - name: Snapshot post-seed
+        run: rsync -a --exclude=.git --exclude=node_modules . /tmp/post-seed/
+
       - name: "CLI: transform"
         env:
           COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
@@ -373,16 +430,30 @@ jobs:
       - name: Verify tests pass after transform
         run: npm test
 
-      - name: Show results
+      - name: Show agent changes
         run: |
-          git add -N .
-          echo "## CLI transform results" | tee -a $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
-          git diff --stat | tee -a $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
-          echo '```diff' >> $GITHUB_STEP_SUMMARY
-          git diff | tee -a $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
+          OUTPUT=$(diff -rN --exclude=.git --exclude=node_modules /tmp/post-seed . || true)
+          echo "$OUTPUT"
+          if [ -z "$OUTPUT" ]; then
+            echo "ERROR: transform produced no changes"
+            exit 1
+          fi
+
+      - name: Re-seed workspace
+        run: |
+          mkdir -p src/lib tests/unit .github/agentic-lib/features
+          cp src/seeds/zero-main.js src/lib/main.js
+          cp src/seeds/zero-main.test.js tests/unit/main.test.js
+          cp src/seeds/zero-MISSION.md MISSION.md
+          cat > .github/agentic-lib/features/hello-world.md << 'SEED_EOF'
+          # Feature: Hello World
+
+          The main function should accept a name argument and print "Hello, <name>!" to stdout.
+          When no name is provided, it should default to "World".
+          SEED_EOF
+
+      - name: Show re-seed changes
+        run: diff -rN --exclude=.git --exclude=node_modules /tmp/post-seed . || true
 
   test-cli-maintain-features:
     runs-on: ubuntu-latest
@@ -408,30 +479,41 @@ jobs:
       - name: Install sub-project dependencies
         run: cd src/actions/agentic-step && npm ci
 
+      - name: Snapshot baseline
+        run: rsync -a --exclude=.git --exclude=node_modules . /tmp/baseline/
+
       - name: Seed workspace
         run: |
           cp src/seeds/zero-MISSION.md MISSION.md
           mkdir -p .github/agentic-lib/features
+
+      - name: Show seed changes
+        run: diff -rN --exclude=.git --exclude=node_modules /tmp/baseline . || true
+
+      - name: Snapshot post-seed
+        run: rsync -a --exclude=.git --exclude=node_modules . /tmp/post-seed/
 
       - name: "CLI: maintain-features"
         env:
           COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
         run: node bin/agentic-lib.js maintain-features --model ${{ inputs.model || 'gpt-5-mini' }}
 
-      - name: Verify transform produced output
+      - name: Show agent changes
         run: |
-          git add -N .
-          echo "## CLI maintain-features results" | tee -a $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
-          git diff --stat | tee -a $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
-          echo '```diff' >> $GITHUB_STEP_SUMMARY
-          git diff | tee -a $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
-          if [ "$(find .github/agentic-lib/features -name '*.md' | wc -l)" -eq 0 ]; then
-            echo "ERROR: maintain-features produced no feature files"
+          OUTPUT=$(diff -rN --exclude=.git --exclude=node_modules /tmp/post-seed . || true)
+          echo "$OUTPUT"
+          if [ -z "$OUTPUT" ]; then
+            echo "ERROR: maintain-features produced no changes"
             exit 1
           fi
+
+      - name: Re-seed workspace
+        run: |
+          cp src/seeds/zero-MISSION.md MISSION.md
+          mkdir -p .github/agentic-lib/features
+
+      - name: Show re-seed changes
+        run: diff -rN --exclude=.git --exclude=node_modules /tmp/post-seed . || true
 
   test-cli-maintain-library:
     runs-on: ubuntu-latest
@@ -457,6 +539,9 @@ jobs:
       - name: Install sub-project dependencies
         run: cd src/actions/agentic-step && npm ci
 
+      - name: Snapshot baseline
+        run: rsync -a --exclude=.git --exclude=node_modules . /tmp/baseline/
+
       - name: Seed workspace
         run: |
           cp src/seeds/zero-MISSION.md MISSION.md
@@ -468,22 +553,36 @@ jobs:
           - https://docs.github.com/en/rest/overview/resources-in-the-rest-api
           SEED_EOF
 
+      - name: Show seed changes
+        run: diff -rN --exclude=.git --exclude=node_modules /tmp/baseline . || true
+
+      - name: Snapshot post-seed
+        run: rsync -a --exclude=.git --exclude=node_modules . /tmp/post-seed/
+
       - name: "CLI: maintain-library"
         env:
           COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
         run: node bin/agentic-lib.js maintain-library --model ${{ inputs.model || 'gpt-5-mini' }}
 
-      - name: Verify transform produced output
+      - name: Show agent changes
         run: |
-          git add -N .
-          echo "## CLI maintain-library results" | tee -a $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
-          git diff --stat | tee -a $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
-          echo '```diff' >> $GITHUB_STEP_SUMMARY
-          git diff | tee -a $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
-          if [ "$(find docs -name '*.md' | wc -l)" -eq 0 ]; then
-            echo "ERROR: maintain-library produced no library documents"
+          OUTPUT=$(diff -rN --exclude=.git --exclude=node_modules /tmp/post-seed . || true)
+          echo "$OUTPUT"
+          if [ -z "$OUTPUT" ]; then
+            echo "ERROR: maintain-library produced no changes"
             exit 1
           fi
+
+      - name: Re-seed workspace
+        run: |
+          cp src/seeds/zero-MISSION.md MISSION.md
+          mkdir -p docs
+          cat > SOURCES.md << 'SEED_EOF'
+          # Library Sources
+
+          - https://docs.github.com/en/actions/creating-actions/about-custom-actions
+          - https://docs.github.com/en/rest/overview/resources-in-the-rest-api
+          SEED_EOF
+
+      - name: Show re-seed changes
+        run: diff -rN --exclude=.git --exclude=node_modules /tmp/post-seed . || true
