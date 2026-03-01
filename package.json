@@ -20,6 +20,9 @@
     "test:copilot": "node scripts/test-copilot-local.js",
     "test:discussions": "node scripts/test-discussions-local.js",
     "test:transform": "node scripts/test-transform-local.js ../repository0",
+    "test:system": "bash scripts/system-test.sh --init-only",
+    "test:system:dry-run": "bash scripts/system-test.sh --dry-run",
+    "test:system:live": "bash scripts/system-test.sh",
     "start": "echo \"agentic-lib is a workflow SDK — see README.md\""
   },
   "keywords": [],

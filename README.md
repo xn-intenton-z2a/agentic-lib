@@ -165,6 +165,85 @@ The core of the system is a single GitHub Action that handles all autonomous tas
 
 Each task calls the GitHub Copilot SDK with context assembled from your repository (mission, code, tests, features) and writes changes back to the working tree.
 
+## CLI Task Commands
+
+Run Copilot SDK transformations locally from the command line. These are the same operations the GitHub Actions workflows perform, but you can run them interactively to see what happens.
+
+```bash
+npx @xn-intenton-z2a/agentic-lib transform            # advance code toward the mission
+npx @xn-intenton-z2a/agentic-lib maintain-features     # generate feature files from mission
+npx @xn-intenton-z2a/agentic-lib maintain-library      # update library docs from SOURCES.md
+npx @xn-intenton-z2a/agentic-lib fix-code              # fix failing tests
+```
+
+All task commands accept these flags:
+
+| Flag | Default | Purpose |
+|------|---------|---------|
+| `--dry-run` | off | Show the prompt without calling the Copilot SDK |
+| `--target <path>` | current directory | Target repository to transform |
+| `--model <name>` | `claude-sonnet-4` | Copilot SDK model |
+
+### Example: Full Walkthrough
+
+```bash
+# 1. Start with a fresh repository
+mkdir my-project && cd my-project && git init
+npx @xn-intenton-z2a/agentic-lib init --purge
+
+# 2. Write your mission
+cat > MISSION.md <<'EOF'
+# Mission: CSV to JSON Converter
+Build a Node.js CLI tool that reads CSV from stdin and outputs JSON to stdout.
+EOF
+
+# 3. Install agentic-step dependencies
+cd .github/agentic-lib/actions/agentic-step && npm ci && cd -
+
+# 4. Generate features from your mission
+npx @xn-intenton-z2a/agentic-lib maintain-features
+# Output:
+#   === agentic-lib maintain-features ===
+#   [config] Loading agentic-lib.toml
+#   [context] Mission loaded, features: 0, library: 0
+#   [copilot] Creating session...
+#   [copilot] Sending prompt...
+#   [event] tool.call: write_file({"path":".github/agentic-lib/features/csv-parsing.md",...})
+#   === maintain-features completed in 12.3s ===
+
+# 5. Transform code toward the mission
+npx @xn-intenton-z2a/agentic-lib transform
+# Output:
+#   === agentic-lib transform ===
+#   [context] Mission: # Mission: CSV to JSON Converter...
+#   [context] Features: 2, Source files: 1
+#   [copilot] Creating session...
+#   [event] tool.call: write_file({"path":"src/lib/main.js",...})
+#   [event] tool.call: run_command({"command":"npm test"})
+#   === transform completed in 18.7s ===
+
+# 6. Review the changes
+git diff
+
+# 7. If happy, commit
+git add -A && git commit -m "Initial transform" && git push
+```
+
+Use `--dry-run` to see what prompt would be sent without calling the SDK:
+
+```bash
+npx @xn-intenton-z2a/agentic-lib transform --dry-run
+```
+
+### Environment
+
+| Variable | Required | Purpose |
+|----------|----------|---------|
+| `COPILOT_GITHUB_TOKEN` | For live runs | Fine-grained PAT with "Copilot Requests" permission |
+| (none) | For `--dry-run` | Dry-run shows the prompt without calling the SDK |
+
+If `COPILOT_GITHUB_TOKEN` is not set, the CLI falls back to local `gh` CLI authentication.
+
 ## Three Ways to Start
 
 | Method | How | Best for |
@@ -209,14 +288,17 @@ src/
 
 ### Testing
 
-313 tests across 21 test files:
+313 unit tests across 21 test files, plus system tests:
 
 ```bash
-npm test              # Run all tests (vitest)
-npm run linting       # ESLint
-npm run lint:workflows # Validate workflow YAML
-npm run security      # npm audit
-npm run test:smoke    # Connectivity smoke test (needs GITHUB_TOKEN)
+npm test                  # Run all tests (vitest)
+npm run linting           # ESLint
+npm run lint:workflows    # Validate workflow YAML
+npm run security          # npm audit
+npm run test:smoke        # Connectivity smoke test (needs GITHUB_TOKEN)
+npm run test:system       # System test: init/purge cycle
+npm run test:system:dry-run  # System test: full flow with --dry-run
+npm run test:system:live  # System test: full flow with Copilot SDK (needs COPILOT_GITHUB_TOKEN)
 ```
 
 ### Publishing

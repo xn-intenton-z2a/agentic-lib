@@ -163,6 +163,7 @@ echo ""
 echo "=== Step 4: maintain-features ==="
 echo ""
 
+mkdir -p "$WORKSPACE/.github/agentic-lib/features"
 FEATURES_BEFORE=$(find "$WORKSPACE/.github/agentic-lib/features" -name "*.md" 2>/dev/null | wc -l | tr -d ' ')
 echo "  Features before: $FEATURES_BEFORE"
 
