@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: GPL-3.0-only
+# Copyright (C) 2025-2026 Polycode Limited
 # scripts/self-init.sh — Copy src/ content into .github/agentic-lib/ for testing.
 #
 # This is the same operation that `npx @xn-intenton-z2a/agentic-lib init` performs

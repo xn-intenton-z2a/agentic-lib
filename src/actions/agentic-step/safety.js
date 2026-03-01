@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-only
+// Copyright (C) 2025-2026 Polycode Limited
 // safety.js — WIP limits, attempt tracking, and path enforcement
 //
 // Provides safety checks that prevent the agentic system from:

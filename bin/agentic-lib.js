@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+// SPDX-License-Identifier: GPL-3.0-only
+// Copyright (C) 2025-2026 Polycode Limited
 // bin/agentic-lib.js — CLI for @xn-intenton-z2a/agentic-lib
 //
 // Infrastructure commands:

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-only
+// Copyright (C) 2025-2026 Polycode Limited
 // tasks/maintain-library.js — Library and knowledge management
 //
 // Crawls SOURCES.md, updates library documents, maintains the knowledge base

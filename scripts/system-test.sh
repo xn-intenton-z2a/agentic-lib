@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: GPL-3.0-only
+# Copyright (C) 2025-2026 Polycode Limited
 # scripts/system-test.sh — Full journey system test
 #
 # Runs the complete agentic-lib flow in a temporary workspace:

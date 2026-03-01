@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-only
+// Copyright (C) 2025-2026 Polycode Limited
 // config-loader.js — Parse agentic-lib.toml and resolve paths
 //
 // TOML-only configuration. The config file is required.

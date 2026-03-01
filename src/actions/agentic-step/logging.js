@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-only
+// Copyright (C) 2025-2026 Polycode Limited
 // logging.js — intentïon.md activity log writer
 //
 // Appends structured entries to the intentïon.md activity log,

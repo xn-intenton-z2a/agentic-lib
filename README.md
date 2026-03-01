@@ -310,8 +310,10 @@ Both auto and manual publishing are handled by `release.yml`:
 
 ## Licensing
 
-- Core SDK: [GPL-3.0](LICENSE)
-- Examples in `_developers/examples/`: [MIT](LICENSE-MIT)
+- Core SDK: [GPL-3.0](LICENSE) — `SPDX-License-Identifier: GPL-3.0-only`
+- Distributed code (workflows, actions, seeds, scripts in `src/`): [MIT](LICENSE-MIT) — `SPDX-License-Identifier: MIT`
+- All source files include SPDX license identifiers and copyright notices
+- Copyright (C) 2025-2026 Polycode Limited
 
 ## Links
 

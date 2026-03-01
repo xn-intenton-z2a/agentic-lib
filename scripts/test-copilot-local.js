@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+// SPDX-License-Identifier: GPL-3.0-only
+// Copyright (C) 2025-2026 Polycode Limited
 // test-copilot-local.js — Local CLI test for Copilot SDK
 //
 // Runs a full Copilot SDK session locally to verify auth, session creation,

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-only
+// Copyright (C) 2025-2026 Polycode Limited
 import { describe, it, expect } from "vitest";
 
 // Test the TASKS map shape by importing the task modules directly.

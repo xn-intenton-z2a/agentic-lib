@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-only
+// Copyright (C) 2025-2026 Polycode Limited
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import { loadConfig, getWritablePaths } from "../../../src/actions/agentic-step/config-loader.js";
 import { writeFileSync, mkdirSync, rmSync } from "fs";
