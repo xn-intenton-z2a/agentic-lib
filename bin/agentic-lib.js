@@ -1,15 +1,21 @@
 #!/usr/bin/env node
 // bin/agentic-lib.js — CLI for @xn-intenton-z2a/agentic-lib
 //
-// Usage:
+// Infrastructure commands:
 //   npx @xn-intenton-z2a/agentic-lib init           # set up agentic infrastructure
 //   npx @xn-intenton-z2a/agentic-lib init --purge    # also reset source files to seeds
-//   npx @xn-intenton-z2a/agentic-lib update          # alias for init
 //   npx @xn-intenton-z2a/agentic-lib reset           # alias for init --purge
+//
+// Task commands (run Copilot SDK transformations locally):
+//   npx @xn-intenton-z2a/agentic-lib transform
+//   npx @xn-intenton-z2a/agentic-lib maintain-features
+//   npx @xn-intenton-z2a/agentic-lib maintain-library
+//   npx @xn-intenton-z2a/agentic-lib fix-code
 
-import { copyFileSync, existsSync, mkdirSync, rmSync, readdirSync, readFileSync } from "fs";
+import { copyFileSync, existsSync, mkdirSync, rmSync, readdirSync, readFileSync, writeFileSync } from "fs";
 import { resolve, dirname, join } from "path";
 import { fileURLToPath } from "url";
+import { execSync } from "child_process";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const pkgRoot = resolve(__dirname, "..");
@@ -19,23 +25,35 @@ const args = process.argv.slice(2);
 const command = args[0];
 const flags = args.slice(1);
 
+const TASK_COMMANDS = ["transform", "maintain-features", "maintain-library", "fix-code"];
+const INIT_COMMANDS = ["init", "update", "reset"];
+const ALL_COMMANDS = [...INIT_COMMANDS, ...TASK_COMMANDS, "version"];
+
 const HELP = `
 @xn-intenton-z2a/agentic-lib — Agentic Coding Systems SDK
 
-Commands:
-  init [--purge]   Set up or update agentic infrastructure in the current repo
-  update           Alias for init
-  reset            Alias for init --purge
-  version          Show version
+Infrastructure:
+  init [--purge]       Set up or update agentic infrastructure
+  update               Alias for init
+  reset                Alias for init --purge
+  version              Show version
+
+Tasks (run Copilot SDK transformations):
+  transform            Transform code toward the mission
+  maintain-features    Generate feature files from mission
+  maintain-library     Update library docs from SOURCES.md
+  fix-code             Fix failing tests
 
 Options:
-  --purge          Also reset source files (main.js, tests, MISSION.md, etc.) to seed state
-  --dry-run        Show what would be done without making changes
-  --target <path>  Target repository (default: current directory)
+  --purge              Also reset source files to seed state
+  --dry-run            Show what would be done without making changes
+  --target <path>      Target repository (default: current directory)
+  --model <name>       Copilot SDK model (default: claude-sonnet-4)
 
 Examples:
   npx @xn-intenton-z2a/agentic-lib init
-  npx @xn-intenton-z2a/agentic-lib init --purge
+  npx @xn-intenton-z2a/agentic-lib transform
+  npx @xn-intenton-z2a/agentic-lib maintain-features --model gpt-5-mini
   npx @xn-intenton-z2a/agentic-lib reset --dry-run
 `.trim();
 
@@ -55,206 +73,720 @@ const dryRun = flags.includes("--dry-run");
 const targetIdx = flags.indexOf("--target");
 const targetPath = targetIdx >= 0 ? flags[targetIdx + 1] : process.cwd();
 const target = resolve(targetPath);
+const modelIdx = flags.indexOf("--model");
+const model = modelIdx >= 0 ? flags[modelIdx + 1] : "claude-sonnet-4";
+
+// ─── Task Commands ───────────────────────────────────────────────────
+
+if (TASK_COMMANDS.includes(command)) {
+  process.exit(await runTask(command));
+}
+
+// ─── Init Commands ───────────────────────────────────────────────────
 
 let purge = flags.includes("--purge");
 if (command === "reset") purge = true;
 
-if (!["init", "update", "reset"].includes(command)) {
+if (!ALL_COMMANDS.includes(command)) {
   console.error(`Unknown command: ${command}`);
   console.error("Run with --help for usage.");
   process.exit(1);
 }
 
-// Verify target looks like a repo
-if (!existsSync(target)) {
-  console.error(`Target directory does not exist: ${target}`);
-  process.exit(1);
-}
+runInit();
 
-// Verify source files exist
-if (!existsSync(srcDir)) {
-  console.error(`Source directory not found: ${srcDir}`);
-  console.error("This package may not have been installed with full source files.");
-  console.error("Check that the 'files' field in package.json includes 'src/'.");
-  process.exit(1);
-}
+// ─── Task Runner ─────────────────────────────────────────────────────
 
-const agenticDir = resolve(target, ".github/agentic-lib");
-let changes = 0;
+async function runTask(taskName) {
+  console.log("");
+  console.log(`=== agentic-lib ${taskName} ===`);
+  console.log(`Target:  ${target}`);
+  console.log(`Model:   ${model}`);
+  console.log(`Dry-run: ${dryRun}`);
+  console.log("");
 
-function copyFile(src, dst, label) {
+  // Find the Copilot SDK
+  const sdkLocations = [
+    resolve(pkgRoot, "node_modules/@github/copilot-sdk/dist/index.js"),
+    resolve(pkgRoot, "src/actions/agentic-step/node_modules/@github/copilot-sdk/dist/index.js"),
+    resolve(target, ".github/agentic-lib/actions/agentic-step/node_modules/@github/copilot-sdk/dist/index.js"),
+  ];
+  const sdkPath = sdkLocations.find((p) => existsSync(p));
+  if (!sdkPath) {
+    console.error("ERROR: @github/copilot-sdk not found.");
+    console.error("Run: cd .github/agentic-lib/actions/agentic-step && npm ci");
+    return 1;
+  }
+  const { CopilotClient, approveAll, defineTool } = await import(sdkPath);
+
+  // Load config
+  const config = await loadTaskConfig();
+  const writablePaths = getWritablePathsFromConfig(config);
+  const readOnlyPaths = getReadOnlyPathsFromConfig(config);
+
+  console.log(`[config] schedule=${config.schedule}`);
+  console.log(`[config] writable=${writablePaths.join(", ")}`);
+  console.log(`[config] test=${config.testScript}`);
+  console.log("");
+
+  // Build task-specific prompt
+  const { systemMessage, prompt } = buildTaskPrompt(taskName, config, writablePaths, readOnlyPaths);
+
+  if (!prompt) {
+    return 0; // buildTaskPrompt already logged why
+  }
+
+  console.log(`[prompt] ${prompt.length} chars`);
+  console.log("");
+
   if (dryRun) {
-    console.log(`  COPY: ${label}`);
+    console.log("=== DRY RUN — prompt constructed but not sent ===");
+    console.log("");
+    console.log(prompt);
+    return 0;
+  }
+
+  // Create tools
+  const tools = createCliTools(writablePaths, defineTool);
+
+  // Set up auth
+  const copilotToken = process.env.COPILOT_GITHUB_TOKEN;
+  const clientOptions = {};
+  if (copilotToken) {
+    console.log("[auth] Using COPILOT_GITHUB_TOKEN");
+    const env = { ...process.env };
+    env.GITHUB_TOKEN = copilotToken;
+    env.GH_TOKEN = copilotToken;
+    clientOptions.env = env;
   } else {
-    mkdirSync(dirname(dst), { recursive: true });
-    copyFileSync(src, dst);
-    console.log(`  COPY: ${label}`);
+    console.log("[auth] Using local gh CLI auth");
   }
-  changes++;
+
+  const client = new CopilotClient(clientOptions);
+
+  try {
+    console.log("[copilot] Creating session...");
+    const session = await client.createSession({
+      model,
+      systemMessage: { content: systemMessage },
+      tools,
+      onPermissionRequest: approveAll,
+      workingDirectory: target,
+    });
+    console.log(`[copilot] Session: ${session.sessionId}`);
+
+    // Verbose event logging
+    session.on((event) => {
+      const type = event?.type || "unknown";
+      if (type === "assistant.message") {
+        const preview = event?.data?.content?.substring(0, 120) || "";
+        console.log(`[event] ${type}: ${preview}...`);
+      } else if (type === "tool.call") {
+        const name = event?.data?.name || "?";
+        const args = JSON.stringify(event?.data?.arguments || {}).substring(0, 200);
+        console.log(`[event] tool.call: ${name}(${args})`);
+      } else if (type === "session.error") {
+        console.error(`[event] ERROR: ${JSON.stringify(event?.data || event)}`);
+      } else if (type !== "session.idle") {
+        console.log(`[event] ${type}`);
+      }
+    });
+
+    const startTime = Date.now();
+    console.log("[copilot] Sending prompt...");
+    const response = await session.sendAndWait({ prompt }, 300000);
+    const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+
+    const content = response?.data?.content || "(no content)";
+    const tokens = response?.data?.usage?.totalTokens || 0;
+
+    console.log("");
+    console.log(`=== ${taskName} completed in ${elapsed}s (${tokens} tokens) ===`);
+    console.log("");
+    console.log(content);
+    console.log("");
+
+    return 0;
+  } catch (err) {
+    console.error("");
+    console.error(`=== ${taskName} FAILED ===`);
+    console.error(err.message);
+    if (err.stack) console.error(err.stack);
+    return 1;
+  } finally {
+    await client.stop();
+  }
 }
 
-function copyDirRecursive(srcPath, dstPath, label, excludes = []) {
-  if (!existsSync(srcPath)) {
-    console.log(`  SKIP: ${label} (not found)`);
-    return;
-  }
-  const entries = readdirSync(srcPath, { withFileTypes: true });
-  for (const entry of entries) {
-    const srcFull = join(srcPath, entry.name);
-    const dstFull = join(dstPath, entry.name);
-    const relLabel = `${label}/${entry.name}`;
+// ─── Task Config + Prompts ───────────────────────────────────────────
 
-    if (excludes.some((ex) => entry.name === ex || srcFull.includes(ex))) continue;
+async function loadTaskConfig() {
+  // Try agentic-lib.toml first, then YAML config
+  const tomlPath = resolve(target, "agentic-lib.toml");
+  const yamlPath = resolve(target, ".github/agentic-lib/agents/agentic-lib.yml");
 
-    if (entry.isDirectory()) {
-      copyDirRecursive(srcFull, dstFull, relLabel, excludes);
-    } else {
-      copyFile(srcFull, dstFull, relLabel);
+  if (existsSync(tomlPath)) {
+    console.log(`[config] Loading ${tomlPath}`);
+    try {
+      const { parse } = await import("smol-toml");
+      const toml = parse(readFileSync(tomlPath, "utf8"));
+      return {
+        schedule: toml.schedule?.tier || "schedule-1",
+        missionPath: toml.paths?.mission || "MISSION.md",
+        sourcePath: toml.paths?.source || "src/lib/",
+        testsPath: toml.paths?.tests || "tests/unit/",
+        featuresPath: toml.paths?.features || ".github/agentic-lib/features/",
+        libraryPath: toml.paths?.docs || "library/",
+        sourcesPath: toml.paths?.["library-sources"] || "SOURCES.md",
+        readmePath: toml.paths?.readme || "README.md",
+        depsPath: toml.paths?.dependencies || "package.json",
+        buildScript: toml.execution?.build || "npm run build",
+        testScript: toml.execution?.test || "npm test",
+        mainScript: toml.execution?.start || "npm run start",
+        featureLimit: toml.limits?.["feature-issues"] || 2,
+        intentionPath: toml.bot?.["log-file"] || "intentïon.md",
+      };
+    } catch {
+      // Fall through to YAML
     }
   }
-}
 
-console.log("");
-console.log("=== @xn-intenton-z2a/agentic-lib init ===");
-console.log(`Source:  ${srcDir}`);
-console.log(`Target:  ${target}`);
-console.log(`Purge:   ${purge}`);
-console.log(`Mode:    ${dryRun ? "DRY RUN" : "LIVE"}`);
-console.log("");
-
-// 1. Workflows → .github/workflows/
-console.log("--- Workflows ---");
-const workflowsDir = resolve(srcDir, "workflows");
-if (existsSync(workflowsDir)) {
-  for (const f of readdirSync(workflowsDir)) {
-    if (f.endsWith(".yml")) {
-      copyFile(resolve(workflowsDir, f), resolve(target, ".github/workflows", f), `workflows/${f}`);
-    }
+  if (existsSync(yamlPath)) {
+    console.log(`[config] Loading ${yamlPath}`);
+    const { default: yaml } = await import("js-yaml");
+    const raw = yaml.load(readFileSync(yamlPath, "utf8"));
+    return {
+      schedule: raw.schedule || "schedule-1",
+      missionPath: raw.paths?.missionFilepath?.path || "MISSION.md",
+      sourcePath: raw.paths?.targetSourcePath?.path || "src/lib/",
+      testsPath: raw.paths?.targetTestsPath?.path || "tests/unit/",
+      featuresPath: raw.paths?.featuresPath?.path || ".github/agentic-lib/features/",
+      libraryPath: raw.paths?.libraryDocumentsPath?.path || "library/",
+      sourcesPath: raw.paths?.librarySourcesFilepath?.path || "SOURCES.md",
+      readmePath: raw.paths?.readmeFilepath?.path || "README.md",
+      depsPath: raw.paths?.dependenciesFilepath?.path || "package.json",
+      buildScript: raw.buildScript || "npm run build",
+      testScript: raw.testScript || "npm test",
+      mainScript: raw.mainScript || "npm run start",
+      featureLimit: raw.paths?.featuresPath?.limit || raw.featureDevelopmentIssuesWipLimit || 2,
+      intentionPath: raw.intentionBot?.intentionFilepath || "intentïon.md",
+    };
   }
-}
 
-// 2. Actions → .github/agentic-lib/actions/
-console.log("\n--- Actions ---");
-const actionsDir = resolve(srcDir, "actions");
-if (existsSync(actionsDir)) {
-  for (const actionName of readdirSync(actionsDir, { withFileTypes: true })) {
-    if (actionName.isDirectory()) {
-      copyDirRecursive(
-        resolve(actionsDir, actionName.name),
-        resolve(agenticDir, "actions", actionName.name),
-        `actions/${actionName.name}`,
-        ["node_modules"],
-      );
-    }
-  }
-}
-
-// 3. Agents → .github/agentic-lib/agents/
-console.log("\n--- Agents ---");
-const agentsDir = resolve(srcDir, "agents");
-if (existsSync(agentsDir)) {
-  for (const f of readdirSync(agentsDir)) {
-    copyFile(resolve(agentsDir, f), resolve(agenticDir, "agents", f), `agents/${f}`);
-  }
-}
-
-// 4. Seeds → .github/agentic-lib/seeds/
-console.log("\n--- Seeds ---");
-const seedsDir = resolve(srcDir, "seeds");
-if (existsSync(seedsDir)) {
-  for (const f of readdirSync(seedsDir)) {
-    copyFile(resolve(seedsDir, f), resolve(agenticDir, "seeds", f), `seeds/${f}`);
-  }
-}
-
-// 5. Scripts → .github/agentic-lib/scripts/ (selected scripts only)
-console.log("\n--- Scripts ---");
-const scriptsDir = resolve(srcDir, "scripts");
-const DISTRIBUTED_SCRIPTS = [
-  "accept-release.sh",
-  "activate-schedule.sh",
-  "clean.sh",
-  "initialise.sh",
-  "md-to-html.js",
-  "update.sh",
-];
-if (existsSync(scriptsDir)) {
-  for (const name of DISTRIBUTED_SCRIPTS) {
-    const src = resolve(scriptsDir, name);
-    if (existsSync(src)) {
-      copyFile(src, resolve(agenticDir, "scripts", name), `scripts/${name}`);
-    }
-  }
-}
-
-// 6. agentic-lib.toml → project root (if not already present)
-console.log("\n--- Config ---");
-const tomlSeed = resolve(seedsDir, "zero-agentic-lib.toml");
-const tomlTarget = resolve(target, "agentic-lib.toml");
-if (existsSync(tomlSeed) && !existsSync(tomlTarget)) {
-  copyFile(tomlSeed, tomlTarget, "agentic-lib.toml (new)");
-} else if (existsSync(tomlTarget)) {
-  console.log("  SKIP: agentic-lib.toml already exists");
-} else {
-  console.log("  SKIP: seed TOML not found");
-}
-
-// 7. Purge: reset source files to seed state
-if (purge) {
-  console.log("\n--- Reset Source Files to Seed State ---");
-
-  const SEED_MAP = {
-    "zero-main.js": "src/lib/main.js",
-    "zero-main.test.js": "tests/unit/main.test.js",
-    "zero-MISSION.md": "MISSION.md",
-    "zero-package.json": "package.json",
-    "zero-README.md": "README.md",
+  console.log("[config] No config file found, using defaults");
+  return {
+    schedule: "schedule-1",
+    missionPath: "MISSION.md",
+    sourcePath: "src/lib/",
+    testsPath: "tests/unit/",
+    featuresPath: ".github/agentic-lib/features/",
+    libraryPath: "library/",
+    sourcesPath: "SOURCES.md",
+    readmePath: "README.md",
+    depsPath: "package.json",
+    buildScript: "npm run build",
+    testScript: "npm test",
+    mainScript: "npm run start",
+    featureLimit: 2,
+    intentionPath: "intentïon.md",
   };
+}
 
-  for (const [seedFile, targetRel] of Object.entries(SEED_MAP)) {
-    const src = resolve(seedsDir, seedFile);
-    if (existsSync(src)) {
-      copyFile(src, resolve(target, targetRel), `SEED: ${seedFile} → ${targetRel}`);
-    } else {
-      console.log(`  SKIP: ${seedFile} (not found)`);
-    }
+function getWritablePathsFromConfig(config) {
+  return [config.sourcePath, config.testsPath, config.featuresPath, config.readmePath, config.depsPath].filter(Boolean);
+}
+
+function getReadOnlyPathsFromConfig(config) {
+  return [config.missionPath, config.libraryPath, config.sourcesPath].filter(Boolean);
+}
+
+function readOptional(relPath) {
+  try {
+    return readFileSync(resolve(target, relPath), "utf8");
+  } catch {
+    return "";
+  }
+}
+
+function scanDir(relPath, extensions, opts = {}) {
+  const { fileLimit = 10, contentLimit } = opts;
+  const dir = resolve(target, relPath);
+  const exts = Array.isArray(extensions) ? extensions : [extensions];
+  if (!existsSync(dir)) return [];
+  try {
+    return readdirSync(dir, { recursive: true })
+      .filter((f) => exts.some((ext) => String(f).endsWith(ext)))
+      .slice(0, fileLimit)
+      .map((f) => {
+        try {
+          const content = readFileSync(resolve(dir, String(f)), "utf8");
+          return { name: String(f), content: contentLimit ? content.substring(0, contentLimit) : content };
+        } catch {
+          return { name: String(f), content: "" };
+        }
+      });
+  } catch {
+    return [];
+  }
+}
+
+function formatPaths(writable, readOnly) {
+  return [
+    "## File Paths",
+    "### Writable (you may modify these)",
+    writable.length > 0 ? writable.map((p) => `- ${p}`).join("\n") : "- (none)",
+    "",
+    "### Read-Only (for context only, do NOT modify)",
+    readOnly.length > 0 ? readOnly.map((p) => `- ${p}`).join("\n") : "- (none)",
+  ].join("\n");
+}
+
+function buildTaskPrompt(taskName, config, writablePaths, readOnlyPaths) {
+  const pathsSection = formatPaths(writablePaths, readOnlyPaths);
+
+  switch (taskName) {
+    case "transform":
+      return buildTransformPrompt(config, pathsSection);
+    case "maintain-features":
+      return buildMaintainFeaturesPrompt(config, pathsSection, writablePaths);
+    case "maintain-library":
+      return buildMaintainLibraryPrompt(config, pathsSection, writablePaths);
+    case "fix-code":
+      return buildFixCodePrompt(config, pathsSection);
+    default:
+      console.error(`Unknown task: ${taskName}`);
+      return { systemMessage: "", prompt: null };
+  }
+}
+
+function buildTransformPrompt(config, pathsSection) {
+  const mission = readOptional(config.missionPath);
+  if (!mission) {
+    console.error(`No mission file found at ${config.missionPath}`);
+    return { systemMessage: "", prompt: null };
+  }
+  console.log(`[context] Mission: ${mission.substring(0, 80).trim()}...`);
+
+  const features = scanDir(config.featuresPath, ".md");
+  const sourceFiles = scanDir(config.sourcePath, [".js", ".ts"], { contentLimit: 2000 });
+  console.log(`[context] Features: ${features.length}, Source files: ${sourceFiles.length}`);
+
+  return {
+    systemMessage:
+      "You are an autonomous code transformation agent. Your goal is to advance the repository toward its mission by making the most impactful change possible in a single step.",
+    prompt: [
+      "## Instructions",
+      "Transform the repository toward its mission by identifying the next best action.",
+      "",
+      "## Mission",
+      mission,
+      "",
+      `## Current Features (${features.length})`,
+      ...features.map((f) => `### ${f.name}\n${f.content.substring(0, 500)}`),
+      "",
+      `## Current Source Files (${sourceFiles.length})`,
+      ...sourceFiles.map((f) => `### ${f.name}\n\`\`\`\n${f.content}\n\`\`\``),
+      "",
+      "## Your Task",
+      "Analyze the mission, features, and source code.",
+      "Determine the single most impactful next step.",
+      "Then implement that step by writing files.",
+      "",
+      pathsSection,
+      "",
+      "## Constraints",
+      `- Run \`${config.testScript}\` to validate your changes`,
+    ].join("\n"),
+  };
+}
+
+function buildMaintainFeaturesPrompt(config, pathsSection) {
+  const mission = readOptional(config.missionPath);
+  if (!mission) {
+    console.error(`No mission file found at ${config.missionPath}`);
+    return { systemMessage: "", prompt: null };
   }
 
-  // Remove activity log
-  const intentionFile = resolve(target, "intentïon.md");
-  if (existsSync(intentionFile)) {
+  const features = scanDir(config.featuresPath, ".md");
+  const libraryDocs = scanDir(config.libraryPath, ".md", { contentLimit: 1000 });
+  console.log(`[context] Mission loaded, features: ${features.length}, library: ${libraryDocs.length}`);
+
+  return {
+    systemMessage:
+      "You are a feature lifecycle manager. Create, update, and prune feature specification files to keep the project focused on its mission.",
+    prompt: [
+      "## Instructions",
+      "Maintain the feature set by creating, updating, or pruning features.",
+      "",
+      "## Mission",
+      mission,
+      "",
+      `## Current Features (${features.length}/${config.featureLimit} max)`,
+      ...features.map((f) => `### ${f.name}\n${f.content}`),
+      "",
+      libraryDocs.length > 0 ? `## Library Documents (${libraryDocs.length})` : "",
+      ...libraryDocs.map((d) => `### ${d.name}\n${d.content}`),
+      "",
+      "## Your Task",
+      `1. Review each existing feature — if it is already implemented or irrelevant, delete it.`,
+      `2. If there are fewer than ${config.featureLimit} features, create new features aligned with the mission.`,
+      "3. Ensure each feature has clear, testable acceptance criteria.",
+      "",
+      pathsSection,
+      "",
+      "## Constraints",
+      `- Maximum ${config.featureLimit} feature files`,
+      "- Feature files must be markdown with a descriptive filename",
+    ].join("\n"),
+  };
+}
+
+function buildMaintainLibraryPrompt(config, pathsSection) {
+  const sources = readOptional(config.sourcesPath);
+  if (!sources.trim()) {
+    console.log("No SOURCES.md or empty — nothing to maintain.");
+    return { systemMessage: "", prompt: null };
+  }
+
+  const libraryDocs = scanDir(config.libraryPath, ".md", { contentLimit: 500 });
+  console.log(`[context] Sources loaded, library: ${libraryDocs.length}`);
+
+  return {
+    systemMessage:
+      "You are a knowledge librarian. Maintain a library of technical documents extracted from web sources.",
+    prompt: [
+      "## Instructions",
+      "Maintain the library by updating documents from sources.",
+      "",
+      "## Sources",
+      sources,
+      "",
+      `## Current Library Documents (${libraryDocs.length})`,
+      ...libraryDocs.map((d) => `### ${d.name}\n${d.content}`),
+      "",
+      "## Your Task",
+      "1. Read each URL in SOURCES.md and extract technical content.",
+      "2. Create or update library documents based on the source content.",
+      "3. Remove library documents that no longer have corresponding sources.",
+      "",
+      pathsSection,
+    ].join("\n"),
+  };
+}
+
+function buildFixCodePrompt(config, pathsSection) {
+  // Run tests and capture output
+  console.log(`[fix-code] Running: ${config.testScript}`);
+  let testOutput;
+  try {
+    testOutput = execSync(config.testScript, { cwd: target, encoding: "utf8", timeout: 120000 }); // eslint-disable-line sonarjs/no-os-command-from-path
+    console.log("[fix-code] Tests pass — nothing to fix.");
+    return { systemMessage: "", prompt: null };
+  } catch (err) {
+    testOutput = `STDOUT:\n${err.stdout || ""}\nSTDERR:\n${err.stderr || ""}`;
+    console.log(`[fix-code] Tests failing — ${testOutput.length} chars of output`);
+  }
+
+  const sourceFiles = scanDir(config.sourcePath, [".js", ".ts"], { contentLimit: 2000 });
+  const testFiles = scanDir(config.testsPath, [".js", ".ts", ".test.js"], { contentLimit: 2000 });
+
+  return {
+    systemMessage:
+      "You are an autonomous coding agent fixing failing tests. Make minimal, targeted changes to fix the test failures.",
+    prompt: [
+      "## Instructions",
+      "Fix the failing tests by modifying the source code.",
+      "",
+      "## Test Output (failing)",
+      "```",
+      testOutput.substring(0, 5000),
+      "```",
+      "",
+      `## Source Files (${sourceFiles.length})`,
+      ...sourceFiles.map((f) => `### ${f.name}\n\`\`\`\n${f.content}\n\`\`\``),
+      "",
+      `## Test Files (${testFiles.length})`,
+      ...testFiles.map((f) => `### ${f.name}\n\`\`\`\n${f.content}\n\`\`\``),
+      "",
+      pathsSection,
+      "",
+      "## Constraints",
+      `- Run \`${config.testScript}\` to validate your fixes`,
+      "- Make minimal changes to fix the failing tests",
+    ].join("\n"),
+  };
+}
+
+// ─── CLI Tools for Copilot SDK ───────────────────────────────────────
+
+function createCliTools(writablePaths, defineTool) {
+  const readFile = defineTool("read_file", {
+    description: "Read the contents of a file.",
+    parameters: {
+      type: "object",
+      properties: { path: { type: "string", description: "File path to read" } },
+      required: ["path"],
+    },
+    handler: ({ path }) => {
+      const resolved = resolve(target, path);
+      console.log(`  [tool] read_file: ${resolved}`);
+      if (!existsSync(resolved)) return { error: `File not found: ${resolved}` };
+      try {
+        return { content: readFileSync(resolved, "utf8") };
+      } catch (err) {
+        return { error: err.message };
+      }
+    },
+  });
+
+  const writeFile = defineTool("write_file", {
+    description: "Write content to a file. Parent directories are created automatically.",
+    parameters: {
+      type: "object",
+      properties: {
+        path: { type: "string", description: "File path to write" },
+        content: { type: "string", description: "Content to write" },
+      },
+      required: ["path", "content"],
+    },
+    handler: ({ path, content }) => {
+      const resolved = resolve(target, path);
+      const isWritable = writablePaths.some((wp) => path.startsWith(wp) || resolved.startsWith(resolve(target, wp)));
+      console.log(`  [tool] write_file: ${resolved} (${content.length} chars, writable=${isWritable})`);
+      if (!isWritable && !dryRun) {
+        return { error: `Path not writable: ${path}. Writable: ${writablePaths.join(", ")}` };
+      }
+      if (dryRun) {
+        console.log(`  [tool] DRY RUN — would write ${content.length} chars to ${resolved}`);
+        return { success: true, dryRun: true };
+      }
+      try {
+        const dir = dirname(resolved);
+        if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
+        writeFileSync(resolved, content, "utf8");
+        return { success: true, path: resolved };
+      } catch (err) {
+        return { error: err.message };
+      }
+    },
+  });
+
+  const listFiles = defineTool("list_files", {
+    description: "List files and directories at the given path.",
+    parameters: {
+      type: "object",
+      properties: {
+        path: { type: "string", description: "Directory path to list" },
+        recursive: { type: "boolean", description: "List recursively" },
+      },
+      required: ["path"],
+    },
+    handler: ({ path, recursive }) => {
+      const resolved = resolve(target, path);
+      console.log(`  [tool] list_files: ${resolved}`);
+      if (!existsSync(resolved)) return { error: `Not found: ${resolved}` };
+      try {
+        const entries = readdirSync(resolved, { withFileTypes: true, recursive: !!recursive });
+        return { files: entries.map((e) => (e.isDirectory() ? `${e.name}/` : e.name)) };
+      } catch (err) {
+        return { error: err.message };
+      }
+    },
+  });
+
+  const runCommand = defineTool("run_command", {
+    description: "Run a shell command and return stdout/stderr.",
+    parameters: {
+      type: "object",
+      properties: {
+        command: { type: "string", description: "Shell command to execute" },
+        cwd: { type: "string", description: "Working directory" },
+      },
+      required: ["command"],
+    },
+    handler: ({ command: cmd, cwd }) => {
+      const workDir = cwd ? resolve(target, cwd) : target;
+      console.log(`  [tool] run_command: ${cmd} (cwd=${workDir})`);
+      try {
+        const stdout = execSync(cmd, { cwd: workDir, encoding: "utf8", timeout: 120000 }); // eslint-disable-line sonarjs/no-os-command-from-path
+        return { stdout, exitCode: 0 };
+      } catch (err) {
+        return { stdout: err.stdout || "", stderr: err.stderr || "", exitCode: err.status || 1 };
+      }
+    },
+  });
+
+  return [readFile, writeFile, listFiles, runCommand];
+}
+
+// ─── Init Runner ─────────────────────────────────────────────────────
+
+function runInit() {
+  if (!existsSync(target)) {
+    console.error(`Target directory does not exist: ${target}`);
+    process.exit(1);
+  }
+  if (!existsSync(srcDir)) {
+    console.error(`Source directory not found: ${srcDir}`);
+    process.exit(1);
+  }
+
+  const agenticDir = resolve(target, ".github/agentic-lib");
+  let changes = 0;
+
+  function copyFile(src, dst, label) {
     if (dryRun) {
-      console.log("  REMOVE: intentïon.md");
+      console.log(`  COPY: ${label}`);
     } else {
-      rmSync(intentionFile);
-      console.log("  REMOVE: intentïon.md");
+      mkdirSync(dirname(dst), { recursive: true });
+      copyFileSync(src, dst);
+      console.log(`  COPY: ${label}`);
     }
     changes++;
   }
 
-  // Clear features
-  const featuresDir = resolve(agenticDir, "features");
-  if (existsSync(featuresDir)) {
-    const files = readdirSync(featuresDir);
-    for (const f of files) {
-      if (dryRun) {
-        console.log(`  REMOVE: features/${f}`);
+  function copyDirRecursive(srcPath, dstPath, label, excludes = []) {
+    if (!existsSync(srcPath)) {
+      console.log(`  SKIP: ${label} (not found)`);
+      return;
+    }
+    const entries = readdirSync(srcPath, { withFileTypes: true });
+    for (const entry of entries) {
+      const srcFull = join(srcPath, entry.name);
+      const dstFull = join(dstPath, entry.name);
+      const relLabel = `${label}/${entry.name}`;
+      if (excludes.some((ex) => entry.name === ex || srcFull.includes(ex))) continue;
+      if (entry.isDirectory()) {
+        copyDirRecursive(srcFull, dstFull, relLabel, excludes);
       } else {
-        rmSync(resolve(featuresDir, f));
-        console.log(`  REMOVE: features/${f}`);
+        copyFile(srcFull, dstFull, relLabel);
       }
-      changes++;
     }
   }
-}
 
-console.log(`\n${changes} change(s)${dryRun ? " (dry run)" : ""}`);
+  console.log("");
+  console.log("=== @xn-intenton-z2a/agentic-lib init ===");
+  console.log(`Source:  ${srcDir}`);
+  console.log(`Target:  ${target}`);
+  console.log(`Purge:   ${purge}`);
+  console.log(`Mode:    ${dryRun ? "DRY RUN" : "LIVE"}`);
+  console.log("");
 
-if (!dryRun && changes > 0) {
-  console.log("\nNext steps:");
-  if (purge) {
-    console.log(`  cd ${target} && npm install`);
+  // 1. Workflows
+  console.log("--- Workflows ---");
+  const workflowsDir = resolve(srcDir, "workflows");
+  if (existsSync(workflowsDir)) {
+    for (const f of readdirSync(workflowsDir)) {
+      if (f.endsWith(".yml")) {
+        copyFile(resolve(workflowsDir, f), resolve(target, ".github/workflows", f), `workflows/${f}`);
+      }
+    }
   }
-  console.log(`  cd ${resolve(agenticDir, "actions/agentic-step")} && npm ci`);
-  console.log("  npm test");
+
+  // 2. Actions
+  console.log("\n--- Actions ---");
+  const actionsDir = resolve(srcDir, "actions");
+  if (existsSync(actionsDir)) {
+    for (const actionName of readdirSync(actionsDir, { withFileTypes: true })) {
+      if (actionName.isDirectory()) {
+        copyDirRecursive(
+          resolve(actionsDir, actionName.name),
+          resolve(agenticDir, "actions", actionName.name),
+          `actions/${actionName.name}`,
+          ["node_modules"],
+        );
+      }
+    }
+  }
+
+  // 3. Agents
+  console.log("\n--- Agents ---");
+  const agentsDir = resolve(srcDir, "agents");
+  if (existsSync(agentsDir)) {
+    for (const f of readdirSync(agentsDir)) {
+      copyFile(resolve(agentsDir, f), resolve(agenticDir, "agents", f), `agents/${f}`);
+    }
+  }
+
+  // 4. Seeds
+  console.log("\n--- Seeds ---");
+  const seedsDir = resolve(srcDir, "seeds");
+  if (existsSync(seedsDir)) {
+    for (const f of readdirSync(seedsDir)) {
+      copyFile(resolve(seedsDir, f), resolve(agenticDir, "seeds", f), `seeds/${f}`);
+    }
+  }
+
+  // 5. Scripts
+  console.log("\n--- Scripts ---");
+  const scriptsDir = resolve(srcDir, "scripts");
+  const DISTRIBUTED_SCRIPTS = [
+    "accept-release.sh",
+    "activate-schedule.sh",
+    "clean.sh",
+    "initialise.sh",
+    "md-to-html.js",
+    "update.sh",
+  ];
+  if (existsSync(scriptsDir)) {
+    for (const name of DISTRIBUTED_SCRIPTS) {
+      const src = resolve(scriptsDir, name);
+      if (existsSync(src)) {
+        copyFile(src, resolve(agenticDir, "scripts", name), `scripts/${name}`);
+      }
+    }
+  }
+
+  // 6. Config
+  console.log("\n--- Config ---");
+  const tomlSeed = resolve(seedsDir, "zero-agentic-lib.toml");
+  const tomlTarget = resolve(target, "agentic-lib.toml");
+  if (existsSync(tomlSeed) && !existsSync(tomlTarget)) {
+    copyFile(tomlSeed, tomlTarget, "agentic-lib.toml (new)");
+  } else if (existsSync(tomlTarget)) {
+    console.log("  SKIP: agentic-lib.toml already exists");
+  } else {
+    console.log("  SKIP: seed TOML not found");
+  }
+
+  // 7. Purge
+  if (purge) {
+    console.log("\n--- Reset Source Files to Seed State ---");
+    const SEED_MAP = {
+      "zero-main.js": "src/lib/main.js",
+      "zero-main.test.js": "tests/unit/main.test.js",
+      "zero-MISSION.md": "MISSION.md",
+      "zero-package.json": "package.json",
+      "zero-README.md": "README.md",
+    };
+    for (const [seedFile, targetRel] of Object.entries(SEED_MAP)) {
+      const src = resolve(seedsDir, seedFile);
+      if (existsSync(src)) {
+        copyFile(src, resolve(target, targetRel), `SEED: ${seedFile} → ${targetRel}`);
+      }
+    }
+    const intentionFile = resolve(target, "intentïon.md");
+    if (existsSync(intentionFile)) {
+      if (!dryRun) rmSync(intentionFile);
+      console.log("  REMOVE: intentïon.md");
+      changes++;
+    }
+    const featuresDir = resolve(agenticDir, "features");
+    if (existsSync(featuresDir)) {
+      for (const f of readdirSync(featuresDir)) {
+        if (!dryRun) rmSync(resolve(featuresDir, f));
+        console.log(`  REMOVE: features/${f}`);
+        changes++;
+      }
+    }
+  }
+
+  console.log(`\n${changes} change(s)${dryRun ? " (dry run)" : ""}`);
+
+  if (!dryRun && changes > 0) {
+    console.log("\nNext steps:");
+    if (purge) console.log(`  cd ${target} && npm install`);
+    console.log(`  cd ${resolve(agenticDir, "actions/agentic-step")} && npm ci`);
+    console.log("  npm test");
+  }
 }

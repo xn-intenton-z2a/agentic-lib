@@ -70,6 +70,9 @@
     "registry": "https://npm.pkg.github.com"
   },
   "dependencies": {
+    "@actions/core": "^3.0.0",
+    "@actions/github": "^9.0.0",
+    "@github/copilot-sdk": "^0.1.29",
     "smol-toml": "^1.6.0"
   }
 }

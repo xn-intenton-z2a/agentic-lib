@@ -9,15 +9,19 @@ Get all the moving parts working end-to-end before tightening verification and e
 | Hardening sprint (12 tasks) | Tests, CI, packaging, distribution, docs | Done |
 | Post-sprint (A-K) | SDK auth, CLI init, seeds, releases, integration tests | Done |
 | Self-contained testing | test.yml replaces ci.yml + 3 integration-test-*.yml | Done |
-| Auto-publish | auto-publish.yml: patch bump on merge to main | Done |
+| Auto-publish | release.yml: auto patch bump on push to main | Done |
+| Workflow consolidation | Merged auto-publish into release.yml, llm-verify into test.yml. Down to 2 workflows. | Done |
 | TOML config | config-loader.js supports agentic-lib.toml, seed TOML created | Done |
 | README rewrite | README.md describes init, file map, three entry points | Done |
+| Template branch | repository0 `template` branch created at seed state via init --purge | Done |
+| CLI task commands | bin/agentic-lib.js supports transform, maintain-features, maintain-library, fix-code | In progress |
 
 Current metrics:
 - 313 tests across 21 files (vitest)
-- 17 workflow files validated (4 internal + 13 distributed)
+- 15 workflow files validated (2 internal + 13 distributed)
 - 0 npm audit vulnerabilities
 - v7.1.2-0 (prepatch)
+- Branch: `claude/self-contained-testing`, PR #1782
 
 ## Current Architecture
 
@@ -34,6 +38,15 @@ agentic-lib distributes (via npm + CLI init):
   src/seeds/        → 9 files → consumer .github/agentic-lib/seeds/
   src/scripts/      → 6 files → consumer .github/agentic-lib/scripts/
   agentic-lib.toml  → consumer project root (created once)
+
+CLI (bin/agentic-lib.js):
+  init [--purge]         → populate consumer repo with infrastructure
+  reset                  → alias for init --purge
+  transform              → run Copilot SDK transform on target repo
+  maintain-features      → generate feature files from mission
+  maintain-library       → update library docs from SOURCES.md
+  fix-code               → fix failing tests via Copilot SDK
+  version                → show installed version
 ```
 
 ## User Assertions
@@ -45,17 +58,39 @@ agentic-lib distributes (via npm + CLI init):
 - Publication is automatic on merge to main (patch bumps)
 - Manual release.yml for major/minor versions
 - Template users get a stable version that doesn't disappear; they bump when ready
+- CLI task commands log verbosely so the user can see what's happening
 
-## Next Phases
+## In Progress: CLI Task Commands
+
+**What's done:**
+- `bin/agentic-lib.js` rewritten with task command support (transform, maintain-features, maintain-library, fix-code)
+- Copilot SDK runner bypasses `@actions/core` for CLI independence
+- Verbose logging with `[config]`, `[context]`, `[auth]`, `[copilot]`, `[event]`, `[tool]` prefixes
+- Config loading from `agentic-lib.toml` or YAML fallback
+- CLI tools (read_file, write_file, list_files, run_command) with path safety
+- `--dry-run` support shows prompt without sending to Copilot SDK
+- `--model` flag to choose SDK model
+
+**What's next:**
+1. Run tests and fix any issues from the bin rewrite
+2. Create system test script (`scripts/system-test.sh`) that does full journey:
+   - init --purge a temp workspace
+   - Write a mission
+   - Run maintain-features
+   - Run transform
+   - Verify files changed
+   - Clean up (revert or delete temp workspace)
+3. Update README.md with CLI task commands walkthrough and example output
+4. Add system test as optional job in test.yml pipeline
+5. Commit and push to PR #1782
+
+## Next Phases (after CLI task commands)
 
 ### Phase: Template Branch Strategy
 
-**Problem:** repository0 serves dual purpose -- it's a living demo (main churns with experiments) AND a GitHub template (new repos should start clean). Currently main has experiment artifacts.
-
-**Options to investigate:**
-- A dedicated `template` branch kept at seed state, used as the template source
-- GitHub template repos can specify which branch to use as the template
-- The `template` branch gets `init --purge` applied on every agentic-lib release
+**Status:** Template branch created in repository0. Still to do:
+- Configure repository0 to use `template` branch as the GitHub template source
+- Automate `template` branch refresh on agentic-lib release (init --purge applied)
 - Main continues as the living demo
 
 ### Phase: API Surface + npm Exports (Goals 4 + 6)
@@ -104,6 +139,16 @@ agentic-lib distributes (via npm + CLI init):
 - `agentic-lib.toml` at project root (preferred, user-facing)
 - `.github/agentic-lib/agents/agentic-lib.yml` as fallback (legacy)
 - Config loader tries TOML first
+
+### CLI Task Commands
+
+**Decision: Standalone Copilot SDK runner in bin/agentic-lib.js**
+
+- Bypasses `@actions/core` — works outside GitHub Actions
+- Uses same config (TOML/YAML) and prompt structure as agentic-step action
+- Verbose console logging for observability
+- `--dry-run` shows prompt without calling SDK
+- System test does full journey then reverts changes
 
 ## Archived Plans
 
