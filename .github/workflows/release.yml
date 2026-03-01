@@ -36,7 +36,6 @@ on:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-  npmAuthOrganisation: "@xn-intenton-z2a"
   gitUserEmail: "action@github.com"
   gitUserName: "GitHub Actions[bot]"
 
@@ -45,7 +44,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      packages: read
     steps:
       - uses: actions/checkout@v4
 
@@ -53,13 +51,6 @@ jobs:
         with:
           node-version: 24
           cache: "npm"
-
-      - name: Set up ~/.npmrc
-        shell: bash
-        run: |
-          echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> ~/.npmrc
-          echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" >> ~/.npmrc
-          echo "always-auth=true" >> ~/.npmrc
 
       - run: npm ci
 
@@ -73,9 +64,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-      packages: write
     env:
-      # Auto-publish uses patch; manual dispatch uses the chosen increment
       versionIncrement: ${{ inputs.versionIncrement || 'patch' }}
     outputs:
       releasedVersion: ${{ steps.released.outputs.releasedVersion }}
@@ -89,22 +78,9 @@ jobs:
         with:
           node-version: 24
           cache: "npm"
-
-      - name: Set up .npmrc for install (PAT)
-        shell: bash
-        run: |
-          echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> .npmrc
-          echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" >> .npmrc
-          echo "always-auth=true" >> .npmrc
+          registry-url: "https://registry.npmjs.org"
 
       - run: npm ci
-
-      - name: Set up .npmrc for publish (GITHUB_TOKEN)
-        shell: bash
-        run: |
-          echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" > .npmrc
-          echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" >> .npmrc
-          echo "always-auth=true" >> .npmrc
 
       - name: Configure git
         run: |
@@ -122,9 +98,11 @@ jobs:
         id: released
         if: env.versionIncrement == 'major' || env.versionIncrement == 'minor' || env.versionIncrement == 'patch'
         shell: bash
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
           npm version ${{ env.versionIncrement }}
-          npm publish --tag latest --access restricted
+          npm publish --tag latest --access public
           git push --follow-tags
           releasedVersion=$(node -p "require('./package.json').version")
           echo "releasedVersion=${releasedVersion}" >> $GITHUB_OUTPUT
