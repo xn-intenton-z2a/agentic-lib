@@ -461,7 +461,7 @@ jobs:
       - name: Seed workspace
         run: |
           cp src/seeds/zero-MISSION.md MISSION.md
-          mkdir -p library
+          mkdir -p docs
           cat > SOURCES.md << 'SEED_EOF'
           # Library Sources
 
@@ -483,7 +483,7 @@ jobs:
           echo '```diff' >> $GITHUB_STEP_SUMMARY
           git diff >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
-          DOCS=$(find library -name "*.md" | wc -l)
+          DOCS=$(find docs -name "*.md" | wc -l)
           echo "Library docs created: ${DOCS}"
           if [ "$DOCS" -eq 0 ]; then
             echo "ERROR: maintain-library produced no library documents"
