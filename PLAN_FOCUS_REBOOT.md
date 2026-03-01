@@ -17,11 +17,14 @@ Get all the moving parts working end-to-end before tightening verification and e
 | CLI task commands | bin/agentic-lib.js supports transform, maintain-features, maintain-library, fix-code | Done |
 | Eliminate anti-patterns | Remove all fallback, silent-fail, backwards-compat, token-fallback patterns | Done |
 | CLI test jobs | 3 --dry-run jobs in test.yml (transform, maintain-features, maintain-library) | Done |
+| CLI full round-trips | CLI test jobs enhanced: dry-run → verify-no-effect → full-run → diff → reset | Done |
+| npm exports | exports map in package.json, buildClientOptions exported, githubToken parameter | Done |
+| Template branch strategy | init.yml daily lifecycle in repository0, hourly transform, daily maintain | Done |
 
 Current metrics:
-- 272 tests across 20 files (vitest)
+- 277 tests across 21 files (vitest)
 - 15 workflow files validated (2 internal + 13 distributed)
-- 10 CI jobs in test.yml (4 CI + 3 action + 3 CLI dry-run)
+- 10 CI jobs in test.yml (4 CI + 3 action + 3 CLI round-trip)
 - 0 npm audit vulnerabilities
 - v7.1.2-0 (prepatch)
 - Branch: `claude/self-contained-testing`, PR #1782
@@ -87,19 +90,6 @@ Removed 140+ instances of defensive anti-patterns across 41 files (-371 net line
 - **Branch prefixes:** `copilotBranchPrefix` removed from ci-automerge, hardcoded prefix removed from agent-supervisor
 
 ## Next Phases
-
-### Phase: Template Branch Strategy
-
-**Status:** Template branch created in repository0. Still to do:
-- Configure repository0 to use `template` branch as the GitHub template source
-- Automate `template` branch refresh on agentic-lib release (init --purge applied)
-- Main continues as the living demo
-
-### Phase: API Surface + npm Exports (Goals 4 + 6)
-
-- Define `exports` field in package.json
-- Exported functions accept `githubToken` parameter
-- Version-controlled: consumers pin to a version
 
 ### Phase: Website Integration (Goals 1 + 10)
 

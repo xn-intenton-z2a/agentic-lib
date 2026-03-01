@@ -62,7 +62,7 @@ The **core SDK** of the intentïon project. A collection of reusable GitHub Acti
 ## Test Commands
 
 ```bash
-npm test              # 272 unit tests (vitest)
+npm test              # 277 unit tests (vitest)
 npm run linting       # ESLint
 npm run lint:workflows # Validate workflow YAML (15 files)
 npm run security      # npm audit (0 vulnerabilities)
