@@ -56,13 +56,19 @@ describe("npm pack --dry-run", () => {
     expect(packOutput).toContain("package.json");
   });
 
-  it("does not include test files", () => {
+  it("does not include root test files", () => {
     expect(packOutput).not.toMatch(/tests\//);
-    expect(packOutput).not.toMatch(/\.test\.js/);
   });
 
-  it("does not include source code (src/)", () => {
-    expect(packOutput).not.toMatch(/src\//);
+  it("includes src/ distributable content", () => {
+    expect(packOutput).toMatch(/src\/workflows\//);
+    expect(packOutput).toMatch(/src\/actions\//);
+    expect(packOutput).toMatch(/src\/agents\//);
+    expect(packOutput).toMatch(/src\/seeds\//);
+  });
+
+  it("includes bin/ CLI", () => {
+    expect(packOutput).toMatch(/bin\/agentic-lib\.js/);
   });
 
   it("does not include dev files", () => {

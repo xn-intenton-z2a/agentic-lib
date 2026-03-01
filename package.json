@@ -49,8 +49,22 @@
   "engines": {
     "node": ">=24.0.0"
   },
+  "bin": {
+    "agentic-lib": "bin/agentic-lib.js"
+  },
   "files": [
-    "package.json"
+    "package.json",
+    "bin/",
+    "src/workflows/",
+    "src/actions/agentic-step/*.js",
+    "src/actions/agentic-step/*.yml",
+    "src/actions/agentic-step/*.json",
+    "src/actions/agentic-step/tasks/",
+    "src/actions/commit-if-changed/",
+    "src/actions/setup-npmrc/",
+    "src/agents/",
+    "src/seeds/",
+    "src/scripts/"
   ],
   "overrides": {
     "minimatch": ">=10.2.3"
