@@ -23,10 +23,9 @@ Current metrics:
 
 ```
 agentic-lib CI (.github/workflows/):
-  test.yml          → unit tests, lint, security, workflow validation, action tests
-  auto-publish.yml  → patch bump + npm publish on merge to main
-  release.yml       → manual major/minor/prerelease
-  llm-verify.yml    → golden prompt validation
+  test.yml          → unit tests, lint, security, workflow validation
+                       optional: golden prompt verification, action tests (via dispatch inputs)
+  release.yml       → auto patch bump on push to main; manual major/minor/prerelease
 
 agentic-lib distributes (via npm + CLI init):
   src/workflows/    → 13 workflows → consumer .github/workflows/

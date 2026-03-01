@@ -1,11 +1,10 @@
 # .github/workflows/test.yml
 #
-# Comprehensive CI + self-contained action testing for agentic-lib.
-# Replaces ci.yml and all integration-test-*.yml workflows.
+# All testing for agentic-lib in one workflow.
 #
-# On every push: runs unit tests, lint, security, workflow validation.
-# Action tests self-init the repo (copying src/ → .github/agentic-lib/)
-# and then run the agentic-step action directly — no cross-repo access needed.
+# On every push/PR: unit tests, lint, security, workflow validation.
+# On workflow_dispatch: optionally also run golden prompt verification
+# and self-contained action tests against the Copilot SDK.
 
 name: test
 run-name: "test [${{ github.ref_name }}]"
@@ -27,6 +26,14 @@ on:
       - main
   workflow_dispatch:
     inputs:
+      run-llm-verify:
+        description: "Run golden prompt verification"
+        type: boolean
+        default: false
+      run-action-tests:
+        description: "Run self-contained action tests (needs COPILOT_GITHUB_TOKEN)"
+        type: boolean
+        default: false
       model:
         description: "Copilot SDK model for action tests"
         type: choice
@@ -42,7 +49,7 @@ env:
   npmAuthOrganisation: "@xn-intenton-z2a"
 
 jobs:
-  # ─── Core CI Jobs ───────────────────────────────────────────────────
+  # ─── Core CI ────────────────────────────────────────────────────────
 
   test-unit:
     runs-on: ubuntu-latest
@@ -144,13 +151,50 @@ jobs:
 
       - run: npm run security
 
-  # ─── Self-Contained Action Tests ────────────────────────────────────
-  #
-  # Each job self-inits by copying src/ → .github/agentic-lib/, seeds a
-  # workspace, then runs the agentic-step action directly. No cross-repo
-  # access, no PERSONAL_ACCESS_TOKEN needed.
+  # ─── Golden Prompt Verification (optional) ──────────────────────────
+
+  llm-verify:
+    if: inputs.run-llm-verify == true
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      packages: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: "npm"
+
+      - name: Set up ~/.npmrc
+        shell: bash
+        run: |
+          echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> ~/.npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" >> ~/.npmrc
+          echo "always-auth=true" >> ~/.npmrc
+
+      - run: npm ci || npm install
+
+      - name: Verify golden prompts are current
+        run: |
+          npm run test:record-golden
+          if git diff --quiet tests/fixtures/golden-prompts/; then
+            echo "Golden prompts are up to date"
+          else
+            echo "WARNING: Golden prompts have drifted from source"
+            git diff tests/fixtures/golden-prompts/
+            exit 1
+          fi
+
+      - name: Run fixture tests
+        run: npx vitest --run tests/fixtures/fixtures.test.js
+
+  # ─── Self-Contained Action Tests (optional) ─────────────────────────
 
   test-transform:
+    if: inputs.run-action-tests == true
     runs-on: ubuntu-latest
     timeout-minutes: 15
     continue-on-error: true
@@ -192,7 +236,6 @@ jobs:
           echo "hash=${SEED_HASH}" >> $GITHUB_OUTPUT
 
       - name: Run agentic-step (transform)
-        id: transform
         uses: ./.github/agentic-lib/actions/agentic-step
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -208,8 +251,6 @@ jobs:
         run: |
           CURRENT_HASH=$(sha256sum src/lib/main.js | cut -d' ' -f1)
           SEED_HASH="${{ steps.seed.outputs.hash }}"
-          echo "Seed hash:    ${SEED_HASH}"
-          echo "Current hash: ${CURRENT_HASH}"
           if [ "$CURRENT_HASH" != "$SEED_HASH" ]; then
             echo "PASS: src/lib/main.js was modified by the transform"
           else
@@ -217,6 +258,7 @@ jobs:
           fi
 
   test-discussions:
+    if: inputs.run-action-tests == true
     runs-on: ubuntu-latest
     timeout-minutes: 15
     continue-on-error: true
@@ -245,7 +287,6 @@ jobs:
         run: bash scripts/self-init.sh
 
       - name: Run agentic-step (discussions)
-        id: discussions
         uses: ./.github/agentic-lib/actions/agentic-step
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -260,6 +301,7 @@ jobs:
         run: echo "Discussions task completed"
 
   test-maintain-features:
+    if: inputs.run-action-tests == true
     runs-on: ubuntu-latest
     timeout-minutes: 15
     continue-on-error: true
@@ -293,7 +335,6 @@ jobs:
           cp src/seeds/zero-MISSION.md MISSION.md
 
       - name: Run agentic-step (maintain-features)
-        id: maintain-features
         uses: ./.github/agentic-lib/actions/agentic-step
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -312,6 +353,7 @@ jobs:
           fi
 
   test-maintain-library:
+    if: inputs.run-action-tests == true
     runs-on: ubuntu-latest
     timeout-minutes: 15
     continue-on-error: true
@@ -339,7 +381,6 @@ jobs:
         run: bash scripts/self-init.sh
 
       - name: Run agentic-step (maintain-library)
-        id: maintain-library
         uses: ./.github/agentic-lib/actions/agentic-step
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -360,6 +401,7 @@ jobs:
       - lint
       - lint-workflows
       - security
+      - llm-verify
       - test-transform
       - test-discussions
       - test-maintain-features
@@ -377,6 +419,7 @@ jobs:
           echo "| Lint | ${{ needs.lint.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Workflow validation | ${{ needs.lint-workflows.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Security | ${{ needs.security.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| LLM verify | ${{ needs.llm-verify.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Transform (action) | ${{ needs.test-transform.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Discussions (action) | ${{ needs.test-discussions.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Maintain-features (action) | ${{ needs.test-maintain-features.result }} |" >> $GITHUB_STEP_SUMMARY

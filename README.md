@@ -221,8 +221,10 @@ npm run test:smoke    # Connectivity smoke test (needs GITHUB_TOKEN)
 
 ### Publishing
 
-- **Auto-publish**: Merging to `main` with changes in `src/`, `bin/`, or `package.json` triggers a patch version bump and npm publish.
-- **Manual release**: Use the `release.yml` workflow dispatch for major/minor versions.
+Both auto and manual publishing are handled by `release.yml`:
+
+- **Auto-publish**: Pushing to `main` with changes in `src/`, `bin/`, or `package.json` triggers a patch version bump and npm publish.
+- **Manual release**: Use `release.yml` workflow dispatch for major/minor/prerelease versions.
 
 ## Licensing
 

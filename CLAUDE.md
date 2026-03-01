@@ -75,10 +75,8 @@ npx @xn-intenton-z2a/agentic-lib init --dry-run  # Preview init in current dir
 
 | Workflow | Trigger | Purpose |
 |----------|---------|---------|
-| `test.yml` | Push to main/claude/*, PR to main | Unit tests, lint, security, workflow validation, self-contained action tests |
-| `auto-publish.yml` | Push to main (src/, bin/, package.json) | Patch bump + npm publish |
-| `release.yml` | Manual dispatch | Major/minor/prerelease |
-| `llm-verify.yml` | Manual dispatch | Golden prompt + fixture validation |
+| `test.yml` | Push/PR, manual dispatch | Unit tests, lint, security, workflow validation. Optionally: golden prompt verification, action tests. |
+| `release.yml` | Push to main (src/bin/pkg), manual dispatch | Auto patch bump on push. Manual major/minor/prerelease. |
 
 ## Git Workflow
 
