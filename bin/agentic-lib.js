@@ -250,11 +250,18 @@ async function loadTaskConfig() {
 }
 
 function getWritablePathsFromConfig(config) {
-  return [config.sourcePath, config.testsPath, config.featuresPath, config.readmePath, config.depsPath].filter(Boolean);
+  return [
+    config.sourcePath,
+    config.testsPath,
+    config.featuresPath,
+    config.libraryPath,
+    config.readmePath,
+    config.depsPath,
+  ].filter(Boolean);
 }
 
 function getReadOnlyPathsFromConfig(config) {
-  return [config.missionPath, config.libraryPath, config.sourcesPath].filter(Boolean);
+  return [config.missionPath, config.sourcesPath].filter(Boolean);
 }
 
 function readOptional(relPath) {
@@ -567,6 +574,11 @@ function createCliTools(writablePaths, defineTool) {
     handler: ({ command: cmd, cwd }) => {
       const workDir = cwd ? resolve(target, cwd) : target;
       console.log(`  [tool] run_command: ${cmd} (cwd=${workDir})`);
+      const blocked = /\bgit\s+(commit|push|add|reset|checkout|rebase|merge|stash)\b/;
+      if (blocked.test(cmd)) {
+        console.log(`  [tool] BLOCKED git write command: ${cmd}`);
+        return { error: "Git write commands are not allowed. Use read_file/write_file tools instead." };
+      }
       try {
         const stdout = execSync(cmd, { cwd: workDir, encoding: "utf8", timeout: 120000 });
         return { stdout, exitCode: 0 };
