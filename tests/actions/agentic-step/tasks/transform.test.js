@@ -19,9 +19,8 @@ vi.mock("../../../../src/actions/agentic-step/copilot.js", () => ({
 
 // Use dynamic import after mocks are set up
 const { transform } = await import("../../../../src/actions/agentic-step/tasks/transform.js");
-const { runCopilotTask, readOptionalFile, scanDirectory } = await import(
-  "../../../../src/actions/agentic-step/copilot.js"
-);
+const { runCopilotTask, readOptionalFile, scanDirectory } =
+  await import("../../../../src/actions/agentic-step/copilot.js");
 
 // --- Helpers ---
 

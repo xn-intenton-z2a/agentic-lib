@@ -345,7 +345,7 @@ A systematic file-by-file review of `src/` delivered 8 steps of technical debt r
 | `index.test.js`             | 4     | TASKS map: 8 entries, correct names, async functions            |
 | `resolve-issue.test.js`     | 9     | Missing input, closed issue, attempt/WIP limits, happy path     |
 | `fix-code.test.js`          | 5     | Missing input, no failures, failure details, happy path         |
-| `transform.test.js`            | 6     | No mission, features/source in prompt, TDD mode, client cleanup |
+| `transform.test.js`         | 6     | No mission, features/source in prompt, TDD mode, client cleanup |
 | `maintain-features.test.js` | 4     | Mission/features/library reads, closed issues, happy path       |
 | `maintain-library.test.js`  | 4     | Empty sources, whitespace, library docs, happy path             |
 | `enhance-issue.test.js`     | 5     | Missing input, resolved, ready label, update/label/comment      |

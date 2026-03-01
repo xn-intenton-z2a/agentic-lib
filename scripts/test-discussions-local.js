@@ -22,7 +22,10 @@ const root = resolve(__dirname, "..");
 // Find the SDK
 const sdkLocations = [
   resolve(root, "src/actions/agentic-step/node_modules/@github/copilot-sdk/dist/index.js"),
-  resolve(root, "../repository0/.github/agentic-lib/actions/agentic-step/node_modules/@github/copilot-sdk/dist/index.js"),
+  resolve(
+    root,
+    "../repository0/.github/agentic-lib/actions/agentic-step/node_modules/@github/copilot-sdk/dist/index.js",
+  ),
 ];
 const sdkPath = sdkLocations.find((p) => existsSync(p));
 if (!sdkPath) {
@@ -123,9 +126,7 @@ function buildPrompt(discussion) {
     `### ${discussion.title || "(untitled)"}`,
     discussion.body || "(no body)",
     discussion.comments.nodes.length > 0 ? `### Comments (${discussion.comments.nodes.length})` : "",
-    ...discussion.comments.nodes.map(
-      (c) => `**${c.author?.login || "unknown"}** (${c.createdAt}):\n${c.body}`,
-    ),
+    ...discussion.comments.nodes.map((c) => `**${c.author?.login || "unknown"}** (${c.createdAt}):\n${c.body}`),
     "",
     "## Context",
     `### Mission\n${mission}`,
@@ -189,7 +190,8 @@ async function runCopilotSession(prompt) {
     const actionMatch = content.match(/\[ACTION:(\S+?)\](.+)?/);
     const action = actionMatch ? actionMatch[1] : "none found";
     const actionArg = actionMatch && actionMatch[2] ? actionMatch[2].trim() : "";
-    console.log(`\n  Action: ${action}${actionArg ? ` (${actionArg})` : ""}`);
+    const actionSuffix = actionArg ? " (" + actionArg + ")" : "";
+    console.log("\n  Action: " + action + actionSuffix);
 
     return { content, tokens, action, actionArg };
   } finally {
@@ -201,7 +203,7 @@ async function main() {
   try {
     const discussion = await fetchDiscussion();
     const prompt = buildPrompt(discussion);
-    const result = await runCopilotSession(prompt);
+    await runCopilotSession(prompt);
     console.log("\n=== TEST PASSED ===\n");
     return 0;
   } catch (err) {

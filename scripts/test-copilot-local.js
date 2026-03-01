@@ -24,7 +24,10 @@ const root = resolve(__dirname, "..");
 // Find the SDK — check local action dir first, then repository0's copy
 const sdkLocations = [
   resolve(root, "src/actions/agentic-step/node_modules/@github/copilot-sdk/dist/index.js"),
-  resolve(root, "../repository0/.github/agentic-lib/actions/agentic-step/node_modules/@github/copilot-sdk/dist/index.js"),
+  resolve(
+    root,
+    "../repository0/.github/agentic-lib/actions/agentic-step/node_modules/@github/copilot-sdk/dist/index.js",
+  ),
 ];
 const sdkPath = sdkLocations.find((p) => existsSync(p));
 if (!sdkPath) {

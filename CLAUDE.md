@@ -150,7 +150,7 @@ Three AI agents work on the intentïon project. Follow these guidelines to be go
 | --------------------- | ------------------------ | ------------------------------------------------ |
 | `claude/*`            | Claude Code              | Feature work, refactoring, multi-file changes    |
 | `copilot/*`           | Copilot                  | Issue fixes, review-driven changes               |
-| `agentic-lib-issue-*` | Automated (agentic-step) | Issue resolution via transform workflow             |
+| `agentic-lib-issue-*` | Automated (agentic-step) | Issue resolution via transform workflow          |
 | `refresh`             | Claude Code (primary)    | Stabilisation branch — all agents may contribute |
 | `main`                | Protected                | Merge only via reviewed PR                       |
 

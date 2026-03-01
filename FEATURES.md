@@ -8,7 +8,7 @@ All features for the intentïon project. Core features (#1-17) power the autonom
 
 | #   | Feature                              | Status  |
 | --- | ------------------------------------ | ------- |
-| 1   | Autonomous Code Transformation            | Done    |
+| 1   | Autonomous Code Transformation       | Done    |
 | 2   | Issue Lifecycle Management           | Done    |
 | 3   | Feature Lifecycle Management         | Done    |
 | 4   | Code Generation & Fixing             | Done    |
@@ -395,11 +395,11 @@ Make the MVP compact and information-dense — fewer files, less redundancy, eas
 
 A JS library that transforms autonomously from a mission, demonstrating the "library" repository type.
 
-| Aspect           | Detail                                                                                                                                                                                              |
-| ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Aspect           | Detail                                                                                                                                                                                                 |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | **What it does** | A new repository created from the repository0 template with a library-focused mission. Transforms autonomously. Published to npm. Output is captured and examined as part of a fitness test (see #26). |
-| **Repositories** | New repository (from repository0 template)                                                                                                                                                          |
-| **Why now**      | The showcase needs real examples. A library that built itself from a mission statement is the most compelling proof.                                                                                |
+| **Repositories** | New repository (from repository0 template)                                                                                                                                                             |
+| **Why now**      | The showcase needs real examples. A library that built itself from a mission statement is the most compelling proof.                                                                                   |
 
 **Status:** Pending
 
@@ -407,11 +407,11 @@ A JS library that transforms autonomously from a mission, demonstrating the "lib
 
 A website that transforms autonomously from a mission, demonstrating the "website" repository type.
 
-| Aspect           | Detail                                                                                                                                                                                                   |
-| ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Aspect           | Detail                                                                                                                                                                                                      |
+| ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **What it does** | A new repository created from the repository0 template with a website-focused mission. Transforms autonomously. Deployed to GitHub Pages. The deployed site is examined/tested as a fitness test (see #26). |
-| **Repositories** | New repository (from repository0 template)                                                                                                                                                               |
-| **Why now**      | Websites are visual — a self-transforming website is immediately impressive and shareable.                                                                                                                   |
+| **Repositories** | New repository (from repository0 template)                                                                                                                                                                  |
+| **Why now**      | Websites are visual — a self-transforming website is immediately impressive and shareable.                                                                                                                  |
 
 **Status:** Pending
 
