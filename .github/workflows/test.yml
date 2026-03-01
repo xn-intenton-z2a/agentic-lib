@@ -160,6 +160,8 @@ jobs:
           echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" >> ~/.npmrc
           echo "always-auth=true" >> ~/.npmrc
       - run: npm ci
+      - name: Install sub-project dependencies
+        run: cd src/actions/agentic-step && npm ci
 
       - name: Self-init
         run: bash scripts/self-init.sh
@@ -216,6 +218,8 @@ jobs:
           echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" >> ~/.npmrc
           echo "always-auth=true" >> ~/.npmrc
       - run: npm ci
+      - name: Install sub-project dependencies
+        run: cd src/actions/agentic-step && npm ci
 
       - name: Self-init
         run: bash scripts/self-init.sh
@@ -279,6 +283,8 @@ jobs:
           echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" >> ~/.npmrc
           echo "always-auth=true" >> ~/.npmrc
       - run: npm ci
+      - name: Install sub-project dependencies
+        run: cd src/actions/agentic-step && npm ci
 
       - name: Self-init
         run: bash scripts/self-init.sh
