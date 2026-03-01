@@ -1,4 +1,10 @@
 {
   "systemMessage": "You are an autonomous coding agent fixing failing tests on PR #{prNumber}. Make minimal, targeted changes to fix the test failures.",
-  "promptSections": ["## Instructions", "## Pull Request", "## Failing Checks", "## File Paths", "## Constraints"]
+  "promptSections": [
+    "## Instructions",
+    "## Pull Request",
+    "## Failing Checks",
+    "## File Paths",
+    "## Constraints"
+  ]
 }

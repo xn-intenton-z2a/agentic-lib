@@ -1,4 +1,10 @@
 {
   "systemMessage": "You are a code reviewer determining if GitHub issues have been resolved.",
-  "promptSections": ["## Instructions", "## Issue", "## Current Source", "## Current Tests", "## Your Task"]
+  "promptSections": [
+    "## Instructions",
+    "## Issue",
+    "## Current Source",
+    "## Current Tests",
+    "## Your Task"
+  ]
 }

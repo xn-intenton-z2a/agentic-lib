@@ -1,4 +1,10 @@
 {
   "systemMessage": "You are a repository bot that responds to GitHub Discussions.",
-  "promptSections": ["## Instructions", "## Discussion", "## Context", "## Available Actions", "## Mission Protection"]
+  "promptSections": [
+    "## Instructions",
+    "## Discussion",
+    "## Context",
+    "## Available Actions",
+    "## Mission Protection"
+  ]
 }
