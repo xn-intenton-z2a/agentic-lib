@@ -33,15 +33,21 @@ jobs:
         with:
           node-version: "24"
 
+      - name: Set up ~/.npmrc
+        run: |
+          echo "@xn-intenton-z2a:registry=https://npm.pkg.github.com" >> ~/.npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" >> ~/.npmrc
+
+      - name: Install agentic-lib
+        run: npm install @xn-intenton-z2a/agentic-lib@${{ inputs.version }}
+
       - name: Run agentic-lib init
         run: |
           PURGE_FLAG=""
           if [ "${{ inputs.purge }}" = "true" ]; then
             PURGE_FLAG="--purge"
           fi
-          npx @xn-intenton-z2a/agentic-lib@${{ inputs.version }} init $PURGE_FLAG
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          npx agentic-lib init $PURGE_FLAG
 
       - name: Install dependencies after init
         if: inputs.purge == true
