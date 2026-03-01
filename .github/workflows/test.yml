@@ -183,16 +183,14 @@ jobs:
 
       - name: Verify transform produced output
         run: |
-          echo "## maintain-features results" >> $GITHUB_STEP_SUMMARY
+          echo "## maintain-features results" | tee -a $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
-          git diff --stat >> $GITHUB_STEP_SUMMARY
+          git diff --stat | tee -a $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
           echo '```diff' >> $GITHUB_STEP_SUMMARY
-          git diff >> $GITHUB_STEP_SUMMARY
+          git diff | tee -a $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
-          FEATURES=$(find .github/agentic-lib/features -name "*.md" | wc -l)
-          echo "Features created: ${FEATURES}"
-          if [ "$FEATURES" -eq 0 ]; then
+          if [ "$(find .github/agentic-lib/features -name '*.md' | wc -l)" -eq 0 ]; then
             echo "ERROR: maintain-features produced no feature files"
             exit 1
           fi
@@ -248,16 +246,14 @@ jobs:
 
       - name: Verify transform produced output
         run: |
-          echo "## maintain-library results" >> $GITHUB_STEP_SUMMARY
+          echo "## maintain-library results" | tee -a $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
-          git diff --stat >> $GITHUB_STEP_SUMMARY
+          git diff --stat | tee -a $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
           echo '```diff' >> $GITHUB_STEP_SUMMARY
-          git diff >> $GITHUB_STEP_SUMMARY
+          git diff | tee -a $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
-          DOCS=$(find library -name "*.md" | wc -l)
-          echo "Library docs created: ${DOCS}"
-          if [ "$DOCS" -eq 0 ]; then
+          if [ "$(find library -name '*.md' | wc -l)" -eq 0 ]; then
             echo "ERROR: maintain-library produced no library documents"
             exit 1
           fi
@@ -319,12 +315,12 @@ jobs:
 
       - name: Show results
         run: |
-          echo "## transform results" >> $GITHUB_STEP_SUMMARY
+          echo "## transform results" | tee -a $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
-          git diff --stat >> $GITHUB_STEP_SUMMARY
+          git diff --stat | tee -a $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
           echo '```diff' >> $GITHUB_STEP_SUMMARY
-          git diff >> $GITHUB_STEP_SUMMARY
+          git diff | tee -a $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
 
   # ─── CLI transforms: real Copilot SDK round-trips via CLI ──────────
@@ -376,12 +372,12 @@ jobs:
 
       - name: Show results
         run: |
-          echo "## CLI transform results" >> $GITHUB_STEP_SUMMARY
+          echo "## CLI transform results" | tee -a $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
-          git diff --stat >> $GITHUB_STEP_SUMMARY
+          git diff --stat | tee -a $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
           echo '```diff' >> $GITHUB_STEP_SUMMARY
-          git diff >> $GITHUB_STEP_SUMMARY
+          git diff | tee -a $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
 
   test-cli-maintain-features:
@@ -420,16 +416,14 @@ jobs:
 
       - name: Verify transform produced output
         run: |
-          echo "## CLI maintain-features results" >> $GITHUB_STEP_SUMMARY
+          echo "## CLI maintain-features results" | tee -a $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
-          git diff --stat >> $GITHUB_STEP_SUMMARY
+          git diff --stat | tee -a $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
           echo '```diff' >> $GITHUB_STEP_SUMMARY
-          git diff >> $GITHUB_STEP_SUMMARY
+          git diff | tee -a $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
-          FEATURES=$(find .github/agentic-lib/features -name "*.md" | wc -l)
-          echo "Features created: ${FEATURES}"
-          if [ "$FEATURES" -eq 0 ]; then
+          if [ "$(find .github/agentic-lib/features -name '*.md' | wc -l)" -eq 0 ]; then
             echo "ERROR: maintain-features produced no feature files"
             exit 1
           fi
@@ -476,16 +470,14 @@ jobs:
 
       - name: Verify transform produced output
         run: |
-          echo "## CLI maintain-library results" >> $GITHUB_STEP_SUMMARY
+          echo "## CLI maintain-library results" | tee -a $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
-          git diff --stat >> $GITHUB_STEP_SUMMARY
+          git diff --stat | tee -a $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
           echo '```diff' >> $GITHUB_STEP_SUMMARY
-          git diff >> $GITHUB_STEP_SUMMARY
+          git diff | tee -a $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
-          DOCS=$(find docs -name "*.md" | wc -l)
-          echo "Library docs created: ${DOCS}"
-          if [ "$DOCS" -eq 0 ]; then
+          if [ "$(find docs -name '*.md' | wc -l)" -eq 0 ]; then
             echo "ERROR: maintain-library produced no library documents"
             exit 1
           fi
