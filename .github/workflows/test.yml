@@ -213,7 +213,7 @@ jobs:
           COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
         with:
           task: "maintain-features"
-          config: .github/agentic-lib/agents/agentic-lib.yml
+          config: agentic-lib.toml
           model: ${{ inputs.model || 'gpt-5-mini' }}
 
       - name: "Diff: after transform"
@@ -296,7 +296,7 @@ jobs:
           COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
         with:
           task: "maintain-library"
-          config: .github/agentic-lib/agents/agentic-lib.yml
+          config: agentic-lib.toml
           model: ${{ inputs.model || 'gpt-5-mini' }}
           writable-paths: "library/"
 
@@ -381,7 +381,7 @@ jobs:
           COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
         with:
           task: "transform"
-          config: .github/agentic-lib/agents/agentic-lib.yml
+          config: agentic-lib.toml
           model: ${{ inputs.model || 'gpt-5-mini' }}
           writable-paths: "src/lib/;tests/unit/"
           test-command: "npm test"
