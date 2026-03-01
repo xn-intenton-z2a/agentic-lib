@@ -15,8 +15,13 @@ on:
         default: ""
       model:
         description: "Copilot SDK model to use"
+        type: choice
         required: false
         default: "claude-sonnet-4"
+        options:
+          - claude-sonnet-4
+          - gpt-5-mini
+          - gpt-4.1
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
