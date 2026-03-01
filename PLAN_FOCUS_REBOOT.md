@@ -14,11 +14,14 @@ Get all the moving parts working end-to-end before tightening verification and e
 | TOML config | config-loader.js supports agentic-lib.toml, seed TOML created | Done |
 | README rewrite | README.md describes init, file map, three entry points | Done |
 | Template branch | repository0 `template` branch created at seed state via init --purge | Done |
-| CLI task commands | bin/agentic-lib.js supports transform, maintain-features, maintain-library, fix-code | In progress |
+| CLI task commands | bin/agentic-lib.js supports transform, maintain-features, maintain-library, fix-code | Done |
+| Eliminate anti-patterns | Remove all fallback, silent-fail, backwards-compat, token-fallback patterns | Done |
+| CLI test jobs | 3 --dry-run jobs in test.yml (transform, maintain-features, maintain-library) | Done |
 
 Current metrics:
-- 313 tests across 21 files (vitest)
+- 272 tests across 20 files (vitest)
 - 15 workflow files validated (2 internal + 13 distributed)
+- 10 CI jobs in test.yml (4 CI + 3 action + 3 CLI dry-run)
 - 0 npm audit vulnerabilities
 - v7.1.2-0 (prepatch)
 - Branch: `claude/self-contained-testing`, PR #1782
@@ -28,7 +31,7 @@ Current metrics:
 ```
 agentic-lib CI (.github/workflows/):
   test.yml          → unit tests, lint, security, workflow validation
-                       optional: golden prompt verification, action tests (via dispatch inputs)
+                       optional: action tests (via dispatch inputs)
   release.yml       → auto patch bump on push to main; manual major/minor/prerelease
 
 agentic-lib distributes (via npm + CLI init):
@@ -60,31 +63,30 @@ CLI (bin/agentic-lib.js):
 - Template users get a stable version that doesn't disappear; they bump when ready
 - CLI task commands log verbosely so the user can see what's happening
 
-## In Progress: CLI Task Commands
+## Completed: CLI Task Commands
 
-**What's done:**
 - `bin/agentic-lib.js` rewritten with task command support (transform, maintain-features, maintain-library, fix-code)
 - Copilot SDK runner bypasses `@actions/core` for CLI independence
 - Verbose logging with `[config]`, `[context]`, `[auth]`, `[copilot]`, `[event]`, `[tool]` prefixes
-- Config loading from `agentic-lib.toml` or YAML fallback
+- Config loading from `agentic-lib.toml` (TOML only, no fallback)
 - CLI tools (read_file, write_file, list_files, run_command) with path safety
 - `--dry-run` support shows prompt without sending to Copilot SDK
 - `--model` flag to choose SDK model
 
-**What's next:**
-1. Run tests and fix any issues from the bin rewrite
-2. Create system test script (`scripts/system-test.sh`) that does full journey:
-   - init --purge a temp workspace
-   - Write a mission
-   - Run maintain-features
-   - Run transform
-   - Verify files changed
-   - Clean up (revert or delete temp workspace)
-3. Update README.md with CLI task commands walkthrough and example output
-4. Add system test as optional job in test.yml pipeline
-5. Commit and push to PR #1782
+## Completed: Eliminate Anti-Patterns
 
-## Next Phases (after CLI task commands)
+Removed 140+ instances of defensive anti-patterns across 41 files (-371 net lines):
+
+- **§1 Token:** `PERSONAL_ACCESS_TOKEN` removed everywhere, `GITHUB_TOKEN` only
+- **§2 Copilot token:** `COPILOT_GITHUB_TOKEN` required, no fallback — throw if missing
+- **§3 Silent fail:** Errors propagate instead of being swallowed; debug logging in catches
+- **§4 Error suppression:** Removed all `continue-on-error`, `|| true`, `2>/dev/null`
+- **§5 Config:** TOML only — removed YAML config support, `normaliseToml()`, `parseYamlConfig()`. Config-loader has all defaults in one place. Deleted `consumer-compat.test.js`
+- **§6 npm:** `npm ci || npm install` → `npm ci` everywhere (20 instances)
+- **Golden prompts:** Removed entire golden-prompts test infrastructure (script, 8 fixtures, CI job)
+- **Branch prefixes:** `copilotBranchPrefix` removed from ci-automerge, hardcoded prefix removed from agent-supervisor
+
+## Next Phases
 
 ### Phase: Template Branch Strategy
 
@@ -99,20 +101,12 @@ CLI (bin/agentic-lib.js):
 - Exported functions accept `githubToken` parameter
 - Version-controlled: consumers pin to a version
 
-### Phase: Thin Adaptors + Workflow Tests (Goals 3 + 7)
-
-- repository0 workflows become thin callers
-- Workflow smoke tests in repository0
-
-### Phase: Template Styles (Goal 2)
-
-- library, website, demo seed sets
-- Style selection via config or mission convention
-
 ### Phase: Website Integration (Goals 1 + 10)
 
 - Live content from repository0 on xn--intenton-z2a.com
 - Playwright tests
+
+*Dropped:* "Thin Adaptors + Workflow Tests" — covered by packaging/init. "Template Styles" — deferred post-MVP.
 
 ## Key Decisions
 
@@ -130,22 +124,22 @@ CLI (bin/agentic-lib.js):
 
 - Old: integration-test-*.yml needed PERSONAL_ACCESS_TOKEN for cross-repo access
 - New: test.yml self-inits (copies src/ → .github/agentic-lib/) and runs agentic-step directly
-- No cross-repo secrets needed; action tests use continue-on-error (Copilot SDK may not be available)
+- No cross-repo secrets needed; COPILOT_GITHUB_TOKEN required for action tests
 
 ### Config Format
 
-**Decision: TOML at project root, YAML as fallback**
+**Decision: TOML only at project root**
 
-- `agentic-lib.toml` at project root (preferred, user-facing)
-- `.github/agentic-lib/agents/agentic-lib.yml` as fallback (legacy)
-- Config loader tries TOML first
+- `agentic-lib.toml` at project root (required)
+- Config loader throws if TOML file not found — no YAML fallback, no defaults-only mode
+- All path defaults defined in one place in config-loader.js
 
 ### CLI Task Commands
 
 **Decision: Standalone Copilot SDK runner in bin/agentic-lib.js**
 
 - Bypasses `@actions/core` — works outside GitHub Actions
-- Uses same config (TOML/YAML) and prompt structure as agentic-step action
+- Uses same config (TOML only) and prompt structure as agentic-step action
 - Verbose console logging for observability
 - `--dry-run` shows prompt without calling SDK
 - System test does full journey then reverts changes

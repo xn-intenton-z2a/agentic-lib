@@ -62,9 +62,9 @@ The **core SDK** of the intentïon project. A collection of reusable GitHub Acti
 ## Test Commands
 
 ```bash
-npm test              # 313 unit tests (vitest)
+npm test              # 272 unit tests (vitest)
 npm run linting       # ESLint
-npm run lint:workflows # Validate workflow YAML (17 files)
+npm run lint:workflows # Validate workflow YAML (15 files)
 npm run security      # npm audit (0 vulnerabilities)
 npm run test:smoke    # Connectivity smoke test (needs GITHUB_TOKEN)
 npx @xn-intenton-z2a/agentic-lib init --dry-run  # Preview init in current dir
