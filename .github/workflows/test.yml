@@ -183,6 +183,7 @@ jobs:
 
       - name: Verify transform produced output
         run: |
+          git add -N .
           echo "## maintain-features results" | tee -a $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
           git diff --stat | tee -a $GITHUB_STEP_SUMMARY
@@ -246,6 +247,7 @@ jobs:
 
       - name: Verify transform produced output
         run: |
+          git add -N .
           echo "## maintain-library results" | tee -a $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
           git diff --stat | tee -a $GITHUB_STEP_SUMMARY
@@ -315,6 +317,7 @@ jobs:
 
       - name: Show results
         run: |
+          git add -N .
           echo "## transform results" | tee -a $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
           git diff --stat | tee -a $GITHUB_STEP_SUMMARY
@@ -372,6 +375,7 @@ jobs:
 
       - name: Show results
         run: |
+          git add -N .
           echo "## CLI transform results" | tee -a $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
           git diff --stat | tee -a $GITHUB_STEP_SUMMARY
@@ -416,6 +420,7 @@ jobs:
 
       - name: Verify transform produced output
         run: |
+          git add -N .
           echo "## CLI maintain-features results" | tee -a $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
           git diff --stat | tee -a $GITHUB_STEP_SUMMARY
@@ -470,6 +475,7 @@ jobs:
 
       - name: Verify transform produced output
         run: |
+          git add -N .
           echo "## CLI maintain-library results" | tee -a $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
           git diff --stat | tee -a $GITHUB_STEP_SUMMARY
