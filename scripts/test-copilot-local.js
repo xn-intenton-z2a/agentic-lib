@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+// SPDX-License-Identifier: GPL-3.0-only
+// Copyright (C) 2025-2026 Polycode Limited
 // test-copilot-local.js — Local CLI test for Copilot SDK
 //
 // Runs a full Copilot SDK session locally to verify auth, session creation,
@@ -42,20 +44,20 @@ const { CopilotClient, approveAll, defineTool } = await import(sdkPath);
 
 const model = process.argv[2] || "claude-sonnet-4";
 const token = process.env.COPILOT_GITHUB_TOKEN;
+if (!token) {
+  console.error("ERROR: COPILOT_GITHUB_TOKEN is required.");
+  process.exit(1);
+}
 
 console.log(`\n=== Copilot SDK Local Test ===`);
 console.log(`Model: ${model}`);
-console.log(`Auth: ${token ? "COPILOT_GITHUB_TOKEN (PAT)" : "gh CLI (OAuth)"}`);
+console.log(`Auth: COPILOT_GITHUB_TOKEN (PAT)`);
 console.log();
 
 // Build client options matching what copilot.js does
 const clientOptions = {};
-if (token) {
-  clientOptions.env = { ...process.env, GITHUB_TOKEN: token, GH_TOKEN: token };
-  console.log("[auth] Using env override with COPILOT_GITHUB_TOKEN");
-} else {
-  console.log("[auth] Using useLoggedInUser (default)");
-}
+clientOptions.env = { ...process.env, GITHUB_TOKEN: token, GH_TOKEN: token };
+console.log("[auth] Using env override with COPILOT_GITHUB_TOKEN");
 
 const client = new CopilotClient(clientOptions);
 

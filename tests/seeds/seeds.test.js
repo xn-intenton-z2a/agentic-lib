@@ -1,7 +1,10 @@
+// SPDX-License-Identifier: GPL-3.0-only
+// Copyright (C) 2025-2026 Polycode Limited
 import { describe, it, expect } from "vitest";
 import { readFileSync, readdirSync } from "fs";
 import { join } from "path";
 import yaml from "js-yaml";
+import { parse as parseToml } from "smol-toml";
 
 const SEEDS_DIR = join(import.meta.dirname, "../../src/seeds");
 
@@ -9,8 +12,8 @@ const allFiles = readdirSync(SEEDS_DIR).sort();
 const ymlFiles = allFiles.filter((f) => f.endsWith(".yml"));
 
 describe("src/seeds", () => {
-  it("has 8 seed files", () => {
-    expect(allFiles).toHaveLength(8);
+  it("has 7 seed files", () => {
+    expect(allFiles).toHaveLength(7);
   });
 
   describe("zero-package.json", () => {
@@ -40,6 +43,31 @@ describe("src/seeds", () => {
       const content = readFileSync(join(SEEDS_DIR, "zero-package.json"), "utf8");
       pkg = JSON.parse(content);
       expect(pkg.scripts?.test).toBeTruthy();
+    });
+  });
+
+  describe("zero-agentic-lib.toml", () => {
+    it("is valid TOML", () => {
+      const content = readFileSync(join(SEEDS_DIR, "zero-agentic-lib.toml"), "utf8");
+      const doc = parseToml(content);
+      expect(doc).toBeTruthy();
+    });
+
+    it("has required sections", () => {
+      const content = readFileSync(join(SEEDS_DIR, "zero-agentic-lib.toml"), "utf8");
+      const doc = parseToml(content);
+      expect(doc.schedule).toBeTruthy();
+      expect(doc.paths).toBeTruthy();
+      expect(doc.execution).toBeTruthy();
+      expect(doc.limits).toBeTruthy();
+      expect(doc.bot).toBeTruthy();
+    });
+
+    it("has source and tests paths", () => {
+      const content = readFileSync(join(SEEDS_DIR, "zero-agentic-lib.toml"), "utf8");
+      const doc = parseToml(content);
+      expect(doc.paths.source).toBeTruthy();
+      expect(doc.paths.tests).toBeTruthy();
     });
   });
 

@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+// SPDX-License-Identifier: GPL-3.0-only
+// Copyright (C) 2025-2026 Polycode Limited
 // test-transform-local.js — Local CLI test for the transform task
 //
 // Runs the transform flow locally: reads MISSION.md, features, source files,

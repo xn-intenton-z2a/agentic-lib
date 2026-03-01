@@ -1,25 +1,26 @@
 #!/usr/bin/env node
+// SPDX-License-Identifier: GPL-3.0-only
+// Copyright (C) 2025-2026 Polycode Limited
 // smoke-test-connectivity.js — Tier 2 connectivity smoke test
 //
 // Verifies that the GitHub API, GraphQL, and Copilot SDK are accessible.
 // Requires GITHUB_TOKEN or COPILOT_GITHUB_TOKEN environment variable.
 // Exit 0 on success, 1 on failure with diagnostic output.
 
-const token = process.env.COPILOT_GITHUB_TOKEN || process.env.GITHUB_TOKEN;
+const token = process.env.COPILOT_GITHUB_TOKEN;
 if (!token) {
-  console.error("SKIP: No GITHUB_TOKEN or COPILOT_GITHUB_TOKEN set — cannot run connectivity smoke test");
-  process.exit(0); // Don't fail CI if token is unavailable
+  console.error("ERROR: COPILOT_GITHUB_TOKEN is required for connectivity smoke test");
+  process.exit(1);
 }
 
-const tokenType = token.startsWith("gho_")
-  ? "OAuth"
-  : token.startsWith("ghp_")
-    ? "Classic PAT"
-    : token.startsWith("ghs_")
-      ? "Actions"
-      : token.startsWith("github_pat_")
-        ? "Fine-grained PAT"
-        : "Unknown";
+function classifyToken(t) {
+  if (t.startsWith("gho_")) return "OAuth";
+  if (t.startsWith("ghp_")) return "Classic PAT";
+  if (t.startsWith("ghs_")) return "Actions";
+  if (t.startsWith("github_pat_")) return "Fine-grained PAT";
+  return "Unknown";
+}
+const tokenType = classifyToken(token);
 
 const REPO_OWNER = "xn-intenton-z2a";
 const REPO_NAME = "agentic-lib";

@@ -62,14 +62,20 @@ The **core SDK** of the intentïon project. A collection of reusable GitHub Acti
 ## Test Commands
 
 ```bash
-npm test              # 307 unit tests (vitest)
+npm test              # 277 unit tests (vitest)
 npm run linting       # ESLint
-npm run lint:workflows # Validate workflow YAML (19 files)
+npm run lint:workflows # Validate workflow YAML (15 files)
 npm run security      # npm audit (0 vulnerabilities)
 npm run test:smoke    # Connectivity smoke test (needs GITHUB_TOKEN)
-npm run test:record-golden  # Re-record golden prompt templates
 npx @xn-intenton-z2a/agentic-lib init --dry-run  # Preview init in current dir
 ```
+
+## CI Workflows
+
+| Workflow | Trigger | Purpose |
+|----------|---------|---------|
+| `test.yml` | Push/PR, manual dispatch | Unit tests, lint, security, workflow validation. Optionally: action tests. |
+| `release.yml` | Push to main (src/bin/pkg), manual dispatch | Auto patch bump on push. Manual major/minor/prerelease. |
 
 ## Git Workflow
 

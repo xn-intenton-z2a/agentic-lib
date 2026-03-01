@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-only
+// Copyright (C) 2025-2026 Polycode Limited
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import { readOptionalFile, scanDirectory, formatPathsSection } from "../../../src/actions/agentic-step/copilot.js";
 import { writeFileSync, mkdirSync, rmSync } from "fs";

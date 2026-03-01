@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-only
+// Copyright (C) 2025-2026 Polycode Limited
 // tools.js — Shared tool definitions for agentic-step task handlers
 //
 // Defines file I/O and shell tools using the Copilot SDK's defineTool().
@@ -112,6 +114,11 @@ export function createAgentTools(writablePaths) {
     handler: ({ command, cwd }) => {
       const workDir = cwd ? resolve(cwd) : process.cwd();
       core.info(`[tool] run_command: ${command} (cwd=${workDir})`);
+      const blocked = /\bgit\s+(commit|push|add|reset|checkout|rebase|merge|stash)\b/;
+      if (blocked.test(command)) {
+        core.info(`[tool] BLOCKED git write command: ${command}`);
+        return { error: "Git write commands are not allowed. Use read_file/write_file tools instead." };
+      }
       try {
         const stdout = execSync(command, {
           cwd: workDir,

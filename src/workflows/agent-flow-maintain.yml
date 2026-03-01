@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MIT
+# Copyright (C) 2025-2026 Polycode Limited
 # .github/workflows/agent-flow-maintain.yml
 #
 # Feature + library + source maintenance.
@@ -53,7 +55,7 @@ jobs:
         id: features-config
         run: |
           CONFIG="${{ env.configPath }}"
-          FEATURES=$(yq -r '.paths.featuresPath.path // ".github/agentic-lib/features/"' "$CONFIG" 2>/dev/null || echo '.github/agentic-lib/features/')
+          FEATURES=$(yq -r '.paths.featuresPath.path // ".github/agentic-lib/features/"' "$CONFIG")
           echo "writablePaths=${FEATURES}" >> $GITHUB_OUTPUT
 
       - name: Maintain features
@@ -93,8 +95,8 @@ jobs:
         id: library-config
         run: |
           CONFIG="${{ env.configPath }}"
-          LIBRARY=$(yq -r '.paths.libraryDocumentsPath.path // "library/"' "$CONFIG" 2>/dev/null || echo 'library/')
-          SOURCES=$(yq -r '.paths.librarySourcesFilepath.path // "SOURCES.md"' "$CONFIG" 2>/dev/null || echo 'SOURCES.md')
+          LIBRARY=$(yq -r '.paths.libraryDocumentsPath.path // "library/"' "$CONFIG")
+          SOURCES=$(yq -r '.paths.librarySourcesFilepath.path // "SOURCES.md"' "$CONFIG")
           echo "writablePaths=${LIBRARY};${SOURCES}" >> $GITHUB_OUTPUT
 
       - name: Maintain library

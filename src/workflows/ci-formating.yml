@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MIT
+# Copyright (C) 2025-2026 Polycode Limited
 # .github/workflows/ci-formating.yml
 #
 # This file is part of the example suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
@@ -73,10 +75,10 @@ jobs:
         run: |
           CONFIG="${{ vars.configPath || '.github/agentic-lib/agents/agentic-lib.yml' }}"
           if [ -f "$CONFIG" ]; then
-            TS=$(yq -r '.testScript // ""' "$CONFIG" 2>/dev/null)
+            TS=$(yq -r '.testScript // ""' "$CONFIG")
             [ -n "$TS" ] && echo "testScript=$TS" >> $GITHUB_ENV
-            TESTS=$(yq -r '.paths.targetTestsPath.path // "tests/unit/"' "$CONFIG" 2>/dev/null || echo 'tests/unit/')
-            SOURCE=$(yq -r '.paths.targetSourcePath.path // "src/lib/"' "$CONFIG" 2>/dev/null || echo 'src/lib/')
+            TESTS=$(yq -r '.paths.targetTestsPath.path // "tests/unit/"' "$CONFIG")
+            SOURCE=$(yq -r '.paths.targetSourcePath.path // "src/lib/"' "$CONFIG")
             echo "allPaths=${TESTS} ${SOURCE}" >> $GITHUB_OUTPUT
           else
             echo "allPaths=tests/unit/ src/lib/" >> $GITHUB_OUTPUT
@@ -86,7 +88,7 @@ jobs:
         uses: ./.github/agentic-lib/actions/setup-npmrc
         with:
           npm-auth-organisation: ${{ env.npmAuthOrganisation }}
-          token: ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Get latest from remote
         run: |
@@ -97,7 +99,7 @@ jobs:
           git fetch origin ${{ github.ref_name }}
           git merge origin/${{ github.ref_name }} --no-ff --no-edit --strategy=recursive --strategy-option=ours
 
-      - run: npm ci || npm install
+      - run: npm ci
 
       - name: Run formatting and linting fixes
         id: script
@@ -115,7 +117,6 @@ jobs:
           fi
           set -e
           echo "updated=${updated}" >> $GITHUB_OUTPUT
-        continue-on-error: true
 
       - name: Test
         if: steps.script.outputs.updated == 'true'
@@ -175,7 +176,7 @@ jobs:
           gitCommitMessage: ${{ env.gitCommitMessage }}
           label: ${{ env.label }}
         with:
-          github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const { data: existingPulls } = await github.rest.pulls.list({
               owner: context.repo.owner,
@@ -234,4 +235,3 @@ jobs:
       pages: write
     uses: "./.github/workflows/ci-automerge.yml"
     secrets:
-      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}

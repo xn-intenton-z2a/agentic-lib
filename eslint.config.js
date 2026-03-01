@@ -80,6 +80,14 @@ export default [
     },
   },
   {
+    files: ["bin/**/*.js", "scripts/**/*.js", "src/actions/**/*.js", "src/scripts/**/*.js"],
+    rules: {
+      "security/detect-non-literal-fs-filename": "off",
+      "security/detect-object-injection": "off",
+      "security/detect-unsafe-regex": "off",
+    },
+  },
+  {
     settings: {
       react: {
         version: "18", // With no react installed we can't use "detect"

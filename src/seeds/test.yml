@@ -1,7 +1,8 @@
+# SPDX-License-Identifier: MIT
+# Copyright (C) 2025-2026 Polycode Limited
 # .github/workflows/test.yml
 #
-# Starter test workflow for a single JS library with unit tests.
-# Rename to test.yml and customize for your project.
+# Starter test workflow seeded by agentic-lib init.
 #
 # This file is part of the example suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
 # This file is licensed under the MIT License. For details, see LICENSE-MIT
@@ -27,6 +28,6 @@ jobs:
           node-version: 24
           cache: "npm"
 
-      - run: npm ci || npm install
+      - run: npm ci
 
       - run: npm test

@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+// SPDX-License-Identifier: GPL-3.0-only
+// Copyright (C) 2025-2026 Polycode Limited
 // validate-workflows.js — Validate GitHub Actions workflow files
 //
 // Loads all .yml files from .github/workflows/ and src/workflows/,

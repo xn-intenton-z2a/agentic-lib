@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-only
+// Copyright (C) 2025-2026 Polycode Limited
 // safety.js — WIP limits, attempt tracking, and path enforcement
 //
 // Provides safety checks that prevent the agentic system from:
@@ -40,15 +42,11 @@ export async function checkWipLimit(octokit, repo, label, limit) {
  */
 export async function countBranchAttempts(octokit, repo, issueNumber, branchPrefix) {
   const pattern = `${branchPrefix}${issueNumber}`;
-  try {
-    const { data: refs } = await octokit.rest.git.listMatchingRefs({
-      ...repo,
-      ref: `heads/${pattern}`,
-    });
-    return refs.length;
-  } catch {
-    return 0;
-  }
+  const { data: refs } = await octokit.rest.git.listMatchingRefs({
+    ...repo,
+    ref: `heads/${pattern}`,
+  });
+  return refs.length;
 }
 
 /**

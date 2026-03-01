@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-only
+// Copyright (C) 2025-2026 Polycode Limited
 // tasks/discussions.js — GitHub Discussions bot
 //
 // Responds to GitHub Discussions, creates features, seeds repositories,
@@ -59,16 +61,16 @@ export async function discussions(context) {
     core.warning(`Could not parse discussion URL: ${discussionUrl}`);
   }
 
-  const mission = readOptionalFile(config.paths.missionFilepath?.path || "MISSION.md");
-  const contributing = readOptionalFile(config.paths.contributingFilepath?.path || "CONTRIBUTING.md", 1000);
+  const mission = readOptionalFile(config.paths.mission.path);
+  const contributing = readOptionalFile(config.paths.contributing.path, 1000);
 
-  const featuresPath = config.paths.featuresPath?.path || "features/";
+  const featuresPath = config.paths.features.path;
   let featureNames = [];
   if (existsSync(featuresPath)) {
     featureNames = scanDirectory(featuresPath, ".md").map((f) => f.name.replace(".md", ""));
   }
 
-  const intentionPath = config.intentionBot?.intentionFilepath || "intentïon.md";
+  const intentionPath = config.intentionBot.intentionFilepath;
   const recentActivity = readOptionalFile(intentionPath).split("\n").slice(-20).join("\n");
 
   const agentInstructions = instructions || "Respond to the GitHub Discussion as the repository bot.";
