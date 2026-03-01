@@ -98,7 +98,7 @@ function createMockContext(overrides = {}) {
     writablePaths: [],
     testCommand: "npm test",
     discussionUrl: "https://github.com/test-owner/test-repo/discussions/123",
-    model: "claude-sonnet-4.5",
+    model: "claude-sonnet-4",
     octokit: createMockOctokit(),
     repo: { owner: "test-owner", repo: "test-repo" },
     github: { runId: 12345 },

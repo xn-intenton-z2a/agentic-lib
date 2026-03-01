@@ -10,7 +10,7 @@ The University of Essex has been a significant centre for constraint satisfactio
 
 Professor of Computer Science at the University of Essex. Author of the foundational textbook on constraint satisfaction:
 
-- Tsang, E. (1993). *Foundations of Constraint Satisfaction*. Academic Press. ISBN 0-12-701610-4.
+- Tsang, E. (1993). _Foundations of Constraint Satisfaction_. Academic Press. ISBN 0-12-701610-4.
 
 This was the first attempt to define the scope of constraint satisfaction as a field. It remains the most cited work on the subject. The book was suggested by Sam Steel, connecting the planning and constraint satisfaction threads at Essex.
 
@@ -25,15 +25,16 @@ Lecturer in the School of Computer Science and Electronic Engineering. Research 
 ### Planning as Constraint Satisfaction
 
 A plan can be viewed as a constraint satisfaction problem:
+
 - **Variables:** The actions to include, their parameters, their ordering
 - **Domains:** The possible actions, parameter values, time slots
 - **Constraints:** Preconditions must be met, resources must not be over-allocated, threats must be resolved, causal links must be preserved
 
 This view was formalized by several researchers:
 
-- Kautz, H. & Selman, B. (1992). "Planning as Satisfiability." *ECAI-92*. — Showed that planning problems can be encoded as SAT (Boolean satisfiability) problems and solved by SAT solvers. Led to the SATPLAN and Blackbox systems.
+- Kautz, H. & Selman, B. (1992). "Planning as Satisfiability." _ECAI-92_. — Showed that planning problems can be encoded as SAT (Boolean satisfiability) problems and solved by SAT solvers. Led to the SATPLAN and Blackbox systems.
 
-- Do, M.B. & Kambhampati, S. (2001). "Planning as Constraint Satisfaction: Solving the Planning Graph by Compiling it into CSP." *Artificial Intelligence*, 132(2), pp. 151–182.
+- Do, M.B. & Kambhampati, S. (2001). "Planning as Constraint Satisfaction: Solving the Planning Graph by Compiling it into CSP." _Artificial Intelligence_, 132(2), pp. 151–182.
 
 ### O-Plan's Constraint Model
 
@@ -43,23 +44,23 @@ Austin Tate's O-Plan (see `O-PLAN.md`) used an explicitly constraint-based plan 
 
 intentïon's plan format (PLAN.md) is implicitly a constraint satisfaction problem:
 
-| Plan section | CSP analog |
-|---|---|
-| **Achieved** | Assigned variables (solved) |
-| **In Progress** | Variables being explored |
-| **Open Conditions** | Unassigned variables |
-| **Threats** | Constraint violations to resolve |
-| **Unordered** | Variables with no ordering constraint between them |
-| **Observations** | Learned constraints from failed attempts |
+| Plan section        | CSP analog                                         |
+| ------------------- | -------------------------------------------------- |
+| **Achieved**        | Assigned variables (solved)                        |
+| **In Progress**     | Variables being explored                           |
+| **Open Conditions** | Unassigned variables                               |
+| **Threats**         | Constraint violations to resolve                   |
+| **Unordered**       | Variables with no ordering constraint between them |
+| **Observations**    | Learned constraints from failed attempts           |
 
 The partial-order structure of the plan is exactly the kind of structure CSP solvers are designed to work with: maintain flexibility (don't assign values until forced), propagate constraints (when one decision is made, prune the options for related decisions), and backtrack when a dead end is reached.
 
 ## Key References
 
-1. Tsang, E. (1993). *Foundations of Constraint Satisfaction*. Academic Press.
-2. Kautz, H. & Selman, B. (1992). "Planning as Satisfiability." *ECAI-92*.
-3. Do, M.B. & Kambhampati, S. (2001). "Planning as Constraint Satisfaction." *Artificial Intelligence*, 132(2).
-4. Currie, K. & Tate, A. (1991). "O-Plan: The Open Planning Architecture." *Artificial Intelligence*, 52(1).
+1. Tsang, E. (1993). _Foundations of Constraint Satisfaction_. Academic Press.
+2. Kautz, H. & Selman, B. (1992). "Planning as Satisfiability." _ECAI-92_.
+3. Do, M.B. & Kambhampati, S. (2001). "Planning as Constraint Satisfaction." _Artificial Intelligence_, 132(2).
+4. Currie, K. & Tate, A. (1991). "O-Plan: The Open Planning Architecture." _Artificial Intelligence_, 52(1).
 
 ## Links
 

@@ -8,28 +8,28 @@ Transform the current 8-task cron-driven system into the model described in CONC
 
 ### Core Action (`src/actions/agentic-step/`)
 
-| File | Lines | What it does |
-|---|---|---|
-| `index.js` | 117 | Entry point. Hardcoded TASKS map of 8 handlers. |
-| `config-loader.js` | 103 | Reads `agentic-lib.yml`, fixed path categories. |
-| `copilot.js` | 105 | Copilot SDK wrapper. Reusable as-is. |
-| `tools.js` | 133 | 4 tools: read_file, write_file, list_files, run_command. Reusable as-is. |
-| `safety.js` | 106 | WIP limits, attempt limits, path checks. Reusable as-is. |
-| `logging.js` | 87 | Appends to intentïon.md. Update format only. |
+| File               | Lines | What it does                                                             |
+| ------------------ | ----- | ------------------------------------------------------------------------ |
+| `index.js`         | 117   | Entry point. Hardcoded TASKS map of 8 handlers.                          |
+| `config-loader.js` | 103   | Reads `agentic-lib.yml`, fixed path categories.                          |
+| `copilot.js`       | 105   | Copilot SDK wrapper. Reusable as-is.                                     |
+| `tools.js`         | 133   | 4 tools: read_file, write_file, list_files, run_command. Reusable as-is. |
+| `safety.js`        | 106   | WIP limits, attempt limits, path checks. Reusable as-is.                 |
+| `logging.js`       | 87    | Appends to intentïon.md. Update format only.                             |
 
 ### 8 Task Handlers (`src/actions/agentic-step/tasks/`)
 
-| File | Lines | Concept perspective |
-|---|---|---|
-| `resolve-issue.js` | 93 | Builder |
-| `fix-code.js` | 70 | Fixer |
-| `evolve.js` | 209 | Navigator + Builder (conflated) |
-| `maintain-features.js` | 71 | Harvester |
-| `maintain-library.js` | 65 | Harvester |
-| `enhance-issue.js` | 96 | Critic |
-| `review-issue.js` | 112 | Witness |
-| `discussions.js` | 137 | Narrator |
-| **Total** | **853** | |
+| File                   | Lines   | Concept perspective             |
+| ---------------------- | ------- | ------------------------------- |
+| `resolve-issue.js`     | 93      | Builder                         |
+| `fix-code.js`          | 70      | Fixer                           |
+| `evolve.js`            | 209     | Navigator + Builder (conflated) |
+| `maintain-features.js` | 71      | Harvester                       |
+| `maintain-library.js`  | 65      | Harvester                       |
+| `enhance-issue.js`     | 96      | Critic                          |
+| `review-issue.js`      | 112     | Witness                         |
+| `discussions.js`       | 137     | Narrator                        |
+| **Total**              | **853** |                                 |
 
 ### Key Problem
 
@@ -78,20 +78,48 @@ The engine draws on three interconnected disciplines (see CONCEPT.md, "Knowledge
 ### context-sources.js (~200 lines, extracted)
 
 ```javascript
-export async function getIntention(config) { /* read INTENTION.md */ }
-export async function getOpenIssues(octokit, repo, label, limit) { /* list open issues */ }
-export async function getClosedIssues(octokit, repo, label, since) { /* recent closed */ }
-export async function getSourceFiles(config) { /* scan product source */ }
-export async function getTestFiles(config) { /* scan product tests */ }
-export async function getFeatureMaterials(config) { /* scan materials/features/ */ }
-export async function getLibraryMaterials(config) { /* scan materials/library/ */ }
-export async function getIssueDetail(octokit, repo, issueNumber) { /* issue + comments */ }
-export async function getPRDetail(octokit, repo, prNumber) { /* PR + check runs */ }
-export async function getDiscussion(octokit, repo, discussionNumber) { /* GraphQL */ }
-export async function getContributing(config) { /* read CONTRIBUTING.md */ }
-export async function getActivityRecord(config, limit) { /* recent intentïon.md */ }
-export async function getMaterialSources(config) { /* read SOURCES.md */ }
-export async function getPlan(config) { /* read PLAN.md — the committed plan */ }
+export async function getIntention(config) {
+  /* read INTENTION.md */
+}
+export async function getOpenIssues(octokit, repo, label, limit) {
+  /* list open issues */
+}
+export async function getClosedIssues(octokit, repo, label, since) {
+  /* recent closed */
+}
+export async function getSourceFiles(config) {
+  /* scan product source */
+}
+export async function getTestFiles(config) {
+  /* scan product tests */
+}
+export async function getFeatureMaterials(config) {
+  /* scan materials/features/ */
+}
+export async function getLibraryMaterials(config) {
+  /* scan materials/library/ */
+}
+export async function getIssueDetail(octokit, repo, issueNumber) {
+  /* issue + comments */
+}
+export async function getPRDetail(octokit, repo, prNumber) {
+  /* PR + check runs */
+}
+export async function getDiscussion(octokit, repo, discussionNumber) {
+  /* GraphQL */
+}
+export async function getContributing(config) {
+  /* read CONTRIBUTING.md */
+}
+export async function getActivityRecord(config, limit) {
+  /* recent intentïon.md */
+}
+export async function getMaterialSources(config) {
+  /* read SOURCES.md */
+}
+export async function getPlan(config) {
+  /* read PLAN.md — the committed plan */
+}
 ```
 
 **Migration:** Update each task handler to import from context-sources.js. Run golden prompt tests after each. No behavior change.
@@ -117,8 +145,8 @@ budget: { iterations: 5, tokens: 50000 }
 
 ## Actions
 
-| id | action | preconditions | effects | agent | status | resources |
-|---|---|---|---|---|---|---|
+| id                                                                            | action | preconditions | effects | agent | status | resources |
+| ----------------------------------------------------------------------------- | ------ | ------------- | ------- | ----- | ------ | --------- |
 | (actions with preconditions, effects, assigned agent, status, resource paths) |
 
 ## Causal Links
@@ -131,8 +159,8 @@ budget: { iterations: 5, tokens: 50000 }
 
 ## Assumptions
 
-| assumption | justification | strength | dependents |
-|---|---|---|---|
+| assumption                                                                  | justification | strength | dependents |
+| --------------------------------------------------------------------------- | ------------- | -------- | ---------- |
 | (beliefs held by the system, with why, how strong, and what relies on them) |
 
 ## Open Conditions
@@ -205,9 +233,12 @@ const plan = await parsePlan(await readFile(config.planFilepath));
 const intention = await getIntention(config);
 
 // At end of any task
-plan.observations.push({ cycle: plan.cycle, event: 'Resolved issue #42', initiates: ['feature-42-available'] });
-plan.actions.find(a => a.id === 'A42').status = 'achieved';
-propagateEffects(plan, plan.actions.find(a => a.id === 'A42'));
+plan.observations.push({ cycle: plan.cycle, event: "Resolved issue #42", initiates: ["feature-42-available"] });
+plan.actions.find((a) => a.id === "A42").status = "achieved";
+propagateEffects(
+  plan,
+  plan.actions.find((a) => a.id === "A42"),
+);
 await writeFile(config.planFilepath, serializePlan(plan));
 await witness(config, intention, plan);
 ```
@@ -233,11 +264,13 @@ tools: [read_file, write_file, list_files]
 # File I/O Capability
 
 ## Tools provided
+
 - `read_file(path)` — Read file contents from the repository
 - `write_file(path, content)` — Write file (writable paths only, enforced by safety.js)
 - `list_files(path, recursive?)` — List directory contents
 
 ## Protocol
+
 - All paths are relative to repository root
 - write_file respects writable path restrictions from the agent definition
 - Errors are returned as tool results, not thrown
@@ -266,6 +299,7 @@ constraints:
 You are a builder. You see open conditions as opportunities to create working code.
 
 ## How you act
+
 1. Read the action description and preconditions
 2. Read relevant source files and tests
 3. Write implementation code
@@ -275,23 +309,23 @@ You are a builder. You see open conditions as opportunities to create working co
 
 ### Default capabilities
 
-| File | Name | Tools |
-|---|---|---|
-| `file-io.md` | file-io | read_file, write_file, list_files |
-| `command-execution.md` | command-execution | run_command |
-| `github-api.md` | github-api | create_issue, create_pr, list_issues, add_label |
-| `web-retrieval.md` | web-retrieval | fetch_url |
+| File                   | Name              | Tools                                           |
+| ---------------------- | ----------------- | ----------------------------------------------- |
+| `file-io.md`           | file-io           | read_file, write_file, list_files               |
+| `command-execution.md` | command-execution | run_command                                     |
+| `github-api.md`        | github-api        | create_issue, create_pr, list_issues, add_label |
+| `web-retrieval.md`     | web-retrieval     | fetch_url                                       |
 
 ### Default agent definitions
 
-| File | Agent | Perspective | Transform | Capabilities |
-|---|---|---|---|---|
-| `builder.md` | builder | builder | Open issue → resolved code | file-io, command-execution, github-api |
-| `fixer.md` | fixer | fixer | Failing tests → passing tests | file-io, command-execution |
-| `critic.md` | critic | critic | Draft issue → enriched issue | github-api |
-| `witness.md` | witness | witness | Current state → realization score | file-io, github-api |
-| `harvester.md` | harvester | harvester | Stale materials → fresh materials | file-io, web-retrieval |
-| `steward.md` | steward | steward | Drift → alignment | file-io, command-execution, github-api |
+| File           | Agent     | Perspective | Transform                         | Capabilities                           |
+| -------------- | --------- | ----------- | --------------------------------- | -------------------------------------- |
+| `builder.md`   | builder   | builder     | Open issue → resolved code        | file-io, command-execution, github-api |
+| `fixer.md`     | fixer     | fixer       | Failing tests → passing tests     | file-io, command-execution             |
+| `critic.md`    | critic    | critic      | Draft issue → enriched issue      | github-api                             |
+| `witness.md`   | witness   | witness     | Current state → realization score | file-io, github-api                    |
+| `harvester.md` | harvester | harvester   | Stale materials → fresh materials | file-io, web-retrieval                 |
+| `steward.md`   | steward   | steward     | Drift → alignment                 | file-io, command-execution, github-api |
 
 ### New modules
 
@@ -363,14 +397,14 @@ export function buildAgentSession(agentDef, action, capabilities, toolRegistry, 
 
 ### Engine modules (all under `src/actions/agentic-step/engine/`)
 
-| File | Lines (est.) | Purpose |
-|---|---|---|
-| `runner.js` | ~120 | Main loop orchestrator |
-| `assessor.js` | ~80 | Read state into a snapshot for reasoning |
-| `planner.js` | ~80 | Refine PLAN.md via Copilot SDK call |
-| `constraint-solver.js` | ~80 | Find proceedable actions (POP + CSP) |
-| `executor.js` | ~80 | Concurrent batch execution |
-| `witness.js` | ~60 | Realization assessment |
+| File                   | Lines (est.) | Purpose                                  |
+| ---------------------- | ------------ | ---------------------------------------- |
+| `runner.js`            | ~120         | Main loop orchestrator                   |
+| `assessor.js`          | ~80          | Read state into a snapshot for reasoning |
+| `planner.js`           | ~80          | Refine PLAN.md via Copilot SDK call      |
+| `constraint-solver.js` | ~80          | Find proceedable actions (POP + CSP)     |
+| `executor.js`          | ~80          | Concurrent batch execution               |
+| `witness.js`           | ~60          | Realization assessment                   |
 
 (plan-schema.js, belief-state.js, capability-loader.js, agent-loader.js, assembler.js are defined in Phases 2 and 3)
 
@@ -398,11 +432,9 @@ export async function runEngine(config, octokit) {
     if (proceedable.length === 0) break; // nothing to do
 
     // 4. ASSEMBLE — match/compose agents for proceedable actions
-    const agents = proceedable.map(action =>
-      matchAgent(action, agentDefs) || composeAgent(action, capabilities)
-    );
+    const agents = proceedable.map((action) => matchAgent(action, agentDefs) || composeAgent(action, capabilities));
     const sessions = agents.map((agent, i) =>
-      buildAgentSession(agent, proceedable[i], capabilities, toolRegistry, config)
+      buildAgentSession(agent, proceedable[i], capabilities, toolRegistry, config),
     );
 
     // 5. EXECUTE — run agents in parallel (within concurrency limit)
@@ -447,6 +479,7 @@ export function solveProceedable(plan) {
 ```
 
 An action is **proceedable** when:
+
 - All preconditions are satisfied (conditions initiated by achieved actions)
 - No unresolved threats exist against causal links that provide those preconditions
 - Its resource paths don't conflict with other actions in the same batch
@@ -495,12 +528,13 @@ The social protocol:
 
 ```javascript
 export function canModifyAgentDefinition(currentAgent, targetFile) {
-  const targetName = path.basename(targetFile, '.md');
+  const targetName = path.basename(targetFile, ".md");
   return targetName !== currentAgent; // can't modify self
 }
 ```
 
 This enables:
+
 - The critic can add constraints to the builder's agent definition
 - Any agent can create a new capability file (expanding the system's repertoire)
 - Any agent can create a new agent definition (the system grows its own workforce)
@@ -510,7 +544,7 @@ INTENTION.md remains read-only (hardcoded). The plan and record are writable by 
 
 **Scope:** Small. Safety check (~20 lines), make capabilities/ and agents/ writable in config.
 
-*Note: Phase 5 from the previous plan (capability files as a separate concept) is absorbed into Phase 3 above.*
+_Note: Phase 5 from the previous plan (capability files as a separate concept) is absorbed into Phase 3 above._
 
 ---
 
@@ -542,7 +576,7 @@ jobs:
   navigate:
     strategy:
       matrix:
-        branch: [feature-a, feature-b]  # parallel branches, each with its own goal
+        branch: [feature-a, feature-b] # parallel branches, each with its own goal
       max-parallel: 2
     steps:
       - uses: actions/checkout@v4
@@ -571,7 +605,7 @@ The engine is surfaced as a new `navigate` task in the existing TASKS map:
 ```javascript
 // tasks/navigate.js (~40 lines)
 export async function navigate(config, octokit) {
-  const { runEngine } = await import('../engine/runner.js');
+  const { runEngine } = await import("../engine/runner.js");
   return runEngine(config, octokit);
 }
 ```
@@ -595,51 +629,51 @@ Both documents must be rewritten as part of the narrative alignment (see PLAN_NA
 
 ## Migration Sequence
 
-| Step | What | Validates |
-|---|---|---|
-| 1 | Extract context-sources.js from 8 task handlers | Golden prompt tests |
-| 2 | Introduce PLAN.md template + plan-schema.js + belief-state.js | Unit tests on plan parse/serialize round-trip, belief revision |
-| 3 | Add plan read/update/witness to each task handler | Plan updates correctly |
-| 4 | Create default capability files (4 files) | Capability loader tests |
-| 5 | Create default agent definition files (6 files) | Agent loader tests |
-| 6 | Create capability-loader, agent-loader, assembler | Unit tests (load, match, compose) |
-| 7 | Create engine modules (runner, assessor, planner, constraint-solver, executor, witness) | Integration tests |
-| 8 | Create navigate task handler wiring engine to TASKS map | End-to-end test |
-| 9 | Rename files (MISSION→INTENTION, agents directory, agent-flow workflows) | All tests pass |
-| 10 | Update config schema (new key names: capabilitiesPath, planFilepath, etc.) | Config-loader tests |
-| 11 | Rewrite FEATURES.md with new vocabulary | Human review |
-| 12 | Rewrite FEATURES_ROADMAP.md with new vocabulary | Human review |
-| 13 | Enable cross-agent modification in safety.js | Safety tests |
-| 14 | Simplify to 3 workflows with engine-driven navigation | Manual test |
-| 15 | Delete legacy task handler files when engine is proven | Tests pass without them |
+| Step | What                                                                                    | Validates                                                      |
+| ---- | --------------------------------------------------------------------------------------- | -------------------------------------------------------------- |
+| 1    | Extract context-sources.js from 8 task handlers                                         | Golden prompt tests                                            |
+| 2    | Introduce PLAN.md template + plan-schema.js + belief-state.js                           | Unit tests on plan parse/serialize round-trip, belief revision |
+| 3    | Add plan read/update/witness to each task handler                                       | Plan updates correctly                                         |
+| 4    | Create default capability files (4 files)                                               | Capability loader tests                                        |
+| 5    | Create default agent definition files (6 files)                                         | Agent loader tests                                             |
+| 6    | Create capability-loader, agent-loader, assembler                                       | Unit tests (load, match, compose)                              |
+| 7    | Create engine modules (runner, assessor, planner, constraint-solver, executor, witness) | Integration tests                                              |
+| 8    | Create navigate task handler wiring engine to TASKS map                                 | End-to-end test                                                |
+| 9    | Rename files (MISSION→INTENTION, agents directory, agent-flow workflows)                | All tests pass                                                 |
+| 10   | Update config schema (new key names: capabilitiesPath, planFilepath, etc.)              | Config-loader tests                                            |
+| 11   | Rewrite FEATURES.md with new vocabulary                                                 | Human review                                                   |
+| 12   | Rewrite FEATURES_ROADMAP.md with new vocabulary                                         | Human review                                                   |
+| 13   | Enable cross-agent modification in safety.js                                            | Safety tests                                                   |
+| 14   | Simplify to 3 workflows with engine-driven navigation                                   | Manual test                                                    |
+| 15   | Delete legacy task handler files when engine is proven                                  | Tests pass without them                                        |
 
 ---
 
 ## Estimated Totals
 
-| Category | Lines | Files |
-|---|---|---|
-| New code (context-sources, plan-schema, belief-state, capability-loader, agent-loader, assembler, runner, assessor, planner, constraint-solver, executor, witness, navigate handler) | ~1,250 | 13 |
-| New definitions (capabilities + agent definitions) | ~400 | 10 |
-| Plan template (PLAN.md) | ~40 | 1 |
-| Deleted code (legacy task handlers, eventually) | -853 | 8 |
-| Config changes | ~60 | 2 |
-| Test updates | ~300 | 15+ |
-| **Net change** | **~+1,197** | |
+| Category                                                                                                                                                                             | Lines       | Files |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------- | ----- |
+| New code (context-sources, plan-schema, belief-state, capability-loader, agent-loader, assembler, runner, assessor, planner, constraint-solver, executor, witness, navigate handler) | ~1,250      | 13    |
+| New definitions (capabilities + agent definitions)                                                                                                                                   | ~400        | 10    |
+| Plan template (PLAN.md)                                                                                                                                                              | ~40         | 1     |
+| Deleted code (legacy task handlers, eventually)                                                                                                                                      | -853        | 8     |
+| Config changes                                                                                                                                                                       | ~60         | 2     |
+| Test updates                                                                                                                                                                         | ~300        | 15+   |
+| **Net change**                                                                                                                                                                       | **~+1,197** |       |
 
 ---
 
 ## Risk Register
 
-| Risk | Severity | Mitigation |
-|---|---|---|
-| Plan file parsing fragile | Medium | plan-schema.js with round-trip fidelity tests, fallback to fresh plan |
-| Constraint solver produces incorrect proceedable set | High | Comprehensive unit tests: unmet preconditions, unresolved threats, resource conflicts |
-| Engine consumes too many tokens per run | Medium | Configurable iteration and token budgets, cost tracking in plan front matter |
-| Agent assembly (CSP) finds no valid composition | Medium | Fallback to default builder agent, log the gap as an observation |
-| Belief revision cascades too aggressively | Medium | Strength thresholds, require minimum justification quality before auto-retraction |
-| Cross-agent modification creates conflicts | Medium | Social protocol (not self), plan tracks threats, PR review |
-| Legacy handlers and engine produce different behavior during migration | High | Run both in parallel during transition, compare results |
-| Plan grows unbounded | Low | Archive achieved items to intentïon.md periodically |
-| Concurrent execution creates merge conflicts on branch | Medium | Resource path tracking in constraint solver prevents same-file concurrent edits |
-| Rename coordination across 3 repos | Medium | Script the renames, one session, branches not main |
+| Risk                                                                   | Severity | Mitigation                                                                            |
+| ---------------------------------------------------------------------- | -------- | ------------------------------------------------------------------------------------- |
+| Plan file parsing fragile                                              | Medium   | plan-schema.js with round-trip fidelity tests, fallback to fresh plan                 |
+| Constraint solver produces incorrect proceedable set                   | High     | Comprehensive unit tests: unmet preconditions, unresolved threats, resource conflicts |
+| Engine consumes too many tokens per run                                | Medium   | Configurable iteration and token budgets, cost tracking in plan front matter          |
+| Agent assembly (CSP) finds no valid composition                        | Medium   | Fallback to default builder agent, log the gap as an observation                      |
+| Belief revision cascades too aggressively                              | Medium   | Strength thresholds, require minimum justification quality before auto-retraction     |
+| Cross-agent modification creates conflicts                             | Medium   | Social protocol (not self), plan tracks threats, PR review                            |
+| Legacy handlers and engine produce different behavior during migration | High     | Run both in parallel during transition, compare results                               |
+| Plan grows unbounded                                                   | Low      | Archive achieved items to intentïon.md periodically                                   |
+| Concurrent execution creates merge conflicts on branch                 | Medium   | Resource path tracking in constraint solver prevents same-file concurrent edits       |
+| Rename coordination across 3 repos                                     | Medium   | Script the renames, one session, branches not main                                    |

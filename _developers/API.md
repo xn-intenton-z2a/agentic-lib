@@ -25,12 +25,12 @@ The `agentic-step` action is a GitHub Action wrapping the GitHub Copilot SDK for
 
 ## Outputs
 
-| Output        | Description                                                             |
-| ------------- | ----------------------------------------------------------------------- |
+| Output        | Description                                                                 |
+| ------------- | --------------------------------------------------------------------------- |
 | `result`      | Outcome of the task (e.g. `pr-created`, `code-fixed`, `nop`, `transformed`) |
-| `pr-number`   | PR number created or modified (if applicable)                           |
-| `tokens-used` | Total tokens consumed by the Copilot SDK                                |
-| `model`       | Model used for the completion                                           |
+| `pr-number`   | PR number created or modified (if applicable)                               |
+| `tokens-used` | Total tokens consumed by the Copilot SDK                                    |
+| `model`       | Model used for the completion                                               |
 
 ## Task Types
 
@@ -142,17 +142,17 @@ Paths with `permissions: [ 'write' ]` are writable by the agent. All other paths
 
 ### Execution Settings
 
-| Key                                | Default         | Description                            |
-| ---------------------------------- | --------------- | -------------------------------------- |
-| `schedule`                         | `schedule-1`    | Workflow schedule identifier           |
-| `buildScript`                      | `npm run build` | Build command                          |
-| `testScript`                       | `npm test`      | Test validation command                |
-| `mainScript`                       | `npm run start` | Main entry command                     |
-| `featureDevelopmentIssuesWipLimit` | 2               | Max concurrent feature issues          |
-| `maintenanceIssuesWipLimit`        | 1               | Max concurrent maintenance issues      |
-| `attemptsPerBranch`                | 2               | Max branch attempts per issue          |
-| `attemptsPerIssue`                 | 1               | Max total attempts per issue           |
-| `docRoot`                          | `public`        | Documentation/web root directory       |
+| Key                                | Default         | Description                                 |
+| ---------------------------------- | --------------- | ------------------------------------------- |
+| `schedule`                         | `schedule-1`    | Workflow schedule identifier                |
+| `buildScript`                      | `npm run build` | Build command                               |
+| `testScript`                       | `npm test`      | Test validation command                     |
+| `mainScript`                       | `npm run start` | Main entry command                          |
+| `featureDevelopmentIssuesWipLimit` | 2               | Max concurrent feature issues               |
+| `maintenanceIssuesWipLimit`        | 1               | Max concurrent maintenance issues           |
+| `attemptsPerBranch`                | 2               | Max branch attempts per issue               |
+| `attemptsPerIssue`                 | 1               | Max total attempts per issue                |
+| `docRoot`                          | `public`        | Documentation/web root directory            |
 | `tdd`                              | `false`         | Enable TDD mode (test-first transformation) |
 
 ### Bot Configuration

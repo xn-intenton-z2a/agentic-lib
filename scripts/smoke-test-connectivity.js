@@ -1,20 +1,31 @@
 #!/usr/bin/env node
 // smoke-test-connectivity.js — Tier 2 connectivity smoke test
 //
-// Verifies that the GitHub API and Copilot SDK are accessible.
-// Requires GITHUB_TOKEN environment variable.
+// Verifies that the GitHub API, GraphQL, and Copilot SDK are accessible.
+// Requires GITHUB_TOKEN or COPILOT_GITHUB_TOKEN environment variable.
 // Exit 0 on success, 1 on failure with diagnostic output.
 
-const token = process.env.GITHUB_TOKEN;
+const token = process.env.COPILOT_GITHUB_TOKEN || process.env.GITHUB_TOKEN;
 if (!token) {
-  console.error("SKIP: GITHUB_TOKEN not set — cannot run connectivity smoke test");
+  console.error("SKIP: No GITHUB_TOKEN or COPILOT_GITHUB_TOKEN set — cannot run connectivity smoke test");
   process.exit(0); // Don't fail CI if token is unavailable
 }
+
+const tokenType = token.startsWith("gho_")
+  ? "OAuth"
+  : token.startsWith("ghp_")
+    ? "Classic PAT"
+    : token.startsWith("ghs_")
+      ? "Actions"
+      : token.startsWith("github_pat_")
+        ? "Fine-grained PAT"
+        : "Unknown";
 
 const REPO_OWNER = "xn-intenton-z2a";
 const REPO_NAME = "agentic-lib";
 
 let failures = 0;
+let warnings = 0;
 
 async function testGitHubApi() {
   console.log("--- GitHub REST API ---");
@@ -67,10 +78,50 @@ async function testCopilotSdk() {
   console.log("--- Copilot SDK ---");
   try {
     const { CopilotClient } = await import("@github/copilot-sdk");
-    const client = new CopilotClient({ githubToken: token });
+
+    // Step 1: Instantiate client
+    // If COPILOT_GITHUB_TOKEN is set, override subprocess env (same as copilot.js does)
+    const copilotToken = process.env.COPILOT_GITHUB_TOKEN;
+    const clientOptions = {};
+    if (copilotToken) {
+      clientOptions.env = { ...process.env, GITHUB_TOKEN: copilotToken, GH_TOKEN: copilotToken };
+    }
+    const client = new CopilotClient(clientOptions);
     console.log("  OK: CopilotClient instantiated");
-    // Note: createSession requires a model allocation which may not be available.
-    // For now, just verify the SDK loads and the client can be created.
+
+    // Step 2: Start and check auth
+    try {
+      await client.start();
+      console.log("  OK: Client started (CLI subprocess running)");
+
+      const authStatus = await client.getAuthStatus();
+      console.log(`  Auth: ${JSON.stringify(authStatus)}`);
+      if (!authStatus.isAuthenticated) {
+        console.error(`  WARN: Not authenticated — token type '${tokenType}' may not have Copilot API access`);
+        console.error("  Note: Only OAuth tokens (gho_*) from gh CLI support the Copilot models API.");
+        console.error("  Classic PATs with 'copilot' scope only manage seat assignments, not API access.");
+        warnings++;
+      }
+    } catch (err) {
+      console.error(`  WARN: Client start/auth: ${err.message}`);
+      warnings++;
+    }
+
+    // Step 3: List models (this is where PATs fail with 400)
+    try {
+      const models = await client.listModels();
+      console.log(`  OK: ${models.length} models available`);
+      const modelNames = models.slice(0, 5).map((m) => m.name || m.id);
+      console.log(`  Models: ${modelNames.join(", ")}${models.length > 5 ? "..." : ""}`);
+    } catch (err) {
+      console.error(`  WARN: listModels failed: ${err.message}`);
+      if (err.message.includes("400")) {
+        console.error("  This indicates the token cannot access the Copilot models API.");
+        console.error("  In CI, you need an OAuth-compatible auth mechanism, not a PAT.");
+      }
+      warnings++;
+    }
+
     await client.stop();
     console.log("  OK: Client stopped cleanly");
   } catch (err) {
@@ -78,19 +129,28 @@ async function testCopilotSdk() {
       console.log("  SKIP: @github/copilot-sdk not installed (expected in dev)");
     } else {
       console.error(`  WARN: Copilot SDK: ${err.message}`);
-      // Don't count as failure — SDK availability is Risk #12/#13
+      // Don't count as hard failure — SDK availability is Risk #12/#13
+      warnings++;
     }
   }
 }
 
 async function main() {
-  console.log(`Smoke test: ${REPO_OWNER}/${REPO_NAME}\n`);
+  console.log(`Smoke test: ${REPO_OWNER}/${REPO_NAME}`);
+  console.log(`Token type: ${tokenType} (${token.substring(0, 8)}...)\n`);
+
   await testGitHubApi();
   await testGraphQL();
   await testCopilotSdk();
 
-  const summary = failures === 0 ? "ALL PASSED" : `${failures} FAILURE(S)`;
-  console.log(`\n${summary}`);
+  console.log();
+  if (failures > 0) {
+    console.log(`${failures} FAILURE(S), ${warnings} warning(s)`);
+  } else if (warnings > 0) {
+    console.log(`ALL PASSED (${warnings} warning(s) — Copilot SDK auth may need attention)`);
+  } else {
+    console.log("ALL PASSED");
+  }
   process.exit(failures > 0 ? 1 : 0);
 }
 

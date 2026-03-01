@@ -123,7 +123,7 @@ A self-transforming intelligence layer that learns from git history and adapts i
 | 5.3 | Predictive Planning — predict next improvement areas from git history         |
 | 5.4 | Meta-Workflow Orchestration — dynamically schedule based on project phase     |
 | 5.5 | Effectiveness tracking database (SQLite or GitHub Issues)                     |
-| 5.6 | Self-modifying workflow configurations that transform with the project           |
+| 5.6 | Self-modifying workflow configurations that transform with the project        |
 
 ---
 

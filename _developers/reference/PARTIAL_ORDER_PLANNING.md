@@ -11,6 +11,7 @@ This is the **least commitment** principle: don't make decisions until you have 
 ### Partial Plan
 
 A partial plan consists of:
+
 - A set of **actions** (not yet totally ordered)
 - **Causal links**: A→p→B means "action A achieves precondition p needed by action B"
 - **Ordering constraints**: A < B means "A must happen before B"
@@ -18,13 +19,14 @@ A partial plan consists of:
 
 ### Causal Links
 
-A causal link records *why* an action is in the plan. If action A achieves precondition p for action B, the link A→p→B records this dependency. Causal links make plans self-documenting — you can trace the rationale for every action.
+A causal link records _why_ an action is in the plan. If action A achieves precondition p for action B, the link A→p→B records this dependency. Causal links make plans self-documenting — you can trace the rationale for every action.
 
 ### Threats
 
 A threat exists when an action C might undo a condition p that is needed by a causal link A→p→B. If C has an effect ¬p and C could be ordered between A and B, then C threatens the link.
 
 Threats are resolved by:
+
 - **Promotion**: order C before A (so C's effect is undone before it matters)
 - **Demotion**: order C after B (so C doesn't interfere)
 
@@ -35,6 +37,7 @@ An open condition is a precondition that no action in the current plan achieves.
 ### Least Commitment
 
 The planner avoids committing to orderings or variable bindings until forced by threats or causal requirements. This means:
+
 - Fewer backtracking points
 - Plans are more flexible — they can be adapted to changed circumstances
 - Independent subgoals remain independent
@@ -55,29 +58,29 @@ The planner avoids committing to orderings or variable bindings until forced by 
 
 ## History
 
-| Year | System | Authors | Contribution |
-|------|--------|---------|-------------|
-| 1975 | Interplan | Tate | Goal interaction management |
-| 1975–76 | **NONLIN** | Tate (Edinburgh) | First HTN partial-order planner |
-| 1983–99 | **O-Plan** | Currie & Tate (Edinburgh) | Open architecture, constraint management, execution |
-| 1991 | SNLP | McAllester & Rosenblitt | Systematic search over partial plans |
-| 1992 | **UCPOP** | Penberthy & Weld (Washington) | Sound, complete for ADL |
-| 1992 | SATPLAN | Kautz & Selman (AT&T/Cornell) | Planning as satisfiability |
-| 1993 | **Steel & Ho** | Steel & Ho (Essex) | Planning/execution trade-off under uncertainty |
-| 1995 | Graphplan | Blum & Furst | Planning graph + backward search |
-| 1997 | Blackbox | Kautz & Selman | Unified SAT + Graphplan |
-| 2000–10 | I-X/I-Plan | Tate et al. (Edinburgh) | Multi-agent mixed-initiative planning |
+| Year    | System         | Authors                       | Contribution                                        |
+| ------- | -------------- | ----------------------------- | --------------------------------------------------- |
+| 1975    | Interplan      | Tate                          | Goal interaction management                         |
+| 1975–76 | **NONLIN**     | Tate (Edinburgh)              | First HTN partial-order planner                     |
+| 1983–99 | **O-Plan**     | Currie & Tate (Edinburgh)     | Open architecture, constraint management, execution |
+| 1991    | SNLP           | McAllester & Rosenblitt       | Systematic search over partial plans                |
+| 1992    | **UCPOP**      | Penberthy & Weld (Washington) | Sound, complete for ADL                             |
+| 1992    | SATPLAN        | Kautz & Selman (AT&T/Cornell) | Planning as satisfiability                          |
+| 1993    | **Steel & Ho** | Steel & Ho (Essex)            | Planning/execution trade-off under uncertainty      |
+| 1995    | Graphplan      | Blum & Furst                  | Planning graph + backward search                    |
+| 1997    | Blackbox       | Kautz & Selman                | Unified SAT + Graphplan                             |
+| 2000–10 | I-X/I-Plan     | Tate et al. (Edinburgh)       | Multi-agent mixed-initiative planning               |
 
 ## Contrast with Total-Order Planning
 
-| Aspect | Total-order (STRIPS-like) | Partial-order (POP) |
-|--------|--------------------------|---------------------|
-| Plan format | Sequence of actions | Set of actions + ordering constraints |
-| Commitment | Full — every action has a position | Minimal — only forced orderings |
-| Flexibility | None — the plan is rigid | High — unordered actions can be reordered |
-| Subgoal interaction | Detected late (during execution) | Detected early (threats during planning) |
-| Search space | All permutations of actions | Only causally relevant orderings |
-| Explainability | "Step 5 does X" | "A achieves p because B needs it" |
+| Aspect              | Total-order (STRIPS-like)          | Partial-order (POP)                       |
+| ------------------- | ---------------------------------- | ----------------------------------------- |
+| Plan format         | Sequence of actions                | Set of actions + ordering constraints     |
+| Commitment          | Full — every action has a position | Minimal — only forced orderings           |
+| Flexibility         | None — the plan is rigid           | High — unordered actions can be reordered |
+| Subgoal interaction | Detected late (during execution)   | Detected early (threats during planning)  |
+| Search space        | All permutations of actions        | Only causally relevant orderings          |
+| Explainability      | "Step 5 does X"                    | "A achieves p because B needs it"         |
 
 ## Relevance to LLM-Based Systems
 

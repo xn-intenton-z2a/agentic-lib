@@ -8,13 +8,13 @@ Every human-readable artifact across all three repositories must speak the same 
 
 | Kill this                                        | Replace with                                            |
 | ------------------------------------------------ | ------------------------------------------------------- |
-| "Autonomous code transformation"                      | Navigating from intentïon to realization                |
-| "Transform", "transformation", "transforming"                | Navigate, transform, grow, progress (context-dependent) |
+| "Autonomous code transformation"                 | Navigating from intentïon to realization                |
+| "Transform", "transformation", "transforming"    | Navigate, transform, grow, progress (context-dependent) |
 | "Pipeline", "cycle", "loop"                      | Navigation + transformation                             |
 | "Mission", "mission statement", MISSION.md       | Intentïon, INTENTION.md                                 |
 | "Workflows", "actions", "config" (as a category) | Machinery                                               |
 | "Agent", "bot", "task handler"                   | Perspective (way of seeing)                             |
-| "Task type" (transform, fix, maintain...)           | Transformation (navigate, transform, witness, steward)  |
+| "Task type" (transform, fix, maintain...)        | Transformation (navigate, transform, witness, steward)  |
 | "Tests pass / PR merge" as success               | Witness (realization assessment)                        |
 | "Activity log"                                   | Record                                                  |
 | "Library docs", "SOURCES.md content"             | Materials                                               |
@@ -70,7 +70,7 @@ These are the product definition documents. They must be rewritten to use the ne
 
 | #   | Current                          | New                                  |
 | --- | -------------------------------- | ------------------------------------ |
-| 1   | Autonomous Code Transformation        | Transformation Engine                |
+| 1   | Autonomous Code Transformation   | Transformation Engine                |
 | 2   | Issue Lifecycle Management       | Navigation via Issues                |
 | 3   | Feature Lifecycle Management     | Feature Materials Management         |
 | 4   | Code Generation & Fixing         | Builder & Fixer Perspectives         |
@@ -125,7 +125,7 @@ These are the product definition documents. They must be rewritten to use the ne
 | 30  | Workflow Hardening                  | Machinery Hardening                     |
 | 31  | UX Journey & Onboarding             | UX Journey & Onboarding                 |
 | 32  | Discussions Bot Intelligence        | Narrator Intelligence                   |
-| 33  | Transformation Engine                    | Navigation Engine                       |
+| 33  | Transformation Engine               | Navigation Engine                       |
 | 34  | Collaboration & Feature Marketplace | Collaboration & Perspective Marketplace |
 | 35  | Cost Model & Recycling              | Cost Model & Recycling                  |
 | 36  | Supervisor Launch                   | Navigation Supervisor Launch            |
@@ -272,7 +272,7 @@ Content: Remove all "transform" language. "Mission Statement" → "Intentïon."
 
 | Current                     | New                      |
 | --------------------------- | ------------------------ |
-| `agent-flow-transform.yml`     | `transform-navigate.yml` |
+| `agent-flow-transform.yml`  | `transform-navigate.yml` |
 | `agent-flow-maintain.yml`   | `transform-maintain.yml` |
 | `agent-flow-review.yml`     | `transform-witness.yml`  |
 | `agent-flow-fix-code.yml`   | `transform-repair.yml`   |

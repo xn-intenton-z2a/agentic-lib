@@ -17,9 +17,9 @@
     "test": "vitest --run",
     "test:record-golden": "node scripts/record-golden-prompts.js",
     "test:smoke": "node scripts/smoke-test-connectivity.js",
-    "distribute": "node scripts/distribute.js",
-    "distribute:check": "node scripts/distribute.js --dry-run ../repository0",
-    "distribute:apply": "node scripts/distribute.js --commit ../repository0",
+    "test:copilot": "node scripts/test-copilot-local.js",
+    "test:discussions": "node scripts/test-discussions-local.js",
+    "test:transform": "node scripts/test-transform-local.js ../repository0",
     "start": "echo \"agentic-lib is a workflow SDK — see README.md\""
   },
   "keywords": [],
@@ -46,8 +46,22 @@
   "engines": {
     "node": ">=24.0.0"
   },
+  "bin": {
+    "agentic-lib": "bin/agentic-lib.js"
+  },
   "files": [
-    "package.json"
+    "package.json",
+    "bin/",
+    "src/workflows/",
+    "src/actions/agentic-step/*.js",
+    "src/actions/agentic-step/*.yml",
+    "src/actions/agentic-step/*.json",
+    "src/actions/agentic-step/tasks/",
+    "src/actions/commit-if-changed/",
+    "src/actions/setup-npmrc/",
+    "src/agents/",
+    "src/seeds/",
+    "src/scripts/"
   ],
   "overrides": {
     "minimatch": ">=10.2.3"

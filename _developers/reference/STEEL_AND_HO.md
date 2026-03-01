@@ -21,6 +21,7 @@ The original technical report (`csm-184.pdf`) is included in this reference dire
 ### Planning vs. Execution Trade-off
 
 The central innovation: the system can **reason about whether further planning or immediate execution is more valuable**. This is not a heuristic — it's a formal decision-theoretic calculation based on:
+
 - The **cost of planning** (time, compute)
 - The **expected utility of the resulting plan** vs. acting immediately
 - The **uncertainty** about action outcomes
@@ -30,6 +31,7 @@ This directly addresses a problem that most planners ignore: planning itself has
 ### Partial Decision Trees
 
 The plan representation serves dual purpose:
+
 - As a **conditional plan** — branches represent different possible outcomes of actions, with different continuations for each
 - As a **decision tree** — branches represent choices, with utility calculations at the leaves
 
@@ -55,7 +57,7 @@ This paper is the most directly relevant to intentïon's design:
 
 Sam Steel is in the School of Computer Science and Electronic Engineering at the University of Essex. He also co-edited:
 
-- Steel, S. & Alami, R. (eds.) (1997). *Recent Advances in AI Planning: 4th European Conference on Planning (ECP'97)*. Lecture Notes in Computer Science, vol. 1348. Springer. (35 papers from 90 submissions.)
+- Steel, S. & Alami, R. (eds.) (1997). _Recent Advances in AI Planning: 4th European Conference on Planning (ECP'97)_. Lecture Notes in Computer Science, vol. 1348. Springer. (35 papers from 90 submissions.)
 
 Steel's work at Essex connects the AI planning tradition (Edinburgh: Tate, NONLIN, O-Plan) with the constraint satisfaction tradition (Essex: Tsang) — both of which inform intentïon's approach.
 

@@ -13,7 +13,7 @@ UCPOP formalized partial-order planning with mathematical rigour. It proved that
 
 ## Key Publication
 
-Penberthy, J.S. & Weld, D.S. (1992). "UCPOP: A Sound, Complete, Partial Order Planner for ADL." *Proceedings of KR-92*, pp. 103–114.
+Penberthy, J.S. & Weld, D.S. (1992). "UCPOP: A Sound, Complete, Partial Order Planner for ADL." _Proceedings of KR-92_, pp. 103–114.
 
 Paper: https://homes.cs.washington.edu/~weld/papers/ucpop-kr92.pdf
 
@@ -38,16 +38,16 @@ This is the canonical partial-order planning algorithm. NONLIN pioneered the con
 
 ## Relationship to Other Systems
 
-| System | Contribution |
-|--------|-------------|
-| NONLIN (Tate, 1976) | Introduced partial-order planning, causal links, threats |
-| SNLP (McAllester & Rosenblitt, 1991) | Systematic search over partial plans |
-| UCPOP (Penberthy & Weld, 1992) | Soundness/completeness for ADL, the rich action language |
-| O-Plan (Currie & Tate, 1983–99) | Practical system with constraint management and execution |
+| System                               | Contribution                                              |
+| ------------------------------------ | --------------------------------------------------------- |
+| NONLIN (Tate, 1976)                  | Introduced partial-order planning, causal links, threats  |
+| SNLP (McAllester & Rosenblitt, 1991) | Systematic search over partial plans                      |
+| UCPOP (Penberthy & Weld, 1992)       | Soundness/completeness for ADL, the rich action language  |
+| O-Plan (Currie & Tate, 1983–99)      | Practical system with constraint management and execution |
 
 ## Significance
 
-UCPOP is the theoretical foundation. If you want to understand *why* partial-order planning works — why least commitment is sound, why causal links preserve correctness, why threat resolution is complete — UCPOP is the reference. Every subsequent formal treatment of partial-order planning builds on Penberthy and Weld's proofs.
+UCPOP is the theoretical foundation. If you want to understand _why_ partial-order planning works — why least commitment is sound, why causal links preserve correctness, why threat resolution is complete — UCPOP is the reference. Every subsequent formal treatment of partial-order planning builds on Penberthy and Weld's proofs.
 
 ## Links
 

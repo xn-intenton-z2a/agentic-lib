@@ -91,7 +91,7 @@ function createMockContext(overrides = {}) {
     writablePaths: ["src/", "tests/"],
     testCommand: "npm test",
     discussionUrl: "",
-    model: "claude-sonnet-4.5",
+    model: "claude-sonnet-4",
     octokit: createMockOctokit(),
     repo: { owner: "test-owner", repo: "test-repo" },
     github: { runId: 12345 },
@@ -148,7 +148,7 @@ describe("tasks/enhance-issue", () => {
 
     expect(result.outcome).toBe("issue-enhanced");
     expect(result.tokensUsed).toBe(75);
-    expect(result.model).toBe("claude-sonnet-4.5");
+    expect(result.model).toBe("claude-sonnet-4");
     expect(result.details).toContain("Enhanced issue #42");
 
     // Verify octokit calls

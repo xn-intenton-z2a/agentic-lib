@@ -1,6 +1,6 @@
 # Are Partial-Order Planning and CSP Under-Exploited?
 
-*An assessment by Claude Code, February 2026*
+_An assessment by Claude Code, February 2026_
 
 ---
 
@@ -23,15 +23,15 @@ The dominant paradigm in AI-assisted software engineering (2024–2026) is:
 
 This is **total-order, open-loop, one-shot generation**. It is the exact opposite of what 30 years of planning research recommends:
 
-| LLM practice (2024–26) | Planning research (1976–1997) |
-|---|---|
-| Generate a complete plan in one shot | Refine a partial plan incrementally |
-| No explicit representation of dependencies | Causal links track every dependency |
-| No conflict detection | Threat detection and resolution |
-| No acknowledgment of unknowns | Open conditions explicitly represented |
-| Retry from scratch on failure | Backtrack to the last good decision point |
-| Evaluate at the end | Monitor continuously and adapt |
-| No cost model for planning itself | Formal trade-off: plan more vs. act now (Steel & Ho) |
+| LLM practice (2024–26)                     | Planning research (1976–1997)                        |
+| ------------------------------------------ | ---------------------------------------------------- |
+| Generate a complete plan in one shot       | Refine a partial plan incrementally                  |
+| No explicit representation of dependencies | Causal links track every dependency                  |
+| No conflict detection                      | Threat detection and resolution                      |
+| No acknowledgment of unknowns              | Open conditions explicitly represented               |
+| Retry from scratch on failure              | Backtrack to the last good decision point            |
+| Evaluate at the end                        | Monitor continuously and adapt                       |
+| No cost model for planning itself          | Formal trade-off: plan more vs. act now (Steel & Ho) |
 
 ### What the research community is noticing
 
@@ -50,12 +50,14 @@ The gap is becoming visible. Key recent findings:
 ### 1. The field moved on prematurely
 
 AI planning had its golden era from roughly 1975–2000. During this period, the community produced:
+
 - Sound and complete algorithms (UCPOP)
 - Practical systems that managed real-world complexity (O-Plan)
 - Formal integration of planning with decision theory (Steel & Ho)
 - Efficient encodings as SAT/CSP (Kautz & Selman, Graphplan)
 
 Then two things happened:
+
 - **Probabilistic methods** (MDPs, POMDPs, reinforcement learning) became the fashionable approach to sequential decision-making
 - **The International Planning Competition** (starting 1998) favoured fast, domain-independent total-order planners over the richer partial-order and HTN approaches
 
@@ -65,7 +67,7 @@ The competition effect was particularly damaging. Researchers optimized for benc
 
 From roughly 2012 onward, attention (and funding) shifted almost entirely to neural approaches. The implicit assumption: if you have enough data and compute, you don't need explicit symbolic reasoning. Planning was reframed as reinforcement learning. Constraint satisfaction was reframed as optimization.
 
-The problem: LLMs don't actually reason. They pattern-match. When you ask an LLM to plan, it generates text that *looks like* a plan based on training data. It has no internal representation of causal links, threats, open conditions, or constraints. It cannot backtrack. It cannot do constraint propagation. It cannot prove soundness.
+The problem: LLMs don't actually reason. They pattern-match. When you ask an LLM to plan, it generates text that _looks like_ a plan based on training data. It has no internal representation of causal links, threats, open conditions, or constraints. It cannot backtrack. It cannot do constraint propagation. It cannot prove soundness.
 
 This is not a fixable limitation of current LLMs — it's fundamental to how they work. They're function approximators, not symbolic reasoners.
 
@@ -79,7 +81,7 @@ The result: every AI coding tool reinvents plan representation from scratch, typ
 
 ## Constraint Satisfaction Specifically
 
-CSP is arguably *even more* under-exploited than planning. Consider:
+CSP is arguably _even more_ under-exploited than planning. Consider:
 
 ### What CSP solvers are good at
 
@@ -95,7 +97,7 @@ CSP is arguably *even more* under-exploited than planning. Consider:
 - A way to detect conflicts (two features that modify the same file, two dependencies that require incompatible versions)
 - A way to incrementally add requirements without replanning everything
 
-These are the *same thing*. The software engineering problem of "generate code that satisfies all these requirements" is a constraint satisfaction problem. The AI industry is solving it by throwing tokens at an LLM and hoping for the best, when there are decades of algorithms for exactly this kind of problem.
+These are the _same thing_. The software engineering problem of "generate code that satisfies all these requirements" is a constraint satisfaction problem. The AI industry is solving it by throwing tokens at an LLM and hoping for the best, when there are decades of algorithms for exactly this kind of problem.
 
 ### Specific under-exploited applications
 
@@ -115,12 +117,12 @@ These are the *same thing*. The software engineering problem of "generate code t
 
 The most promising direction — and what intentïon is positioned to explore — is the **synthesis of LLMs with classical planning and CSP**:
 
-| Component | Provided by | Role |
-|---|---|---|
-| World knowledge, code generation, natural language understanding | LLM (Copilot SDK) | Generate candidate actions, interpret requirements, produce code |
-| Plan structure, causal reasoning, threat detection | Partial-order planning (NONLIN/UCPOP tradition) | Maintain plan integrity, detect conflicts, track dependencies |
-| Constraint representation, propagation, incremental solving | CSP (Essex/Tsang tradition) | Ensure consistency, prune infeasible options, validate changes |
-| Planning vs. execution trade-off | Decision theory (Steel & Ho) | Decide when to plan more vs. act now, given budget constraints |
+| Component                                                        | Provided by                                     | Role                                                             |
+| ---------------------------------------------------------------- | ----------------------------------------------- | ---------------------------------------------------------------- |
+| World knowledge, code generation, natural language understanding | LLM (Copilot SDK)                               | Generate candidate actions, interpret requirements, produce code |
+| Plan structure, causal reasoning, threat detection               | Partial-order planning (NONLIN/UCPOP tradition) | Maintain plan integrity, detect conflicts, track dependencies    |
+| Constraint representation, propagation, incremental solving      | CSP (Essex/Tsang tradition)                     | Ensure consistency, prune infeasible options, validate changes   |
+| Planning vs. execution trade-off                                 | Decision theory (Steel & Ho)                    | Decide when to plan more vs. act now, given budget constraints   |
 
 This is essentially what Kambhampati et al. call "LLM-Modulo Frameworks" — but with a much richer theoretical foundation than their paper acknowledges. The external verifiers they propose are CSP solvers and plan validators. The critique loop they propose is threat detection and constraint propagation. The framework already exists in the planning literature. It just needs engineering.
 
@@ -144,7 +146,7 @@ This is essentially what Kambhampati et al. call "LLM-Modulo Frameworks" — but
 
 Partial-order planning and constraint satisfaction are not just under-exploited — they are **the missing formalism** for the LLM-based AI systems being built today. The LLM industry has a generation problem (LLMs generate plausible but often wrong outputs) and a structure problem (no principled way to represent plans, dependencies, conflicts, and gaps). Both problems were solved in the 1980s–1990s by the planning and CSP communities.
 
-The opportunity is not to replace LLMs with classical planning — LLMs bring knowledge and language understanding that symbolic systems never achieved. The opportunity is to give LLMs the structural backbone they lack: causal links so they know *why* each action is in the plan, threat detection so they catch conflicts before they cause failures, open conditions so they acknowledge what they don't know, and constraint propagation so they maintain consistency as the plan grows.
+The opportunity is not to replace LLMs with classical planning — LLMs bring knowledge and language understanding that symbolic systems never achieved. The opportunity is to give LLMs the structural backbone they lack: causal links so they know _why_ each action is in the plan, threat detection so they catch conflicts before they cause failures, open conditions so they acknowledge what they don't know, and constraint propagation so they maintain consistency as the plan grows.
 
 The academic research is there. The engineering integration is what's missing. That's exactly the gap intentïon sits in.
 
@@ -158,7 +160,7 @@ The academic research is there. The engineering integration is what's missing. T
 - Currie, K. & Tate, A. (1983–1999). O-Plan. See `O-PLAN.md`.
 - Penberthy, J.S. & Weld, D.S. (1992). UCPOP. See `UCPOP.md`.
 - Steel, S. & Ho, L.C. (1993). CSM-184. See `STEEL_AND_HO.md` and `csm-184.pdf`.
-- Tsang, E. (1993). *Foundations of Constraint Satisfaction*. See `ESSEX_CSP.md`.
+- Tsang, E. (1993). _Foundations of Constraint Satisfaction_. See `ESSEX_CSP.md`.
 
 ### Recent Work Cited
 

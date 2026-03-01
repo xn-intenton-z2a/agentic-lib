@@ -35,7 +35,7 @@ The core of the system is a single GitHub Action at `.github/actions/agentic-ste
 | ------------------- | --------------------------------------------- |
 | `resolve-issue`     | Read an issue and generate code to resolve it |
 | `fix-code`          | Fix failing tests or lint errors              |
-| `transform`            | Transform the codebase toward the mission        |
+| `transform`         | Transform the codebase toward the mission     |
 | `maintain-features` | Generate and maintain feature definitions     |
 | `maintain-library`  | Update library documentation and sources      |
 | `enhance-issue`     | Add detail and acceptance criteria to issues  |
