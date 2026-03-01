@@ -629,9 +629,29 @@ function initWorkflows() {
   console.log("--- Workflows ---");
   const workflowsDir = resolve(srcDir, "workflows");
   if (!existsSync(workflowsDir)) return;
+  const templateWorkflows = new Set();
   for (const f of readdirSync(workflowsDir)) {
     if (f.endsWith(".yml")) {
+      templateWorkflows.add(f);
       initCopyFile(resolve(workflowsDir, f), resolve(target, ".github/workflows", f), `workflows/${f}`);
+    }
+  }
+  // Also copy test.yml from seeds to workflows if it exists
+  const seedTest = resolve(srcDir, "seeds/test.yml");
+  if (existsSync(seedTest)) {
+    templateWorkflows.add("test.yml");
+    initCopyFile(seedTest, resolve(target, ".github/workflows/test.yml"), "workflows/test.yml (from seeds)");
+  }
+  // Delete stale workflows not in the template (skip init.yml — maintained by consumer)
+  const KEEP = new Set(["init.yml"]);
+  const targetWorkflowsDir = resolve(target, ".github/workflows");
+  if (existsSync(targetWorkflowsDir)) {
+    for (const f of readdirSync(targetWorkflowsDir)) {
+      if (f.endsWith(".yml") && !templateWorkflows.has(f) && !KEEP.has(f)) {
+        if (!dryRun) rmSync(resolve(targetWorkflowsDir, f));
+        console.log(`  REMOVE stale: workflows/${f}`);
+        initChanges++;
+      }
     }
   }
 }
