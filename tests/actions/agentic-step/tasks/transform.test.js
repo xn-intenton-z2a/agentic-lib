@@ -11,52 +11,17 @@ vi.mock("@actions/core", () => ({
 
 // Mock the copilot module
 vi.mock("../../../../src/actions/agentic-step/copilot.js", () => ({
-  runCopilotTask: vi.fn().mockResolvedValue({ content: "mock response", tokensUsed: 100 }),
+  runCopilotTask: vi.fn().mockResolvedValue({ content: "transformed code", tokensUsed: 150 }),
   readOptionalFile: vi.fn().mockReturnValue(""),
   scanDirectory: vi.fn().mockReturnValue([]),
   formatPathsSection: vi.fn().mockReturnValue("## File Paths\n- mock"),
 }));
 
-// Mock tools.js
-vi.mock("../../../../src/actions/agentic-step/tools.js", () => ({
-  createAgentTools: vi.fn().mockReturnValue([]),
-}));
-
-// Mock the Copilot SDK using the exact resolved path to the nested node_modules.
-// This is required because the SDK is installed at
-// src/actions/agentic-step/node_modules/@github/copilot-sdk/ and vitest resolves
-// vi.mock specifiers relative to the test file, not the source file.
-vi.mock("../../../../src/actions/agentic-step/node_modules/@github/copilot-sdk/dist/index.js", () => {
-  const sendAndWait = vi.fn().mockResolvedValue({ data: { content: "transformed code", usage: { totalTokens: 150 } } });
-  const createSession = vi.fn().mockResolvedValue({ sendAndWait });
-  const stop = vi.fn().mockResolvedValue(undefined);
-
-  class MockCopilotClient {
-    constructor() {}
-  }
-  MockCopilotClient.prototype.createSession = createSession;
-  MockCopilotClient.prototype.stop = stop;
-  MockCopilotClient._mockCreateSession = createSession;
-  MockCopilotClient._mockSendAndWait = sendAndWait;
-  MockCopilotClient._mockStop = stop;
-
-  return {
-    CopilotClient: MockCopilotClient,
-    CopilotSession: vi.fn(),
-    approveAll: vi.fn(),
-    defineTool: vi.fn(),
-  };
-});
-
 // Use dynamic import after mocks are set up
 const { transform } = await import("../../../../src/actions/agentic-step/tasks/transform.js");
-const { readOptionalFile, scanDirectory } = await import("../../../../src/actions/agentic-step/copilot.js");
-
-// Access the internal mock functions via the SDK mock
-const sdkModule = await import("../../../../src/actions/agentic-step/node_modules/@github/copilot-sdk/dist/index.js");
-const mockCreateSession = sdkModule.CopilotClient._mockCreateSession;
-const mockSendAndWait = sdkModule.CopilotClient._mockSendAndWait;
-const mockStop = sdkModule.CopilotClient._mockStop;
+const { runCopilotTask, readOptionalFile, scanDirectory } = await import(
+  "../../../../src/actions/agentic-step/copilot.js"
+);
 
 // --- Helpers ---
 
@@ -134,9 +99,7 @@ describe("tasks/transform", () => {
     vi.clearAllMocks();
     readOptionalFile.mockReturnValue("");
     scanDirectory.mockReturnValue([]);
-    mockSendAndWait.mockResolvedValue({ data: { content: "transformed code", usage: { totalTokens: 150 } } });
-    mockCreateSession.mockResolvedValue({ sendAndWait: mockSendAndWait });
-    mockStop.mockResolvedValue(undefined);
+    runCopilotTask.mockResolvedValue({ content: "transformed code", tokensUsed: 150 });
   });
 
   it("returns nop if no mission file found", async () => {
@@ -161,13 +124,12 @@ describe("tasks/transform", () => {
 
     await transform(ctx);
 
-    const sessionCallArgs = mockCreateSession.mock.calls[0][0];
-    expect(sessionCallArgs.systemMessage.content).toContain("autonomous code transformation agent");
-
-    const sendCallArgs = mockSendAndWait.mock.calls[0][0];
-    expect(sendCallArgs.prompt).toContain("HTTP_SERVER.md");
-    expect(sendCallArgs.prompt).toContain("CLI.md");
-    expect(sendCallArgs.prompt).toContain("Current Features (2)");
+    expect(runCopilotTask).toHaveBeenCalledTimes(1);
+    const callArgs = runCopilotTask.mock.calls[0][0];
+    expect(callArgs.systemMessage).toContain("autonomous code transformation agent");
+    expect(callArgs.prompt).toContain("HTTP_SERVER.md");
+    expect(callArgs.prompt).toContain("CLI.md");
+    expect(callArgs.prompt).toContain("Current Features (2)");
   });
 
   it("includes source files in the prompt", async () => {
@@ -182,10 +144,10 @@ describe("tasks/transform", () => {
 
     await transform(ctx);
 
-    const sendCallArgs = mockSendAndWait.mock.calls[0][0];
-    expect(sendCallArgs.prompt).toContain("index.js");
-    expect(sendCallArgs.prompt).toContain("utils.js");
-    expect(sendCallArgs.prompt).toContain("Current Source Files (2)");
+    const callArgs = runCopilotTask.mock.calls[0][0];
+    expect(callArgs.prompt).toContain("index.js");
+    expect(callArgs.prompt).toContain("utils.js");
+    expect(callArgs.prompt).toContain("Current Source Files (2)");
   });
 
   it("returns transformed outcome with token count on happy path", async () => {
@@ -200,13 +162,15 @@ describe("tasks/transform", () => {
     expect(result.details).toContain("transformed code");
   });
 
-  it("always calls client.stop() even on success", async () => {
+  it("passes writablePaths and model to runCopilotTask", async () => {
     readOptionalFile.mockReturnValue("Build a tool");
     const ctx = createMockContext();
 
     await transform(ctx);
 
-    expect(mockStop).toHaveBeenCalledTimes(1);
+    const callArgs = runCopilotTask.mock.calls[0][0];
+    expect(callArgs.model).toBe("claude-sonnet-4.5");
+    expect(callArgs.writablePaths).toEqual(["src/", "tests/"]);
   });
 
   it("uses TDD mode when config.tdd is true", async () => {
@@ -216,8 +180,8 @@ describe("tasks/transform", () => {
     const result = await transform(ctx);
 
     expect(result.outcome).toBe("transformed-tdd");
-    // TDD creates 2 sessions (Phase 1 + Phase 2)
-    expect(mockCreateSession).toHaveBeenCalledTimes(2);
+    // TDD creates 2 runCopilotTask calls (Phase 1 + Phase 2)
+    expect(runCopilotTask).toHaveBeenCalledTimes(2);
     expect(result.tokensUsed).toBe(300); // 150 * 2 phases
   });
 });
