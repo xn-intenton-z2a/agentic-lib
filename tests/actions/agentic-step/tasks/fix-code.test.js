@@ -81,7 +81,7 @@ function createMockContext(overrides = {}) {
     writablePaths: ["src/", "tests/"],
     testCommand: "npm test",
     discussionUrl: "",
-    model: "claude-sonnet-4.5",
+    model: "claude-sonnet-4",
     octokit: createMockOctokit(),
     repo: { owner: "test-owner", repo: "test-repo" },
     github: { runId: 12345 },
@@ -159,7 +159,7 @@ describe("tasks/fix-code", () => {
 
     expect(result.outcome).toBe("fix-applied");
     expect(result.tokensUsed).toBe(80);
-    expect(result.model).toBe("claude-sonnet-4.5");
+    expect(result.model).toBe("claude-sonnet-4");
     expect(result.details).toContain("1 failing check(s)");
     expect(result.details).toContain("PR #99");
   });

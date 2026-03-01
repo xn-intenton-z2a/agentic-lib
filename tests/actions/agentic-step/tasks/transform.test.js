@@ -84,7 +84,7 @@ function createMockContext(overrides = {}) {
     writablePaths: ["src/", "tests/"],
     testCommand: "npm test",
     discussionUrl: "",
-    model: "claude-sonnet-4.5",
+    model: "claude-sonnet-4",
     octokit: createMockOctokit(),
     repo: { owner: "test-owner", repo: "test-repo" },
     github: { runId: 12345 },
@@ -158,7 +158,7 @@ describe("tasks/transform", () => {
 
     expect(result.outcome).toBe("transformed");
     expect(result.tokensUsed).toBe(150);
-    expect(result.model).toBe("claude-sonnet-4.5");
+    expect(result.model).toBe("claude-sonnet-4");
     expect(result.details).toContain("transformed code");
   });
 
@@ -169,7 +169,7 @@ describe("tasks/transform", () => {
     await transform(ctx);
 
     const callArgs = runCopilotTask.mock.calls[0][0];
-    expect(callArgs.model).toBe("claude-sonnet-4.5");
+    expect(callArgs.model).toBe("claude-sonnet-4");
     expect(callArgs.writablePaths).toEqual(["src/", "tests/"]);
   });
 

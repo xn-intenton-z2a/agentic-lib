@@ -16,7 +16,7 @@ on:
       model:
         description: "Copilot SDK model to use"
         required: false
-        default: "claude-sonnet-4.5"
+        default: "claude-sonnet-4"
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
