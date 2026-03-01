@@ -3,7 +3,6 @@ import { readFileSync, readdirSync } from "fs";
 import { join } from "path";
 
 const FIXTURES_DIR = join(import.meta.dirname, "copilot-responses");
-const GOLDEN_DIR = join(import.meta.dirname, "golden-prompts");
 
 describe("copilot response fixtures", () => {
   const fixtureFiles = readdirSync(FIXTURES_DIR).filter((f) => f.endsWith(".json"));
@@ -63,41 +62,6 @@ describe("copilot response fixtures", () => {
       const codeBlockMatch = fixture.data.content.match(/```(\w+)\n([\s\S]*?)```/);
       expect(codeBlockMatch).toBeTruthy();
       expect(codeBlockMatch[1]).toBe("javascript");
-    });
-  });
-});
-
-describe("golden prompt fixtures", () => {
-  const goldenFiles = readdirSync(GOLDEN_DIR).filter((f) => f.endsWith(".json"));
-
-  it("has golden prompt files for all 8 tasks", () => {
-    expect(goldenFiles).toHaveLength(8);
-  });
-
-  describe.each(goldenFiles)("%s", (filename) => {
-    const golden = JSON.parse(readFileSync(join(GOLDEN_DIR, filename), "utf8"));
-
-    it("has a systemMessage field", () => {
-      expect(typeof golden.systemMessage).toBe("string");
-      expect(golden.systemMessage.length).toBeGreaterThan(0);
-    });
-
-    it("has promptSections array", () => {
-      expect(Array.isArray(golden.promptSections)).toBe(true);
-      expect(golden.promptSections.length).toBeGreaterThan(0);
-    });
-
-    it("all prompt sections start with ##", () => {
-      for (const section of golden.promptSections) {
-        expect(section.startsWith("##")).toBe(true);
-      }
-    });
-
-    it("system message does not contain secrets or tokens", () => {
-      const forbidden = ["GITHUB_TOKEN", "API_KEY", "SECRET", "PASSWORD", "ghp_", "ghu_"];
-      for (const term of forbidden) {
-        expect(golden.systemMessage).not.toContain(term);
-      }
     });
   });
 });

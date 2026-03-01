@@ -67,7 +67,6 @@ npm run linting       # ESLint
 npm run lint:workflows # Validate workflow YAML (17 files)
 npm run security      # npm audit (0 vulnerabilities)
 npm run test:smoke    # Connectivity smoke test (needs GITHUB_TOKEN)
-npm run test:record-golden  # Re-record golden prompt templates
 npx @xn-intenton-z2a/agentic-lib init --dry-run  # Preview init in current dir
 ```
 
@@ -75,7 +74,7 @@ npx @xn-intenton-z2a/agentic-lib init --dry-run  # Preview init in current dir
 
 | Workflow | Trigger | Purpose |
 |----------|---------|---------|
-| `test.yml` | Push/PR, manual dispatch | Unit tests, lint, security, workflow validation. Optionally: golden prompt verification, action tests. |
+| `test.yml` | Push/PR, manual dispatch | Unit tests, lint, security, workflow validation. Optionally: action tests. |
 | `release.yml` | Push to main (src/bin/pkg), manual dispatch | Auto patch bump on push. Manual major/minor/prerelease. |
 
 ## Git Workflow

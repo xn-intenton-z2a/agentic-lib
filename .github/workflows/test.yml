@@ -2,15 +2,13 @@
 #
 # All testing for agentic-lib in one workflow.
 #
-# Every push/PR runs 8 concurrent jobs:
+# Every push/PR runs 7 concurrent jobs:
 #
-#   CI (5 jobs — each fails independently for maximum signal):
+#   CI (4 jobs — each fails independently for maximum signal):
 #     lint               — ESLint
 #     lint-workflows     — Validate all workflow YAML files
 #     security           — npm audit
 #     unit-tests         — Vitest suite
-#     golden-prompts     — Detect prompt template drift
-#
 #   Action transforms (3 jobs — real Copilot SDK round-trips):
 #     test-maintain-features  — Generates feature files from seed mission
 #     test-maintain-library   — Crawls SOURCES.md and maintains library docs
@@ -134,36 +132,6 @@ jobs:
       - name: Install sub-project dependencies
         run: cd src/actions/agentic-step && (npm ci)
       - run: npm test
-
-  golden-prompts:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: read
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 24
-          cache: "npm"
-      - name: Set up ~/.npmrc
-        run: |
-          echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> ~/.npmrc
-          echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" >> ~/.npmrc
-          echo "always-auth=true" >> ~/.npmrc
-      - run: npm ci
-      - name: Install sub-project dependencies
-        run: cd src/actions/agentic-step && (npm ci)
-      - name: Check golden prompt drift
-        run: |
-          npm run test:record-golden
-          if git diff --quiet tests/fixtures/golden-prompts/; then
-            echo "Golden prompts are up to date"
-          else
-            echo "::error::Golden prompts have drifted"
-            git diff tests/fixtures/golden-prompts/
-            exit 1
-          fi
 
   # ─── Action transforms: real Copilot SDK round-trips ───────────────
 

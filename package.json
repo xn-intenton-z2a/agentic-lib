@@ -15,7 +15,6 @@
     "lint:workflows": "node scripts/validate-workflows.js",
     "security": "npm audit --audit-level=high",
     "test": "vitest --run",
-    "test:record-golden": "node scripts/record-golden-prompts.js",
     "test:smoke": "node scripts/smoke-test-connectivity.js",
     "test:copilot": "node scripts/test-copilot-local.js",
     "test:discussions": "node scripts/test-discussions-local.js",
