@@ -159,6 +159,7 @@ jobs:
           echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> ~/.npmrc
           echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" >> ~/.npmrc
           echo "always-auth=true" >> ~/.npmrc
+      - run: npm ci
 
       - name: Self-init
         run: bash scripts/self-init.sh
@@ -183,6 +184,9 @@ jobs:
           echo "## maintain-features results" >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
           git diff --stat >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo '```diff' >> $GITHUB_STEP_SUMMARY
+          git diff >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
           FEATURES=$(find .github/agentic-lib/features -name "*.md" | wc -l)
           echo "Features created: ${FEATURES}"
@@ -211,6 +215,7 @@ jobs:
           echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> ~/.npmrc
           echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" >> ~/.npmrc
           echo "always-auth=true" >> ~/.npmrc
+      - run: npm ci
 
       - name: Self-init
         run: bash scripts/self-init.sh
@@ -243,6 +248,9 @@ jobs:
           echo '```' >> $GITHUB_STEP_SUMMARY
           git diff --stat >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
+          echo '```diff' >> $GITHUB_STEP_SUMMARY
+          git diff >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
           DOCS=$(find library -name "*.md" | wc -l)
           echo "Library docs created: ${DOCS}"
           if [ "$DOCS" -eq 0 ]; then
@@ -270,6 +278,7 @@ jobs:
           echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> ~/.npmrc
           echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" >> ~/.npmrc
           echo "always-auth=true" >> ~/.npmrc
+      - run: npm ci
 
       - name: Self-init
         run: bash scripts/self-init.sh
@@ -305,13 +314,12 @@ jobs:
       - name: Show results
         run: |
           echo "## transform results" >> $GITHUB_STEP_SUMMARY
-          echo '```diff' >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
           git diff --stat >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
-          echo "--- src/lib/main.js ---"
-          cat src/lib/main.js
-          echo "--- tests/unit/main.test.js ---"
-          cat tests/unit/main.test.js
+          echo '```diff' >> $GITHUB_STEP_SUMMARY
+          git diff >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
 
   # ─── CLI transforms: real Copilot SDK round-trips via CLI ──────────
 
@@ -363,13 +371,12 @@ jobs:
       - name: Show results
         run: |
           echo "## CLI transform results" >> $GITHUB_STEP_SUMMARY
-          echo '```diff' >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
           git diff --stat >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
-          echo "--- src/lib/main.js ---"
-          cat src/lib/main.js
-          echo "--- tests/unit/main.test.js ---"
-          cat tests/unit/main.test.js
+          echo '```diff' >> $GITHUB_STEP_SUMMARY
+          git diff >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
 
   test-cli-maintain-features:
     runs-on: ubuntu-latest
@@ -410,6 +417,9 @@ jobs:
           echo "## CLI maintain-features results" >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
           git diff --stat >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo '```diff' >> $GITHUB_STEP_SUMMARY
+          git diff >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
           FEATURES=$(find .github/agentic-lib/features -name "*.md" | wc -l)
           echo "Features created: ${FEATURES}"
@@ -463,6 +473,9 @@ jobs:
           echo "## CLI maintain-library results" >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
           git diff --stat >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo '```diff' >> $GITHUB_STEP_SUMMARY
+          git diff >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
           DOCS=$(find library -name "*.md" | wc -l)
           echo "Library docs created: ${DOCS}"
