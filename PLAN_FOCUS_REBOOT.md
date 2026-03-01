@@ -32,8 +32,8 @@ Get all the moving parts working end-to-end before tightening verification and e
 | G   | Local test scripts (test-copilot, test-discussions, test-transform) | Done   |
 | H   | _developers/MODELS.md reference + workflow model choice menus  | Done   |
 | I   | v7.1.0 release (tag + publish)                                 | Done   |
-| J   | Integration test: discussions bot end-to-end workflow           | Pending |
-| K   | Integration test: transform + verify + reset workflow          | Pending |
+| J   | Integration test: discussions bot end-to-end workflow           | Done   |
+| K   | Integration test: transform + verify + reset workflow          | Done   |
 
 Current repo structure:
 
@@ -70,10 +70,12 @@ agentic-lib/
 │   ├── test-copilot-local.js         #   Local Copilot SDK test
 │   ├── test-discussions-local.js     #   Local discussions bot test
 │   └── test-transform-local.js       #   Local transform test
-├── .github/workflows/ (4)            # INTERNAL CI (Node 24 + FORCE env)
+├── .github/workflows/ (6)            # INTERNAL CI (Node 24 + FORCE env)
 │   ├── ci.yml                        #   5 jobs: test, lint, lint-workflows, security, smoke
 │   ├── release.yml                   #   Release automation (manual dispatch)
 │   ├── integration-test.yml          #   Manual Tier 3 integration test
+│   ├── integration-test-discussions.yml  #   Pre-publish: discussions bot E2E
+│   ├── integration-test-transform.yml   #   Pre-publish: transform lifecycle E2E
 │   └── llm-verify.yml                #   LLM transformation verification
 ├── _developers/MODELS.md             # Available Copilot SDK models reference
 ├── vitest.config.js                  # Root test config (tests/**/*.test.js)
@@ -219,7 +221,7 @@ A clean mechanism to publish updated and tested workflows from agentic-lib to re
 - [x] Package ships distributable content (bin/, src/workflows, actions, agents, seeds, scripts)
 - [x] v7.1.1 published (CLI + ci-init + auth fix + model name fix)
 - [ ] Release process documented: test → tag → publish → bump consumers
-- [ ] Pre-publish integration tests pass (discussions bot + transform cycle)
+- [x] Pre-publish integration tests: `integration-test-discussions.yml` + `integration-test-transform.yml`
 
 ### Goal 7: Test suite in repository0 that validates workflows
 
@@ -389,7 +391,7 @@ A systematic file-by-file review of `src/` delivered 8 steps of technical debt r
 | ---------------- | ------------------------ | ------------------------------------------- |
 | `test`           | `npm test`               | Full vitest suite (307 tests)               |
 | `lint`           | `npm run linting`        | ESLint                                      |
-| `lint-workflows` | `npm run lint:workflows` | Workflow YAML validation (16 files)         |
+| `lint-workflows` | `npm run lint:workflows` | Workflow YAML validation (19 files)         |
 | `security`       | `npm run security`       | npm audit (0 vulnerabilities)               |
 | `smoke`          | `npm run test:smoke`     | Connectivity smoke test (continue-on-error) |
 
@@ -562,7 +564,7 @@ Tests the full transform lifecycle: init → transform → verify → reset.
 | Uplift | 5     | agentic-lib        | **Complete**    | -600+ lines, +11 tests, deps upgraded, DRY            |
 | 1      | 5, 8  | agentic-lib        | **Complete**    | 307 tests / 21 files; deep handler tests; CI pipeline |
 | Post   | 6     | agentic-lib, repo0 | **Complete**    | CLI init, v7.1.1 published, auth resolved, seeds      |
-| Valid  | 6     | agentic-lib        | **In progress** | Pre-publish integration tests (discussions + transform)|
+| Valid  | 6     | agentic-lib        | **Complete**    | Pre-publish integration tests (discussions + transform)|
 | 2      | 4, 6  | agentic-lib, repo0 | Not started     | npm exports + version pinning                         |
 | 3      | 3, 7  | repo0, agentic-lib | Not started     | Thin workflows + smoke tests + demo output            |
 | 4      | 2, 9  | repo0, agentic-lib | Not started     | 3 template styles + bot integration tests             |
