@@ -84,9 +84,14 @@
   "overrides": {
     "minimatch": ">=10.2.3"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xn-intenton-z2a/agentic-lib.git"
+  },
   "publishConfig": {
     "registry": "https://registry.npmjs.org",
-    "access": "public"
+    "access": "public",
+    "provenance": true
   },
   "dependencies": {
     "@actions/core": "^3.0.0",

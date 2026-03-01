@@ -64,6 +64,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      id-token: write
     env:
       versionIncrement: ${{ inputs.versionIncrement || 'patch' }}
     outputs:
@@ -102,7 +103,7 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
           npm version ${{ env.versionIncrement }}
-          npm publish --tag latest --access public
+          npm publish --provenance --tag latest --access public
           git push --follow-tags
           releasedVersion=$(node -p "require('./package.json').version")
           echo "releasedVersion=${releasedVersion}" >> $GITHUB_OUTPUT
