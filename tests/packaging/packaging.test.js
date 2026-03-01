@@ -40,47 +40,52 @@ describe("package.json structure", () => {
       expect(pkg.scripts[script]).toBeDefined();
     }
   });
+
+  it("has exports field", () => {
+    expect(pkg.exports).toBeDefined();
+    expect(pkg.exports["."]).toBeDefined();
+    expect(pkg.exports["./copilot"]).toBeDefined();
+    expect(pkg.exports["./config"]).toBeDefined();
+  });
 });
 
 describe("npm pack --dry-run", () => {
-  let packOutput;
-
-  // Run once for all tests in this describe block
-  try {
-    packOutput = execSync("npm pack --dry-run 2>&1", { cwd: ROOT, encoding: "utf8" }); // eslint-disable-line sonarjs/no-os-command-from-path
-  } catch (err) {
-    packOutput = err.stdout || err.message;
-  }
+  // Use --json for deterministic output across npm versions
+  const packJson = JSON.parse(
+    execSync("npm pack --dry-run --json", { cwd: ROOT, encoding: "utf8" }), // eslint-disable-line sonarjs/no-os-command-from-path
+  );
+  const filePaths = packJson[0].files.map((f) => f.path);
 
   it("lists expected files", () => {
-    expect(packOutput).toContain("package.json");
+    expect(filePaths).toContain("package.json");
   });
 
   it("does not include root test files", () => {
-    expect(packOutput).not.toMatch(/tests\//);
+    const testFiles = filePaths.filter((p) => p.startsWith("tests/"));
+    expect(testFiles).toEqual([]);
   });
 
   it("includes src/ distributable content", () => {
-    expect(packOutput).toMatch(/src\/workflows\//);
-    expect(packOutput).toMatch(/src\/actions\//);
-    expect(packOutput).toMatch(/src\/agents\//);
-    expect(packOutput).toMatch(/src\/seeds\//);
+    expect(filePaths.some((p) => p.startsWith("src/workflows/"))).toBe(true);
+    expect(filePaths.some((p) => p.startsWith("src/actions/"))).toBe(true);
+    expect(filePaths.some((p) => p.startsWith("src/agents/"))).toBe(true);
+    expect(filePaths.some((p) => p.startsWith("src/seeds/"))).toBe(true);
   });
 
   it("includes bin/ CLI", () => {
-    expect(packOutput).toMatch(/bin\/agentic-lib\.js/);
+    expect(filePaths).toContain("bin/agentic-lib.js");
   });
 
   it("does not include dev files", () => {
-    expect(packOutput).not.toMatch(/\.github\//);
-    expect(packOutput).not.toMatch(/node_modules\//);
-    expect(packOutput).not.toMatch(/coverage\//);
+    const devFiles = filePaths.filter(
+      (p) => p.startsWith(".github/") || p.startsWith("node_modules/") || p.startsWith("coverage/"),
+    );
+    expect(devFiles).toEqual([]);
   });
 
   it("does not include secrets", () => {
-    expect(packOutput).not.toMatch(/\.env/);
-    expect(packOutput).not.toMatch(/secrets/);
-    expect(packOutput).not.toMatch(/\.kdbx/);
+    const secretFiles = filePaths.filter((p) => p.includes(".env") || p.includes("secrets") || p.includes(".kdbx"));
+    expect(secretFiles).toEqual([]);
   });
 });
 
