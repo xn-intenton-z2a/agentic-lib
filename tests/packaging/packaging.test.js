@@ -31,9 +31,9 @@ describe("package.json structure", () => {
     expect(pkg.files.length).toBeGreaterThan(0);
   });
 
-  it("has publishConfig pointing to GitHub registry", () => {
+  it("has publishConfig pointing to npmjs registry", () => {
     expect(pkg.publishConfig).toBeDefined();
-    expect(pkg.publishConfig.registry).toContain("npm.pkg.github.com");
+    expect(pkg.publishConfig.registry).toContain("registry.npmjs.org");
   });
 
   it("has required scripts", () => {
