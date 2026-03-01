@@ -15,25 +15,43 @@ Get all the moving parts working end-to-end before tightening verification and e
 | 7   | CI pipeline: lint, security, workflow validation jobs               | Done (5 CI jobs)                                           |
 | 8   | Update all documents to match current state                         | Done                                                       |
 | 9   | Update PLAN_FOCUS_REBOOT.md                                         | Done                                                       |
-| 10  | Scripted distribution to repository0                                | Done (distribute.js + 8 compat tests)                      |
+| 10  | Scripted distribution to repository0                                | Done (distribute.js → replaced by CLI init)                |
 | 11  | Fix npm audit (eslint-plugin-sonarjs → ^4.0.0 + minimatch override) | Done (0 vulnerabilities)                                   |
 | 12  | Fix CI pipeline, verify release.yml                                 | Done                                                       |
+
+**Post-sprint work (2026-03-01):**
+
+| #   | Task                                                           | Status |
+| --- | -------------------------------------------------------------- | ------ |
+| A   | Copilot SDK auth: fine-grained PAT + env override              | Done   |
+| B   | Model name fix: claude-sonnet-4 (not claude-sonnet-4.5)        | Done   |
+| C   | CLI: `npx @xn-intenton-z2a/agentic-lib init [--purge]`        | Done   |
+| D   | ci-init.yml workflow (pull infrastructure via workflow_dispatch)| Done   |
+| E   | Remove old push scripts (distribute.js, diff-workflows.sh)     | Done   |
+| F   | Seed reset mechanism (zero-README.md, --purge flag)            | Done   |
+| G   | Local test scripts (test-copilot, test-discussions, test-transform) | Done   |
+| H   | _developers/MODELS.md reference + workflow model choice menus  | Done   |
+| I   | v7.1.0 release (tag + publish)                                 | Done   |
+| J   | Integration test: discussions bot end-to-end workflow           | Pending |
+| K   | Integration test: transform + verify + reset workflow          | Pending |
 
 Current repo structure:
 
 ```text
 agentic-lib/
+├── bin/                              # CLI ENTRY POINT
+│   └── agentic-lib.js                #   npx @xn-intenton-z2a/agentic-lib init [--purge]
 ├── src/                              # ALL DISTRIBUTED PRODUCTION CODE
-│   ├── workflows/ (12)               #   Template workflows (all Node 24)
+│   ├── workflows/ (13)               #   Template workflows (all Node 24)
 │   ├── scripts/ (7)                  #   Distributed utility scripts
 │   ├── agents/ (8)                   #   7 prompts + 1 config
 │   ├── actions/                      #   Composite actions + Copilot SDK action
 │   │   ├── agentic-step/             #     Copilot SDK action (node24)
-│   │   │   ├── copilot.js            #       Shared SDK utilities
+│   │   │   ├── copilot.js            #       Shared SDK utilities (env override auth)
 │   │   │   └── tasks/ (8 handlers)   #       845 lines
 │   │   ├── setup-npmrc/              #     Composite: npmrc setup
 │   │   └── commit-if-changed/        #     Composite: conditional commit
-│   └── seeds/ (7)                    #   Seed files + 3 starter test workflows
+│   └── seeds/ (8)                    #   Seed files + 3 starter test workflows
 ├── tests/                            # ALL TESTS (mirrors src/ structure)
 │   ├── actions/agentic-step/         #   5 moved + index + 8 task handler tests
 │   │   └── tasks/ (8 files)
@@ -44,25 +62,25 @@ agentic-lib/
 │   ├── fixtures/                     #   LLM response + golden prompt fixtures
 │   │   ├── copilot-responses/ (7)
 │   │   └── golden-prompts/ (8)
-│   ├── packaging/ (1)                #   npm pack structural validation
-│   └── distribution/ (2)             #   Distribute script + consumer compat
-├── scripts/ (9)                      # RELEASE + TOOLING
-│   ├── distribute.js                 #   Workflow distribution to consumers
+│   └── packaging/ (1)                #   npm pack structural validation
+├── scripts/                          # RELEASE + TOOLING
 │   ├── validate-workflows.js         #   Workflow YAML validation
 │   ├── smoke-test-connectivity.js    #   Tier 2 connectivity smoke test
 │   ├── record-golden-prompts.js      #   Golden prompt recorder
-│   ├── diff-workflows.sh             #   Version diff tool
-│   └── (5 release scripts)           #   accept, deactivate, release
+│   ├── test-copilot-local.js         #   Local Copilot SDK test
+│   ├── test-discussions-local.js     #   Local discussions bot test
+│   └── test-transform-local.js       #   Local transform test
 ├── .github/workflows/ (4)            # INTERNAL CI (Node 24 + FORCE env)
 │   ├── ci.yml                        #   5 jobs: test, lint, lint-workflows, security, smoke
-│   ├── release.yml                   #   Release automation
+│   ├── release.yml                   #   Release automation (manual dispatch)
 │   ├── integration-test.yml          #   Manual Tier 3 integration test
 │   └── llm-verify.yml                #   LLM transformation verification
+├── _developers/MODELS.md             # Available Copilot SDK models reference
 ├── vitest.config.js                  # Root test config (tests/**/*.test.js)
 ├── FEATURES.md, FEATURES_ROADMAP.md  # Product definition
 ├── PLAN_FOCUS_REBOOT.md              # Active plan
-├── API.md, README.md                 # Docs
-└── package.json, eslint.config.js    # Config (engines >=24)
+├── README.md                         # Docs
+└── package.json, eslint.config.js    # Config (engines >=24, bin, files)
 ```
 
 ## User Assertions
@@ -89,17 +107,19 @@ agentic-lib/
 - Tags are immutable — once published, a version never changes
 - The `reboot` branch will ship as `v7.0.0` — a clean break from the `v6.10.x` series
 
-### Copilot SDK Runtime Status
+### Copilot SDK Runtime Status — RESOLVED
 
-Two risks from the stabilisation work remain **unverified**:
+Both risks from the stabilisation work are now **verified and resolved**:
 
-**Risk #12 — Copilot CLI availability on runners:**
-The `@github/copilot-sdk@0.1.29` is consumed as an npm library via `CopilotClient`. No workflow step installs a `copilot` CLI binary. If the SDK internally spawns a `copilot` subprocess, it would fail silently on standard runners. The `copilot-setup-steps.yml` file is for Copilot's own coding agent sandbox — it does **not** set up the SDK runtime. Issue #1760 was assigned to Copilot but unanswered.
+**Risk #12 — Copilot CLI availability on runners: RESOLVED**
+The SDK spawns a `copilot` CLI subprocess. It works on standard `ubuntu-latest` runners. No separate binary installation needed — the SDK bundles the CLI.
 
-**Risk #13 — Model availability via SDK:**
-The action defaults to model `claude-sonnet-4-5`. Whether this model name is valid through the Copilot SDK, and what rate limits apply, is unknown. The SDK authenticates with `GITHUB_TOKEN` (not an Anthropic API key), so model access depends on what GitHub's Copilot infrastructure exposes.
+**Risk #13 — Model availability via SDK: RESOLVED**
+The valid model name is `claude-sonnet-4` (NOT `claude-sonnet-4.5`). Available models: `claude-sonnet-4` (premium, 1x), `gpt-5-mini` (free), `gpt-4.1` (free). See `_developers/MODELS.md`.
 
-**Resolution approach:** The connectivity smoke test (`scripts/smoke-test-connectivity.js`) and integration test workflow (`.github/workflows/integration-test.yml`) directly test both risks.
+**Auth solution:** Fine-grained PAT with "Copilot Requests" permission (user as resource owner, public repos only). The PAT is stored as `COPILOT_GITHUB_TOKEN` secret. `copilot.js` overrides subprocess env so the CLI finds this token instead of `GITHUB_TOKEN`.
+
+**Known limitation:** "Copilot Requests" permission disappears when creating fine-grained PATs with an org as resource owner. Workaround: use personal account as resource owner.
 
 ---
 
@@ -191,12 +211,15 @@ A clean mechanism to publish updated and tested workflows from agentic-lib to re
 
 **Deliverables:**
 
-- [ ] Tag-based versioning: `publish-packages` workflow dispatch creates a git tag + npm publish
-- [ ] repository0 pins to exact tag (e.g. `@7.0.0`) — no `@main` references
-- [x] Script to distribute and verify workflows to consumer repos (`scripts/distribute.js`)
-- [x] Consumer compatibility tests verify `with:` params match `inputs:` declarations
+- [x] Tag-based versioning: `release.yml` workflow dispatch creates git tag + npm publish
+- [ ] repository0 pins to exact tag (e.g. `@7.1.1`) — no `@main` references
+- [x] CLI: `npx @xn-intenton-z2a/agentic-lib init` pulls latest from npm package
+- [x] CLI: `npx @xn-intenton-z2a/agentic-lib init --purge` also resets source to seeds
+- [x] `ci-init.yml` workflow: pull infrastructure via workflow_dispatch
+- [x] Package ships distributable content (bin/, src/workflows, actions, agents, seeds, scripts)
+- [x] v7.1.1 published (CLI + ci-init + auth fix + model name fix)
 - [ ] Release process documented: test → tag → publish → bump consumers
-- [ ] Test that workflow references resolve correctly after a release
+- [ ] Pre-publish integration tests pass (discussions bot + transform cycle)
 
 ### Goal 7: Test suite in repository0 that validates workflows
 
@@ -483,26 +506,67 @@ A systematic file-by-file review of `src/` delivered 8 steps of technical debt r
 
 ---
 
+### Pre-Publish Validation (NEW — must pass before any release)
+
+Two integration test workflows that validate agentic-lib end-to-end before publishing. These run in agentic-lib's own CI (not in consumer repos).
+
+#### Workflow 1: Discussions Bot End-to-End (`integration-test-discussions.yml`)
+
+Tests the full discussions bot flow: post a comment → SDK processes → bot responds.
+
+**Steps:**
+
+1. Create a test discussion (or use a designated test discussion)
+2. Post a comment via `gh api graphql`
+3. Trigger the discussions bot workflow (or wait for event trigger)
+4. Poll for a bot response (with timeout)
+5. Verify the response contains an `[ACTION:...]` tag
+6. Clean up: delete the test comment
+
+**Trigger:** `workflow_dispatch` (manual) — run before each release.
+
+#### Workflow 2: Transform Cycle (`integration-test-transform.yml`)
+
+Tests the full transform lifecycle: init → transform → verify → reset.
+
+**Steps:**
+
+1. Create a temporary branch from main
+2. Run `npx @xn-intenton-z2a/agentic-lib init --purge` to set up clean template state
+3. Set a test MISSION.md (e.g., "Add a function that returns the current date")
+4. Commit the seed state
+5. Trigger `agent-flow-transform` workflow on the test branch
+6. Wait for completion
+7. Verify: `src/lib/main.js` was modified (diff is non-empty)
+8. Verify: tests still pass (`npm test`)
+9. Run `npx @xn-intenton-z2a/agentic-lib reset` to restore seed state
+10. Verify: `src/lib/main.js` matches the seed file
+11. Delete the temporary branch
+
+**Trigger:** `workflow_dispatch` (manual) — run before each release.
+
+**Key principle:** These tests must pass before `release.yml` is dispatched. They validate that the Copilot SDK auth, model access, prompt construction, and file manipulation all work correctly in CI.
+
 ## Recommended Next Steps
 
-After this hardening sprint, the recommended priority order is:
-
-1. **Runtime verification** — Merge `reboot` branch, run `agent-flow-transform`, verify Copilot SDK works (Risk #13)
-2. **Phase 2** — Define `exports` field, tag `v7.0.0`, update repository0 version pins
+1. **Build pre-publish validation workflows** (Tasks J + K above)
+2. **Phase 2** — Define `exports` field, update repository0 version pins to `@7.1.1`
 3. **Phase 3** — repository0 alignment: thin adaptors, workflow smoke tests
 4. **Phase 4** — Template styles, discussions bot library extraction
 
 ## Summary
 
-| Phase  | Goals | Repos              | Status       | Key outcome                                           |
-| ------ | ----- | ------------------ | ------------ | ----------------------------------------------------- |
-| 0      | —     | agentic-lib        | **Complete** | Node 24 LTS uplift; SDK installs; CI pending          |
-| Uplift | 5     | agentic-lib        | **Complete** | -600+ lines, +11 tests, deps upgraded, DRY            |
-| 1      | 5, 8  | agentic-lib        | **Complete** | 307 tests / 22 files; deep handler tests; CI pipeline |
-| 2      | 4, 6  | agentic-lib, repo0 | Not started  | npm package + v7.0.0 tagged + version pinning         |
-| 3      | 3, 7  | repo0, agentic-lib | Not started  | Thin workflows + smoke tests + demo output            |
-| 4      | 2, 9  | repo0, agentic-lib | Not started  | 3 template styles + bot integration tests             |
-| 5      | 1, 10 | website, repo0     | Not started  | Live content + Playwright tests + full loop           |
+| Phase  | Goals | Repos              | Status          | Key outcome                                           |
+| ------ | ----- | ------------------ | --------------- | ----------------------------------------------------- |
+| 0      | —     | agentic-lib        | **Complete**    | Node 24 LTS uplift; SDK installs; CI pipeline         |
+| Uplift | 5     | agentic-lib        | **Complete**    | -600+ lines, +11 tests, deps upgraded, DRY            |
+| 1      | 5, 8  | agentic-lib        | **Complete**    | 307 tests / 21 files; deep handler tests; CI pipeline |
+| Post   | 6     | agentic-lib, repo0 | **Complete**    | CLI init, v7.1.1 published, auth resolved, seeds      |
+| Valid  | 6     | agentic-lib        | **In progress** | Pre-publish integration tests (discussions + transform)|
+| 2      | 4, 6  | agentic-lib, repo0 | Not started     | npm exports + version pinning                         |
+| 3      | 3, 7  | repo0, agentic-lib | Not started     | Thin workflows + smoke tests + demo output            |
+| 4      | 2, 9  | repo0, agentic-lib | Not started     | 3 template styles + bot integration tests             |
+| 5      | 1, 10 | website, repo0     | Not started     | Live content + Playwright tests + full loop           |
 
 ---
 
