@@ -68,7 +68,7 @@ npm run lint:workflows # Validate workflow YAML (16 files)
 npm run security      # npm audit (0 vulnerabilities)
 npm run test:smoke    # Connectivity smoke test (needs GITHUB_TOKEN)
 npm run test:record-golden  # Re-record golden prompt templates
-npm run distribute:check    # Dry-run distribution to repository0
+npx @xn-intenton-z2a/agentic-lib init --dry-run  # Preview init in current dir
 ```
 
 ## Git Workflow

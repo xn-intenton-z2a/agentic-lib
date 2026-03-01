@@ -20,9 +20,6 @@
     "test:copilot": "node scripts/test-copilot-local.js",
     "test:discussions": "node scripts/test-discussions-local.js",
     "test:transform": "node scripts/test-transform-local.js ../repository0",
-    "distribute": "node scripts/distribute.js",
-    "distribute:check": "node scripts/distribute.js --dry-run ../repository0",
-    "distribute:apply": "node scripts/distribute.js --commit ../repository0",
     "start": "echo \"agentic-lib is a workflow SDK — see README.md\""
   },
   "keywords": [],

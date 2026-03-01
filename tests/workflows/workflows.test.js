@@ -25,8 +25,8 @@ function stripForYaml(content) {
 }
 
 describe("src/workflows", () => {
-  it("has 12 workflow files", () => {
-    expect(workflowFiles).toHaveLength(12);
+  it("has 13 workflow files", () => {
+    expect(workflowFiles).toHaveLength(13);
   });
 
   describe.each(workflowFiles)("%s", (filename) => {
