@@ -1,15 +1,10 @@
-// config-loader.js — Parse agentic-lib.toml or agentic-lib.yml and resolve paths
+// config-loader.js — Parse agentic-lib.toml and resolve paths
 //
-// Reads the agent configuration file and provides a structured config object
-// with resolved paths, limits, and execution parameters.
-//
-// Supports two formats:
-//   1. agentic-lib.toml (preferred) — flat TOML with [sections]
-//   2. agentic-lib.yml (legacy) — YAML with nested keys
+// TOML-only configuration. The config file is required.
+// All defaults are defined here in one place.
 
 import { readFileSync, existsSync } from "fs";
 import { dirname, join } from "path";
-import yaml from "js-yaml";
 import { parse as parseToml } from "smol-toml";
 
 /**
@@ -37,145 +32,102 @@ import { parse as parseToml } from "smol-toml";
  * @property {string[]} readOnlyPaths - All paths without write permission
  */
 
-function resolvePaths(configPaths) {
+// Keys whose paths are writable by agents
+const WRITABLE_KEYS = ["source", "tests", "features", "dependencies", "docs", "readme"];
+
+// Default paths — every key that task handlers might access
+const PATH_DEFAULTS = {
+  mission: "MISSION.md",
+  source: "src/lib/",
+  tests: "tests/unit/",
+  features: ".github/agentic-lib/features/",
+  docs: "docs/",
+  readme: "README.md",
+  dependencies: "package.json",
+  library: "library/",
+  librarySources: "SOURCES.md",
+  contributing: "CONTRIBUTING.md",
+};
+
+// Default limits for path-specific constraints
+const LIMIT_DEFAULTS = {
+  features: 4,
+  library: 32,
+};
+
+/**
+ * Load configuration from agentic-lib.toml.
+ *
+ * If configPath ends in .toml, it is used directly.
+ * Otherwise, the project root is derived (3 levels up from configPath)
+ * and agentic-lib.toml is loaded from there.
+ *
+ * @param {string} configPath - Path to config file or YAML path (for project root derivation)
+ * @returns {AgenticConfig} Parsed configuration object
+ * @throws {Error} If no TOML config file is found
+ */
+export function loadConfig(configPath) {
+  let tomlPath;
+  if (configPath.endsWith(".toml")) {
+    tomlPath = configPath;
+  } else {
+    const configDir = dirname(configPath);
+    const projectRoot = join(configDir, "..", "..", "..");
+    tomlPath = join(projectRoot, "agentic-lib.toml");
+  }
+
+  if (!existsSync(tomlPath)) {
+    throw new Error(`Config file not found: ${tomlPath}. Create agentic-lib.toml in the project root.`);
+  }
+
+  const toml = parseToml(readFileSync(tomlPath, "utf8"));
+
+  // Merge TOML paths with defaults, normalising library-sources → librarySources
+  const rawPaths = { ...toml.paths };
+  if (rawPaths["library-sources"]) {
+    rawPaths.librarySources = rawPaths["library-sources"];
+    delete rawPaths["library-sources"];
+  }
+  const mergedPaths = { ...PATH_DEFAULTS, ...rawPaths };
+
+  // Build path objects with permissions
   const paths = {};
   const writablePaths = [];
   const readOnlyPaths = [];
 
-  for (const [key, value] of Object.entries(configPaths || {})) {
-    if (typeof value === "string") {
-      paths[key] = { path: value, permissions: [] };
+  for (const [key, value] of Object.entries(mergedPaths)) {
+    const isWritable = WRITABLE_KEYS.includes(key);
+    paths[key] = { path: value, permissions: isWritable ? ["write"] : [] };
+    if (isWritable) {
+      writablePaths.push(value);
+    } else {
       readOnlyPaths.push(value);
-    } else if (value && value.path) {
-      paths[key] = {
-        path: value.path,
-        permissions: value.permissions || [],
-        limit: value.limit,
-      };
-      if (value.permissions && value.permissions.includes("write")) {
-        writablePaths.push(value.path);
-      } else {
-        readOnlyPaths.push(value.path);
-      }
-    } else if (value && value.paths) {
-      paths[key] = { paths: value.paths, permissions: [] };
-      readOnlyPaths.push(...value.paths);
     }
   }
 
-  return { paths, writablePaths, readOnlyPaths };
-}
+  // Apply limits from [limits] section or use defaults
+  const limits = toml.limits || {};
+  paths.features.limit = limits["features-limit"] || LIMIT_DEFAULTS.features;
+  paths.library.limit = limits["library-limit"] || LIMIT_DEFAULTS.library;
 
-/**
- * Convert a TOML config object (flat [sections]) into the internal format
- * that matches the YAML config structure.
- */
-function normaliseToml(toml) {
-  const config = {};
-
-  // [schedule]
-  if (toml.schedule) {
-    config.schedule = toml.schedule.tier || toml.schedule;
-  }
-
-  // [paths] → convert flat key=value into path objects with write permissions
-  if (toml.paths) {
-    config.paths = {};
-    // Known writable paths (paths that agents may modify)
-    const WRITABLE_KEYS = [
-      "source",
-      "targetSourcePath",
-      "tests",
-      "targetTestsPath",
-      "features",
-      "featuresPath",
-      "dependencies",
-      "dependenciesFilepath",
-      "docs",
-      "documentationPath",
-      "readme",
-      "readmeFilepath",
-    ];
-    for (const [key, value] of Object.entries(toml.paths)) {
-      const isWritable = WRITABLE_KEYS.includes(key);
-      config.paths[key] = {
-        path: value,
-        permissions: isWritable ? ["write"] : [],
-      };
-    }
-  }
-
-  // [execution]
-  if (toml.execution) {
-    config.buildScript = toml.execution.build;
-    config.testScript = toml.execution.test;
-    config.mainScript = toml.execution.start;
-  }
-
-  // [limits]
-  if (toml.limits) {
-    config.featureDevelopmentIssuesWipLimit = toml.limits["feature-issues"];
-    config.maintenanceIssuesWipLimit = toml.limits["maintenance-issues"];
-    config.attemptsPerBranch = toml.limits["attempts-per-branch"];
-    config.attemptsPerIssue = toml.limits["attempts-per-issue"];
-  }
-
-  // [bot]
-  if (toml.bot) {
-    config.intentionBot = {
-      intentionFilepath: toml.bot["log-file"],
-    };
-  }
-
-  return config;
-}
-
-/**
- * Parse a config file — auto-detects TOML vs YAML by extension.
- */
-function parseConfigFile(configPath) {
-  const raw = readFileSync(configPath, "utf8");
-  if (configPath.endsWith(".toml")) {
-    return normaliseToml(parseToml(raw));
-  }
-  return yaml.load(raw);
-}
-
-/**
- * Load configuration, trying agentic-lib.toml first, then falling back to
- * the provided configPath (typically agentic-lib.yml).
- *
- * @param {string} configPath - Path to the YAML config file (fallback)
- * @returns {AgenticConfig} Parsed configuration object
- */
-export function loadConfig(configPath) {
-  // Try TOML in the project root (two levels up from .github/agentic-lib/agents/)
-  const configDir = dirname(configPath);
-  const projectRoot = join(configDir, "..", "..", "..");
-  const tomlPath = join(projectRoot, "agentic-lib.toml");
-
-  let config;
-  if (existsSync(tomlPath)) {
-    config = parseConfigFile(tomlPath);
-  } else {
-    config = parseConfigFile(configPath);
-  }
-
-  const { paths, writablePaths, readOnlyPaths } = resolvePaths(config.paths);
+  const execution = toml.execution || {};
+  const bot = toml.bot || {};
 
   return {
-    schedule: config.schedule || "schedule-1",
+    schedule: toml.schedule?.tier || "schedule-1",
     paths,
-    buildScript: config.buildScript || "npm run build",
-    testScript: config.testScript || "npm test",
-    mainScript: config.mainScript || "npm run start",
-    featureDevelopmentIssuesWipLimit: config.featureDevelopmentIssuesWipLimit || 2,
-    maintenanceIssuesWipLimit: config.maintenanceIssuesWipLimit || 1,
-    attemptsPerBranch: config.attemptsPerBranch || 3,
-    attemptsPerIssue: config.attemptsPerIssue || 2,
-    seeding: config.seeding || {},
-    intentionBot: config.intentionBot || {},
-    tdd: config.tdd === true,
+    buildScript: execution.build || "npm run build",
+    testScript: execution.test || "npm test",
+    mainScript: execution.start || "npm run start",
+    featureDevelopmentIssuesWipLimit: limits["feature-issues"] || 2,
+    maintenanceIssuesWipLimit: limits["maintenance-issues"] || 1,
+    attemptsPerBranch: limits["attempts-per-branch"] || 3,
+    attemptsPerIssue: limits["attempts-per-issue"] || 2,
+    seeding: toml.seeding || {},
+    intentionBot: {
+      intentionFilepath: bot["log-file"] || "intentïon.md",
+    },
+    tdd: toml.tdd === true,
     writablePaths,
     readOnlyPaths,
   };

@@ -64,7 +64,7 @@ done
 echo ""
 echo "--- Install action dependencies ---"
 cd "${AGENTIC_DIR}/actions/agentic-step"
-npm ci || npm install
+npm ci
 echo "  DONE: agentic-step dependencies installed"
 
 echo ""

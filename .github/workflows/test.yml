@@ -16,9 +16,7 @@
 #     test-maintain-library   — Crawls SOURCES.md and maintains library docs
 #     test-transform          — Advances seed code toward mission
 #
-# Transform jobs check for COPILOT_GITHUB_TOKEN first:
-#   - Token present → job MUST succeed or it's a real failure
-#   - Token absent  → job skips cleanly (not a failure)
+# COPILOT_GITHUB_TOKEN is required for transform jobs.
 #
 # Use workflow_dispatch to override the model.
 
@@ -73,9 +71,9 @@ jobs:
       - name: Set up ~/.npmrc
         run: |
           echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> ~/.npmrc
-          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" >> ~/.npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" >> ~/.npmrc
           echo "always-auth=true" >> ~/.npmrc
-      - run: npm ci || npm install
+      - run: npm ci
       - run: npm run linting
 
   lint-workflows:
@@ -92,9 +90,9 @@ jobs:
       - name: Set up ~/.npmrc
         run: |
           echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> ~/.npmrc
-          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" >> ~/.npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" >> ~/.npmrc
           echo "always-auth=true" >> ~/.npmrc
-      - run: npm ci || npm install
+      - run: npm ci
       - run: npm run lint:workflows
 
   security:
@@ -111,9 +109,9 @@ jobs:
       - name: Set up ~/.npmrc
         run: |
           echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> ~/.npmrc
-          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" >> ~/.npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" >> ~/.npmrc
           echo "always-auth=true" >> ~/.npmrc
-      - run: npm ci || npm install
+      - run: npm ci
       - run: npm run security
 
   unit-tests:
@@ -130,11 +128,11 @@ jobs:
       - name: Set up ~/.npmrc
         run: |
           echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> ~/.npmrc
-          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" >> ~/.npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" >> ~/.npmrc
           echo "always-auth=true" >> ~/.npmrc
-      - run: npm ci || npm install
+      - run: npm ci
       - name: Install sub-project dependencies
-        run: cd src/actions/agentic-step && (npm ci || npm install)
+        run: cd src/actions/agentic-step && (npm ci)
       - run: npm test
 
   golden-prompts:
@@ -151,11 +149,11 @@ jobs:
       - name: Set up ~/.npmrc
         run: |
           echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> ~/.npmrc
-          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" >> ~/.npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" >> ~/.npmrc
           echo "always-auth=true" >> ~/.npmrc
-      - run: npm ci || npm install
+      - run: npm ci
       - name: Install sub-project dependencies
-        run: cd src/actions/agentic-step && (npm ci || npm install)
+        run: cd src/actions/agentic-step && (npm ci)
       - name: Check golden prompt drift
         run: |
           npm run test:record-golden
@@ -168,10 +166,6 @@ jobs:
           fi
 
   # ─── Action transforms: real Copilot SDK round-trips ───────────────
-  #
-  # Each job checks for COPILOT_GITHUB_TOKEN first.
-  # If present: init → seed → diff → transform → diff → reset → diff
-  # If absent:  skip with clear message (job still succeeds)
 
   test-maintain-features:
     runs-on: ubuntu-latest
@@ -191,34 +185,18 @@ jobs:
       - name: Set up ~/.npmrc
         run: |
           echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> ~/.npmrc
-          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" >> ~/.npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" >> ~/.npmrc
           echo "always-auth=true" >> ~/.npmrc
 
-      - name: Check Copilot SDK access
-        id: auth
-        run: |
-          if [ -z "$COPILOT_GITHUB_TOKEN" ]; then
-            echo "SKIP: No COPILOT_GITHUB_TOKEN — skipping transform test"
-            echo "available=false" >> $GITHUB_OUTPUT
-          else
-            echo "COPILOT_GITHUB_TOKEN is set"
-            echo "available=true" >> $GITHUB_OUTPUT
-          fi
-        env:
-          COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
-
       - name: Self-init
-        if: steps.auth.outputs.available == 'true'
         run: bash scripts/self-init.sh
 
       - name: Seed workspace
-        if: steps.auth.outputs.available == 'true'
         run: |
           cp src/seeds/zero-MISSION.md MISSION.md
           mkdir -p .github/agentic-lib/features
 
       - name: "Diff: seed state"
-        if: steps.auth.outputs.available == 'true'
         run: |
           echo "## Seed state (maintain-features)" >> $GITHUB_STEP_SUMMARY
           echo '```diff' >> $GITHUB_STEP_SUMMARY
@@ -229,7 +207,6 @@ jobs:
           git diff
 
       - name: Run agentic-step (maintain-features)
-        if: steps.auth.outputs.available == 'true'
         uses: ./.github/agentic-lib/actions/agentic-step
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -240,7 +217,6 @@ jobs:
           model: ${{ inputs.model || 'gpt-5-mini' }}
 
       - name: "Diff: after transform"
-        if: steps.auth.outputs.available == 'true'
         run: |
           echo "## After maintain-features" >> $GITHUB_STEP_SUMMARY
           echo '```diff' >> $GITHUB_STEP_SUMMARY
@@ -254,7 +230,6 @@ jobs:
           git diff
 
       - name: Reset to seed
-        if: steps.auth.outputs.available == 'true'
         run: |
           git checkout -- .
           git clean -fd .github/agentic-lib/features/
@@ -262,7 +237,6 @@ jobs:
           cp src/seeds/zero-MISSION.md MISSION.md
 
       - name: "Diff: after reset (should be clean)"
-        if: steps.auth.outputs.available == 'true'
         run: |
           echo "## After reset" >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
@@ -288,28 +262,13 @@ jobs:
       - name: Set up ~/.npmrc
         run: |
           echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> ~/.npmrc
-          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" >> ~/.npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" >> ~/.npmrc
           echo "always-auth=true" >> ~/.npmrc
 
-      - name: Check Copilot SDK access
-        id: auth
-        run: |
-          if [ -z "$COPILOT_GITHUB_TOKEN" ]; then
-            echo "SKIP: No COPILOT_GITHUB_TOKEN — skipping transform test"
-            echo "available=false" >> $GITHUB_OUTPUT
-          else
-            echo "COPILOT_GITHUB_TOKEN is set"
-            echo "available=true" >> $GITHUB_OUTPUT
-          fi
-        env:
-          COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
-
       - name: Self-init
-        if: steps.auth.outputs.available == 'true'
         run: bash scripts/self-init.sh
 
       - name: Seed workspace
-        if: steps.auth.outputs.available == 'true'
         run: |
           cp src/seeds/zero-MISSION.md MISSION.md
           mkdir -p library
@@ -321,7 +280,6 @@ jobs:
           SEED_EOF
 
       - name: "Diff: seed state"
-        if: steps.auth.outputs.available == 'true'
         run: |
           echo "## Seed state (maintain-library)" >> $GITHUB_STEP_SUMMARY
           echo '```diff' >> $GITHUB_STEP_SUMMARY
@@ -332,7 +290,6 @@ jobs:
           git diff
 
       - name: Run agentic-step (maintain-library)
-        if: steps.auth.outputs.available == 'true'
         uses: ./.github/agentic-lib/actions/agentic-step
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -344,7 +301,6 @@ jobs:
           writable-paths: "library/"
 
       - name: "Diff: after transform"
-        if: steps.auth.outputs.available == 'true'
         run: |
           echo "## After maintain-library" >> $GITHUB_STEP_SUMMARY
           echo '```diff' >> $GITHUB_STEP_SUMMARY
@@ -358,14 +314,12 @@ jobs:
           git diff
 
       - name: Reset to seed
-        if: steps.auth.outputs.available == 'true'
         run: |
           git checkout -- .
           git clean -fd library/
           rm -f SOURCES.md MISSION.md
 
       - name: "Diff: after reset (should be clean)"
-        if: steps.auth.outputs.available == 'true'
         run: |
           echo "## After reset" >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
@@ -391,28 +345,13 @@ jobs:
       - name: Set up ~/.npmrc
         run: |
           echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> ~/.npmrc
-          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" >> ~/.npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" >> ~/.npmrc
           echo "always-auth=true" >> ~/.npmrc
 
-      - name: Check Copilot SDK access
-        id: auth
-        run: |
-          if [ -z "$COPILOT_GITHUB_TOKEN" ]; then
-            echo "SKIP: No COPILOT_GITHUB_TOKEN — skipping transform test"
-            echo "available=false" >> $GITHUB_OUTPUT
-          else
-            echo "COPILOT_GITHUB_TOKEN is set"
-            echo "available=true" >> $GITHUB_OUTPUT
-          fi
-        env:
-          COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
-
       - name: Self-init
-        if: steps.auth.outputs.available == 'true'
         run: bash scripts/self-init.sh
 
       - name: Seed workspace
-        if: steps.auth.outputs.available == 'true'
         run: |
           mkdir -p src/lib tests/unit .github/agentic-lib/features
           cp src/seeds/zero-main.js src/lib/main.js
@@ -426,7 +365,6 @@ jobs:
           SEED_EOF
 
       - name: "Diff: seed state"
-        if: steps.auth.outputs.available == 'true'
         run: |
           echo "## Seed state (transform)" >> $GITHUB_STEP_SUMMARY
           echo '```diff' >> $GITHUB_STEP_SUMMARY
@@ -437,7 +375,6 @@ jobs:
           git diff
 
       - name: Run agentic-step (transform)
-        if: steps.auth.outputs.available == 'true'
         uses: ./.github/agentic-lib/actions/agentic-step
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -450,7 +387,6 @@ jobs:
           test-command: "npm test"
 
       - name: "Diff: after transform"
-        if: steps.auth.outputs.available == 'true'
         run: |
           echo "## After transform" >> $GITHUB_STEP_SUMMARY
           echo '```diff' >> $GITHUB_STEP_SUMMARY
@@ -466,7 +402,6 @@ jobs:
           git diff
 
       - name: Reset to seed
-        if: steps.auth.outputs.available == 'true'
         run: |
           git checkout -- .
           git clean -fd src/lib/ tests/unit/ .github/agentic-lib/features/
@@ -476,7 +411,6 @@ jobs:
           cp src/seeds/zero-MISSION.md MISSION.md
 
       - name: "Diff: after reset (should be clean)"
-        if: steps.auth.outputs.available == 'true'
         run: |
           echo "## After reset" >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY

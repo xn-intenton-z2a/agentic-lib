@@ -22,16 +22,6 @@ on:
           - patch
           - minor
           - semver
-  #workflow_run:
-  #  workflows:
-  #    - seed-repository
-  #  types:
-  #    - completed
-  #  secrets:
-  #    PERSONAL_ACCESS_TOKEN:
-  #      required: false
-  #    CHATGPT_API_SECRET_KEY:
-  #      required: true
   repository_dispatch:
     types: [package-published]
   schedule:
@@ -108,9 +98,9 @@ jobs:
         run: |
           CONFIG="${{ vars.configPath || '.github/agentic-lib/agents/agentic-lib.yml' }}"
           if [ -f "$CONFIG" ]; then
-            BS=$(yq -r '.buildScript // ""' "$CONFIG" 2>/dev/null)
-            TS=$(yq -r '.testScript // ""' "$CONFIG" 2>/dev/null)
-            MS=$(yq -r '.mainScript // ""' "$CONFIG" 2>/dev/null)
+            BS=$(yq -r '.buildScript // ""' "$CONFIG")
+            TS=$(yq -r '.testScript // ""' "$CONFIG")
+            MS=$(yq -r '.mainScript // ""' "$CONFIG")
             [ -n "$BS" ] && echo "buildScript=$BS" >> $GITHUB_ENV
             [ -n "$TS" ] && echo "testScript=$TS" >> $GITHUB_ENV
             [ -n "$MS" ] && echo "mainScript=$MS" >> $GITHUB_ENV
@@ -120,12 +110,12 @@ jobs:
         if: ${{ env.npmAuthOrganisation != '' }}
         shell: bash
         run: |
-          curl --include --header "Authorization: token ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" https://api.github.com/user
+          curl --include --header "Authorization: token ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/user
       - name: Set up .npmrc
         uses: ./.github/agentic-lib/actions/setup-npmrc
         with:
           npm-auth-organisation: ${{ env.npmAuthOrganisation }}
-          token: ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
       - name: Get latest from remote
         run: |
           git config --local user.email '${{ env.gitUserEmail }}'
@@ -164,11 +154,9 @@ jobs:
           echo "EOF" >> "$GITHUB_OUTPUT"
           echo "output=${output}"
       - name: Update packages with npm
-        continue-on-error: true
         shell: bash
         run: npm install --save ; npm update ; npm upgrade ; npm install
       - name: Update packages with ncu
-        continue-on-error: true
         shell: bash
         env:
           ncuUpgradeTarget: ${{ env.upgradeTarget || 'minor' }}
@@ -186,9 +174,8 @@ jobs:
           fi \
           ; eval "${savedOptions?}" \
           ;
-        continue-on-error: true
       - run: rm -rf './node_modules/'
-      - run: npm ci || npm install
+      - run: npm ci
       - name: Tear down .npmrc
         if: ${{ env.npmAuthOrganisation != '' }}
         shell: bash
@@ -257,7 +244,7 @@ jobs:
           gitCommitMessage: ${{ env.gitCommitMessage }}
           label: ${{ env.label }}
         with:
-          github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const { data: existingPulls } = await github.rest.pulls.list({
               owner: context.repo.owner,
@@ -316,5 +303,4 @@ jobs:
       pages: write
     uses: './.github/workflows/ci-automerge.yml'
     secrets:
-      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 

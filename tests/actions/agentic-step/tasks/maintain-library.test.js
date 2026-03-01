@@ -25,13 +25,13 @@ import { runCopilotTask, readOptionalFile, scanDirectory } from "../../../../src
 function createMockConfig(overrides = {}) {
   return {
     paths: {
-      missionFilepath: { path: "MISSION.md" },
-      contributingFilepath: { path: "CONTRIBUTING.md" },
-      featuresPath: { path: "features/", permissions: ["write"], limit: 4 },
-      targetSourcePath: { path: "src/" },
-      targetTestsPath: { path: "tests/" },
-      librarySourcesFilepath: { path: "SOURCES.md" },
-      libraryDocumentsPath: { path: "library/", limit: 32 },
+      mission: { path: "MISSION.md" },
+      contributing: { path: "CONTRIBUTING.md" },
+      features: { path: "features/", permissions: ["write"], limit: 4 },
+      source: { path: "src/" },
+      tests: { path: "tests/" },
+      librarySources: { path: "SOURCES.md" },
+      library: { path: "library/", limit: 32 },
     },
     attemptsPerIssue: 2,
     attemptsPerBranch: 3,

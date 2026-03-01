@@ -152,16 +152,16 @@ async function runTask(taskName) {
 
   // Set up auth
   const copilotToken = process.env.COPILOT_GITHUB_TOKEN;
-  const clientOptions = {};
-  if (copilotToken) {
-    console.log("[auth] Using COPILOT_GITHUB_TOKEN");
-    const env = { ...process.env };
-    env.GITHUB_TOKEN = copilotToken;
-    env.GH_TOKEN = copilotToken;
-    clientOptions.env = env;
-  } else {
-    console.log("[auth] Using local gh CLI auth");
+  if (!copilotToken) {
+    console.error("ERROR: COPILOT_GITHUB_TOKEN is required. Set it in your environment.");
+    return 1;
   }
+  console.log("[auth] Using COPILOT_GITHUB_TOKEN");
+  const clientOptions = {};
+  const env = { ...process.env };
+  env.GITHUB_TOKEN = copilotToken;
+  env.GH_TOKEN = copilotToken;
+  clientOptions.env = env;
 
   const client = new CopilotClient(clientOptions);
 
@@ -222,74 +222,30 @@ async function runTask(taskName) {
 // ─── Task Config + Prompts ───────────────────────────────────────────
 
 async function loadTaskConfig() {
-  // Try agentic-lib.toml first, then YAML config
   const tomlPath = resolve(target, "agentic-lib.toml");
-  const yamlPath = resolve(target, ".github/agentic-lib/agents/agentic-lib.yml");
 
-  if (existsSync(tomlPath)) {
-    console.log(`[config] Loading ${tomlPath}`);
-    try {
-      const { parse } = await import("smol-toml");
-      const toml = parse(readFileSync(tomlPath, "utf8"));
-      return {
-        schedule: toml.schedule?.tier || "schedule-1",
-        missionPath: toml.paths?.mission || "MISSION.md",
-        sourcePath: toml.paths?.source || "src/lib/",
-        testsPath: toml.paths?.tests || "tests/unit/",
-        featuresPath: toml.paths?.features || ".github/agentic-lib/features/",
-        libraryPath: toml.paths?.docs || "library/",
-        sourcesPath: toml.paths?.["library-sources"] || "SOURCES.md",
-        readmePath: toml.paths?.readme || "README.md",
-        depsPath: toml.paths?.dependencies || "package.json",
-        buildScript: toml.execution?.build || "npm run build",
-        testScript: toml.execution?.test || "npm test",
-        mainScript: toml.execution?.start || "npm run start",
-        featureLimit: toml.limits?.["feature-issues"] || 2,
-        intentionPath: toml.bot?.["log-file"] || "intentïon.md",
-      };
-    } catch {
-      // Fall through to YAML
-    }
+  if (!existsSync(tomlPath)) {
+    throw new Error(`Config file not found: ${tomlPath}. Create agentic-lib.toml in the project root.`);
   }
 
-  if (existsSync(yamlPath)) {
-    console.log(`[config] Loading ${yamlPath}`);
-    const { default: yaml } = await import("js-yaml");
-    const raw = yaml.load(readFileSync(yamlPath, "utf8"));
-    return {
-      schedule: raw.schedule || "schedule-1",
-      missionPath: raw.paths?.missionFilepath?.path || "MISSION.md",
-      sourcePath: raw.paths?.targetSourcePath?.path || "src/lib/",
-      testsPath: raw.paths?.targetTestsPath?.path || "tests/unit/",
-      featuresPath: raw.paths?.featuresPath?.path || ".github/agentic-lib/features/",
-      libraryPath: raw.paths?.libraryDocumentsPath?.path || "library/",
-      sourcesPath: raw.paths?.librarySourcesFilepath?.path || "SOURCES.md",
-      readmePath: raw.paths?.readmeFilepath?.path || "README.md",
-      depsPath: raw.paths?.dependenciesFilepath?.path || "package.json",
-      buildScript: raw.buildScript || "npm run build",
-      testScript: raw.testScript || "npm test",
-      mainScript: raw.mainScript || "npm run start",
-      featureLimit: raw.paths?.featuresPath?.limit || raw.featureDevelopmentIssuesWipLimit || 2,
-      intentionPath: raw.intentionBot?.intentionFilepath || "intentïon.md",
-    };
-  }
-
-  console.log("[config] No config file found, using defaults");
+  console.log(`[config] Loading ${tomlPath}`);
+  const { parse } = await import("smol-toml");
+  const toml = parse(readFileSync(tomlPath, "utf8"));
   return {
-    schedule: "schedule-1",
-    missionPath: "MISSION.md",
-    sourcePath: "src/lib/",
-    testsPath: "tests/unit/",
-    featuresPath: ".github/agentic-lib/features/",
-    libraryPath: "library/",
-    sourcesPath: "SOURCES.md",
-    readmePath: "README.md",
-    depsPath: "package.json",
-    buildScript: "npm run build",
-    testScript: "npm test",
-    mainScript: "npm run start",
-    featureLimit: 2,
-    intentionPath: "intentïon.md",
+    schedule: toml.schedule?.tier || "schedule-1",
+    missionPath: toml.paths?.mission || "MISSION.md",
+    sourcePath: toml.paths?.source || "src/lib/",
+    testsPath: toml.paths?.tests || "tests/unit/",
+    featuresPath: toml.paths?.features || ".github/agentic-lib/features/",
+    libraryPath: toml.paths?.docs || "library/",
+    sourcesPath: toml.paths?.["library-sources"] || "SOURCES.md",
+    readmePath: toml.paths?.readme || "README.md",
+    depsPath: toml.paths?.dependencies || "package.json",
+    buildScript: toml.execution?.build || "npm run build",
+    testScript: toml.execution?.test || "npm test",
+    mainScript: toml.execution?.start || "npm run start",
+    featureLimit: toml.limits?.["feature-issues"] || 2,
+    intentionPath: toml.bot?.["log-file"] || "intentïon.md",
   };
 }
 
@@ -304,7 +260,8 @@ function getReadOnlyPathsFromConfig(config) {
 function readOptional(relPath) {
   try {
     return readFileSync(resolve(target, relPath), "utf8");
-  } catch {
+  } catch (err) {
+    console.debug(`[readOptional] ${relPath}: ${err.message}`);
     return "";
   }
 }
@@ -322,11 +279,13 @@ function scanDir(relPath, extensions, opts = {}) {
         try {
           const content = readFileSync(resolve(dir, String(f)), "utf8");
           return { name: String(f), content: contentLimit ? content.substring(0, contentLimit) : content };
-        } catch {
+        } catch (err) {
+          console.debug(`[scanDir] ${dir}/${f}: ${err.message}`);
           return { name: String(f), content: "" };
         }
       });
-  } catch {
+  } catch (err) {
+    console.debug(`[scanDir] ${dir}: ${err.message}`);
     return [];
   }
 }

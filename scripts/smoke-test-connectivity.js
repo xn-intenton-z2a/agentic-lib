@@ -5,10 +5,10 @@
 // Requires GITHUB_TOKEN or COPILOT_GITHUB_TOKEN environment variable.
 // Exit 0 on success, 1 on failure with diagnostic output.
 
-const token = process.env.COPILOT_GITHUB_TOKEN || process.env.GITHUB_TOKEN;
+const token = process.env.COPILOT_GITHUB_TOKEN;
 if (!token) {
-  console.error("SKIP: No GITHUB_TOKEN or COPILOT_GITHUB_TOKEN set — cannot run connectivity smoke test");
-  process.exit(0); // Don't fail CI if token is unavailable
+  console.error("ERROR: COPILOT_GITHUB_TOKEN is required for connectivity smoke test");
+  process.exit(1);
 }
 
 function classifyToken(t) {

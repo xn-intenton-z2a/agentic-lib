@@ -33,8 +33,8 @@ export async function enhanceIssue(context) {
     return { outcome: "nop", details: "Issue already has ready label" };
   }
 
-  const contributing = readOptionalFile(config.paths.contributingFilepath?.path || "CONTRIBUTING.md");
-  const features = scanDirectory(config.paths.featuresPath?.path || "features/", ".md", { contentLimit: 500 });
+  const contributing = readOptionalFile(config.paths.contributing.path);
+  const features = scanDirectory(config.paths.features.path, ".md", { contentLimit: 500 });
 
   const agentInstructions = instructions || "Enhance this issue with clear, testable acceptance criteria.";
 

@@ -40,15 +40,11 @@ export async function checkWipLimit(octokit, repo, label, limit) {
  */
 export async function countBranchAttempts(octokit, repo, issueNumber, branchPrefix) {
   const pattern = `${branchPrefix}${issueNumber}`;
-  try {
-    const { data: refs } = await octokit.rest.git.listMatchingRefs({
-      ...repo,
-      ref: `heads/${pattern}`,
-    });
-    return refs.length;
-  } catch {
-    return 0;
-  }
+  const { data: refs } = await octokit.rest.git.listMatchingRefs({
+    ...repo,
+    ref: `heads/${pattern}`,
+  });
+  return refs.length;
 }
 
 /**

@@ -21,17 +21,16 @@ import * as core from "@actions/core";
  */
 function buildClientOptions() {
   const copilotToken = process.env.COPILOT_GITHUB_TOKEN;
-  if (copilotToken) {
-    core.info("[copilot] COPILOT_GITHUB_TOKEN found — overriding subprocess env");
-    const env = { ...process.env };
-    // Override both GITHUB_TOKEN and GH_TOKEN so the Copilot CLI
-    // subprocess uses the Copilot PAT for its auto-login flow
-    env.GITHUB_TOKEN = copilotToken;
-    env.GH_TOKEN = copilotToken;
-    return { env };
+  if (!copilotToken) {
+    throw new Error("COPILOT_GITHUB_TOKEN is required. Set it as a repository secret.");
   }
-  core.info("[copilot] No COPILOT_GITHUB_TOKEN — using default auth");
-  return {};
+  core.info("[copilot] COPILOT_GITHUB_TOKEN found — overriding subprocess env");
+  const env = { ...process.env };
+  // Override both GITHUB_TOKEN and GH_TOKEN so the Copilot CLI
+  // subprocess uses the Copilot PAT for its auto-login flow
+  env.GITHUB_TOKEN = copilotToken;
+  env.GH_TOKEN = copilotToken;
+  return { env };
 }
 
 /**
@@ -110,7 +109,8 @@ export function readOptionalFile(filePath, limit) {
   try {
     const content = readFileSync(filePath, "utf8");
     return limit ? content.substring(0, limit) : content;
-  } catch {
+  } catch (err) {
+    core.debug(`[readOptionalFile] ${filePath}: ${err.message}`);
     return "";
   }
 }
@@ -139,7 +139,8 @@ export function scanDirectory(dirPath, extensions, options = {}) {
       try {
         const content = readFileSync(`${dirPath}${f}`, "utf8");
         return { name: f, content: contentLimit ? content.substring(0, contentLimit) : content };
-      } catch {
+      } catch (err) {
+        core.debug(`[scanDirectory] ${dirPath}${f}: ${err.message}`);
         return { name: f, content: "" };
       }
     });

@@ -25,7 +25,7 @@ rm -f library/*.md
 rm -f library/*.txt
 rm -f features/*.md
 rm -f prompts/*.md
-cp -fv .github/agentic-lib/seeds/features/*.md features/ 2>/dev/null || true
+cp -fv .github/agentic-lib/seeds/features/*.md features/
 #rm -rfv node_modules
 #rm -rfv package-lock.json
 #npm install

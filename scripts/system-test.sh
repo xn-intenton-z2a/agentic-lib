@@ -150,7 +150,7 @@ echo ""
 STEP_DIR="$WORKSPACE/.github/agentic-lib/actions/agentic-step"
 if [[ -f "$STEP_DIR/package.json" ]]; then
   cd "$STEP_DIR"
-  npm ci --silent 2>/dev/null || npm install --silent 2>/dev/null || echo "  (npm install skipped — SDK may not be available)"
+  npm ci --silent
   cd "$WORKSPACE"
   pass "agentic-step dependencies installed"
 else
@@ -164,13 +164,13 @@ echo "=== Step 4: maintain-features ==="
 echo ""
 
 mkdir -p "$WORKSPACE/.github/agentic-lib/features"
-FEATURES_BEFORE=$(find "$WORKSPACE/.github/agentic-lib/features" -name "*.md" 2>/dev/null | wc -l | tr -d ' ')
+FEATURES_BEFORE=$(find "$WORKSPACE/.github/agentic-lib/features" -name "*.md" | wc -l | tr -d ' ')
 echo "  Features before: $FEATURES_BEFORE"
 
-node "$CLI" maintain-features --target "$WORKSPACE" --model "$MODEL" $DRY_RUN || true
+node "$CLI" maintain-features --target "$WORKSPACE" --model "$MODEL" $DRY_RUN
 echo ""
 
-FEATURES_AFTER=$(find "$WORKSPACE/.github/agentic-lib/features" -name "*.md" 2>/dev/null | wc -l | tr -d ' ')
+FEATURES_AFTER=$(find "$WORKSPACE/.github/agentic-lib/features" -name "*.md" | wc -l | tr -d ' ')
 echo "  Features after: $FEATURES_AFTER"
 
 if [[ -n "$DRY_RUN" ]]; then
@@ -189,13 +189,13 @@ echo ""
 echo "=== Step 5: transform ==="
 echo ""
 
-SOURCE_BEFORE=$(cat "$WORKSPACE/src/lib/main.js" 2>/dev/null | wc -c | tr -d ' ')
+SOURCE_BEFORE=$(wc -c < "$WORKSPACE/src/lib/main.js" | tr -d ' ')
 echo "  Source size before: $SOURCE_BEFORE bytes"
 
-node "$CLI" transform --target "$WORKSPACE" --model "$MODEL" $DRY_RUN || true
+node "$CLI" transform --target "$WORKSPACE" --model "$MODEL" $DRY_RUN
 echo ""
 
-SOURCE_AFTER=$(cat "$WORKSPACE/src/lib/main.js" 2>/dev/null | wc -c | tr -d ' ')
+SOURCE_AFTER=$(wc -c < "$WORKSPACE/src/lib/main.js" | tr -d ' ')
 echo "  Source size after: $SOURCE_AFTER bytes"
 
 if [[ -n "$DRY_RUN" ]]; then
