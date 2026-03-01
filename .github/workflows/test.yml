@@ -13,12 +13,12 @@
 #     test-maintain-features  — Generates feature files from seed mission
 #     test-maintain-library   — Crawls SOURCES.md and maintains library docs
 #     test-transform          — Advances seed code toward mission
-#   CLI dry-run (3 jobs — verify CLI prompt construction without SDK):
-#     test-cli-transform          — CLI transform --dry-run
-#     test-cli-maintain-features  — CLI maintain-features --dry-run
-#     test-cli-maintain-library   — CLI maintain-library --dry-run
+#   CLI round-trips (3 jobs — dry-run sanity check then full Copilot SDK):
+#     test-cli-transform          — CLI transform (dry-run + full)
+#     test-cli-maintain-features  — CLI maintain-features (dry-run + full)
+#     test-cli-maintain-library   — CLI maintain-library (dry-run + full)
 #
-# COPILOT_GITHUB_TOKEN is required for action transform jobs (not CLI dry-run).
+# COPILOT_GITHUB_TOKEN is required for action + CLI round-trip jobs.
 #
 # Use workflow_dispatch to override the model.
 
@@ -390,15 +390,19 @@ jobs:
           echo '```' >> $GITHUB_STEP_SUMMARY
           git diff --stat || echo "(clean)"
 
-  # ─── CLI dry-run: verify prompt construction without SDK ──────────
+  # ─── CLI round-trips: dry-run sanity check then full Copilot SDK ──
 
   test-cli-transform:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     permissions:
-      contents: read
+      contents: write
+      issues: write
       packages: read
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: 24
@@ -409,6 +413,7 @@ jobs:
           echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" >> ~/.npmrc
           echo "always-auth=true" >> ~/.npmrc
       - run: npm ci
+
       - name: Seed workspace
         run: |
           mkdir -p src/lib tests/unit .github/agentic-lib/features
@@ -421,16 +426,68 @@ jobs:
           The main function should accept a name argument and print "Hello, <name>!" to stdout.
           When no name is provided, it should default to "World".
           SEED_EOF
-      - name: "Run CLI: transform --dry-run"
+
+      - name: "CLI dry-run: transform"
         run: node bin/agentic-lib.js transform --dry-run
+
+      - name: "Verify dry-run had no effect"
+        run: |
+          CHANGES=$(git diff --stat)
+          if [ -n "$CHANGES" ]; then
+            echo "ERROR: --dry-run modified files:"
+            echo "$CHANGES"
+            exit 1
+          fi
+          echo "OK: workspace unchanged after dry-run"
+
+      - name: "CLI full-run: transform"
+        env:
+          COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
+        run: node bin/agentic-lib.js transform --model ${{ inputs.model || 'gpt-5-mini' }}
+
+      - name: "Diff: after CLI transform"
+        run: |
+          echo "## After CLI transform" >> $GITHUB_STEP_SUMMARY
+          echo '```diff' >> $GITHUB_STEP_SUMMARY
+          git diff --stat >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "--- src/lib/main.js ---"
+          cat src/lib/main.js
+          echo "--- tests/unit/main.test.js ---"
+          cat tests/unit/main.test.js
+          echo "--- Full diff ---"
+          git diff --stat
+          echo "---"
+          git diff
+
+      - name: Reset to seed
+        run: |
+          git checkout -- .
+          git clean -fd src/lib/ tests/unit/ .github/agentic-lib/features/
+          mkdir -p src/lib tests/unit .github/agentic-lib/features
+          cp src/seeds/zero-main.js src/lib/main.js
+          cp src/seeds/zero-main.test.js tests/unit/main.test.js
+          cp src/seeds/zero-MISSION.md MISSION.md
+
+      - name: "Diff: after reset (should be clean)"
+        run: |
+          echo "## After reset" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          git diff --stat >> $GITHUB_STEP_SUMMARY || echo "(clean)" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          git diff --stat || echo "(clean)"
 
   test-cli-maintain-features:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     permissions:
-      contents: read
+      contents: write
+      issues: write
       packages: read
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: 24
@@ -441,20 +498,69 @@ jobs:
           echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" >> ~/.npmrc
           echo "always-auth=true" >> ~/.npmrc
       - run: npm ci
+
       - name: Seed workspace
         run: |
           cp src/seeds/zero-MISSION.md MISSION.md
           mkdir -p .github/agentic-lib/features
-      - name: "Run CLI: maintain-features --dry-run"
+
+      - name: "CLI dry-run: maintain-features"
         run: node bin/agentic-lib.js maintain-features --dry-run
+
+      - name: "Verify dry-run had no effect"
+        run: |
+          CHANGES=$(git diff --stat)
+          if [ -n "$CHANGES" ]; then
+            echo "ERROR: --dry-run modified files:"
+            echo "$CHANGES"
+            exit 1
+          fi
+          echo "OK: workspace unchanged after dry-run"
+
+      - name: "CLI full-run: maintain-features"
+        env:
+          COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
+        run: node bin/agentic-lib.js maintain-features --model ${{ inputs.model || 'gpt-5-mini' }}
+
+      - name: "Diff: after CLI maintain-features"
+        run: |
+          echo "## After CLI maintain-features" >> $GITHUB_STEP_SUMMARY
+          echo '```diff' >> $GITHUB_STEP_SUMMARY
+          git diff --stat >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "--- Features created ---"
+          find .github/agentic-lib/features -name "*.md" 2>/dev/null || echo "(none)"
+          echo "--- Full diff ---"
+          git diff --stat
+          echo "---"
+          git diff
+
+      - name: Reset to seed
+        run: |
+          git checkout -- .
+          git clean -fd .github/agentic-lib/features/
+          mkdir -p .github/agentic-lib/features
+          cp src/seeds/zero-MISSION.md MISSION.md
+
+      - name: "Diff: after reset (should be clean)"
+        run: |
+          echo "## After reset" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          git diff --stat >> $GITHUB_STEP_SUMMARY || echo "(clean)" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          git diff --stat || echo "(clean)"
 
   test-cli-maintain-library:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     permissions:
-      contents: read
+      contents: write
+      issues: write
       packages: read
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: 24
@@ -465,6 +571,7 @@ jobs:
           echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" >> ~/.npmrc
           echo "always-auth=true" >> ~/.npmrc
       - run: npm ci
+
       - name: Seed workspace
         run: |
           cp src/seeds/zero-MISSION.md MISSION.md
@@ -475,5 +582,48 @@ jobs:
           - https://docs.github.com/en/actions/creating-actions/about-custom-actions
           - https://docs.github.com/en/rest/overview/resources-in-the-rest-api
           SEED_EOF
-      - name: "Run CLI: maintain-library --dry-run"
+
+      - name: "CLI dry-run: maintain-library"
         run: node bin/agentic-lib.js maintain-library --dry-run
+
+      - name: "Verify dry-run had no effect"
+        run: |
+          CHANGES=$(git diff --stat)
+          if [ -n "$CHANGES" ]; then
+            echo "ERROR: --dry-run modified files:"
+            echo "$CHANGES"
+            exit 1
+          fi
+          echo "OK: workspace unchanged after dry-run"
+
+      - name: "CLI full-run: maintain-library"
+        env:
+          COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
+        run: node bin/agentic-lib.js maintain-library --model ${{ inputs.model || 'gpt-5-mini' }}
+
+      - name: "Diff: after CLI maintain-library"
+        run: |
+          echo "## After CLI maintain-library" >> $GITHUB_STEP_SUMMARY
+          echo '```diff' >> $GITHUB_STEP_SUMMARY
+          git diff --stat >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "--- Library documents ---"
+          find library -name "*.md" 2>/dev/null || echo "(none)"
+          echo "--- Full diff ---"
+          git diff --stat
+          echo "---"
+          git diff
+
+      - name: Reset to seed
+        run: |
+          git checkout -- .
+          git clean -fd library/
+          rm -f SOURCES.md MISSION.md
+
+      - name: "Diff: after reset (should be clean)"
+        run: |
+          echo "## After reset" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          git diff --stat >> $GITHUB_STEP_SUMMARY || echo "(clean)" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          git diff --stat || echo "(clean)"

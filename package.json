@@ -51,6 +51,22 @@
   "bin": {
     "agentic-lib": "bin/agentic-lib.js"
   },
+  "exports": {
+    ".": "./bin/agentic-lib.js",
+    "./config": "./src/actions/agentic-step/config-loader.js",
+    "./copilot": "./src/actions/agentic-step/copilot.js",
+    "./safety": "./src/actions/agentic-step/safety.js",
+    "./logging": "./src/actions/agentic-step/logging.js",
+    "./tools": "./src/actions/agentic-step/tools.js",
+    "./tasks/transform": "./src/actions/agentic-step/tasks/transform.js",
+    "./tasks/maintain-features": "./src/actions/agentic-step/tasks/maintain-features.js",
+    "./tasks/maintain-library": "./src/actions/agentic-step/tasks/maintain-library.js",
+    "./tasks/fix-code": "./src/actions/agentic-step/tasks/fix-code.js",
+    "./tasks/resolve-issue": "./src/actions/agentic-step/tasks/resolve-issue.js",
+    "./tasks/discussions": "./src/actions/agentic-step/tasks/discussions.js",
+    "./tasks/enhance-issue": "./src/actions/agentic-step/tasks/enhance-issue.js",
+    "./tasks/review-issue": "./src/actions/agentic-step/tasks/review-issue.js"
+  },
   "files": [
     "package.json",
     "bin/",
