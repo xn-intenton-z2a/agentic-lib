@@ -99,8 +99,6 @@ jobs:
         id: released
         if: env.versionIncrement == 'major' || env.versionIncrement == 'minor' || env.versionIncrement == 'patch'
         shell: bash
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
           npm version ${{ env.versionIncrement }}
           npm publish --provenance --tag latest --access public
