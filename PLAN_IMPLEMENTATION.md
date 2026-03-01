@@ -41,26 +41,31 @@ The current system hardcodes 8 task types in JavaScript, runs them on fixed cron
 
 ### Core Insight
 
-Each workflow run is a **transformation** — a budget of compute. Within that budget:
+Each workflow run is a **transformation** — a budget of compute that runs the 7-step engine loop. Within that budget:
 
-1. Read current state (plan + product + record + materials)
-2. Refine the plan (commit the update to the planning artifact)
-3. Make multiple Copilot SDK calls, each producing commits on the branch
-4. After each call, state has changed — the next call sees the new commits
-5. Witness: assess realization, record the score
-6. Merge the branch back when goal is met or budget is spent
+1. **Assess** — Read current state (plan + product + record + materials + capabilities + agent definitions)
+2. **Plan** — Refine the planning artifact via a Copilot call, commit the update
+3. **Solve** — Find proceedable actions via constraint satisfaction (met preconditions, no threats, no resource conflicts)
+4. **Assemble** — Match or compose agents from capabilities for each proceedable action
+5. **Execute** — Run agents in parallel (within concurrency limit), each producing commits on the branch
+6. **Witness** — Assess realization, record the score
+7. **Iterate** — If budget remains and realization is below threshold, loop back to Assess. Otherwise merge.
 
-The **plan is a committed file** in the repository. It persists across workflow runs. Each transformation refines it. The plan accumulates knowledge using partial-order structure (see CONCEPT.md for the planning theory).
+The **plan is a committed file** in the repository. It persists across workflow runs. Each transformation refines it. The plan accumulates knowledge using partial-order structure with YAML front matter, an Actions table, Causal Links, Threats, Assumptions with justifications, and event calculus Observations (see CONCEPT.md for the full model).
 
 ### No separate orchestrator
 
-There is no navigator workflow dispatching other workflows. Each workflow run reads the plan, decides what to do, does it, updates the plan. The "navigation" is implicit — it's what every transformation does at the start.
+There is no navigator workflow dispatching other workflows. Each workflow run reads the plan, solves for proceedable actions, assembles agents, executes, witnesses, and iterates. The "navigation" is implicit — it's what the engine loop does.
 
 Concurrency is just GitHub running multiple workflow triggers. Each one independently reads state and acts.
 
-### Agents modify the control plane
+### Three pillars of the engine
 
-Agents can modify each other's perspective files, create new ones, restructure materials. The social protocol: no agent modifies its own perspective file in the same run. Capabilities are documented as repo files (like skills). Any agent reads them. Changes go through the normal commit/PR process.
+The engine draws on three interconnected disciplines (see CONCEPT.md, "Knowledge Representation, Constraint Satisfaction, and Planning"):
+
+- **Knowledge representation** — How to map the repository state into a form efficient for reasoning (Open World Assumption, event calculus, truth maintenance)
+- **Constraint satisfaction** — How to assemble agents from capabilities, assemble plans from agent transformations, pick a set of agent transformations to run next
+- **Planning** — How to model a plan as a partial-order structure and search a decision tree of plan refinements
 
 ---
 
@@ -97,261 +102,481 @@ export async function getPlan(config) { /* read PLAN.md — the committed plan *
 
 ## Phase 2: The Planning Artifact
 
-**What:** Introduce the committed plan file. Each transformation reads it, refines it, and commits the update.
+**What:** Introduce the committed plan file with full partial-order structure, YAML front matter, and knowledge representation primitives. Each transformation reads it, refines it, and commits the update.
 
 ### PLAN.md (the committed planning artifact)
 
-This file lives in the repo root (alongside INTENTION.md and intentïon.md). It's writable by all perspectives. It uses partial-order structure:
+This file lives in the repo root (alongside INTENTION.md and intentïon.md). It's writable by all perspectives. It uses YAML front matter and partial-order structure:
 
 ```markdown
-## Plan
+---
+cycle: 1
+realization: 0.0
+budget: { iterations: 5, tokens: 50000 }
+---
 
-### Achieved
-- [x] (items completed, with issue/commit links and causal reason)
+## Actions
 
-### In Progress
-- [ ] (items currently being worked, with assigned perspective)
+| id | action | preconditions | effects | agent | status | resources |
+|---|---|---|---|---|---|---|
+| (actions with preconditions, effects, assigned agent, status, resource paths) |
 
-### Open Conditions
-- [ ] (things needed but not yet planned — gaps the system acknowledges)
+## Causal Links
 
-### Threats
-- (potential conflicts between in-progress or planned items)
+- (action A →(condition)→ action B — A provides a condition B needs)
 
-### Unordered
-- (items that can happen in any sequence — independent work)
+## Threats
 
-### Observations
-- (what was learned — failed attempts, surprising results, context for future cycles)
+- (action X might undo condition C that a causal link protects — with resolution strategy)
 
-### Witness
-- Cycle N: score X%, reason: "..."
+## Assumptions
+
+| assumption | justification | strength | dependents |
+|---|---|---|---|
+| (beliefs held by the system, with why, how strong, and what relies on them) |
+
+## Open Conditions
+
+- [ ] (conditions needed but not yet provided by any action — explicit gaps, open world assumption)
+
+## Observations
+
+- (event calculus entries: what happened, what conditions were initiated/terminated, by whom, when)
+
+## Witness
+
+- Cycle N: score X%, evidence: "...", open conditions: N, threats: N
+```
+
+### New modules
+
+#### plan-schema.js (~150 lines, new)
+
+Parses and serializes the enriched PLAN.md format. Round-trip fidelity (parse → serialize → parse is lossless).
+
+```javascript
+export function parsePlan(markdown) {
+  // Parse YAML front matter (cycle, realization, budget)
+  // Parse Actions table into array of { id, action, preconditions, effects, agent, status, resources }
+  // Parse Causal Links into array of { from, condition, to }
+  // Parse Threats into array of { actions, condition, resolution }
+  // Parse Assumptions into array of { assumption, justification, strength, dependents }
+  // Parse Open Conditions into array of strings
+  // Parse Observations into array of { cycle, event, initiates, terminates }
+  // Parse Witness entries
+}
+
+export function serializePlan(plan) {
+  // Inverse of parsePlan — produce valid PLAN.md markdown
+}
+```
+
+#### belief-state.js (~100 lines, new)
+
+Manages assumptions, open conditions, and belief revision.
+
+```javascript
+export function getBeliefState(plan) {
+  // Extract current assumptions, their justifications and strengths
+  // Extract open conditions (conditions needed but not provided)
+}
+
+export function reviseBeliefs(beliefState, observation) {
+  // When an observation contradicts an assumption:
+  // 1. Find the weakest-justified contradicted assumption (AGM revision)
+  // 2. Retract it
+  // 3. Cascade: re-evaluate all dependents
+  // 4. Any action whose sole support was the retracted assumption → status: open
+}
+
+export function propagateEffects(plan, achievedAction) {
+  // When an action is achieved, its effects become available preconditions
+  // Check if any blocked actions now have all preconditions met → status: ready
+}
 ```
 
 ### How it integrates with the current system
 
 Every task handler gets a new step at the start: read the plan. And a new step at the end: update the plan (what was achieved, what's newly open, what was observed) and assess realization.
 
-This is ~30 lines added to each handler:
-
 ```javascript
 // At start of any task
-const plan = await getPlan(config);
+const plan = await parsePlan(await readFile(config.planFilepath));
 const intention = await getIntention(config);
 
 // At end of any task
-await updatePlan(config, {
-  achieved: [{ description: 'Resolved issue #42', causal: 'core feature', issue: 42 }],
-  observations: ['Tests pass but error messages are generic'],
-});
+plan.observations.push({ cycle: plan.cycle, event: 'Resolved issue #42', initiates: ['feature-42-available'] });
+plan.actions.find(a => a.id === 'A42').status = 'achieved';
+propagateEffects(plan, plan.actions.find(a => a.id === 'A42'));
+await writeFile(config.planFilepath, serializePlan(plan));
 await witness(config, intention, plan);
 ```
 
-### plan-utils.js (~120 lines, new)
-
-```javascript
-export async function getPlan(config) { /* parse PLAN.md */ }
-export async function updatePlan(config, updates) { /* merge updates, commit */ }
-export async function witness(config, intention, plan) {
-  // Assess realization: objective gates (tests pass?) + subjective (LLM score)
-  // Append witness entry to plan and to intentïon.md
-}
-```
-
-**Scope:** Small-medium. ~120 lines new module, ~30 lines per handler (240 total), PLAN.md template.
+**Scope:** Medium. ~250 lines new modules (plan-schema + belief-state), ~30 lines per handler, PLAN.md template.
 
 ---
 
-## Phase 3: Perspective Definitions as Data
+## Phase 3: Capabilities and Agent Definitions
 
-**What:** Define perspectives as YAML + markdown capability files instead of hardcoded JS. Create a generic perspective runner.
+**What:** Define capabilities as service interaction descriptions and agent definitions as assembled transformations. Replace hardcoded JS task handlers with data-driven definitions that the engine can load, match, and compose.
 
-### Perspective definition format
+### Capability file format
 
-```yaml
-# perspectives/builder.yml
-name: builder
-description: "Sees an issue to resolve. Writes code. Runs tests."
-capabilities:
-  reads: [intention, plan, issues, source, tests, contributing, materials]
-  writes: [source, tests, readme, plan]
-  actions: [commit, create_pr, update_plan, witness]
-  tools: [read_file, write_file, list_files, run_command]
-system_message: |
-  You are a builder. Your job is to transform the repository by writing
-  code that resolves the given issue. Only modify files under writable paths.
-  Read the plan (PLAN.md) first to understand context and avoid threats.
-context_sources:
-  - intention
-  - plan
-  - issue_detail
-  - source_files
-  - test_files
-  - contributing
-  - feature_materials
-writable_paths:
-  - product.sourcePath
-  - product.testsPath
-  - record.readmeFilepath
-  - plan
-post_actions:
-  - update_plan
-  - witness
-  - commit_changes
-  - create_pr
-  - label_automerge
+Capability files live in `.github/agentic-lib/capabilities/`. Each is a markdown file with YAML front matter:
+
+```markdown
+---
+name: file-io
+tools: [read_file, write_file, list_files]
+---
+
+# File I/O Capability
+
+## Tools provided
+- `read_file(path)` — Read file contents from the repository
+- `write_file(path, content)` — Write file (writable paths only, enforced by safety.js)
+- `list_files(path, recursive?)` — List directory contents
+
+## Protocol
+- All paths are relative to repository root
+- write_file respects writable path restrictions from the agent definition
+- Errors are returned as tool results, not thrown
 ```
+
+### Agent definition file format
+
+Agent definitions live in `.github/agentic-lib/agents/`. Each is a markdown file with YAML front matter:
+
+```markdown
+---
+name: builder
+perspective: builder
+capabilities: [file-io, command-execution, github-api]
+transform:
+  from: "Open condition or issue requiring implementation"
+  to: "Working, tested code satisfying the condition"
+constraints:
+  preconditions: [intention-exists, plan-exists]
+  resources: [product.sourcePath, product.testsPath]
+  max_calls: 3
+---
+
+# Builder
+
+You are a builder. You see open conditions as opportunities to create working code.
+
+## How you act
+1. Read the action description and preconditions
+2. Read relevant source files and tests
+3. Write implementation code
+4. Run tests to validate
+5. Report what conditions you established
+```
+
+### Default capabilities
+
+| File | Name | Tools |
+|---|---|---|
+| `file-io.md` | file-io | read_file, write_file, list_files |
+| `command-execution.md` | command-execution | run_command |
+| `github-api.md` | github-api | create_issue, create_pr, list_issues, add_label |
+| `web-retrieval.md` | web-retrieval | fetch_url |
+
+### Default agent definitions
+
+| File | Agent | Perspective | Transform | Capabilities |
+|---|---|---|---|---|
+| `builder.md` | builder | builder | Open issue → resolved code | file-io, command-execution, github-api |
+| `fixer.md` | fixer | fixer | Failing tests → passing tests | file-io, command-execution |
+| `critic.md` | critic | critic | Draft issue → enriched issue | github-api |
+| `witness.md` | witness | witness | Current state → realization score | file-io, github-api |
+| `harvester.md` | harvester | harvester | Stale materials → fresh materials | file-io, web-retrieval |
+| `steward.md` | steward | steward | Drift → alignment | file-io, command-execution, github-api |
 
 ### New modules
 
-- **perspective-loader.js** (~100 lines) — Reads YAML perspective file. Merges with perspective overlay markdown.
-- **prompt-builder.js** (~80 lines) — Takes perspective + context + config. Produces prompt.
-- **post-processor.js** (~150 lines, extracted) — Post-transformation actions.
-
-### Perspective definitions (one per current task)
-
-| Perspective | Replaces | Key difference from current |
-|---|---|---|
-| `builder.yml` | resolve-issue.js | Reads plan first, updates plan after |
-| `fixer.yml` | fix-code.js | Records observation if fix fails |
-| `navigator.yml` | evolve.js | ONLY plans — refines plan, creates issues. Does not write product code. |
-| `harvester-features.yml` | maintain-features.js | Updates plan with new open conditions |
-| `harvester-library.yml` | maintain-library.js | Records material freshness in plan |
-| `critic.yml` | enhance-issue.js | Reads plan, identifies threats |
-| `witness.yml` | review-issue.js | Updates plan achieved/observations |
-| `narrator.yml` | discussions.js | Reads plan to inform responses |
-
-### Generic transform runner
+#### capability-loader.js (~70 lines, new)
 
 ```javascript
-export async function runTransformation(perspectiveName, target, config, octokit) {
-  const perspective = await loadPerspective(perspectiveName, config);
-  const context = await gatherContext(perspective.context_sources, config, octokit, target);
-  const { systemMessage, prompt } = buildPrompt(perspective, context, config);
+export async function loadCapabilities(capabilitiesPath) {
+  // Scan capabilitiesPath for *.md files
+  // Parse YAML front matter: name, tools
+  // Return Map<name, { name, tools, body }>
+}
 
-  // Inner loop: multiple Copilot calls within one transformation
-  let budget = perspective.max_calls || 3;
-  while (budget > 0) {
-    const result = await runCopilotTask({ systemMessage, prompt, writablePaths });
-    budget--;
-    if (result.complete || budget === 0) break;
-    // Re-read context for next call — state has changed
-    context = await gatherContext(perspective.context_sources, config, octokit, target);
-  }
+export function resolveTools(capabilityNames, allCapabilities, toolRegistry) {
+  // Given a list of capability names, resolve to actual defineTool() instances
+  // Verify no tool conflicts (same tool from two capabilities)
+  // Return array of tool definitions for the Copilot SDK session
+}
+```
 
-  await runPostActions(perspective.post_actions, result, config, octokit);
-  return result;
+#### agent-loader.js (~60 lines, new)
+
+```javascript
+export async function loadAgentDefinitions(agentsPath) {
+  // Scan agentsPath for *.md files with perspective: in front matter
+  // Parse YAML front matter: name, perspective, capabilities, transform, constraints
+  // Return Map<name, AgentDefinition>
+}
+```
+
+#### assembler.js (~100 lines, new)
+
+```javascript
+export function matchAgent(action, agentDefinitions) {
+  // Find an agent definition whose perspective matches the action's agent field
+  // Verify the agent's capabilities cover the action's resource needs
+  // Return matched AgentDefinition or null
+}
+
+export function composeAgent(action, capabilities) {
+  // When no existing agent matches, compose a novel agent:
+  // 1. Determine which tools the action needs (from its resources)
+  // 2. Find the minimum set of capabilities that provides all needed tools (CSP)
+  // 3. Build an ad-hoc agent definition with those capabilities and the action description as the prompt
+  // Return composed AgentDefinition
+}
+
+export function buildAgentSession(agentDef, action, capabilities, toolRegistry, config) {
+  // Resolve capabilities → tools
+  // Build system message from agent definition body + action context
+  // Return { systemMessage, tools, writablePaths }
 }
 ```
 
 ### Migration
 
-1. Create all 8 perspective YAML files
-2. Create perspective-loader, prompt-builder, post-processor
-3. Create generic transform runner
-4. Verify with golden prompt tests
-5. Update index.js to route through generic runner
-6. Delete the 8 legacy task handler files
+1. Create default capability files (4 files)
+2. Create default agent definition files (6 files)
+3. Create capability-loader, agent-loader, assembler modules
+4. Verify with unit tests (load, match, compose)
+5. Integration test: given an action and agent definitions, assembler produces a valid session
 
-**Scope:** Large. ~530 lines new + 8 YAML files. Most is extraction from existing 853 lines.
+**Scope:** Large. ~230 lines new JS + 10 definition files. The definition files replace the 8 legacy task handler JS files (853 lines).
 
 ---
 
-## Phase 4: Inner Loop (Multiple Copilot Calls Per Run)
+## Phase 4: The Transformation Engine
 
-**What:** Allow a single workflow run to make multiple Copilot SDK calls, each building on the last.
+**What:** The 7-step engine loop that replaces the current monolithic task handlers. Each workflow run triggers the engine, which iterates through assess → plan → solve → assemble → execute → witness → iterate.
 
-Within one workflow run, on one branch:
+### Engine modules (all under `src/actions/agentic-step/engine/`)
 
-```
-Call 1: Read plan, refine it, decide what to build
-Call 2: Write code for feature A
-Call 3: Run tests, fix failures
-Call 4: Write code for feature B (if budget remains)
-Call 5: Witness — assess realization
-```
+| File | Lines (est.) | Purpose |
+|---|---|---|
+| `runner.js` | ~120 | Main loop orchestrator |
+| `assessor.js` | ~80 | Read state into a snapshot for reasoning |
+| `planner.js` | ~80 | Refine PLAN.md via Copilot SDK call |
+| `constraint-solver.js` | ~80 | Find proceedable actions (POP + CSP) |
+| `executor.js` | ~80 | Concurrent batch execution |
+| `witness.js` | ~60 | Realization assessment |
 
-After each call, the branch has new commits. The next call sees the updated files.
+(plan-schema.js, belief-state.js, capability-loader.js, agent-loader.js, assembler.js are defined in Phases 2 and 3)
 
-The workflow run orchestrates the inner loop by reading the plan:
+### runner.js — the orchestrator
 
 ```javascript
-const plan = await getPlan(config);
-const actionableItems = getActionableFromPlan(plan);
+export async function runEngine(config, octokit) {
+  let plan = parsePlan(await readFile(config.planFilepath));
+  const capabilities = await loadCapabilities(config.capabilitiesPath);
+  const agentDefs = await loadAgentDefinitions(config.agentsPath);
+  let iteration = 0;
 
-for (const item of actionableItems) {
-  if (budgetExhausted()) break;
-  const perspective = selectPerspective(item);
-  await runTransformation(perspective, item.target, config, octokit);
-  // Re-read plan — it's been updated by the transformation
-  plan = await getPlan(config);
-  if (plan.witnessScore > 80) break; // stewardship threshold
+  while (iteration < plan.budget.iterations) {
+    iteration++;
+
+    // 1. ASSESS
+    const state = await assess(config, plan);
+
+    // 2. PLAN — refine the plan via Copilot call
+    plan = await refinePlan(config, state, plan);
+    await writeFile(config.planFilepath, serializePlan(plan));
+
+    // 3. SOLVE — find proceedable actions
+    const proceedable = solveProceedable(plan);
+    if (proceedable.length === 0) break; // nothing to do
+
+    // 4. ASSEMBLE — match/compose agents for proceedable actions
+    const agents = proceedable.map(action =>
+      matchAgent(action, agentDefs) || composeAgent(action, capabilities)
+    );
+    const sessions = agents.map((agent, i) =>
+      buildAgentSession(agent, proceedable[i], capabilities, toolRegistry, config)
+    );
+
+    // 5. EXECUTE — run agents in parallel (within concurrency limit)
+    const results = await executeBatch(sessions, config.concurrencyLimit);
+
+    // 6. WITNESS — assess realization
+    plan = parsePlan(await readFile(config.planFilepath)); // re-read after execution
+    const score = await witness(config, plan);
+    plan.realization = score;
+    plan.cycle = plan.cycle + 1;
+    await writeFile(config.planFilepath, serializePlan(plan));
+
+    // 7. ITERATE — check budget and realization
+    if (score >= config.stewardshipThreshold) break;
+  }
+
+  return plan;
 }
 ```
 
-### What this enables
+### assessor.js — state snapshot
 
-- A single workflow run can create a feature spec, create an issue, write code, fix tests, and update docs
-- Fewer workflow runs needed (less cron overhead, less startup cost)
-- The plan guides the inner loop: "what's next?" is answered by reading the plan
+```javascript
+export async function assess(config, plan) {
+  // Read intention, source files, test files, materials
+  // Map current conditions: what's initiated, what's terminated (event calculus)
+  // Identify what's changed since last cycle
+  // Return StateSnapshot for the planner
+}
+```
 
-### What constrains the inner loop
+### constraint-solver.js — finding proceedable actions
 
-- **Budget**: maximum N Copilot calls per run (configurable, default 5)
+```javascript
+export function solveProceedable(plan) {
+  // For each action with status 'open' or 'unordered':
+  //   1. Check all preconditions are met (provided by achieved actions or initial state)
+  //   2. Check no unresolved threats against its causal links
+  //   3. Check resource paths don't conflict with other proceedable actions
+  // Return array of proceedable actions, respecting concurrency limit
+}
+```
+
+An action is **proceedable** when:
+- All preconditions are satisfied (conditions initiated by achieved actions)
+- No unresolved threats exist against causal links that provide those preconditions
+- Its resource paths don't conflict with other actions in the same batch
+- The iteration and token budget permits execution
+
+### executor.js — concurrent batch execution
+
+```javascript
+export async function executeBatch(sessions, concurrencyLimit) {
+  // Run up to concurrencyLimit agents in parallel via Promise.all
+  // Each agent gets its own Copilot SDK session with its own tools and system message
+  // After each agent completes, its effects propagate through the plan
+  // Errors are isolated — one agent failing doesn't stop others
+  // Return array of results
+}
+```
+
+### witness.js — realization assessment
+
+```javascript
+export async function witness(config, plan) {
+  // Objective gates: do tests pass? Are there open issues?
+  // Subjective: Copilot SDK call to score realization against the intention
+  // Record score, evidence, and observations in the plan
+  // Return realization score (0.0 to 1.0)
+}
+```
+
+### What constrains the engine
+
+- **Iteration budget**: maximum engine cycles per workflow run (configurable, default 5)
+- **Token budget**: maximum Copilot SDK tokens per workflow run (configurable, tracks cost)
+- **Concurrency limit**: maximum parallel agents per batch (configurable, default 2)
 - **Time**: GitHub Actions 6-hour timeout per job
-- **Tokens**: cost tracking per cycle
-- **Reliability**: if a call fails, land what you have
+- **Reliability**: if an agent fails, land what you have — the plan records the observation
 
-**Scope:** Medium. ~50 lines loop logic, workflow budget parameter.
+**Scope:** Large. ~500 lines new across 6 modules. This is the core of the system.
 
 ---
 
-## Phase 5: Capability Files and Cross-Perspective Modification
+## Phase 5: Cross-Agent Modification and Safety
 
-**What:** Perspectives are documented as capability files. Agents can modify each other's capabilities.
+**What:** Agents can modify each other's definitions and create new capabilities. The social protocol is enforced in safety.js.
 
-The social protocol in safety.js:
+The social protocol:
 
 ```javascript
-export function canModifyPerspective(currentPerspective, targetFile) {
-  const targetName = path.basename(targetFile, '.yml');
-  return targetName !== currentPerspective; // can't modify self
+export function canModifyAgentDefinition(currentAgent, targetFile) {
+  const targetName = path.basename(targetFile, '.md');
+  return targetName !== currentAgent; // can't modify self
 }
 ```
 
 This enables:
-- The critic can add constraints to the builder's perspective
-- The navigator can create a new perspective (e.g., `deployer.yml`)
-- The narrator can update how the witness reports realization
-- The harvester can refine what materials the builder reads
+- The critic can add constraints to the builder's agent definition
+- Any agent can create a new capability file (expanding the system's repertoire)
+- Any agent can create a new agent definition (the system grows its own workforce)
+- The harvester can refine what materials other agents read
 
-INTENTION.md remains read-only (hardcoded). The plan and record are writable by all.
+INTENTION.md remains read-only (hardcoded). The plan and record are writable by all. Capability and agent definition files are writable by all (subject to the self-modification restriction).
 
-**Scope:** Small. Safety check (~20 lines), make perspectives/ writable in config.
+**Scope:** Small. Safety check (~20 lines), make capabilities/ and agents/ writable in config.
+
+*Note: Phase 5 from the previous plan (capability files as a separate concept) is absorbed into Phase 3 above.*
 
 ---
 
-## Phase 6: Workflow Simplification
+## Phase 6: Workflow Integration
+
+**What:** Simplify workflows to use the engine. Feature branches carry goals. Matrix strategy enables parallel branch execution.
 
 ### New workflows
 
 ```
-transform-build.yml       — Cron daily. Reads plan, executes inner loop.
-transform-repair.yml      — Event: check_suite failure. Fixer perspective.
+transform-navigate.yml    — Cron daily. Creates a feature branch with a goal.
+                            Calls agentic-step with task=navigate.
+                            The engine runs the 7-step loop on the branch.
+                            Merges when budget spent or goal met.
+transform-repair.yml      — Event: check_suite failure. Creates a fix branch.
+                            Calls agentic-step with task=navigate (fixer perspective).
 transform-narrate.yml     — Event: discussion activity. Narrator perspective.
 ci-automerge.yml          — UNCHANGED
 ci-test.yml               — UNCHANGED
 ```
 
-From 5 agentic workflows → 3. The main workflow absorbs daily/weekly/review because the plan tells it what to do.
+### Feature branches with goals
+
+Each workflow run creates a feature branch with a target state. The engine runs on the branch, producing commits. When the engine finishes (budget spent or goal met), the branch is merged back via PR.
+
+```yaml
+# In transform-navigate.yml
+jobs:
+  navigate:
+    strategy:
+      matrix:
+        branch: [feature-a, feature-b]  # parallel branches, each with its own goal
+      max-parallel: 2
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ matrix.branch }}
+      - uses: ./.github/agentic-lib/actions/agentic-step
+        with:
+          task: navigate
+          iteration-budget: 5
+          token-budget: 50000
+          concurrency-limit: 2
+```
 
 ### What stays identical
 
 - `copilot.js` — No changes.
 - `tools.js` — No changes.
-- `safety.js` — Extended with perspective self-modification check.
+- `safety.js` — Extended with agent self-modification check.
 - All CI/CD workflows — unchanged.
 - All publish workflows — unchanged.
+
+### The `navigate` task handler
+
+The engine is surfaced as a new `navigate` task in the existing TASKS map:
+
+```javascript
+// tasks/navigate.js (~40 lines)
+export async function navigate(config, octokit) {
+  const { runEngine } = await import('../engine/runner.js');
+  return runEngine(config, octokit);
+}
+```
+
+All 8 existing task handlers remain functional during migration. The engine is additive — it doesn't replace the existing handlers until it's proven.
 
 ---
 
@@ -373,18 +598,20 @@ Both documents must be rewritten as part of the narrative alignment (see PLAN_NA
 | Step | What | Validates |
 |---|---|---|
 | 1 | Extract context-sources.js from 8 task handlers | Golden prompt tests |
-| 2 | Introduce PLAN.md template + plan-utils.js | Unit tests on plan read/write |
+| 2 | Introduce PLAN.md template + plan-schema.js + belief-state.js | Unit tests on plan parse/serialize round-trip, belief revision |
 | 3 | Add plan read/update/witness to each task handler | Plan updates correctly |
-| 4 | Create 8 perspective YAML definitions | Golden prompt tests |
-| 5 | Create perspective-loader, prompt-builder, post-processor | Unit tests |
-| 6 | Create generic transform runner with inner loop | Integration tests |
-| 7 | Rename files (MISSION→INTENTION, agents→perspectives, agent-flow→transform) | All tests pass |
-| 8 | Update config schema (new key names) | Config-loader tests |
-| 9 | Rewrite FEATURES.md with new vocabulary | Human review |
-| 10 | Rewrite FEATURES_ROADMAP.md with new vocabulary | Human review |
-| 11 | Enable cross-perspective modification | Safety tests |
-| 12 | Simplify to 3 workflows with plan-driven inner loop | Manual test |
-| 13 | Delete legacy task handler files | Tests pass without them |
+| 4 | Create default capability files (4 files) | Capability loader tests |
+| 5 | Create default agent definition files (6 files) | Agent loader tests |
+| 6 | Create capability-loader, agent-loader, assembler | Unit tests (load, match, compose) |
+| 7 | Create engine modules (runner, assessor, planner, constraint-solver, executor, witness) | Integration tests |
+| 8 | Create navigate task handler wiring engine to TASKS map | End-to-end test |
+| 9 | Rename files (MISSION→INTENTION, agents directory, agent-flow workflows) | All tests pass |
+| 10 | Update config schema (new key names: capabilitiesPath, planFilepath, etc.) | Config-loader tests |
+| 11 | Rewrite FEATURES.md with new vocabulary | Human review |
+| 12 | Rewrite FEATURES_ROADMAP.md with new vocabulary | Human review |
+| 13 | Enable cross-agent modification in safety.js | Safety tests |
+| 14 | Simplify to 3 workflows with engine-driven navigation | Manual test |
+| 15 | Delete legacy task handler files when engine is proven | Tests pass without them |
 
 ---
 
@@ -392,13 +619,13 @@ Both documents must be rewritten as part of the narrative alignment (see PLAN_NA
 
 | Category | Lines | Files |
 |---|---|---|
-| New code (context-sources, plan-utils, perspective-loader, prompt-builder, post-processor, transform runner) | ~880 | 6 |
-| New definitions (perspective YAMLs) | ~320 | 8 |
-| Plan template (PLAN.md) | ~30 | 1 |
-| Deleted code (legacy task handlers) | -853 | 8 |
+| New code (context-sources, plan-schema, belief-state, capability-loader, agent-loader, assembler, runner, assessor, planner, constraint-solver, executor, witness, navigate handler) | ~1,250 | 13 |
+| New definitions (capabilities + agent definitions) | ~400 | 10 |
+| Plan template (PLAN.md) | ~40 | 1 |
+| Deleted code (legacy task handlers, eventually) | -853 | 8 |
 | Config changes | ~60 | 2 |
-| Test updates | ~200 | 10+ |
-| **Net change** | **~+437** | |
+| Test updates | ~300 | 15+ |
+| **Net change** | **~+1,197** | |
 
 ---
 
@@ -406,9 +633,13 @@ Both documents must be rewritten as part of the narrative alignment (see PLAN_NA
 
 | Risk | Severity | Mitigation |
 |---|---|---|
-| Plan file parsing fragile | Medium | Simple markdown format, schema validation, fallback to fresh plan |
-| Inner loop consumes too many tokens | Medium | Configurable budget, cost tracking, perspective sees remaining budget |
-| Cross-perspective modification creates conflicts | Medium | Social protocol (not self), plan tracks threats, PR review |
-| Perspectives produce different prompts than legacy tasks | High | Golden prompt tests are the gate |
+| Plan file parsing fragile | Medium | plan-schema.js with round-trip fidelity tests, fallback to fresh plan |
+| Constraint solver produces incorrect proceedable set | High | Comprehensive unit tests: unmet preconditions, unresolved threats, resource conflicts |
+| Engine consumes too many tokens per run | Medium | Configurable iteration and token budgets, cost tracking in plan front matter |
+| Agent assembly (CSP) finds no valid composition | Medium | Fallback to default builder agent, log the gap as an observation |
+| Belief revision cascades too aggressively | Medium | Strength thresholds, require minimum justification quality before auto-retraction |
+| Cross-agent modification creates conflicts | Medium | Social protocol (not self), plan tracks threats, PR review |
+| Legacy handlers and engine produce different behavior during migration | High | Run both in parallel during transition, compare results |
 | Plan grows unbounded | Low | Archive achieved items to intentïon.md periodically |
+| Concurrent execution creates merge conflicts on branch | Medium | Resource path tracking in constraint solver prevents same-file concurrent edits |
 | Rename coordination across 3 repos | Medium | Script the renames, one session, branches not main |
