@@ -8,9 +8,8 @@
 //   npx @xn-intenton-z2a/agentic-lib reset           # alias for init --purge
 
 import { copyFileSync, existsSync, mkdirSync, rmSync, readdirSync, readFileSync } from "fs";
-import { resolve, dirname, join, relative } from "path";
+import { resolve, dirname, join } from "path";
 import { fileURLToPath } from "url";
-import { execSync } from "child_process";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const pkgRoot = resolve(__dirname, "..");
@@ -62,7 +61,7 @@ if (command === "reset") purge = true;
 
 if (!["init", "update", "reset"].includes(command)) {
   console.error(`Unknown command: ${command}`);
-  console.error('Run with --help for usage.');
+  console.error("Run with --help for usage.");
   process.exit(1);
 }
 
