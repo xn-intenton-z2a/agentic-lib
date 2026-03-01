@@ -25,6 +25,7 @@ const args = process.argv.slice(2);
 const command = args[0];
 const flags = args.slice(1);
 
+let initChanges = 0;
 const TASK_COMMANDS = ["transform", "maintain-features", "maintain-library", "fix-code"];
 const INIT_COMMANDS = ["init", "update", "reset"];
 const ALL_COMMANDS = [...INIT_COMMANDS, ...TASK_COMMANDS, "version"];
@@ -348,9 +349,9 @@ function buildTaskPrompt(taskName, config, writablePaths, readOnlyPaths) {
     case "transform":
       return buildTransformPrompt(config, pathsSection);
     case "maintain-features":
-      return buildMaintainFeaturesPrompt(config, pathsSection, writablePaths);
+      return buildMaintainFeaturesPrompt(config, pathsSection);
     case "maintain-library":
-      return buildMaintainLibraryPrompt(config, pathsSection, writablePaths);
+      return buildMaintainLibraryPrompt(config, pathsSection);
     case "fix-code":
       return buildFixCodePrompt(config, pathsSection);
     default:
@@ -479,7 +480,7 @@ function buildFixCodePrompt(config, pathsSection) {
   console.log(`[fix-code] Running: ${config.testScript}`);
   let testOutput;
   try {
-    testOutput = execSync(config.testScript, { cwd: target, encoding: "utf8", timeout: 120000 }); // eslint-disable-line sonarjs/no-os-command-from-path
+    testOutput = execSync(config.testScript, { cwd: target, encoding: "utf8", timeout: 120000 });
     console.log("[fix-code] Tests pass — nothing to fix.");
     return { systemMessage: "", prompt: null };
   } catch (err) {
@@ -608,7 +609,7 @@ function createCliTools(writablePaths, defineTool) {
       const workDir = cwd ? resolve(target, cwd) : target;
       console.log(`  [tool] run_command: ${cmd} (cwd=${workDir})`);
       try {
-        const stdout = execSync(cmd, { cwd: workDir, encoding: "utf8", timeout: 120000 }); // eslint-disable-line sonarjs/no-os-command-from-path
+        const stdout = execSync(cmd, { cwd: workDir, encoding: "utf8", timeout: 120000 });
         return { stdout, exitCode: 0 };
       } catch (err) {
         return { stdout: err.stdout || "", stderr: err.stderr || "", exitCode: err.status || 1 };
@@ -621,6 +622,135 @@ function createCliTools(writablePaths, defineTool) {
 
 // ─── Init Runner ─────────────────────────────────────────────────────
 
+function initCopyFile(src, dst, label) {
+  if (dryRun) {
+    console.log(`  COPY: ${label}`);
+  } else {
+    mkdirSync(dirname(dst), { recursive: true });
+    copyFileSync(src, dst);
+    console.log(`  COPY: ${label}`);
+  }
+  initChanges++;
+}
+
+function initCopyDirRecursive(srcPath, dstPath, label, excludes = []) {
+  if (!existsSync(srcPath)) {
+    console.log(`  SKIP: ${label} (not found)`);
+    return;
+  }
+  const entries = readdirSync(srcPath, { withFileTypes: true });
+  for (const entry of entries) {
+    const srcFull = join(srcPath, entry.name);
+    const dstFull = join(dstPath, entry.name);
+    const relLabel = `${label}/${entry.name}`;
+    if (excludes.some((ex) => entry.name === ex || srcFull.includes(ex))) continue;
+    if (entry.isDirectory()) {
+      initCopyDirRecursive(srcFull, dstFull, relLabel, excludes);
+    } else {
+      initCopyFile(srcFull, dstFull, relLabel);
+    }
+  }
+}
+
+function initWorkflows() {
+  console.log("--- Workflows ---");
+  const workflowsDir = resolve(srcDir, "workflows");
+  if (!existsSync(workflowsDir)) return;
+  for (const f of readdirSync(workflowsDir)) {
+    if (f.endsWith(".yml")) {
+      initCopyFile(resolve(workflowsDir, f), resolve(target, ".github/workflows", f), `workflows/${f}`);
+    }
+  }
+}
+
+function initActions(agenticDir) {
+  console.log("\n--- Actions ---");
+  const actionsDir = resolve(srcDir, "actions");
+  if (!existsSync(actionsDir)) return;
+  for (const actionName of readdirSync(actionsDir, { withFileTypes: true })) {
+    if (actionName.isDirectory()) {
+      initCopyDirRecursive(
+        resolve(actionsDir, actionName.name),
+        resolve(agenticDir, "actions", actionName.name),
+        `actions/${actionName.name}`,
+        ["node_modules"],
+      );
+    }
+  }
+}
+
+function initDirContents(srcSubdir, dstDir, label) {
+  console.log(`\n--- ${label} ---`);
+  const dir = resolve(srcDir, srcSubdir);
+  if (!existsSync(dir)) return;
+  for (const f of readdirSync(dir)) {
+    initCopyFile(resolve(dir, f), resolve(dstDir, f), `${srcSubdir}/${f}`);
+  }
+}
+
+function initScripts(agenticDir) {
+  console.log("\n--- Scripts ---");
+  const scriptsDir = resolve(srcDir, "scripts");
+  const DISTRIBUTED_SCRIPTS = [
+    "accept-release.sh",
+    "activate-schedule.sh",
+    "clean.sh",
+    "initialise.sh",
+    "md-to-html.js",
+    "update.sh",
+  ];
+  if (!existsSync(scriptsDir)) return;
+  for (const name of DISTRIBUTED_SCRIPTS) {
+    const src = resolve(scriptsDir, name);
+    if (existsSync(src)) {
+      initCopyFile(src, resolve(agenticDir, "scripts", name), `scripts/${name}`);
+    }
+  }
+}
+
+function initConfig(seedsDir) {
+  console.log("\n--- Config ---");
+  const tomlSeed = resolve(seedsDir, "zero-agentic-lib.toml");
+  const tomlTarget = resolve(target, "agentic-lib.toml");
+  if (existsSync(tomlSeed) && !existsSync(tomlTarget)) {
+    initCopyFile(tomlSeed, tomlTarget, "agentic-lib.toml (new)");
+  } else if (existsSync(tomlTarget)) {
+    console.log("  SKIP: agentic-lib.toml already exists");
+  } else {
+    console.log("  SKIP: seed TOML not found");
+  }
+}
+
+function initPurge(seedsDir, agenticDir) {
+  console.log("\n--- Reset Source Files to Seed State ---");
+  const SEED_MAP = {
+    "zero-main.js": "src/lib/main.js",
+    "zero-main.test.js": "tests/unit/main.test.js",
+    "zero-MISSION.md": "MISSION.md",
+    "zero-package.json": "package.json",
+    "zero-README.md": "README.md",
+  };
+  for (const [seedFile, targetRel] of Object.entries(SEED_MAP)) {
+    const src = resolve(seedsDir, seedFile);
+    if (existsSync(src)) {
+      initCopyFile(src, resolve(target, targetRel), `SEED: ${seedFile} → ${targetRel}`);
+    }
+  }
+  const intentionFile = resolve(target, "intentïon.md");
+  if (existsSync(intentionFile)) {
+    if (!dryRun) rmSync(intentionFile);
+    console.log("  REMOVE: intentïon.md");
+    initChanges++;
+  }
+  const featuresDir = resolve(agenticDir, "features");
+  if (!existsSync(featuresDir)) return;
+  for (const f of readdirSync(featuresDir)) {
+    if (!dryRun) rmSync(resolve(featuresDir, f));
+    console.log(`  REMOVE: features/${f}`);
+    initChanges++;
+  }
+}
+
 function runInit() {
   if (!existsSync(target)) {
     console.error(`Target directory does not exist: ${target}`);
@@ -632,37 +762,8 @@ function runInit() {
   }
 
   const agenticDir = resolve(target, ".github/agentic-lib");
-  let changes = 0;
-
-  function copyFile(src, dst, label) {
-    if (dryRun) {
-      console.log(`  COPY: ${label}`);
-    } else {
-      mkdirSync(dirname(dst), { recursive: true });
-      copyFileSync(src, dst);
-      console.log(`  COPY: ${label}`);
-    }
-    changes++;
-  }
-
-  function copyDirRecursive(srcPath, dstPath, label, excludes = []) {
-    if (!existsSync(srcPath)) {
-      console.log(`  SKIP: ${label} (not found)`);
-      return;
-    }
-    const entries = readdirSync(srcPath, { withFileTypes: true });
-    for (const entry of entries) {
-      const srcFull = join(srcPath, entry.name);
-      const dstFull = join(dstPath, entry.name);
-      const relLabel = `${label}/${entry.name}`;
-      if (excludes.some((ex) => entry.name === ex || srcFull.includes(ex))) continue;
-      if (entry.isDirectory()) {
-        copyDirRecursive(srcFull, dstFull, relLabel, excludes);
-      } else {
-        copyFile(srcFull, dstFull, relLabel);
-      }
-    }
-  }
+  const seedsDir = resolve(srcDir, "seeds");
+  initChanges = 0;
 
   console.log("");
   console.log("=== @xn-intenton-z2a/agentic-lib init ===");
@@ -672,118 +773,17 @@ function runInit() {
   console.log(`Mode:    ${dryRun ? "DRY RUN" : "LIVE"}`);
   console.log("");
 
-  // 1. Workflows
-  console.log("--- Workflows ---");
-  const workflowsDir = resolve(srcDir, "workflows");
-  if (existsSync(workflowsDir)) {
-    for (const f of readdirSync(workflowsDir)) {
-      if (f.endsWith(".yml")) {
-        copyFile(resolve(workflowsDir, f), resolve(target, ".github/workflows", f), `workflows/${f}`);
-      }
-    }
-  }
+  initWorkflows();
+  initActions(agenticDir);
+  initDirContents("agents", resolve(agenticDir, "agents"), "Agents");
+  initDirContents("seeds", resolve(agenticDir, "seeds"), "Seeds");
+  initScripts(agenticDir);
+  initConfig(seedsDir);
+  if (purge) initPurge(seedsDir, agenticDir);
 
-  // 2. Actions
-  console.log("\n--- Actions ---");
-  const actionsDir = resolve(srcDir, "actions");
-  if (existsSync(actionsDir)) {
-    for (const actionName of readdirSync(actionsDir, { withFileTypes: true })) {
-      if (actionName.isDirectory()) {
-        copyDirRecursive(
-          resolve(actionsDir, actionName.name),
-          resolve(agenticDir, "actions", actionName.name),
-          `actions/${actionName.name}`,
-          ["node_modules"],
-        );
-      }
-    }
-  }
+  console.log(`\n${initChanges} change(s)${dryRun ? " (dry run)" : ""}`);
 
-  // 3. Agents
-  console.log("\n--- Agents ---");
-  const agentsDir = resolve(srcDir, "agents");
-  if (existsSync(agentsDir)) {
-    for (const f of readdirSync(agentsDir)) {
-      copyFile(resolve(agentsDir, f), resolve(agenticDir, "agents", f), `agents/${f}`);
-    }
-  }
-
-  // 4. Seeds
-  console.log("\n--- Seeds ---");
-  const seedsDir = resolve(srcDir, "seeds");
-  if (existsSync(seedsDir)) {
-    for (const f of readdirSync(seedsDir)) {
-      copyFile(resolve(seedsDir, f), resolve(agenticDir, "seeds", f), `seeds/${f}`);
-    }
-  }
-
-  // 5. Scripts
-  console.log("\n--- Scripts ---");
-  const scriptsDir = resolve(srcDir, "scripts");
-  const DISTRIBUTED_SCRIPTS = [
-    "accept-release.sh",
-    "activate-schedule.sh",
-    "clean.sh",
-    "initialise.sh",
-    "md-to-html.js",
-    "update.sh",
-  ];
-  if (existsSync(scriptsDir)) {
-    for (const name of DISTRIBUTED_SCRIPTS) {
-      const src = resolve(scriptsDir, name);
-      if (existsSync(src)) {
-        copyFile(src, resolve(agenticDir, "scripts", name), `scripts/${name}`);
-      }
-    }
-  }
-
-  // 6. Config
-  console.log("\n--- Config ---");
-  const tomlSeed = resolve(seedsDir, "zero-agentic-lib.toml");
-  const tomlTarget = resolve(target, "agentic-lib.toml");
-  if (existsSync(tomlSeed) && !existsSync(tomlTarget)) {
-    copyFile(tomlSeed, tomlTarget, "agentic-lib.toml (new)");
-  } else if (existsSync(tomlTarget)) {
-    console.log("  SKIP: agentic-lib.toml already exists");
-  } else {
-    console.log("  SKIP: seed TOML not found");
-  }
-
-  // 7. Purge
-  if (purge) {
-    console.log("\n--- Reset Source Files to Seed State ---");
-    const SEED_MAP = {
-      "zero-main.js": "src/lib/main.js",
-      "zero-main.test.js": "tests/unit/main.test.js",
-      "zero-MISSION.md": "MISSION.md",
-      "zero-package.json": "package.json",
-      "zero-README.md": "README.md",
-    };
-    for (const [seedFile, targetRel] of Object.entries(SEED_MAP)) {
-      const src = resolve(seedsDir, seedFile);
-      if (existsSync(src)) {
-        copyFile(src, resolve(target, targetRel), `SEED: ${seedFile} → ${targetRel}`);
-      }
-    }
-    const intentionFile = resolve(target, "intentïon.md");
-    if (existsSync(intentionFile)) {
-      if (!dryRun) rmSync(intentionFile);
-      console.log("  REMOVE: intentïon.md");
-      changes++;
-    }
-    const featuresDir = resolve(agenticDir, "features");
-    if (existsSync(featuresDir)) {
-      for (const f of readdirSync(featuresDir)) {
-        if (!dryRun) rmSync(resolve(featuresDir, f));
-        console.log(`  REMOVE: features/${f}`);
-        changes++;
-      }
-    }
-  }
-
-  console.log(`\n${changes} change(s)${dryRun ? " (dry run)" : ""}`);
-
-  if (!dryRun && changes > 0) {
+  if (!dryRun && initChanges > 0) {
     console.log("\nNext steps:");
     if (purge) console.log(`  cd ${target} && npm install`);
     console.log(`  cd ${resolve(agenticDir, "actions/agentic-step")} && npm ci`);

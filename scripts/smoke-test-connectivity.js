@@ -11,15 +11,14 @@ if (!token) {
   process.exit(0); // Don't fail CI if token is unavailable
 }
 
-const tokenType = token.startsWith("gho_")
-  ? "OAuth"
-  : token.startsWith("ghp_")
-    ? "Classic PAT"
-    : token.startsWith("ghs_")
-      ? "Actions"
-      : token.startsWith("github_pat_")
-        ? "Fine-grained PAT"
-        : "Unknown";
+function classifyToken(t) {
+  if (t.startsWith("gho_")) return "OAuth";
+  if (t.startsWith("ghp_")) return "Classic PAT";
+  if (t.startsWith("ghs_")) return "Actions";
+  if (t.startsWith("github_pat_")) return "Fine-grained PAT";
+  return "Unknown";
+}
+const tokenType = classifyToken(token);
 
 const REPO_OWNER = "xn-intenton-z2a";
 const REPO_NAME = "agentic-lib";
