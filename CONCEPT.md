@@ -48,7 +48,54 @@ Agents are the actors in the system. Each has a **perspective** — not a fixed 
 
 Perspectives are not hardcoded task types. Each perspective is defined by how it sees, not what it does. Perspectives include: **builder** (make the thing), **critic** (challenge the thing), **witness** (assess realization), **steward** (maintain after realization), **harvester** (gather materials), **narrator** (maintain the record).
 
-Perspectives are documented as **capability files** in the repository — like skills. Any agent can read them, and any agent can modify another's capability file (but not its own). This creates a social protocol: perspectives refine each other.
+Perspectives are documented as text files in the repository. Any agent can read them, and any agent can modify another's perspective file (but not its own). This creates a social protocol: perspectives refine each other.
+
+---
+
+## Capabilities (How Agents Interact with Services)
+
+A **capability** is a text file that describes how to interact with a service. Capabilities are the building blocks that agents are assembled from.
+
+Capability files live in `.github/agentic-lib/capabilities/`. Each describes one kind of interaction:
+
+| Capability | What it provides |
+|---|---|
+| **file-io** | Read, write, list, and delete files in the repository |
+| **command-execution** | Run shell commands (build, test, lint) |
+| **github-api** | Create issues, open PRs, read discussions, manage labels |
+| **web-retrieval** | Fetch external content (library docs, API references) |
+| **graph-storage** | Store and query relationships between entities (causal links, dependencies) |
+
+Each capability file has YAML front matter (name, tools provided) and a markdown body describing the protocol — what the service expects, what it returns, what can go wrong.
+
+Capabilities are not agents. They don't have perspectives. They're inert descriptions of what's possible. An agent references which capabilities it needs. A novel agent can be composed on-the-fly from the available capabilities.
+
+Branches can create new capabilities that persist after merge. A builder working on a feature that needs database access could create a `database-query` capability file — and from that point on, any agent can use it.
+
+---
+
+## Agents (Assembled Transformations)
+
+An **agent** is a transformation with a perspective. Agent definitions live in `.github/agentic-lib/agents/` as text files. Each defines:
+
+- A **transformation**: from state → to state (what the agent changes)
+- Required **capabilities**: which capabilities the agent needs to operate
+- **Constraints**: what must be true before the agent can run, and what must not be violated
+
+The default agents correspond to the perspectives:
+
+| Agent | Perspective | Transform | Key capabilities |
+|---|---|---|---|
+| **builder** | The maker | Open issue → resolved code | file-io, command-execution, github-api |
+| **fixer** | The repairer | Failing tests → passing tests | file-io, command-execution |
+| **critic** | The challenger | Draft issue → enriched issue | github-api |
+| **witness** | The assessor | Current state → realization score | file-io, github-api |
+| **harvester** | The gatherer | Stale materials → fresh materials | file-io, web-retrieval |
+| **steward** | The maintainer | Drift → alignment | file-io, command-execution, github-api |
+
+Novel agents can be assembled on-the-fly. When the plan calls for a transformation that no existing agent matches, the system composes one from available capabilities and an action description. This is constraint satisfaction: find a combination of capabilities that satisfies the action's preconditions and can produce its effects.
+
+Agents are enriched by each branch — a branch might create a new agent definition that persists after merge, expanding the system's repertoire.
 
 ---
 
@@ -65,55 +112,97 @@ This draws on classical AI planning theory — particularly partial-order planni
 - **Plan refinement, not replanning** — each cycle refines the existing plan rather than creating a new one from scratch. The plan grows smarter over time.
 - **Planning vs execution trade-off** — following Steel & Ho, the system can reason about whether further planning or immediate execution is more valuable, given the cost of each and the uncertainty of outcomes.
 
+### Knowledge representation in the plan
+
+The plan operates under the **Open World Assumption**: what is not stated is unknown, not false. Open conditions are explicit gaps — the plan makes what it doesn't know visible rather than hiding it. This is critical: the system works with incomplete fragments and never assumes completeness.
+
+Each assumption in the plan carries a **justification** and a **strength**. When evidence contradicts an assumption, the weakest-justified assumption is retracted first (following AGM belief revision). Dependents of a retracted assumption are re-evaluated — this is truth maintenance.
+
+Observations use **event calculus** semantics: each agent execution is an event that initiates or terminates conditions. "Builder resolved issue #5" initiates `json-yaml-available` and terminates `json-yaml-open`. This makes the plan's causal structure machine-readable.
+
 ### What the plan looks like
 
-The plan is a committed markdown file with partial-order structure:
+The plan is a committed markdown file with YAML front matter and partial-order structure:
 
 ```markdown
-## Plan (updated cycle 7)
+---
+cycle: 7
+realization: 0.45
+budget: { iterations: 5, tokens: 50000 }
+---
 
-### Achieved
-- [x] UUID generation (issue #1, causal: core feature)
-- [x] Base64 encode/decode (issue #2, causal: core feature)
+## Actions
 
-### In progress
-- [ ] JSON↔YAML conversion (issue #5, depends: nothing, builder assigned)
+| id | action | preconditions | effects | agent | status | resources |
+|---|---|---|---|---|---|---|
+| A1 | UUID generation | — | uuid-available | builder | achieved | file-io, command-execution |
+| A2 | Base64 encode/decode | — | base64-available | builder | achieved | file-io, command-execution |
+| A3 | JSON↔YAML conversion | — | json-yaml-available | builder | in-progress | file-io, command-execution |
+| A4 | CLI argument parsing | — | cli-framework-available | builder | open | file-io, command-execution |
+| A5 | --help generation | cli-framework-available | help-available | builder | blocked | file-io |
+| A6 | SHA256 hashing | — | sha256-available | builder | unordered | file-io, command-execution |
 
-### Open conditions (needed but not yet planned)
-- [ ] CLI argument parsing framework (needed by all subcommands)
-- [ ] --help generation (depends: CLI framework)
+## Causal Links
 
-### Threats
-- Issue #3 (hash functions) and #5 (conversion) both modify CLI entry point
+- A1 →(uuid-available)→ (product)
+- A2 →(base64-available)→ (product)
+- A4 →(cli-framework-available)→ A5
 
-### Unordered (can happen in any sequence)
-- SHA256 hashing, CSV parsing, color conversion — independent features
+## Threats
 
-### Observations
-- Cycle 5: Builder tried streaming CSV but tests flaky. Deferred.
-- Cycle 6: Critic noted missing error handling in base64. Issue created.
+- A6 and A3 both modify CLI entry point — ordering constraint needed or merge resolution
+
+## Assumptions
+
+| assumption | justification | strength | dependents |
+|---|---|---|---|
+| CLI will use commander.js | Harvester found it in 80% of similar projects | 0.7 | A4, A5 |
+| Tests can run in < 30s | Current suite is 12s | 0.9 | all |
+
+## Open Conditions
+
+- [ ] CLI argument parsing framework (needed by A5, not yet planned)
+
+## Observations
+
+- Cycle 5: Builder tried streaming CSV but tests flaky. Deferred. (event: terminates csv-streaming-attempted)
+- Cycle 6: Critic noted missing error handling in base64. Issue created. (event: initiates base64-error-handling-needed)
 ```
 
-This is a living document. Every cycle, a perspective reads it, refines it (adds what was achieved, identifies new open conditions, resolves threats, records observations), and then executes the actionable items.
+This is a living document. Every cycle, a perspective reads it, refines it (adds what was achieved, identifies new open conditions, resolves threats, records observations), and then executes the actionable items. The YAML front matter tracks the current cycle, realization score, and remaining budget.
 
 ---
 
-## The Lifecycle
+## The Lifecycle (The Transformation Engine)
 
-A **transformation** is a single reliable state change. One GitHub Actions workflow run. But a workflow run is not a single Copilot call — it's a **budget of compute**.
+A **transformation** is a single reliable state change. One GitHub Actions workflow run. But a workflow run is not a single Copilot call — it's a **budget of compute** that runs a 7-step engine loop.
+
+### The 7-step engine loop
 
 Within one workflow run:
 
-1. **Read state** — the plan, the product, the record, the materials. State includes what happened last time.
-2. **Refine the plan** — commit an update to the planning artifact.
-3. **Execute** — multiple Copilot SDK calls, each producing commits on the branch. After each call, state has changed; the next call sees the new commits.
-4. **Witness** — assess realization. Record the score.
-5. **Land it** — merge the branch back when the transformation goal is met or budget is spent.
+1. **Assess** — Read the current state: the plan, the product, the record, the materials. Map the state into a representation efficient for reasoning. What conditions hold? What has changed since last cycle?
 
-Two scales of iteration:
+2. **Plan** — Refine the planning artifact via a Copilot call. Add new actions, resolve threats, retract contradicted assumptions, record observations. The plan grows smarter. This is decision tree search: which refinements move us closest to realization?
 
-- **Inner loop**: on the branch, multiple Copilot calls, each building on the last. Branch from working branch, commit, merge back.
-- **Outer loop**: branch from main, do a full transformation, merge back. Next cron trigger starts a new transformation from the new state.
+3. **Solve** — Determine which actions are proceedable. An action is proceedable when: all its preconditions are met, no unresolved threats exist against its causal links, no resource conflicts with other proceedable actions, and the iteration/token budget permits it. This is constraint satisfaction — partial-order planning meets CSP.
+
+4. **Assemble** — For each proceedable action, find or compose an agent. Match existing agent definitions first. If no match, compose a novel agent from available capabilities that satisfies the action's requirements. This is also constraint satisfaction: find a combination of capabilities whose provided tools cover the action's needs.
+
+5. **Execute** — Run the assembled agents. Within the concurrency limit of the workflow run, multiple agents can execute in parallel on independent actions. Each produces commits on the branch. After each execution, state has changed — initiated and terminated conditions propagate through the plan.
+
+6. **Witness** — Assess realization. The witness reads the updated state and scores progress toward the intentïon. Record the score, the evidence, and any new observations. This is the feedback signal.
+
+7. **Iterate** — If budget remains and the witness score is below the stewardship threshold, loop back to Assess. The plan has been updated by execution, so the next iteration sees new state. If budget is spent or realization is high, land the branch.
+
+### Concurrent execution
+
+Within one workflow run, multiple agents can execute in parallel. The constraint solver ensures that concurrent actions don't conflict — they operate on independent resources and don't threaten each other's causal links. The concurrency limit is configurable (default: the number of independent proceedable actions, capped by the workflow's parallelism budget).
+
+### Two scales of iteration
+
+- **Inner loop**: within one workflow run, the 7-step engine cycles until budget is spent or the goal is met. Each cycle refines the plan, executes proceedable actions, and witnesses progress.
+- **Outer loop**: branch from main, run the engine, merge back. Next cron trigger starts a new workflow run from the new state.
 
 ```
     ┌─────────────────────────────────┐
@@ -125,16 +214,18 @@ Two scales of iteration:
                    │
                    ▼
     ┌─────────────────────────────────┐
-    │   TRANSFORM (one workflow run)  │
+    │   ENGINE (one workflow run)     │
     │                                 │
-    │   1. Read state + plan          │
-    │   2. Refine plan (commit)       │
-    │   3. Execute (N Copilot calls)  │
-    │   4. Witness (assess progress)  │
-    │   5. Merge branch               │
+    │   ┌─► 1. Assess state          │
+    │   │   2. Plan (refine plan)     │
+    │   │   3. Solve (find actions)   │
+    │   │   4. Assemble agents        │
+    │   │   5. Execute (parallel)     │
+    │   │   6. Witness (score)        │
+    │   └── 7. Iterate ──► budget?   │
     │                                 │
-    │   Repeat inner loop until       │
-    │   budget spent or goal met      │
+    │   Budget spent or realized:     │
+    │   merge branch                  │
     │                                 │
     └──────────────┬──────────────────┘
                    │
@@ -149,12 +240,21 @@ Two scales of iteration:
     │   Realized? ── Yes → STEWARD   │
     │   Not yet?  ── Next cron       │
     │                triggers another │
-    │                transformation   │
+    │                workflow run     │
     │                                 │
     └─────────────────────────────────┘
 ```
 
-Properties of a good transformation:
+### Budgets as constraints
+
+Two budgets govern the engine:
+
+- **Iteration budget** — maximum number of assess/plan/solve/assemble/execute/witness cycles per workflow run (configurable, default 5)
+- **Token budget** — maximum Copilot SDK tokens consumed per workflow run (configurable, tracks cost)
+
+When either budget is exhausted, the engine lands what it has. A partially-executed plan is valid — the next workflow run picks up where this one stopped.
+
+### Properties of a good transformation
 
 - **Maximal** — do as much as you can land perfectly
 - **Reliable** — if it can't land clean, it doesn't land at all
@@ -213,6 +313,44 @@ The planning approach draws on:
 
 ---
 
+## Knowledge Representation, Constraint Satisfaction, and Planning
+
+The transformation engine draws on three interconnected disciplines. Each addresses a different question.
+
+### Knowledge Representation — How to map state for efficient reasoning
+
+The system must represent the state of the repository — what conditions hold, what has been achieved, what is assumed, what is unknown — in a form that agents and the constraint solver can reason about efficiently.
+
+**Open World Assumption.** What is not stated is unknown, not false. If the plan doesn't mention whether a CLI framework exists, that's an open condition — an explicit gap. The system never assumes completeness. This is the opposite of a closed-world database: absence of evidence is not evidence of absence.
+
+**Event Calculus.** Each agent execution is an **event** that **initiates** or **terminates** conditions. "Builder resolved issue #5" is an event that initiates `json-yaml-available` and terminates `json-yaml-open`. Observations record what changed, when, and by whom. The plan's state at any point is the set of conditions initiated but not yet terminated by all events up to that point. This makes the causal history machine-readable and queryable.
+
+**Truth Maintenance (JTMS/ATMS).** Every assumption in the plan carries a **justification** (why we believe it) and a set of **dependents** (what relies on it). When evidence contradicts an assumption, the system applies AGM belief revision: retract the weakest-justified assumption first, then cascade — re-evaluate all dependents. If a retracted assumption was the sole support for an action, that action becomes unsupported and reverts to open. This prevents the plan from accumulating stale beliefs.
+
+**Default Reasoning.** Agents have typical behaviors assumed unless contradicted. A builder is assumed to produce passing tests. A fixer is assumed to not introduce new failures. These defaults let the planner reason forward without exhaustive verification at every step — but they can be overridden by observations.
+
+### Constraint Satisfaction — How to assemble and select
+
+Three assembly problems are solved by constraint satisfaction:
+
+**Assembling agents from capabilities.** Given an action that requires file I/O and GitHub API access, find a combination of capabilities that provides these tools. If no existing agent definition matches, compose one. The constraints are: every tool the action needs must be provided by exactly one capability; no capability conflicts (e.g., two capabilities that both claim exclusive write access to the same resource).
+
+**Assembling plans from agent transformations.** Given the current state and the intentïon, find a set of actions whose combined effects achieve the goal. Each action has preconditions and effects. The plan is a partial order — actions are only ordered when one's effects are another's preconditions, or when they threaten each other. This is classical partial-order planning as constraint satisfaction: find an assignment of actions, orderings, and causal links that satisfies all preconditions and resolves all threats.
+
+**Picking what runs next.** Given the current plan, find the set of **proceedable actions** — actions whose preconditions are all met, whose causal links have no unresolved threats, and whose resource requirements don't conflict with other proceedable actions. This is a constraint satisfaction problem over the current plan state: maximize the number of concurrent actions subject to resource and ordering constraints.
+
+### Planning — How to model a plan and search a decision tree
+
+**Plan modeling.** A plan is a partial-order structure with: actions (preconditions, effects, agent, status), causal links (action A provides condition C needed by action B), threats (action X might undo condition C), assumptions (beliefs with justifications), and observations (events with initiated/terminated conditions). The plan is committed to the repository as a file — it persists across workflow runs and accumulates knowledge.
+
+**Decision tree search.** At the Plan step of the engine loop, the system searches a decision tree of possible plan refinements. Each refinement is a choice: add an action, resolve a threat (by ordering or promotion/demotion), retract an assumption, decompose an action into sub-actions. The search is guided by: proximity to realization (how many open conditions remain), cost (token budget consumed by the refinement), and risk (how many new threats the refinement introduces). Following Steel & Ho, the system also reasons about whether further planning or immediate execution is more valuable, given the cost of each and the uncertainty of outcomes.
+
+**Least commitment.** The plan doesn't order steps until it has to. If two features are independent, no ordering is imposed. If a threat arises, the minimum ordering constraint is added. This keeps the plan flexible and maximizes opportunities for concurrent execution.
+
+**Plan refinement, not replanning.** Each cycle refines the existing plan rather than creating a new one from scratch. The plan is a living document that grows smarter over time. Achieved actions are recorded, observations are accumulated, assumptions are strengthened or retracted. The plan never loses knowledge — it only revises it.
+
+---
+
 ## Vocabulary Reference
 
 | Term | Definition |
@@ -222,9 +360,14 @@ The planning approach draws on:
 | **machinery** | Code, prompts, config that build, run, deploy, and manage. The factory. |
 | **record** | Digests of what happened and what's true. Evidence and traceability. |
 | **materials** | Gathered or generated stuff that enables transformations. A cache. Concrete, countable, disposable. |
-| **plan** | A committed partial-order document tracking what's achieved, what's in progress, what's open, and what threatens. Refined each cycle. |
-| **transformation** | A single workflow run. A budget of compute that reads state, refines the plan, executes, witnesses, and merges. |
-| **perspective** | An agent's way of seeing. Documented as capability files. Agents refine each other's. |
-| **witness** | Assessment of realization. Happens at the end of every transformation. Recorded in the record. |
+| **plan** | A committed partial-order document tracking actions, causal links, threats, assumptions, and observations. YAML front matter tracks cycle, realization score, and budget. Refined each cycle. |
+| **transformation** | A single workflow run. A budget of compute that runs the 7-step engine loop: assess, plan, solve, assemble, execute, witness, iterate. |
+| **perspective** | An agent's way of seeing. Documented as text files. Agents refine each other's. |
+| **capability** | A text file describing how to interact with a service. The building blocks that agents are assembled from. Lives in `.github/agentic-lib/capabilities/`. |
+| **agent definition** | A text file defining a transformation (from state → to state), required capabilities, and constraints. Lives in `.github/agentic-lib/agents/`. |
+| **constraint solver** | The engine step that finds proceedable actions — those with met preconditions, no unresolved threats, and no resource conflicts. Also assembles agents from capabilities. |
+| **assessment** | The engine step that reads repository state into a representation efficient for reasoning. Maps conditions, assumptions, and observations. |
+| **belief state** | The set of assumptions currently held, each with a justification, strength, and dependents. Subject to revision when evidence contradicts. |
+| **witness** | Assessment of realization. Happens at the end of every engine cycle. Recorded in the record. |
 | **realization** | The condition where the intentïon is manifest in the state. Degrees, not binary. |
 | **stewardship** | What happens when the plan has no open conditions and the witness scores high. Emergent, not imposed. |

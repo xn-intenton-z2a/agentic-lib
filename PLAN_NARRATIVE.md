@@ -23,6 +23,11 @@ Every human-readable artifact across all three repositories must speak the same 
 | "Done", "complete"                               | Realization                                             |
 | "Maintenance", "ongoing"                         | Stewardship                                             |
 | "agentic" (as adjective)                         | Drop it — the system just IS                            |
+| (new concept)                                    | Capability — service interaction description            |
+| "agent prompt file"                              | Agent definition — assembled transformation             |
+| (new concept)                                    | Constraint solver — finds proceedable actions           |
+| (new concept)                                    | Assessment — state snapshot for reasoning               |
+| (new concept)                                    | Belief state — assumptions with justifications          |
 
 ---
 
@@ -40,6 +45,7 @@ These happen everywhere, all at once:
 | `features/` directory              | `materials/features/` | repository0 .github/agentic-lib/                                              |
 | `library/` directory               | `materials/library/`  | repository0 .github/agentic-lib/                                              |
 | `seeds/` directory                 | `materials/seeds/`    | repository0 .github/agentic-lib/                                              |
+| (new directory)                    | `capabilities/`       | .github/agentic-lib/capabilities/ — service interaction descriptions          |
 | `intentionBot` config section      | `record`              | agentic-lib.yml                                                               |
 | `intentionFilepath`                | `recordFilepath`      | agentic-lib.yml                                                               |
 | `missionFilepath`                  | `intentionFilepath`   | agentic-lib.yml                                                               |
