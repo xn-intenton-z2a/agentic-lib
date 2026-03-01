@@ -59,6 +59,9 @@ web_modules/
 
 # Project files
 /secrets.env
+
+# Self-init output (created by scripts/self-init.sh for CI testing)
+.github/agentic-lib/
 /.idea/
 /state_backup.json
 /output.svg

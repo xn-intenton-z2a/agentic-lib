@@ -187,7 +187,19 @@ if (existsSync(scriptsDir)) {
   }
 }
 
-// 6. Purge: reset source files to seed state
+// 6. agentic-lib.toml → project root (if not already present)
+console.log("\n--- Config ---");
+const tomlSeed = resolve(seedsDir, "zero-agentic-lib.toml");
+const tomlTarget = resolve(target, "agentic-lib.toml");
+if (existsSync(tomlSeed) && !existsSync(tomlTarget)) {
+  copyFile(tomlSeed, tomlTarget, "agentic-lib.toml (new)");
+} else if (existsSync(tomlTarget)) {
+  console.log("  SKIP: agentic-lib.toml already exists");
+} else {
+  console.log("  SKIP: seed TOML not found");
+}
+
+// 7. Purge: reset source files to seed state
 if (purge) {
   console.log("\n--- Reset Source Files to Seed State ---");
 

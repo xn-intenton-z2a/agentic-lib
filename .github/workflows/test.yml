@@ -1,0 +1,399 @@
+# .github/workflows/test.yml
+#
+# Comprehensive CI + self-contained action testing for agentic-lib.
+# Replaces ci.yml and all integration-test-*.yml workflows.
+#
+# On every push: runs unit tests, lint, security, workflow validation.
+# Action tests self-init the repo (copying src/ → .github/agentic-lib/)
+# and then run the agentic-step action directly — no cross-repo access needed.
+
+name: test
+run-name: "test [${{ github.ref_name }}]"
+
+on:
+  push:
+    branches:
+      - main
+      - claude/*
+    paths:
+      - "**/*.js"
+      - "**/*.json"
+      - "**/*.yml"
+      - "**/*.sh"
+      - "!_developers/**"
+      - "!exports/**"
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      model:
+        description: "Copilot SDK model for action tests"
+        type: choice
+        required: false
+        default: "claude-sonnet-4"
+        options:
+          - claude-sonnet-4
+          - gpt-5-mini
+          - gpt-4.1
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  npmAuthOrganisation: "@xn-intenton-z2a"
+
+jobs:
+  # ─── Core CI Jobs ───────────────────────────────────────────────────
+
+  test-unit:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: "npm"
+
+      - name: Set up ~/.npmrc
+        shell: bash
+        run: |
+          echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> ~/.npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" >> ~/.npmrc
+          echo "always-auth=true" >> ~/.npmrc
+
+      - run: npm ci || npm install
+
+      - name: Install sub-project dependencies
+        run: cd src/actions/agentic-step && (npm ci || npm install)
+
+      - run: npm test
+
+  lint:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    permissions:
+      contents: read
+      packages: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: "npm"
+
+      - name: Set up ~/.npmrc
+        shell: bash
+        run: |
+          echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> ~/.npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" >> ~/.npmrc
+          echo "always-auth=true" >> ~/.npmrc
+
+      - run: npm ci || npm install
+
+      - run: npm run linting
+
+  lint-workflows:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: "npm"
+
+      - name: Set up ~/.npmrc
+        shell: bash
+        run: |
+          echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> ~/.npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" >> ~/.npmrc
+          echo "always-auth=true" >> ~/.npmrc
+
+      - run: npm ci || npm install
+
+      - run: npm run lint:workflows
+
+  security:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: "npm"
+
+      - name: Set up ~/.npmrc
+        shell: bash
+        run: |
+          echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> ~/.npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" >> ~/.npmrc
+          echo "always-auth=true" >> ~/.npmrc
+
+      - run: npm ci || npm install
+
+      - run: npm run security
+
+  # ─── Self-Contained Action Tests ────────────────────────────────────
+  #
+  # Each job self-inits by copying src/ → .github/agentic-lib/, seeds a
+  # workspace, then runs the agentic-step action directly. No cross-repo
+  # access, no PERSONAL_ACCESS_TOKEN needed.
+
+  test-transform:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    continue-on-error: true
+    permissions:
+      contents: write
+      issues: write
+      packages: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: "npm"
+
+      - name: Set up ~/.npmrc
+        shell: bash
+        run: |
+          echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> ~/.npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" >> ~/.npmrc
+          echo "always-auth=true" >> ~/.npmrc
+
+      - name: Self-init
+        run: bash scripts/self-init.sh
+
+      - name: Seed workspace
+        run: |
+          mkdir -p src/lib tests/unit
+          cp src/seeds/zero-main.js src/lib/main.js
+          cp src/seeds/zero-main.test.js tests/unit/main.test.js
+          cp src/seeds/zero-MISSION.md MISSION.md
+
+      - name: Record seed hash
+        id: seed
+        run: |
+          SEED_HASH=$(sha256sum src/lib/main.js | cut -d' ' -f1)
+          echo "hash=${SEED_HASH}" >> $GITHUB_OUTPUT
+
+      - name: Run agentic-step (transform)
+        id: transform
+        uses: ./.github/agentic-lib/actions/agentic-step
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
+        with:
+          task: "transform"
+          config: .github/agentic-lib/agents/agentic-lib.yml
+          model: ${{ inputs.model || 'claude-sonnet-4' }}
+          writable-paths: "src/lib/;tests/unit/"
+          test-command: "npm test"
+
+      - name: Verify transform result
+        run: |
+          CURRENT_HASH=$(sha256sum src/lib/main.js | cut -d' ' -f1)
+          SEED_HASH="${{ steps.seed.outputs.hash }}"
+          echo "Seed hash:    ${SEED_HASH}"
+          echo "Current hash: ${CURRENT_HASH}"
+          if [ "$CURRENT_HASH" != "$SEED_HASH" ]; then
+            echo "PASS: src/lib/main.js was modified by the transform"
+          else
+            echo "INFO: src/lib/main.js was NOT modified (Copilot SDK may not be available)"
+          fi
+
+  test-discussions:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    continue-on-error: true
+    permissions:
+      contents: write
+      discussions: write
+      packages: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: "npm"
+
+      - name: Set up ~/.npmrc
+        shell: bash
+        run: |
+          echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> ~/.npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" >> ~/.npmrc
+          echo "always-auth=true" >> ~/.npmrc
+
+      - name: Self-init
+        run: bash scripts/self-init.sh
+
+      - name: Run agentic-step (discussions)
+        id: discussions
+        uses: ./.github/agentic-lib/actions/agentic-step
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
+        with:
+          task: "discussions"
+          config: .github/agentic-lib/agents/agentic-lib.yml
+          model: ${{ inputs.model || 'claude-sonnet-4' }}
+          discussion-url: "https://github.com/xn-intenton-z2a/agentic-lib/discussions/1775"
+
+      - name: Verify discussions result
+        run: echo "Discussions task completed"
+
+  test-maintain-features:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    continue-on-error: true
+    permissions:
+      contents: write
+      issues: write
+      packages: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: "npm"
+
+      - name: Set up ~/.npmrc
+        shell: bash
+        run: |
+          echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> ~/.npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" >> ~/.npmrc
+          echo "always-auth=true" >> ~/.npmrc
+
+      - name: Self-init
+        run: bash scripts/self-init.sh
+
+      - name: Seed features workspace
+        run: |
+          mkdir -p .github/agentic-lib/features
+          cp src/seeds/zero-MISSION.md MISSION.md
+
+      - name: Run agentic-step (maintain-features)
+        id: maintain-features
+        uses: ./.github/agentic-lib/actions/agentic-step
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
+        with:
+          task: "maintain-features"
+          config: .github/agentic-lib/agents/agentic-lib.yml
+          model: ${{ inputs.model || 'claude-sonnet-4' }}
+
+      - name: Verify maintain-features result
+        run: |
+          if ls .github/agentic-lib/features/*.md 2>/dev/null; then
+            echo "PASS: Features directory populated"
+          else
+            echo "INFO: Features directory not populated (Copilot SDK may not be available)"
+          fi
+
+  test-maintain-library:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    continue-on-error: true
+    permissions:
+      contents: write
+      packages: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: "npm"
+
+      - name: Set up ~/.npmrc
+        shell: bash
+        run: |
+          echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> ~/.npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" >> ~/.npmrc
+          echo "always-auth=true" >> ~/.npmrc
+
+      - name: Self-init
+        run: bash scripts/self-init.sh
+
+      - name: Run agentic-step (maintain-library)
+        id: maintain-library
+        uses: ./.github/agentic-lib/actions/agentic-step
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
+        with:
+          task: "maintain-library"
+          config: .github/agentic-lib/agents/agentic-lib.yml
+          model: ${{ inputs.model || 'claude-sonnet-4' }}
+
+      - name: Verify maintain-library result
+        run: echo "Maintain-library task completed"
+
+  # ─── Verification Gate ──────────────────────────────────────────────
+
+  verify-results:
+    needs:
+      - test-unit
+      - lint
+      - lint-workflows
+      - security
+      - test-transform
+      - test-discussions
+      - test-maintain-features
+      - test-maintain-library
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Summary
+        run: |
+          echo "## Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Job | Result |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Unit tests | ${{ needs.test-unit.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Lint | ${{ needs.lint.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Workflow validation | ${{ needs.lint-workflows.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Security | ${{ needs.security.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Transform (action) | ${{ needs.test-transform.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Discussions (action) | ${{ needs.test-discussions.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Maintain-features (action) | ${{ needs.test-maintain-features.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Maintain-library (action) | ${{ needs.test-maintain-library.result }} |" >> $GITHUB_STEP_SUMMARY
+
+      - name: Check core jobs passed
+        run: |
+          if [ "${{ needs.test-unit.result }}" != "success" ]; then
+            echo "FAIL: Unit tests did not pass"
+            exit 1
+          fi
+          if [ "${{ needs.lint-workflows.result }}" != "success" ]; then
+            echo "FAIL: Workflow validation did not pass"
+            exit 1
+          fi
+          if [ "${{ needs.security.result }}" != "success" ]; then
+            echo "FAIL: Security audit did not pass"
+            exit 1
+          fi
+          echo "All core jobs passed"

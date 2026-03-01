@@ -1,0 +1,132 @@
+# .github/workflows/auto-publish.yml
+#
+# Auto-publish on merge to main: patch bump → npm publish → rotate to prepatch.
+# Only triggers when src/, bin/, or package.json changes land on main.
+# For major/minor releases, use release.yml (manual dispatch).
+
+name: auto-publish
+concurrency: agentic-lib-release
+run-name: "auto-publish [${{ github.sha }}]"
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "src/**"
+      - "bin/**"
+      - "package.json"
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  npmAuthOrganisation: "@xn-intenton-z2a"
+  gitUserEmail: "action@github.com"
+  gitUserName: "GitHub Actions[bot]"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: "npm"
+
+      - name: Set up ~/.npmrc
+        shell: bash
+        run: |
+          echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> ~/.npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" >> ~/.npmrc
+          echo "always-auth=true" >> ~/.npmrc
+
+      - run: npm ci || npm install
+
+      - name: Install sub-project dependencies
+        run: cd src/actions/agentic-step && (npm ci || npm install)
+
+      - run: npm test
+
+  publish:
+    needs: test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: "npm"
+
+      - name: Set up .npmrc for install (PAT)
+        shell: bash
+        run: |
+          echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> .npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" >> .npmrc
+          echo "always-auth=true" >> .npmrc
+
+      - run: npm ci || npm install
+
+      - name: Configure git
+        run: |
+          git config --local user.email '${{ env.gitUserEmail }}'
+          git config --local user.name '${{ env.gitUserName }}'
+
+      - name: Get latest from remote
+        run: |
+          git fetch origin main
+          git merge origin/main --no-ff --no-edit --strategy=recursive --strategy-option=ours || true
+
+      - name: Set up .npmrc for publish (GITHUB_TOKEN)
+        shell: bash
+        run: |
+          echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" > .npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" >> .npmrc
+          echo "always-auth=true" >> .npmrc
+
+      - name: Patch bump + publish
+        id: released
+        shell: bash
+        run: |
+          npm version patch
+          npm publish --tag latest --access restricted
+          releasedVersion=$(node -p "require('./package.json').version")
+          echo "releasedVersion=${releasedVersion}" >> $GITHUB_OUTPUT
+          echo "Published: ${releasedVersion}"
+
+      - name: Create GitHub Release
+        uses: ncipollo/release-action@v1
+        with:
+          tag: ${{ steps.released.outputs.releasedVersion }}
+          name: Release ${{ steps.released.outputs.releasedVersion }}
+          body: "Auto-publish: patch bump on merge to main."
+
+      - name: Rotate to next prepatch
+        shell: bash
+        run: npm version --no-git-tag-version prepatch
+
+      - name: Push version commits
+        shell: bash
+        run: |
+          git add -v --all
+          newVersion=$(node -p "require('./package.json').version")
+          git commit -m "${newVersion}"
+          git push origin HEAD --follow-tags
+
+      - name: Tear down .npmrc
+        shell: bash
+        run: rm -f .npmrc
+
+      - name: Log versions
+        shell: bash
+        run: |
+          echo "Released: ${{ steps.released.outputs.releasedVersion }}"
+          echo "Next: $(node -p "require('./package.json').version")"

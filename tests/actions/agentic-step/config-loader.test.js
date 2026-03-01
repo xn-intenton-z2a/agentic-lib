@@ -113,6 +113,79 @@ describe("config-loader", () => {
     });
   });
 
+  describe("loadConfig with TOML", () => {
+    it("loads a TOML config file", () => {
+      const configPath = join(tmpDir, "config.toml");
+      writeFileSync(
+        configPath,
+        [
+          '[schedule]',
+          'tier = "schedule-2"',
+          '',
+          '[paths]',
+          'mission = "MISSION.md"',
+          'source = "src/lib/"',
+          'tests = "tests/unit/"',
+          '',
+          '[execution]',
+          'build = "make build"',
+          'test = "make test"',
+          'start = "node app.js"',
+          '',
+          '[limits]',
+          'feature-issues = 3',
+          'maintenance-issues = 2',
+          'attempts-per-branch = 5',
+          'attempts-per-issue = 4',
+          '',
+          '[bot]',
+          'log-file = "log.md"',
+        ].join("\n"),
+      );
+
+      const config = loadConfig(configPath);
+      expect(config.schedule).toBe("schedule-2");
+      expect(config.buildScript).toBe("make build");
+      expect(config.testScript).toBe("make test");
+      expect(config.mainScript).toBe("node app.js");
+      expect(config.featureDevelopmentIssuesWipLimit).toBe(3);
+      expect(config.maintenanceIssuesWipLimit).toBe(2);
+      expect(config.attemptsPerBranch).toBe(5);
+      expect(config.attemptsPerIssue).toBe(4);
+      expect(config.intentionBot.intentionFilepath).toBe("log.md");
+    });
+
+    it("marks source/tests/features as writable in TOML", () => {
+      const configPath = join(tmpDir, "config.toml");
+      writeFileSync(
+        configPath,
+        [
+          '[paths]',
+          'mission = "MISSION.md"',
+          'source = "src/lib/"',
+          'tests = "tests/unit/"',
+          'features = ".github/agentic-lib/features/"',
+        ].join("\n"),
+      );
+
+      const config = loadConfig(configPath);
+      expect(config.writablePaths).toContain("src/lib/");
+      expect(config.writablePaths).toContain("tests/unit/");
+      expect(config.writablePaths).toContain(".github/agentic-lib/features/");
+      expect(config.readOnlyPaths).toContain("MISSION.md");
+    });
+
+    it("defaults missing TOML sections", () => {
+      const configPath = join(tmpDir, "config.toml");
+      writeFileSync(configPath, '[schedule]\ntier = "schedule-1"\n');
+
+      const config = loadConfig(configPath);
+      expect(config.buildScript).toBe("npm run build");
+      expect(config.testScript).toBe("npm test");
+      expect(config.writablePaths).toEqual([]);
+    });
+  });
+
   describe("getWritablePaths", () => {
     it("returns config writable paths by default", () => {
       const config = { writablePaths: ["src/", "tests/"] };
