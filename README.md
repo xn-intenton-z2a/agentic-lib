@@ -90,7 +90,7 @@ your-repo/
 - **[USER]** -- Your files. `init` never touches these. `init --purge` resets them to seed state.
 - **[GENERATED]** -- Created by the agentic workflows during operation.
 
-Your repository should also have an `init.yml` workflow (not distributed — maintained locally) that runs `npx agentic-lib init --purge` on a schedule to keep infrastructure up to date. See [repository0/init.yml](https://github.com/xn-intenton-z2a/repository0/blob/main/.github/workflows/init.yml) for an example.
+The `init.yml` workflow is distributed from seeds (like `test.yml`) and runs `npx @xn-intenton-z2a/agentic-lib init --purge` on a daily schedule to keep infrastructure up to date.
 
 ### What You Need Before Running `init`
 

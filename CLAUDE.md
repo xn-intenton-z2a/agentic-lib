@@ -49,6 +49,23 @@ The **core SDK** of the intentïon project. A collection of reusable GitHub Acti
 - GitHub Copilot SDK integration for autonomous code decisions (via agentic-step action)
 - Published to npm as `@xn-intenton-z2a/agentic-lib`
 
+## Distributed Files (mastered here, consumed by repository0)
+
+Running `npx @xn-intenton-z2a/agentic-lib init --purge` in a consumer repo copies these files from the npm package. **All bug fixes must be made here** — local edits in consumer repos are overwritten on the next init run.
+
+| Source in agentic-lib | Target in consumer repo | Notes |
+|-----------------------|-------------------------|-------|
+| `src/workflows/*.yml` | `.github/workflows/` | 7 workflow files |
+| `src/seeds/test.yml` | `.github/workflows/test.yml` | Seed workflow |
+| `src/seeds/init.yml` | `.github/workflows/init.yml` | Seed workflow |
+| `src/actions/*/` | `.github/agentic-lib/actions/` | 3 actions (agentic-step, commit-if-changed, setup-npmrc) |
+| `src/agents/*` | `.github/agentic-lib/agents/` | Agent config + prompts |
+| `src/seeds/*` | `.github/agentic-lib/seeds/` | All seed files (for reference) |
+| `src/scripts/` (selected) | `.github/agentic-lib/scripts/` | 6 scripts |
+| `src/seeds/zero-*.{js,md,json}` | Project root (`src/lib/`, `tests/`, etc.) | **--purge only** — resets user content |
+
+Stale workflows (in consumer but not in template) are automatically removed.
+
 ## Related Repositories
 
 | Repository                         | Relationship                                          |
