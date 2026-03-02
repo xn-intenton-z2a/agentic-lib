@@ -29,7 +29,7 @@ All features for the intentïon project. Core features (#1-17) power the autonom
 | 19  | Workflow Hardening (Critical Subset) | Done    |
 | 20  | Discussions Bot Intelligence         | Done    |
 | 21  | Onboarding Experience                | Done    |
-| 22  | Supervisor (Reactive Orchestration)  | Done    |
+| 22  | Supervisor (Reactive + Proactive)    | Done    |
 | 23  | TDD Workflow                         | Done    |
 | 24  | Showcase Page                        | Done    |
 | 25  | Submission Box                       | Done    |
@@ -82,11 +82,11 @@ OpenAI API (o4-mini) ──→ 23 wfr-completion-* workflows
 ### After (11 workflows + 1 action)
 
 ```
-GitHub Copilot SDK ──→ agentic-step action (1 action, published to Marketplace)
+GitHub Copilot SDK ──→ agentic-step action (9 task handlers)
                         ↕
-                    3 flow workflows + 1 supervisor + 1 discussions bot
+                    3 flow workflows + 1 supervisor (reactive + LLM) + 1 discussions bot
                         ↕
-                    CI (test + automerge)
+                    CI (test + automerge) + schedule control
 ```
 
 ### Dependency Changes
@@ -301,17 +301,27 @@ The critical path from discovery to running autonomous development. Includes `de
 - [ ] repository0 initial state produces "Hello World!" output
 - [ ] No experiment debris in repository0 template
 
-#### 22. Supervisor (Reactive Orchestration)
+#### 22. Supervisor (Reactive + Proactive Orchestration)
 
-`agent-supervisor.yml` — triggered by `workflow_run` completion events. Checks if workflows failed on agentic/copilot branches → dispatches `fix-code`. Checks for stale issues → dispatches `review`.
+`agent-supervisor.yml` — two modes:
+
+1. **Reactive** (`evaluate` job): Triggered by `workflow_run` completion events for test, transform, fix-code, and ci-automerge. Fast hardcoded logic: fixes failing PRs with loop protection, cleans stale conflicting PRs.
+
+2. **Proactive** (`supervise` job): Triggered by `workflow_dispatch` or `schedule`. Uses the `supervise` task handler to call the Copilot SDK with full repository context (issues, PRs, workflow runs, features, library, activity). The LLM strategically chooses multiple concurrent actions: dispatch workflows, create/label/close issues, respond to discussions. Output is structured `[ACTIONS]`/`[REASONING]` blocks.
+
+`agent-supervisor-schedule.yml` controls the cron frequency (off/weekly/daily/hourly/continuous) by editing the supervisor workflow file and pushing to main.
 
 **Status:** Done
 
 **Acceptance Criteria:**
 
-- [ ] Build failure on agentic branch triggers fix-code within 5 minutes
-- [ ] Stale issues trigger review automatically
-- [ ] Supervisor does not create infinite dispatch loops
+- [x] Build failure on agentic branch triggers fix-code within 5 minutes
+- [x] Supervisor does not create infinite dispatch loops (loop protection + maxFixAttempts)
+- [x] LLM supervisor gathers full repo context and chooses strategic actions
+- [x] Supervisor can dispatch multiple concurrent actions per cycle
+- [x] Schedule controllable via workflow_dispatch (off/weekly/daily/hourly/continuous)
+- [ ] End-to-end: discussions bot → supervisor → action → response back through discussions
+- [ ] Supervisor makes measurable progress toward MISSION.md over multiple cycles
 
 #### 23. TDD Workflow
 
@@ -466,11 +476,11 @@ Build the `agentic-step` action and prove it works for a single task. Scaffold a
 
 ### Phase 2: Full Pipeline (Done)
 
-Port all LLM tasks to `agentic-step`. Implement all 8 task handlers (`transform`, `maintain-features`, `maintain-library`, `enhance-issue`, `review-issue`, `discussions`), logging.js, and the simplified workflow set (2 agentic-lib + 9 repository0).
+Port all LLM tasks to `agentic-step`. Implement all 9 task handlers (`transform`, `resolve-issue`, `fix-code`, `maintain-features`, `maintain-library`, `enhance-issue`, `review-issue`, `discussions`, `supervise`), logging.js, and the simplified workflow set (2 agentic-lib + 9 repository0).
 
 ### Phase 3: Hardening (Done)
 
-Make it reliable and safe. Implement workflow hardening items, discussions bot intelligence, supervisor workflow, TDD mode, test suite (236 tests across 21 files), CI pipeline, and integration test structure.
+Make it reliable and safe. Implement workflow hardening items, discussions bot intelligence, supervisor workflow, TDD mode, test suite (269 tests across 22 files), CI pipeline, and integration test structure.
 
 ### Phase 4: Template & Launch (Done)
 
@@ -480,6 +490,7 @@ Clean repository0 to pristine template state. Write `demo.sh` + `DEMO.md`, updat
 
 ## Changelog
 
+- **2026-03-02** — Added LLM-driven proactive supervisor (#22): `supervise` task handler (9th task), `agent-supervisor.md` agent prompt, dual-mode `agent-supervisor.yml` (reactive evaluate + proactive supervise jobs), `agent-supervisor-schedule.yml` for cron control. Discussions bot thread-awareness and supervisor integration. Full TOML config uplift. init.yml mission parameter. PLAN_LAUNCH.md competitive analysis. Updated README with permissions/tokens setup guide.
 - **2026-03-02** — Updated all feature descriptions to reflect current workflow set (99 → 20 workflows). Marked #26 (Verification) and #27 (Code Reduction) as Done. Removed #28 and #29 (demo repos — post-MVP). Fixed references to deleted workflows. Updated architecture section with accurate counts. Moved to OIDC trusted publishing. Fixed workflow push races, broken supervisor trigger, parallel job races.
 - **2026-02-28** — Consolidated FEATURES.md + MVP.md into single document. Deleted legacy workflows (33 agentic-lib + 16 repository0 = 49 files). Added features #26-29 (Verification & Testing, Code Reduction & Optimization, Library Demo Repository, Website Demo Repository). Renumbered FEATURES_ROADMAP.md from #26-37 to #30-41.
 
