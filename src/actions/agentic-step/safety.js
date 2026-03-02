@@ -37,7 +37,7 @@ export async function checkWipLimit(octokit, repo, label, limit) {
  * @param {import('@actions/github').GitHub} octokit - GitHub API client
  * @param {Object} repo - { owner, repo } identifying the repository
  * @param {string|number} issueNumber - The issue number
- * @param {string} branchPrefix - Branch naming prefix (e.g. 'agentic-lib-issue-')
+ * @param {string} branchPrefix - Branch naming prefix (e.g. 'agentic-lib-')
  * @returns {Promise<number>} Number of branches matching the pattern
  */
 export async function countBranchAttempts(octokit, repo, issueNumber, branchPrefix) {
