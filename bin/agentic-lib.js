@@ -786,6 +786,42 @@ function initReseed() {
 
 function initPurge(seedsDir) {
   console.log("\n--- Purge: Reset Source Files to Seed State ---");
+
+  // Read TOML to get source and tests paths (or use defaults)
+  let sourcePath = "src/lib/";
+  let testsPath = "tests/unit/";
+  const tomlTarget = resolve(target, "agentic-lib.toml");
+  if (existsSync(tomlTarget)) {
+    try {
+      const tomlContent = readFileSync(tomlTarget, "utf8");
+      const sourceMatch = tomlContent.match(/^source\s*=\s*"([^"]+)"/m);
+      const testsMatch = tomlContent.match(/^tests\s*=\s*"([^"]+)"/m);
+      if (sourceMatch) sourcePath = sourceMatch[1];
+      if (testsMatch) testsPath = testsMatch[1];
+    } catch (err) {
+      console.log(`  WARN: Could not read TOML for paths, using defaults: ${err.message}`);
+    }
+  }
+
+  // Clear source directory completely
+  const sourceDir = resolve(target, sourcePath);
+  if (existsSync(sourceDir)) {
+    console.log(`  CLEAR: ${sourcePath}`);
+    if (!dryRun) rmSync(sourceDir, { recursive: true });
+    initChanges++;
+  }
+  if (!dryRun) mkdirSync(sourceDir, { recursive: true });
+
+  // Clear tests directory completely
+  const testsDir = resolve(target, testsPath);
+  if (existsSync(testsDir)) {
+    console.log(`  CLEAR: ${testsPath}`);
+    if (!dryRun) rmSync(testsDir, { recursive: true });
+    initChanges++;
+  }
+  if (!dryRun) mkdirSync(testsDir, { recursive: true });
+
+  // Copy seed files
   const SEED_MAP = {
     "zero-main.js": "src/lib/main.js",
     "zero-main.test.js": "tests/unit/main.test.js",
