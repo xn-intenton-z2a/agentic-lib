@@ -36,10 +36,6 @@ All features for the intentïon project. Core features (#1-17) power the autonom
 | 26  | Verification & Testing               | Done    |
 | 27  | Code Reduction & Optimization        | Done    |
 
-### Outstanding items
-
-- Publish `agentic-step` to GitHub Marketplace
-
 ---
 
 ## Product
@@ -258,10 +254,10 @@ Port from OpenAI API to GitHub Copilot SDK. The `agentic-step` action wraps the 
 
 **Acceptance Criteria:**
 
-- [ ] `agentic-step` action authenticates with Copilot SDK and returns output
-- [ ] All 8 task handlers produce equivalent outcomes to the OpenAI-based workflows
-- [ ] No `CHATGPT_API_SECRET_KEY` or `openai` package anywhere in the codebase
-- [ ] Action published to GitHub Marketplace as `@xn-intenton-z2a/agentic-step`
+- [x] `agentic-step` action authenticates with Copilot SDK and returns output
+- [x] All 8 task handlers produce equivalent outcomes to the OpenAI-based workflows
+- [x] No `CHATGPT_API_SECRET_KEY` or `openai` package anywhere in the codebase
+- [ ] Action published to GitHub Marketplace (see `_developers/PLAN_MARKETPLACE.md`)
 
 #### 19. Workflow Hardening (Critical Subset)
 
