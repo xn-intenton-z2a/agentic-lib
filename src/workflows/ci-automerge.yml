@@ -12,6 +12,11 @@ run-name: "ci-automerge [${{ github.ref_name }}]"
 on:
   pull_request:
   check_suite:
+  workflow_run:
+    workflows:
+      - test
+    types:
+      - completed
   workflow_dispatch:
   workflow_call:
     inputs:
@@ -148,7 +153,12 @@ jobs:
 
   ls:
     needs: label
-    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' || inputs.workflow == 'true' || github.event_name == 'workflow_call' || github.event_name == 'workflow_run'
+    if: >-
+      github.event_name == 'schedule' ||
+      github.event_name == 'workflow_dispatch' ||
+      github.event_name == 'workflow_run' ||
+      inputs.workflow == 'true' ||
+      github.event_name == 'workflow_call'
     runs-on: ubuntu-latest
     steps:
       - name: Determine pull request number
@@ -358,6 +368,9 @@ jobs:
               } catch (error) {
                 message += ` Failed to delete branch: ${error.message}`;
               }
+              prMerged = 'false';
+            } else if (pullRequest.mergeable_state === 'unstable') {
+              message = `PR #${pullNumber} checks still running (mergeable_state: unstable). Will retry when test workflow completes.`;
               prMerged = 'false';
             } else if (pullRequest.mergeable === null) {
               message = `PR #${pullNumber} does not yet have a value for mergeability.`;
