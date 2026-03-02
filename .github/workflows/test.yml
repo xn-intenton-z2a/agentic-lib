@@ -64,10 +64,28 @@ env:
   npmAuthOrganisation: "@xn-intenton-z2a"
 
 jobs:
+  # ─── Params: normalise inputs across all trigger types ─────────────
+
+  params:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Normalise params
+        id: normalise
+        shell: bash
+        run: |
+          SKIP_LINTER='${{ inputs.skipLinter }}'
+          echo "skipLinter=${SKIP_LINTER:-true}" >> $GITHUB_OUTPUT
+          MODEL='${{ inputs.model }}'
+          echo "model=${MODEL:-gpt-5-mini}" >> $GITHUB_OUTPUT
+    outputs:
+      skipLinter: ${{ steps.normalise.outputs.skipLinter }}
+      model: ${{ steps.normalise.outputs.model }}
+
   # ─── CI: each check as its own job ─────────────────────────────────
 
   lint:
-    if: inputs.skipLinter != true
+    needs: params
+    if: needs.params.outputs.skipLinter != 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -148,6 +166,7 @@ jobs:
   # ─── Action transforms: real Copilot SDK round-trips ───────────────
 
   test-maintain-features:
+    needs: params
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
@@ -194,7 +213,7 @@ jobs:
         with:
           task: "maintain-features"
           config: agentic-lib.toml
-          model: ${{ inputs.model || 'gpt-5-mini' }}
+          model: ${{ needs.params.outputs.model }}
 
       - name: Show agent changes
         run: |
@@ -215,6 +234,7 @@ jobs:
         run: diff -rN --exclude=.git --exclude=node_modules /tmp/post-init . || true
 
   test-maintain-library:
+    needs: params
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
@@ -267,7 +287,7 @@ jobs:
         with:
           task: "maintain-library"
           config: agentic-lib.toml
-          model: ${{ inputs.model || 'gpt-5-mini' }}
+          model: ${{ needs.params.outputs.model }}
           writable-paths: "library/"
 
       - name: Show agent changes
@@ -295,6 +315,7 @@ jobs:
         run: diff -rN --exclude=.git --exclude=node_modules /tmp/post-init . || true
 
   test-transform:
+    needs: params
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
@@ -349,7 +370,7 @@ jobs:
         with:
           task: "transform"
           config: agentic-lib.toml
-          model: ${{ inputs.model || 'gpt-5-mini' }}
+          model: ${{ needs.params.outputs.model }}
           writable-paths: "src/lib/;tests/unit/"
           test-command: "npm test"
 
@@ -385,6 +406,7 @@ jobs:
   # ─── CLI transforms: real Copilot SDK round-trips via CLI ──────────
 
   test-cli-transform:
+    needs: params
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
@@ -433,7 +455,7 @@ jobs:
       - name: "CLI: transform"
         env:
           COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
-        run: node bin/agentic-lib.js transform --model ${{ inputs.model || 'gpt-5-mini' }}
+        run: node bin/agentic-lib.js transform --model ${{ needs.params.outputs.model }}
 
       - name: Verify tests pass after transform
         run: npm test
@@ -464,6 +486,7 @@ jobs:
         run: diff -rN --exclude=.git --exclude=node_modules /tmp/post-seed . || true
 
   test-cli-maintain-features:
+    needs: params
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
@@ -504,7 +527,7 @@ jobs:
       - name: "CLI: maintain-features"
         env:
           COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
-        run: node bin/agentic-lib.js maintain-features --model ${{ inputs.model || 'gpt-5-mini' }}
+        run: node bin/agentic-lib.js maintain-features --model ${{ needs.params.outputs.model }}
 
       - name: Show agent changes
         run: |
@@ -524,6 +547,7 @@ jobs:
         run: diff -rN --exclude=.git --exclude=node_modules /tmp/post-seed . || true
 
   test-cli-maintain-library:
+    needs: params
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
@@ -570,7 +594,7 @@ jobs:
       - name: "CLI: maintain-library"
         env:
           COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
-        run: node bin/agentic-lib.js maintain-library --model ${{ inputs.model || 'gpt-5-mini' }}
+        run: node bin/agentic-lib.js maintain-library --model ${{ needs.params.outputs.model }}
 
       - name: Show agent changes
         run: |
