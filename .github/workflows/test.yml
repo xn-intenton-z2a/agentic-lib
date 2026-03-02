@@ -439,6 +439,7 @@ jobs:
           cp src/seeds/zero-main.js src/lib/main.js
           cp src/seeds/zero-main.test.js tests/unit/main.test.js
           cp src/seeds/zero-MISSION.md MISSION.md
+          cp tests/template/agentic-lib.toml agentic-lib.toml
           cat > features/hello-world.md << 'SEED_EOF'
           # Feature: Hello World
 
@@ -516,6 +517,7 @@ jobs:
       - name: Seed workspace
         run: |
           cp src/seeds/zero-MISSION.md MISSION.md
+          cp tests/template/agentic-lib.toml agentic-lib.toml
           mkdir -p features
 
       - name: Show seed changes
@@ -577,6 +579,7 @@ jobs:
       - name: Seed workspace
         run: |
           cp src/seeds/zero-MISSION.md MISSION.md
+          cp tests/template/agentic-lib.toml agentic-lib.toml
           mkdir -p docs
           cat > SOURCES.md << 'SEED_EOF'
           # Library Sources
