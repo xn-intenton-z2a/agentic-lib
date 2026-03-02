@@ -831,6 +831,114 @@ function initPurge(seedsDir) {
   }
 }
 
+function initPurgeGitHub() {
+  console.log("\n--- Purge: Close GitHub Issues + Lock Discussions ---");
+
+  // Detect the GitHub repo from git remote
+  let repoSlug = "";
+  try {
+    const remoteUrl = execSync("git remote get-url origin", {
+      cwd: target,
+      encoding: "utf8",
+      timeout: 10000,
+    }).trim();
+    // Parse owner/repo from git@github.com:owner/repo.git or https://github.com/owner/repo.git
+    const match = remoteUrl.match(/github\.com[:/]([^/]+\/[^/.]+)/);
+    if (match) repoSlug = match[1].replace(/\.git$/, "");
+  } catch {
+    console.log("  SKIP: Not a git repo or no origin remote — skipping GitHub purge");
+    return;
+  }
+  if (!repoSlug) {
+    console.log("  SKIP: Could not detect GitHub repo from remote — skipping GitHub purge");
+    return;
+  }
+
+  // Check gh CLI is available
+  try {
+    execSync("gh --version", { encoding: "utf8", timeout: 5000, stdio: "pipe" });
+  } catch {
+    console.log("  SKIP: gh CLI not found — skipping GitHub purge");
+    return;
+  }
+
+  // Close all open issues
+  try {
+    const issuesJson = execSync(
+      `gh issue list --repo ${repoSlug} --state open --json number,title --limit 100`,
+      { cwd: target, encoding: "utf8", timeout: 30000, stdio: ["pipe", "pipe", "pipe"] },
+    );
+    const issues = JSON.parse(issuesJson || "[]");
+    if (issues.length === 0) {
+      console.log("  No open issues to close");
+    } else {
+      for (const issue of issues) {
+        console.log(`  CLOSE: issue #${issue.number} — ${issue.title}`);
+        if (!dryRun) {
+          try {
+            execSync(
+              `gh issue close ${issue.number} --repo ${repoSlug} --comment "Closed by init --purge (mission reset)"`,
+              { cwd: target, encoding: "utf8", timeout: 15000, stdio: "pipe" },
+            );
+            initChanges++;
+          } catch (err) {
+            console.log(`  WARN: Failed to close issue #${issue.number}: ${err.message}`);
+          }
+        } else {
+          initChanges++;
+        }
+      }
+    }
+  } catch (err) {
+    console.log(`  WARN: Could not list issues: ${err.message}`);
+  }
+
+  // Close open discussions
+  const [owner, repo] = repoSlug.split("/");
+  try {
+    const query = JSON.stringify({
+      query: `{ repository(owner:"${owner}", name:"${repo}") { discussions(first:50, states:OPEN) { nodes { id number title } } } }`,
+    });
+    const result = execSync(`gh api graphql --input -`, {
+      cwd: target,
+      encoding: "utf8",
+      timeout: 30000,
+      input: query,
+      stdio: ["pipe", "pipe", "pipe"],
+    });
+    const parsed = JSON.parse(result);
+    const discussions = parsed?.data?.repository?.discussions?.nodes || [];
+    if (discussions.length === 0) {
+      console.log("  No open discussions to close");
+    } else {
+      for (const disc of discussions) {
+        console.log(`  CLOSE: discussion #${disc.number} — ${disc.title}`);
+        if (!dryRun) {
+          try {
+            const mutation = JSON.stringify({
+              query: `mutation { closeDiscussion(input: { discussionId: "${disc.id}" }) { discussion { number } } }`,
+            });
+            execSync(`gh api graphql --input -`, {
+              cwd: target,
+              encoding: "utf8",
+              timeout: 15000,
+              input: mutation,
+              stdio: ["pipe", "pipe", "pipe"],
+            });
+            initChanges++;
+          } catch {
+            console.log(`  SKIP: Could not close discussion #${disc.number} (may need admin permissions)`);
+          }
+        } else {
+          initChanges++;
+        }
+      }
+    }
+  } catch {
+    console.log("  SKIP: Could not list discussions (feature may not be enabled)");
+  }
+}
+
 function runInit() {
   if (!existsSync(target)) {
     console.error(`Target directory does not exist: ${target}`);
@@ -862,6 +970,7 @@ function runInit() {
   initConfig(seedsDir);
   if (reseed) initReseed();
   if (purge) initPurge(seedsDir);
+  if (purge) initPurgeGitHub();
 
   console.log(`\n${initChanges} change(s)${dryRun ? " (dry run)" : ""}`);
 
