@@ -42,7 +42,7 @@ const PATH_DEFAULTS = {
   mission: "MISSION.md",
   source: "src/lib/",
   tests: "tests/unit/",
-  features: ".github/agentic-lib/features/",
+  features: "features/",
   docs: "docs/",
   readme: "README.md",
   dependencies: "package.json",

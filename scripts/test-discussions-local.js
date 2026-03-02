@@ -111,7 +111,7 @@ function buildPrompt(discussion) {
   const mission = readOptionalFile(`${repoRoot}/MISSION.md`) || readOptionalFile("MISSION.md") || "(no mission file)";
   const contributing = readOptionalFile(`${repoRoot}/CONTRIBUTING.md`);
 
-  const featuresPath = `${repoRoot}/.github/agentic-lib/features/`;
+  const featuresPath = `${repoRoot}/features/`;
   let featureNames = [];
   if (existsSync(featuresPath)) {
     featureNames = readdirSync(featuresPath)

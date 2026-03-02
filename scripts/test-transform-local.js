@@ -81,7 +81,7 @@ async function main() {
 
   // Step 2: Read context
   console.log("[2/4] Reading features and source files...");
-  const features = scanDirectory(`${repoPath}/.github/agentic-lib/features`, ".md");
+  const features = scanDirectory(`${repoPath}/features`, ".md");
   const sourceFiles = scanDirectory(`${repoPath}/src/lib`, [".js", ".ts"], {
     contentLimit: 2000,
     recursive: true,

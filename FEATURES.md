@@ -132,7 +132,7 @@ Automated creation, enhancement, assignment, resolution, and closure of GitHub i
 
 #### 3. Feature Lifecycle Management
 
-Maintains feature specification files (markdown) in `.github/agentic-lib/features/`. Features are created from library analysis, refined, used to generate issues, and pruned when complete. The `maintain-features` task in `agentic-step` handles all lifecycle operations.
+Maintains feature specification files (markdown) in `features/`. Features are created from library analysis, refined, used to generate issues, and pruned when complete. The `maintain-features` task in `agentic-step` handles all lifecycle operations.
 
 **Limits:** Max 4-8 features at a time (configurable)
 **Repositories:** agentic-lib (workflows + sandbox features), repository0 (consumer features)

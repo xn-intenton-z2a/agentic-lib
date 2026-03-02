@@ -1,12 +1,12 @@
 # repo
 
-A JavaScript library that is immediately useful to something or someone and it immediately available to run e.g. `npx @xn-intenton-z2a/<this package name>`.
+Describe your project here.
 
 ## Getting Started
 
 1. Write your mission in `MISSION.md`
 2. Enable GitHub Actions
-3. The workflows in this repository will evolve `src/lib/main.js` toward your mission
+3. The workflows will evolve `src/lib/main.js` toward your mission
 
 ## Links
 
