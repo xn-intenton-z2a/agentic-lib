@@ -53,16 +53,24 @@ function createMockOctokit(overrides = {}) {
       },
       ...overrides,
     },
-    graphql: vi.fn().mockResolvedValue({
-      repository: {
-        discussion: {
-          title: "Test Discussion",
-          body: "Discussion body text",
-          comments: {
-            nodes: [{ body: "First comment", author: { login: "user1" }, createdAt: "2026-01-01T00:00:00Z" }],
+    graphql: vi.fn().mockImplementation((query) => {
+      if (query.includes("addDiscussionComment")) {
+        return Promise.resolve({
+          addDiscussionComment: { comment: { url: "https://github.com/test-owner/test-repo/discussions/123#comment-1" } },
+        });
+      }
+      return Promise.resolve({
+        repository: {
+          discussion: {
+            id: "D_kwDOTest123",
+            title: "Test Discussion",
+            body: "Discussion body text",
+            comments: {
+              nodes: [{ body: "First comment", author: { login: "user1" }, createdAt: "2026-01-01T00:00:00Z" }],
+            },
           },
         },
-      },
+      });
     }),
   };
 }
@@ -130,11 +138,14 @@ describe("tasks/discussions", () => {
 
     await discussions(ctx);
 
-    expect(octokit.graphql).toHaveBeenCalledTimes(1);
+    expect(octokit.graphql).toHaveBeenCalledTimes(2); // fetch + reply
     const graphqlQuery = octokit.graphql.mock.calls[0][0];
     expect(graphqlQuery).toContain("test-owner");
     expect(graphqlQuery).toContain("test-repo");
     expect(graphqlQuery).toContain("123");
+    // Second call is the reply mutation
+    const graphqlMutation = octokit.graphql.mock.calls[1][0];
+    expect(graphqlMutation).toContain("addDiscussionComment");
   });
 
   it("constructs prompt with mission, features, and discussion content", async () => {
@@ -193,6 +204,40 @@ describe("tasks/discussions", () => {
 
     expect(result.outcome).toBe("discussion-nop");
     expect(result.action).toBe("nop");
+  });
+
+  it("posts reply comment back to the Discussion via GraphQL mutation", async () => {
+    runCopilotTask.mockResolvedValue({ content: "Here is my reply! [ACTION:nop]", tokensUsed: 60 });
+    const octokit = createMockOctokit();
+    const ctx = createMockContext({ octokit });
+
+    await discussions(ctx);
+
+    // Second graphql call should be the reply mutation
+    expect(octokit.graphql).toHaveBeenCalledTimes(2);
+    const [mutation, variables] = octokit.graphql.mock.calls[1];
+    expect(mutation).toContain("addDiscussionComment");
+    expect(variables.discussionId).toBe("D_kwDOTest123");
+    expect(variables.body).toContain("Here is my reply!");
+  });
+
+  it("skips reply when discussion node ID is not available", async () => {
+    const octokit = createMockOctokit();
+    // Override graphql to not return id for the fetch query
+    octokit.graphql.mockImplementation((query) => {
+      if (query.includes("addDiscussionComment")) {
+        return Promise.resolve({ addDiscussionComment: { comment: { url: "mock" } } });
+      }
+      return Promise.resolve({
+        repository: { discussion: { title: "No ID", body: "body", comments: { nodes: [] } } },
+      });
+    });
+    const ctx = createMockContext({ octokit, discussionUrl: "https://github.com/test-owner/test-repo/discussions/456" });
+
+    await discussions(ctx);
+
+    // Only the fetch query should have been called, no mutation
+    expect(octokit.graphql).toHaveBeenCalledTimes(1);
   });
 
   it("handles GraphQL failure gracefully and still calls Copilot", async () => {
