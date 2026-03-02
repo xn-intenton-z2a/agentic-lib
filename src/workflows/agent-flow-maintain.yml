@@ -32,7 +32,20 @@ env:
   configPath: ".github/agentic-lib/agents/agentic-lib.yml"
 
 jobs:
+  params:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Normalise params
+        id: normalise
+        shell: bash
+        run: |
+          STEP='${{ inputs.step }}'
+          echo "step=${STEP:-all}" >> $GITHUB_OUTPUT
+    outputs:
+      step: ${{ steps.normalise.outputs.step }}
+
   maintain:
+    needs: params
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -58,7 +71,7 @@ jobs:
           echo "libraryWritablePaths=${LIBRARY};${SOURCES}" >> $GITHUB_OUTPUT
 
       - name: Maintain features
-        if: inputs.step == 'all' || inputs.step == 'features' || github.event_name == 'schedule'
+        if: needs.params.outputs.step == 'all' || needs.params.outputs.step == 'features'
         uses: ./.github/agentic-lib/actions/agentic-step
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -70,7 +83,7 @@ jobs:
           writable-paths: ${{ steps.config.outputs.featuresWritablePaths }}
 
       - name: Maintain library
-        if: inputs.step == 'all' || inputs.step == 'library' || github.event_name == 'schedule'
+        if: needs.params.outputs.step == 'all' || needs.params.outputs.step == 'library'
         uses: ./.github/agentic-lib/actions/agentic-step
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
