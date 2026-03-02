@@ -27,6 +27,7 @@ export async function discussions(context) {
   let discussionTitle = "";
   let discussionBody = "";
   let discussionComments = [];
+  let discussionNodeId = "";
 
   if (urlMatch) {
     const [, urlOwner, urlRepo, discussionNumber] = urlMatch;
@@ -34,6 +35,7 @@ export async function discussions(context) {
       const query = `query {
         repository(owner: "${urlOwner}", name: "${urlRepo}") {
           discussion(number: ${discussionNumber}) {
+            id
             title
             body
             comments(last: 10) {
@@ -48,6 +50,7 @@ export async function discussions(context) {
       }`;
       const result = await octokit.graphql(query);
       const discussion = result.repository.discussion;
+      discussionNodeId = discussion.id || "";
       discussionTitle = discussion.title || "";
       discussionBody = discussion.body || "";
       discussionComments = discussion.comments.nodes || [];
@@ -127,6 +130,28 @@ export async function discussions(context) {
   const replyBody = content.replace(/\[ACTION:\S+?\].+/, "").trim();
 
   core.info(`Discussion bot action: ${action}, arg: ${actionArg}`);
+
+  // Post reply comment back to the Discussion
+  if (discussionNodeId && replyBody) {
+    try {
+      const mutation = `mutation($discussionId: ID!, $body: String!) {
+        addDiscussionComment(input: { discussionId: $discussionId, body: $body }) {
+          comment { url }
+        }
+      }`;
+      const { addDiscussionComment } = await octokit.graphql(mutation, {
+        discussionId: discussionNodeId,
+        body: replyBody,
+      });
+      core.info(`Posted reply to discussion: ${addDiscussionComment.comment.url}`);
+    } catch (err) {
+      core.warning(`Failed to post discussion reply: ${err.message}`);
+    }
+  } else if (!discussionNodeId) {
+    core.warning("Cannot post reply: discussion node ID not available");
+  } else if (!replyBody) {
+    core.warning("Cannot post reply: no reply content generated");
+  }
 
   const argSuffix = actionArg ? ` (${actionArg})` : "";
   return {
