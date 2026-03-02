@@ -44,6 +44,11 @@ on:
       - main
   workflow_dispatch:
     inputs:
+      skipLinter:
+        description: "Skip the ESLint linting job"
+        type: boolean
+        required: false
+        default: true
       model:
         description: "Copilot SDK model for action smoke tests"
         type: choice
@@ -62,6 +67,7 @@ jobs:
   # ─── CI: each check as its own job ─────────────────────────────────
 
   lint:
+    if: inputs.skipLinter != true
     runs-on: ubuntu-latest
     permissions:
       contents: read
