@@ -2,6 +2,26 @@
 
 The agent-supervisor evolves from a reactive workflow-run watcher into a proactive orchestrator that uses an LLM to decide what actions to take, when, and how many concurrently.
 
+## Implementation Status
+
+| Component | Status | PR |
+|-----------|--------|----|
+| `supervise` task handler (`tasks/supervise.js`) | **Done** | #1806 |
+| Agent prompt (`agent-supervisor.md`) | **Done** | #1806 |
+| Unit tests (22 tests) | **Done** | #1806 |
+| Registered in `index.js` + `action.yml` (9th task) | **Done** | #1806 |
+| `agent-supervisor.yml` — reactive + proactive split | **Done** | #1807 |
+| `agent-supervisor-schedule.yml` — cron control | **Done** | #1804 |
+| Config: `supervisor` field in `agentic-lib.toml` | **Done** | #1804 |
+| Discussions bot thread-awareness + supervisor relay | **Done** | #1804 |
+
+### What's left
+
+- [ ] **First live run**: Merge #1807, init repository0, dispatch `agent-supervisor` manually and observe the LLM supervisor making decisions
+- [ ] **Schedule activation**: Run `agent-supervisor-schedule.yml` with `frequency: daily` on repository0 to activate proactive supervision
+- [ ] **End-to-end discussions flow**: User posts in discussions → bot relays to supervisor → supervisor acts → supervisor responds back through bot
+- [ ] **Tuning**: Observe supervisor decisions over several cycles and refine the agent prompt based on what works
+
 ## Goals
 
 1. The supervisor tries to achieve `MISSION.md` by growing features, library, and resolving issues
@@ -101,39 +121,59 @@ When the supervisor wants to communicate back to a user:
 - **The supervisor filters and prioritises.** Not every user request should be actioned. The supervisor evaluates against the mission, current workload, and resource limits.
 - **Origin tracking.** Every request from discussions includes the discussion URL and username so the supervisor knows where to send responses.
 
-## Implementation
+## Implementation (Completed)
 
-### New Task Handler: `supervise`
+### Task Handler: `supervise`
 
-Add a 9th task handler to `src/actions/agentic-step/tasks/supervise.js`:
+The 9th task handler at `src/actions/agentic-step/tasks/supervise.js`:
 
 ```
 supervise(context) → {
-  1. Gather all context (issues, PRs, workflows, features, library, activity, discussion requests)
-  2. Build prompt with context + available actions + mission
-  3. Call Copilot SDK
-  4. Parse [ACTIONS] block
-  5. For each action:
-     - dispatch:* → octokit.actions.createWorkflowDispatch(...)
-     - github:create-issue → octokit.issues.create(...)
-     - github:label-issue → octokit.issues.addLabels(...)
-     - github:close-issue → octokit.issues.update(...)
-     - respond:discussions → dispatch discussions bot with message
-     - nop → skip
-  6. Return outcome with list of dispatched actions
+  1. gatherContext() — fetches issues, PRs, workflow runs, features, library, activity via GitHub API
+  2. buildPrompt() — constructs LLM prompt with all context + available actions + mission
+  3. runCopilotTask() — calls Copilot SDK with supervisor system message
+  4. parseActions() — extracts [ACTIONS]...[/ACTIONS] block into {action, params} objects
+  5. parseReasoning() — extracts [REASONING] block for logging
+  6. executeAction() — dispatches to extracted handler functions:
+     - executeDispatch() → octokit.actions.createWorkflowDispatch(...)
+     - executeCreateIssue() → octokit.issues.create(...)
+     - executeLabelIssue() → octokit.issues.addLabels(...)
+     - executeCloseIssue() → octokit.issues.update(...)
+     - executeRespondDiscussions() → dispatch discussions bot
+     - "nop" → skip
+  7. Returns outcome with list of dispatched actions + reasoning
 }
 ```
 
-### Integration Points
+### Workflow Architecture
 
-- **`agent-supervisor-schedule.yml`** calls the supervise task on its cron schedule
-- **`agent-supervisor.yml`** can also call supervise (replacing some hardcoded JS logic over time)
-- **`agent-discussions-bot.yml`** gains new inputs: `response-text` and `discussion-url` for supervisor-initiated messages
-- **`src/actions/agentic-step/index.js`** registers the new `supervise` task
+`agent-supervisor.yml` has two jobs:
 
-### Migration Path
+| Job | Trigger | Purpose |
+|-----|---------|---------|
+| `evaluate` | `workflow_run` completed (test, transform, fix-code, ci-automerge) | Fast hardcoded reactive responses: fix failing PRs with loop protection, clean stale conflicting PRs |
+| `supervise` | `workflow_dispatch` + `schedule` | LLM-driven via `agentic-step task=supervise`. Full context gathering, strategic multi-action dispatch |
 
-The current `agent-supervisor.yml` reactive logic (fix failures, dispatch after merge, stale issue cleanup) continues to work. The new `supervise` task adds proactive decision-making on top. Over time, the reactive logic can be absorbed into the supervise task handler as the LLM learns to handle those cases.
+`agent-supervisor-schedule.yml` modifies the cron schedule on `agent-supervisor.yml` by editing the file and pushing to main. Schedule options: off, weekly, daily, hourly, continuous (every 10 minutes).
+
+### What was removed from the reactive path
+
+These were previously hardcoded in the `evaluate` job but are now handled by the LLM supervisor:
+- Post-merge → dispatch transform
+- Stale issues → dispatch review
+- Discussion bot follow-through → dispatch maintain
+
+### Files
+
+| File | Purpose |
+|------|---------|
+| `src/actions/agentic-step/tasks/supervise.js` | Task handler (gatherContext, buildPrompt, parseActions, executeAction) |
+| `src/agents/agent-supervisor.md` | Agent prompt with decision framework |
+| `src/actions/agentic-step/index.js` | Registers supervise as 9th task |
+| `src/actions/agentic-step/action.yml` | Updated task description |
+| `src/workflows/agent-supervisor.yml` | Dual-mode workflow (reactive + proactive) |
+| `src/workflows/agent-supervisor-schedule.yml` | Schedule control workflow |
+| `tests/actions/agentic-step/tasks/supervise.test.js` | 22 unit tests |
 
 ## Configuration
 
