@@ -738,43 +738,38 @@ function initConfig(seedsDir) {
   }
 }
 
-function initReseed() {
-  console.log("\n--- Reseed: Clear Features + Activity Log ---");
-  const intentionFile = resolve(target, "intentïon.md");
-  if (existsSync(intentionFile)) {
-    if (!dryRun) rmSync(intentionFile);
-    console.log("  REMOVE: intentïon.md");
+function removeFile(filePath, label) {
+  if (existsSync(filePath)) {
+    if (!dryRun) rmSync(filePath);
+    console.log(`  REMOVE: ${label}`);
     initChanges++;
   }
-  // Clear features directory (now at project root, next to library/)
-  const featuresDir = resolve(target, "features");
-  if (existsSync(featuresDir)) {
-    for (const f of readdirSync(featuresDir)) {
-      if (!dryRun) rmSync(resolve(featuresDir, f));
-      console.log(`  REMOVE: features/${f}`);
-      initChanges++;
-    }
+}
+
+function clearDirContents(dirPath, label) {
+  if (!existsSync(dirPath)) return;
+  for (const f of readdirSync(dirPath)) {
+    if (!dryRun) rmSync(resolve(dirPath, f));
+    console.log(`  REMOVE: ${label}/${f}`);
+    initChanges++;
   }
-  // Also clear old features location if it exists
+}
+
+function initReseed() {
+  console.log("\n--- Reseed: Clear Features + Activity Log ---");
+  removeFile(resolve(target, "intentïon.md"), "intentïon.md");
+  clearDirContents(resolve(target, "features"), "features");
+
+  // Clear old features location if it exists
   const oldFeaturesDir = resolve(target, ".github/agentic-lib/features");
+  clearDirContents(oldFeaturesDir, ".github/agentic-lib/features (old location)");
   if (existsSync(oldFeaturesDir)) {
-    for (const f of readdirSync(oldFeaturesDir)) {
-      if (!dryRun) rmSync(resolve(oldFeaturesDir, f));
-      console.log(`  REMOVE: .github/agentic-lib/features/${f} (old location)`);
-      initChanges++;
-    }
     if (!dryRun) rmdirSync(oldFeaturesDir);
     console.log("  REMOVE: .github/agentic-lib/features/ (old location)");
   }
-  // Clear library directory (generated from SOURCES.md)
-  const libraryDir = resolve(target, "library");
-  if (existsSync(libraryDir)) {
-    for (const f of readdirSync(libraryDir)) {
-      if (!dryRun) rmSync(resolve(libraryDir, f));
-      console.log(`  REMOVE: library/${f}`);
-      initChanges++;
-    }
-  }
+
+  clearDirContents(resolve(target, "library"), "library");
+
   // Remove old getting-started-guide if it exists
   const oldGuideDir = resolve(target, ".github/agentic-lib/getting-started-guide");
   if (existsSync(oldGuideDir)) {
@@ -784,10 +779,7 @@ function initReseed() {
   }
 }
 
-function initPurge(seedsDir) {
-  console.log("\n--- Purge: Reset Source Files to Seed State ---");
-
-  // Read TOML to get source and tests paths (or use defaults)
+function readTomlPaths() {
   let sourcePath = "src/lib/";
   let testsPath = "tests/unit/";
   const tomlTarget = resolve(target, "agentic-lib.toml");
@@ -802,24 +794,25 @@ function initPurge(seedsDir) {
       console.log(`  WARN: Could not read TOML for paths, using defaults: ${err.message}`);
     }
   }
+  return { sourcePath, testsPath };
+}
 
-  // Clear source directory completely
-  const sourceDir = resolve(target, sourcePath);
-  if (existsSync(sourceDir)) {
-    console.log(`  CLEAR: ${sourcePath}`);
-    if (!dryRun) rmSync(sourceDir, { recursive: true });
+function clearAndRecreateDir(dirPath, label) {
+  const fullPath = resolve(target, dirPath);
+  if (existsSync(fullPath)) {
+    console.log(`  CLEAR: ${label}`);
+    if (!dryRun) rmSync(fullPath, { recursive: true });
     initChanges++;
   }
-  if (!dryRun) mkdirSync(sourceDir, { recursive: true });
+  if (!dryRun) mkdirSync(fullPath, { recursive: true });
+}
 
-  // Clear tests directory completely
-  const testsDir = resolve(target, testsPath);
-  if (existsSync(testsDir)) {
-    console.log(`  CLEAR: ${testsPath}`);
-    if (!dryRun) rmSync(testsDir, { recursive: true });
-    initChanges++;
-  }
-  if (!dryRun) mkdirSync(testsDir, { recursive: true });
+function initPurge(seedsDir) {
+  console.log("\n--- Purge: Reset Source Files to Seed State ---");
+
+  const { sourcePath, testsPath } = readTomlPaths();
+  clearAndRecreateDir(sourcePath, sourcePath);
+  clearAndRecreateDir(testsPath, testsPath);
 
   // Copy seed files
   const SEED_MAP = {
