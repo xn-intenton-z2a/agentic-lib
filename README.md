@@ -57,20 +57,15 @@ your-repo/
 ├── agentic-lib.toml                          # [INIT] Config (created once, never overwritten)
 │
 ├── .github/
-│   ├── workflows/                            # [INIT] 13 workflow files (always overwritten)
+│   ├── workflows/                            # [INIT] 8 workflow files (always overwritten)
 │   │   ├── agent-flow-transform.yml          #   Core: transform code toward the mission
 │   │   ├── agent-flow-maintain.yml           #   Core: maintain features and library
 │   │   ├── agent-flow-review.yml             #   Core: review and close resolved issues
 │   │   ├── agent-flow-fix-code.yml           #   Core: fix failing tests
 │   │   ├── agent-discussions-bot.yml         #   Bot: respond to GitHub Discussions
 │   │   ├── agent-supervisor.yml              #   Supervisor: orchestrate the pipeline
-│   │   ├── agent-archive-intentïon.yml       #   Archive the activity log
-│   │   ├── ci-test.yml                       #   CI: run tests
 │   │   ├── ci-automerge.yml                  #   CI: auto-merge passing PRs
-│   │   ├── ci-formating.yml                  #   CI: formatting checks
-│   │   ├── ci-update.yml                     #   CI: dependency updates
-│   │   ├── ci-init.yml                       #   CI: pull latest infrastructure
-│   │   └── publish-packages.yml              #   Release: npm publish
+│   │   └── test.yml                          #   CI: run tests
 │   │
 │   └── agentic-lib/                          # [INIT] Internal infrastructure (always overwritten)
 │       ├── actions/
@@ -94,6 +89,8 @@ your-repo/
 - **[INIT]** -- Created or overwritten by `init` every time. You should not edit these.
 - **[USER]** -- Your files. `init` never touches these. `init --purge` resets them to seed state.
 - **[GENERATED]** -- Created by the agentic workflows during operation.
+
+Your repository should also have an `init.yml` workflow (not distributed — maintained locally) that runs `npx agentic-lib init --purge` on a schedule to keep infrastructure up to date. See [repository0/init.yml](https://github.com/xn-intenton-z2a/repository0/blob/main/.github/workflows/init.yml) for an example.
 
 ### What You Need Before Running `init`
 
@@ -279,16 +276,16 @@ This repository is the source for the `@xn-intenton-z2a/agentic-lib` npm package
 
 ```
 src/
-├── workflows/     13 GitHub Actions workflow templates
+├── workflows/     7 GitHub Actions workflow templates
 ├── actions/       3 composite/SDK actions (agentic-step, commit-if-changed, setup-npmrc)
 ├── agents/        7 agent prompt files + 1 config
-├── seeds/         Seed files for --purge reset
-└── scripts/       Utility scripts distributed to consumers
+├── seeds/         7 seed files (test.yml + 6 project seed files for --purge reset)
+└── scripts/       7 utility scripts distributed to consumers
 ```
 
 ### Testing
 
-313 unit tests across 21 test files, plus system tests:
+236 unit tests across 21 test files, plus system tests:
 
 ```bash
 npm test                  # Run all tests (vitest)
