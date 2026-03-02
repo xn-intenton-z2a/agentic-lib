@@ -626,11 +626,10 @@ function initCopyDirRecursive(srcPath, dstPath, label, excludes = []) {
 }
 
 function removeStaleWorkflows(templateWorkflows) {
-  const KEEP = new Set(["init.yml"]);
   const targetWorkflowsDir = resolve(target, ".github/workflows");
   if (!existsSync(targetWorkflowsDir)) return;
   for (const f of readdirSync(targetWorkflowsDir)) {
-    if (f.endsWith(".yml") && !templateWorkflows.has(f) && !KEEP.has(f)) {
+    if (f.endsWith(".yml") && !templateWorkflows.has(f)) {
       if (!dryRun) rmSync(resolve(targetWorkflowsDir, f));
       console.log(`  REMOVE stale: workflows/${f}`);
       initChanges++;
@@ -653,6 +652,11 @@ function initWorkflows() {
   if (existsSync(seedTest)) {
     templateWorkflows.add("test.yml");
     initCopyFile(seedTest, resolve(target, ".github/workflows/test.yml"), "workflows/test.yml (from seeds)");
+  }
+  const seedInit = resolve(srcDir, "seeds/init.yml");
+  if (existsSync(seedInit)) {
+    templateWorkflows.add("init.yml");
+    initCopyFile(seedInit, resolve(target, ".github/workflows/init.yml"), "workflows/init.yml (from seeds)");
   }
   removeStaleWorkflows(templateWorkflows);
 }
