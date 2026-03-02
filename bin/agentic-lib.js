@@ -92,7 +92,10 @@ if (TASK_COMMANDS.includes(command)) {
 
 let purge = flags.includes("--purge");
 let reseed = flags.includes("--reseed") || purge;
-if (command === "reset") { purge = true; reseed = true; }
+if (command === "reset") {
+  purge = true;
+  reseed = true;
+}
 
 if (!ALL_COMMANDS.includes(command)) {
   console.error(`Unknown command: ${command}`);
@@ -763,6 +766,15 @@ function initReseed() {
     if (!dryRun) rmdirSync(oldFeaturesDir);
     console.log("  REMOVE: .github/agentic-lib/features/ (old location)");
   }
+  // Clear library directory (generated from SOURCES.md)
+  const libraryDir = resolve(target, "library");
+  if (existsSync(libraryDir)) {
+    for (const f of readdirSync(libraryDir)) {
+      if (!dryRun) rmSync(resolve(libraryDir, f));
+      console.log(`  REMOVE: library/${f}`);
+      initChanges++;
+    }
+  }
   // Remove old getting-started-guide if it exists
   const oldGuideDir = resolve(target, ".github/agentic-lib/getting-started-guide");
   if (existsSync(oldGuideDir)) {
@@ -778,6 +790,7 @@ function initPurge(seedsDir) {
     "zero-main.js": "src/lib/main.js",
     "zero-main.test.js": "tests/unit/main.test.js",
     "zero-MISSION.md": "MISSION.md",
+    "zero-SOURCES.md": "SOURCES.md",
     "zero-package.json": "package.json",
     "zero-README.md": "README.md",
   };
