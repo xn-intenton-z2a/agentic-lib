@@ -56,7 +56,9 @@ function createMockOctokit(overrides = {}) {
     graphql: vi.fn().mockImplementation((query) => {
       if (query.includes("addDiscussionComment")) {
         return Promise.resolve({
-          addDiscussionComment: { comment: { url: "https://github.com/test-owner/test-repo/discussions/123#comment-1" } },
+          addDiscussionComment: {
+            comment: { url: "https://github.com/test-owner/test-repo/discussions/123#comment-1" },
+          },
         });
       }
       return Promise.resolve({
@@ -232,7 +234,10 @@ describe("tasks/discussions", () => {
         repository: { discussion: { title: "No ID", body: "body", comments: { nodes: [] } } },
       });
     });
-    const ctx = createMockContext({ octokit, discussionUrl: "https://github.com/test-owner/test-repo/discussions/456" });
+    const ctx = createMockContext({
+      octokit,
+      discussionUrl: "https://github.com/test-owner/test-repo/discussions/456",
+    });
 
     await discussions(ctx);
 
