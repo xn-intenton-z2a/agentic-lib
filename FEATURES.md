@@ -1,6 +1,6 @@
 # intentïon — Autonomous Code Transformation
 
-All features for the intentïon project. Core features (#1-17) power the autonomous transformation system. MVP features (#18-25) make the product coherent and compelling. New features (#26-29) cover verification, optimization, and demo repositories. Post-MVP features are in [FEATURES_ROADMAP.md](FEATURES_ROADMAP.md) (#30-41).
+All features for the intentïon project. Core features (#1-17) power the autonomous transformation system. MVP features (#18-25) make the product coherent and compelling. Features #26-27 cover verification and optimization. Post-MVP features are in [FEATURES_ROADMAP.md](FEATURES_ROADMAP.md) (#28+).
 
 ---
 
@@ -33,19 +33,12 @@ All features for the intentïon project. Core features (#1-17) power the autonom
 | 23  | TDD Workflow                         | Done    |
 | 24  | Showcase Page                        | Done    |
 | 25  | Submission Box                       | Done    |
-| 26  | Verification & Testing               | Pending |
-| 27  | Code Reduction & Optimization        | Pending |
-| 28  | Library Demo Repository              | Pending |
-| 29  | Website Demo Repository              | Pending |
+| 26  | Verification & Testing               | Done    |
+| 27  | Code Reduction & Optimization        | Done    |
 
 ### Outstanding items
 
-- Integration test against real Copilot SDK
 - Publish `agentic-step` to GitHub Marketplace
-- Tag v7.0.0 release
-- Remove remaining legacy `wfr-*` files used only by keepers (see #27)
-- Create library demo repository (see #28)
-- Create website demo repository (see #29)
 
 ---
 
@@ -90,14 +83,14 @@ OpenAI API (o4-mini) ──→ 23 wfr-completion-* workflows
                       GitHub Script (inline JS)
 ```
 
-### After (~32 workflows + 1 action)
+### After (11 workflows + 1 action)
 
 ```
 GitHub Copilot SDK ──→ agentic-step action (1 action, published to Marketplace)
                         ↕
                     3 flow workflows + 1 supervisor + 1 discussions bot
                         ↕
-                    CI/CD + Publishing (unchanged)
+                    CI (test + automerge)
 ```
 
 ### Dependency Changes
@@ -108,16 +101,16 @@ GitHub Copilot SDK ──→ agentic-step action (1 action, published to Marketp
 | GitHub Copilot subscription         | Not used      | Required        |
 | @github/copilot-sdk                 | Not used      | Core dependency |
 | AWS S3/SQS/Lambda                   | Used          | Unchanged       |
-| GitHub Actions minutes              | ~99 workflows | ~32 workflows   |
+| GitHub Actions minutes              | ~99 workflows | ~11 workflows   |
 
 ### Workflow Reduction
 
-| Repository           | Before           | After                        | Reduction |
-| -------------------- | ---------------- | ---------------------------- | --------- |
-| agentic-lib          | 59 workflows     | ~15 workflows + 1 action     | -75%      |
-| repository0          | 31 workflows     | ~8 workflows                 | -74%      |
-| xn--intenton-z2a.com | 9 workflows      | 9 workflows                  | 0%        |
-| **Total**            | **99 workflows** | **~32 workflows + 1 action** | **-68%**  |
+| Repository           | Before           | After                       | Reduction |
+| -------------------- | ---------------- | --------------------------- | --------- |
+| agentic-lib          | 59 workflows     | 2 workflows + 1 action      | -97%      |
+| repository0          | 31 workflows     | 9 workflows                 | -71%      |
+| xn--intenton-z2a.com | 9 workflows      | 9 workflows                 | 0%        |
+| **Total**            | **99 workflows** | **20 workflows + 1 action** | **-80%**  |
 
 ---
 
@@ -143,7 +136,7 @@ Automated creation, enhancement, assignment, resolution, and closure of GitHub i
 
 #### 3. Feature Lifecycle Management
 
-Maintains feature specification files (markdown) in `sandbox/features/` or `features/`. Features are created from library analysis, refined, used to generate issues, and pruned when complete. The `maintain-features` task in `agentic-step` handles all lifecycle operations.
+Maintains feature specification files (markdown) in `.github/agentic-lib/features/`. Features are created from library analysis, refined, used to generate issues, and pruned when complete. The `maintain-features` task in `agentic-step` handles all lifecycle operations.
 
 **Limits:** Max 4-8 features at a time (configurable)
 **Repositories:** agentic-lib (workflows + sandbox features), repository0 (consumer features)
@@ -175,18 +168,18 @@ AI agent that responds to GitHub Discussions, creates features, seeds repositori
 
 #### 7. Statistics & Observability
 
-Collects repository statistics (branches, PRs, issues, commits), publishes as JSON to S3, renders on a web dashboard (`public/all.html`), and maintains an activity log (`intentïon.md`). Copilot SDK usage metrics replace OpenAI token tracking.
+Collects repository statistics (branches, PRs, issues, commits), publishes as JSON to S3, renders on a web dashboard (`public/all.html`), and maintains an activity log (`intentïon.md`). Copilot SDK usage metrics replace OpenAI token tracking. Statistics publishing is now handled by the `ci-automerge.yml` log job.
 
 **AWS targets:** `s3://agentic-lib-telemetry-bucket/events/`, `s3://agentic-lib-public-website-stats-bucket/`
-**Key workflow:** `publish-stats.yml`
+**Key workflow:** `ci-automerge.yml` (log-intention-activity-merge-pr job)
 **Status:** Done
 
 #### 8. Publishing Pipeline
 
-Publishes npm packages, web content to GitHub Pages, and documentation. The npm package is extended to include the `agentic-step` action, published to GitHub Marketplace.
+Publishes npm packages with OIDC trusted publishing (no tokens). The npm package includes the `agentic-step` action and all distributed content. Published to npmjs.org with provenance attestation.
 
-**npm packages:** `@xn-intenton-z2a/agentic-lib`, `@xn-intenton-z2a/repository0`
-**Key workflow:** `publish-packages.yml`
+**npm package:** `@xn-intenton-z2a/agentic-lib`
+**Key workflow:** `release.yml`
 **Status:** Done
 
 #### 9. Website & Brand
@@ -213,9 +206,9 @@ CloudFront + S3 hosting with SSL, Route53 DNS, CloudTrail telemetry, and access 
 
 #### 12. CI/CD & Code Quality
 
-Tests on push/schedule (Vitest, JUnit 5), auto-formatting (Prettier), linting (ESLint), dependency updates (npm-check-updates, Maven). `copilot-setup-steps.yml` enables Copilot coding agent to run tests.
+Tests on push/PR (Vitest), linting (ESLint), auto-merge of passing PRs. `copilot-setup-steps.yml` enables Copilot coding agent to run tests.
 
-**Key workflows:** `ci-test.yml`, `ci-automerge.yml`, `ci-formating.yml`, `ci-update.yml`
+**Key workflows:** `test.yml`, `ci-automerge.yml`
 **Status:** Done
 
 #### 13. Configuration & Safety
@@ -227,30 +220,30 @@ Centralises agent parameters in `agentic-lib.yml`: file paths with read/write pe
 
 #### 14. Template System
 
-repository0 serves as a clonable GitHub template pre-configured with all agentic workflows, agent configs, seeds, and a getting-started guide. Simplified from 31 workflows to ~8. Users write `MISSION.md` and enable Copilot — no OpenAI key needed.
+repository0 serves as a clonable GitHub template pre-configured with all agentic workflows, agent configs, seeds, and a getting-started guide. Simplified from 31 workflows to 9 (8 distributed + 1 local init). Users write `MISSION.md` and enable Copilot — no OpenAI key needed.
 
 **Repository:** repository0
 **Status:** Done
 
 #### 15. Library & Knowledge Management
 
-Crawls URLs in SOURCES.md, extracts technical content, creates/updates library documents in `sandbox/library/`, and generates a searchable HTML index. The `maintain-library` task in `agentic-step` handles all operations.
+Crawls URLs in SOURCES.md, extracts technical content, creates/updates library documents in `library/`, and generates a searchable HTML index. The `maintain-library` task in `agentic-step` handles all operations.
 
 **Limits:** 8-16 source entries, 32-64 library documents (configurable)
 **Status:** Done
 
 #### 16. Maintenance & Hygiene
 
-Truncates old workflow run history, archives issue history, sweeps stale branches, recovers stuck issues, reseeds stale repositories, and updates dependencies. Reseed logic configured via `agentic-lib.yml`.
+Handles repository hygiene: sweeps stale branches, recovers stuck issues, reseeds stale repositories. The `init.yml` workflow (maintained locally by each consumer) keeps infrastructure up to date. Reseed logic configured via `agentic-lib.yml`.
 
-**Key workflows:** `utils-truncate-workflow-history.yml`, `utils-truncate-issue-history.yml`, `ci-update.yml`, `agent-archive-intentïon.yml`
+**Key workflow:** `init.yml` (consumer-maintained, not distributed)
 **Status:** Done
 
 #### 17. Scripts & Utilities
 
-21 shell and Node.js scripts for release versioning, AWS IAM role assumption, npm authentication, schedule activation/deactivation, source export, and cleanup.
+7 utility scripts distributed to consumers for release acceptance, schedule activation, cleanup, initialisation, HTML generation, and dependency updates. Additional development scripts remain in the agentic-lib repo only.
 
-**Key scripts:** `release-version-to-repository.sh`, `release-to-every-repository.sh`, `aws-assume-agentic-lib-deployment-role.sh`
+**Distributed scripts:** `accept-release.sh`, `activate-schedule.sh`, `clean.sh`, `initialise.sh`, `md-to-html.js`, `update.sh`
 **Repository:** agentic-lib
 **Status:** Done
 
@@ -365,7 +358,7 @@ A page on xn--intenton-z2a.com showing live experiment status from stats JSON on
 - [ ] Terms and conditions are displayed and must be accepted
 - [ ] Discussions bot processes the submission
 
-### New Features (#26-29)
+### Completion Features (#26-27)
 
 #### 26. Verification & Testing
 
@@ -373,11 +366,11 @@ Integration testing to prove the system works end-to-end against real infrastruc
 
 | Aspect           | Detail                                                                                                                                                                                                                                                                                       |
 | ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **What it does** | Tests the agentic-step action against the real Copilot SDK. Tests what agentic-lib publishes for repository0 consumption. Tests agentic flows in repository0 (model flows in agentic-lib first, repository0 is showcase). Tests demo repository fitness — examining output from #28 and #29. |
+| **What it does** | Tests the agentic-step action against the real Copilot SDK. System tests (`system-test.sh`) run full init→maintain-features→transform flows. Local SDK test (`test-copilot-local.js`) verifies auth, models, sessions, and tool use. Live transform workflow verified in repository0. |
 | **Repositories** | agentic-lib, repository0                                                                                                                                                                                                                                                                     |
-| **Why now**      | The code is written but untested against real infrastructure. Without verification, we can't know if the MVP actually works.                                                                                                                                                                 |
+| **Why now**      | Verified against real infrastructure — transform workflow runs end-to-end in repository0.                                                                                                                                                                                 |
 
-**Status:** Pending
+**Status:** Done
 
 #### 27. Code Reduction & Optimization
 
@@ -385,35 +378,11 @@ Make the MVP compact and information-dense — fewer files, less redundancy, eas
 
 | Aspect           | Detail                                                                                                                                                                                                           |
 | ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **What it does** | Inline or remove remaining legacy `wfr-*` files that are only used by keeper workflows. Consolidate redundant workflows. Remove dead code paths. Minimize the number of files a contributor needs to understand. |
+| **What it does** | Inlined all 11 single-caller `wfr-*` files into their parent workflows and deleted them. Consolidated redundant workflows. Removed dead code paths. Reduced from 99 to 20 total workflows (-80%). |
 | **Repositories** | agentic-lib, repository0                                                                                                                                                                                         |
 | **Why now**      | MVP should be lean. Every unnecessary file is cognitive overhead for new users who clone the template.                                                                                                           |
 
-**Status:** Pending
-
-#### 28. Library Demo Repository
-
-A JS library that transforms autonomously from a mission, demonstrating the "library" repository type.
-
-| Aspect           | Detail                                                                                                                                                                                                 |
-| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **What it does** | A new repository created from the repository0 template with a library-focused mission. Transforms autonomously. Published to npm. Output is captured and examined as part of a fitness test (see #26). |
-| **Repositories** | New repository (from repository0 template)                                                                                                                                                             |
-| **Why now**      | The showcase needs real examples. A library that built itself from a mission statement is the most compelling proof.                                                                                   |
-
-**Status:** Pending
-
-#### 29. Website Demo Repository
-
-A website that transforms autonomously from a mission, demonstrating the "website" repository type.
-
-| Aspect           | Detail                                                                                                                                                                                                      |
-| ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **What it does** | A new repository created from the repository0 template with a website-focused mission. Transforms autonomously. Deployed to GitHub Pages. The deployed site is examined/tested as a fitness test (see #26). |
-| **Repositories** | New repository (from repository0 template)                                                                                                                                                                  |
-| **Why now**      | Websites are visual — a self-transforming website is immediately impressive and shareable.                                                                                                                  |
-
-**Status:** Pending
+**Status:** Done
 
 ---
 
@@ -501,11 +470,11 @@ Build the `agentic-step` action and prove it works for a single task. Scaffold a
 
 ### Phase 2: Full Pipeline (Done)
 
-Port all LLM tasks to `agentic-step`. Implement all 8 task handlers (`transform`, `maintain-features`, `maintain-library`, `enhance-issue`, `review-issue`, `discussions`), logging.js, and the simplified workflow set (15 agentic-lib + 8 repository0).
+Port all LLM tasks to `agentic-step`. Implement all 8 task handlers (`transform`, `maintain-features`, `maintain-library`, `enhance-issue`, `review-issue`, `discussions`), logging.js, and the simplified workflow set (2 agentic-lib + 9 repository0).
 
 ### Phase 3: Hardening (Done)
 
-Make it reliable and safe. Implement workflow hardening items, discussions bot intelligence, supervisor workflow, TDD mode, test suite (307 tests across 22 files on reboot branch), CI pipeline (5 jobs: test, lint, lint-workflows, security, smoke), and integration test structure.
+Make it reliable and safe. Implement workflow hardening items, discussions bot intelligence, supervisor workflow, TDD mode, test suite (236 tests across 21 files), CI pipeline, and integration test structure.
 
 ### Phase 4: Template & Launch (Done)
 
@@ -515,6 +484,7 @@ Clean repository0 to pristine template state. Write `demo.sh` + `DEMO.md`, updat
 
 ## Changelog
 
+- **2026-03-02** — Updated all feature descriptions to reflect current workflow set (99 → 20 workflows). Marked #26 (Verification) and #27 (Code Reduction) as Done. Removed #28 and #29 (demo repos — post-MVP). Fixed references to deleted workflows. Updated architecture section with accurate counts. Moved to OIDC trusted publishing. Fixed workflow push races, broken supervisor trigger, parallel job races.
 - **2026-02-28** — Consolidated FEATURES.md + MVP.md into single document. Deleted legacy workflows (33 agentic-lib + 16 repository0 = 49 files). Added features #26-29 (Verification & Testing, Code Reduction & Optimization, Library Demo Repository, Website Demo Repository). Renumbered FEATURES_ROADMAP.md from #26-37 to #30-41.
 
 ---
