@@ -23,16 +23,20 @@ Or start from the [repository0 template](https://github.com/xn-intenton-z2a/repo
 MISSION.md           Your project goals in plain English
     |
     v
-[agentic-step]       GitHub Action wrapping the Copilot SDK
+[supervisor]         LLM gathers repo state, picks actions
     |
-    v
+    +-----+-----+-----+-----+
+    v     v     v     v     v
+ transform  maintain  review  fix  discussions
+    |         |        |      |       |
+    v         v        v      v       v
 Issue -> Code -> Test -> PR -> Merge -> Next Issue
     ^                                       |
     +---------------------------------------+
               Autonomous cycle
 ```
 
-The pipeline runs as GitHub Actions workflows on a schedule. Each step uses the `agentic-step` action to call the Copilot SDK with context from your repository (mission, contributing guidelines, existing code, test results) and produce targeted changes.
+An LLM supervisor runs on a configurable schedule, gathers full repository context (open issues, PRs, workflow runs, features, activity), and strategically dispatches other workflows. Each workflow uses the `agentic-step` action to call the Copilot SDK with context from your repository and produce targeted changes. Users can interact with the system through a GitHub Discussions bot, which relays requests to the supervisor.
 
 ## Initialisation
 
@@ -69,10 +73,10 @@ your-repo/
 │   │
 │   └── agentic-lib/                          # [INIT] Internal infrastructure (always overwritten)
 │       ├── actions/
-│       │   ├── agentic-step/                 #   The Copilot SDK action (8 task handlers)
+│       │   ├── agentic-step/                 #   The Copilot SDK action (9 task handlers)
 │       │   ├── commit-if-changed/            #   Composite: conditional git commit
 │       │   └── setup-npmrc/                  #   Composite: npm registry auth
-│       ├── agents/                           #   7 prompt files + config YAML
+│       ├── agents/                           #   8 prompt files + config YAML
 │       ├── seeds/                            #   Seed files for reset
 │       └── scripts/                          #   Utility scripts
 │
@@ -104,13 +108,48 @@ The `init.yml` workflow is distributed from seeds (like `test.yml`) and runs `np
 
 ### GitHub Repository Settings
 
-After `init`, configure these in your GitHub repository:
+After `init`, configure your GitHub repository with the following tokens, permissions, and settings.
 
-| Setting | Where | Purpose |
-|---------|-------|---------|
-| `COPILOT_GITHUB_TOKEN` | Settings > Secrets | Fine-grained PAT with "Copilot Requests" permission |
-| GitHub Actions | Settings > Actions | Must be enabled (default) |
-| Branch protection | Settings > Branches | Optional: require PR reviews before merge |
+#### Required Secrets
+
+| Secret | Type | Permissions | Purpose |
+|--------|------|-------------|---------|
+| `COPILOT_GITHUB_TOKEN` | Fine-grained PAT | **Copilot** (read) | Authenticates with the GitHub Copilot SDK for all agentic tasks |
+| `WORKFLOW_TOKEN` | Classic PAT | **workflow** scope | Required by `init.yml` to push workflow file changes (GITHUB_TOKEN cannot modify `.github/workflows/`) |
+
+**Creating `COPILOT_GITHUB_TOKEN`:**
+1. Go to [github.com/settings/tokens](https://github.com/settings/tokens) → Fine-grained tokens → Generate new token
+2. Set repository access to your target repo (or all repos)
+3. Under "Account permissions", enable **GitHub Copilot** → Read
+4. Copy the token and add it as a repository secret: Settings → Secrets and variables → Actions → New repository secret
+
+**Creating `WORKFLOW_TOKEN`:**
+1. Go to [github.com/settings/tokens](https://github.com/settings/tokens) → Tokens (classic) → Generate new token
+2. Select the **workflow** scope (this includes repo access)
+3. Set expiration (max 90 days for enterprise orgs)
+4. Copy the token and add it as a repository secret
+
+#### Repository Settings
+
+| Setting | Where | Value | Purpose |
+|---------|-------|-------|---------|
+| GitHub Actions | Settings → Actions → General | Allow all actions | Workflows must be able to run |
+| Workflow permissions | Settings → Actions → General | Read and write | Workflows need to create branches, PRs, and push commits |
+| Allow GitHub Actions to create PRs | Settings → Actions → General | Checked | Required for automerge and init workflows |
+| GitHub Discussions | Settings → General → Features | Enabled | Required for the discussions bot |
+| Branch protection (optional) | Settings → Branches | Require PR reviews | Recommended: prevents direct pushes, ensures review |
+
+#### Permissions Summary
+
+The workflows use `permissions: write-all` in the workflow files. The key permissions used are:
+
+| Permission | Used by | Purpose |
+|------------|---------|---------|
+| `contents: write` | All agent workflows | Create branches, push commits |
+| `pull-requests: write` | Transform, fix-code | Create and update PRs |
+| `issues: write` | Review, enhance, supervisor | Create, label, close issues |
+| `actions: write` | Supervisor | Dispatch other workflows |
+| `discussions: write` | Discussions bot | Post replies to discussions |
 
 ## Configuration
 
@@ -118,16 +157,20 @@ Configuration lives in `agentic-lib.toml` at your project root:
 
 ```toml
 [schedule]
-tier = "schedule-1"       # schedule-1 through schedule-4
+tier = "schedule-1"          # schedule-1 through schedule-4
+supervisor = "daily"         # off | weekly | daily | hourly | continuous
 
 [paths]
 mission = "MISSION.md"
 source = "src/lib/"
 tests = "tests/unit/"
 features = "features/"
+library = "library/"
 docs = "docs/"
 readme = "README.md"
 dependencies = "package.json"
+contributing = "CONTRIBUTING.md"
+library-sources = "SOURCES.md"
 
 [execution]
 build = "npm run build"
@@ -139,6 +182,8 @@ feature-issues = 2
 maintenance-issues = 1
 attempts-per-branch = 3
 attempts-per-issue = 2
+features-limit = 4
+library-limit = 32
 
 [bot]
 log-file = "intentïon.md"
@@ -152,6 +197,7 @@ The core of the system is a single GitHub Action that handles all autonomous tas
 
 | Task | Purpose |
 |------|---------|
+| `supervise` | Gather repo context, choose and dispatch actions strategically |
 | `transform` | Transform the codebase toward the mission |
 | `resolve-issue` | Read an issue and generate code to resolve it |
 | `fix-code` | Fix failing tests or lint errors |
@@ -161,7 +207,7 @@ The core of the system is a single GitHub Action that handles all autonomous tas
 | `review-issue` | Review and close resolved issues |
 | `discussions` | Respond to GitHub Discussions |
 
-Each task calls the GitHub Copilot SDK with context assembled from your repository (mission, code, tests, features) and writes changes back to the working tree.
+Each task calls the GitHub Copilot SDK with context assembled from your repository (mission, code, tests, features) and writes changes back to the working tree. The supervisor can dispatch any of the other tasks via workflow dispatch.
 
 ## CLI Task Commands
 
@@ -277,16 +323,16 @@ This repository is the source for the `@xn-intenton-z2a/agentic-lib` npm package
 
 ```
 src/
-├── workflows/     7 GitHub Actions workflow templates
+├── workflows/     8 GitHub Actions workflow templates
 ├── actions/       3 composite/SDK actions (agentic-step, commit-if-changed, setup-npmrc)
-├── agents/        7 agent prompt files + 1 config
+├── agents/        8 agent prompt files + 1 config
 ├── seeds/         7 seed files (test.yml + 6 project seed files for --purge reset)
 └── scripts/       7 utility scripts distributed to consumers
 ```
 
 ### Testing
 
-236 unit tests across 21 test files, plus system tests:
+269 unit tests across 22 test files, plus system tests:
 
 ```bash
 npm test                  # Run all tests (vitest)
