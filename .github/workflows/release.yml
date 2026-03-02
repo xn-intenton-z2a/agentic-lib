@@ -101,6 +101,16 @@ jobs:
         shell: bash
         run: |
           npm version ${{ env.versionIncrement }}
+          RELEASED=$(node -p "require('./package.json').version")
+          # Update seed package.json to depend on the version being released
+          node -e "
+            const fs = require('fs');
+            const seed = JSON.parse(fs.readFileSync('src/seeds/zero-package.json', 'utf8'));
+            seed.dependencies['@xn-intenton-z2a/agentic-lib'] = '^${RELEASED}';
+            fs.writeFileSync('src/seeds/zero-package.json', JSON.stringify(seed, null, 2) + '\n');
+          "
+          git add src/seeds/zero-package.json
+          git commit --amend --no-edit
           npm publish --provenance --tag latest --access public
           git push --follow-tags
           releasedVersion=$(node -p "require('./package.json').version")
