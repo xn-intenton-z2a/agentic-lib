@@ -14,7 +14,7 @@
 //   npx @xn-intenton-z2a/agentic-lib maintain-library
 //   npx @xn-intenton-z2a/agentic-lib fix-code
 
-import { copyFileSync, existsSync, mkdirSync, rmSync, readdirSync, readFileSync, writeFileSync } from "fs";
+import { copyFileSync, existsSync, mkdirSync, rmSync, rmdirSync, readdirSync, readFileSync, writeFileSync } from "fs";
 import { resolve, dirname, join } from "path";
 import { fileURLToPath } from "url";
 import { execSync } from "child_process";
@@ -36,7 +36,9 @@ const HELP = `
 @xn-intenton-z2a/agentic-lib — Agentic Coding Systems SDK
 
 Infrastructure:
-  init [--purge]       Set up or update agentic infrastructure
+  init                 Update workflows, actions, agents, seeds, scripts
+  init --reseed        Also clear features + activity log (keep source code)
+  init --purge         Full reset — reseed + replace source files with seeds
   update               Alias for init
   reset                Alias for init --purge
   version              Show version
@@ -48,7 +50,8 @@ Tasks (run Copilot SDK transformations):
   fix-code             Fix failing tests
 
 Options:
-  --purge              Also reset source files to seed state
+  --purge              Full reset — clear features, activity log, source code
+  --reseed             Clear features + activity log (keep source code)
   --dry-run            Show what would be done without making changes
   --target <path>      Target repository (default: current directory)
   --model <name>       Copilot SDK model (default: claude-sonnet-4)
@@ -88,7 +91,8 @@ if (TASK_COMMANDS.includes(command)) {
 // ─── Init Commands ───────────────────────────────────────────────────
 
 let purge = flags.includes("--purge");
-if (command === "reset") purge = true;
+let reseed = flags.includes("--reseed") || purge;
+if (command === "reset") { purge = true; reseed = true; }
 
 if (!ALL_COMMANDS.includes(command)) {
   console.error(`Unknown command: ${command}`);
@@ -238,7 +242,7 @@ async function loadTaskConfig() {
     missionPath: toml.paths?.mission || "MISSION.md",
     sourcePath: toml.paths?.source || "src/lib/",
     testsPath: toml.paths?.tests || "tests/unit/",
-    featuresPath: toml.paths?.features || ".github/agentic-lib/features/",
+    featuresPath: toml.paths?.features || "features/",
     libraryPath: toml.paths?.docs || "library/",
     sourcesPath: toml.paths?.["library-sources"] || "SOURCES.md",
     readmePath: toml.paths?.readme || "README.md",
@@ -616,7 +620,7 @@ function initCopyDirRecursive(srcPath, dstPath, label, excludes = []) {
     const srcFull = join(srcPath, entry.name);
     const dstFull = join(dstPath, entry.name);
     const relLabel = `${label}/${entry.name}`;
-    if (excludes.some((ex) => entry.name === ex || srcFull.includes(ex))) continue;
+    if (excludes.some((ex) => entry.name === ex)) continue;
     if (entry.isDirectory()) {
       initCopyDirRecursive(srcFull, dstFull, relLabel, excludes);
     } else {
@@ -698,10 +702,22 @@ function initScripts(agenticDir) {
     "update.sh",
   ];
   if (!existsSync(scriptsDir)) return;
+  const distributedSet = new Set(DISTRIBUTED_SCRIPTS);
   for (const name of DISTRIBUTED_SCRIPTS) {
     const src = resolve(scriptsDir, name);
     if (existsSync(src)) {
       initCopyFile(src, resolve(agenticDir, "scripts", name), `scripts/${name}`);
+    }
+  }
+  // Remove stale scripts not in the distributed set
+  const targetScriptsDir = resolve(agenticDir, "scripts");
+  if (existsSync(targetScriptsDir)) {
+    for (const f of readdirSync(targetScriptsDir)) {
+      if (!distributedSet.has(f)) {
+        if (!dryRun) rmSync(resolve(targetScriptsDir, f));
+        console.log(`  REMOVE stale: scripts/${f}`);
+        initChanges++;
+      }
     }
   }
 }
@@ -719,8 +735,45 @@ function initConfig(seedsDir) {
   }
 }
 
-function initPurge(seedsDir, agenticDir) {
-  console.log("\n--- Reset Source Files to Seed State ---");
+function initReseed() {
+  console.log("\n--- Reseed: Clear Features + Activity Log ---");
+  const intentionFile = resolve(target, "intentïon.md");
+  if (existsSync(intentionFile)) {
+    if (!dryRun) rmSync(intentionFile);
+    console.log("  REMOVE: intentïon.md");
+    initChanges++;
+  }
+  // Clear features directory (now at project root, next to library/)
+  const featuresDir = resolve(target, "features");
+  if (existsSync(featuresDir)) {
+    for (const f of readdirSync(featuresDir)) {
+      if (!dryRun) rmSync(resolve(featuresDir, f));
+      console.log(`  REMOVE: features/${f}`);
+      initChanges++;
+    }
+  }
+  // Also clear old features location if it exists
+  const oldFeaturesDir = resolve(target, ".github/agentic-lib/features");
+  if (existsSync(oldFeaturesDir)) {
+    for (const f of readdirSync(oldFeaturesDir)) {
+      if (!dryRun) rmSync(resolve(oldFeaturesDir, f));
+      console.log(`  REMOVE: .github/agentic-lib/features/${f} (old location)`);
+      initChanges++;
+    }
+    if (!dryRun) rmdirSync(oldFeaturesDir);
+    console.log("  REMOVE: .github/agentic-lib/features/ (old location)");
+  }
+  // Remove old getting-started-guide if it exists
+  const oldGuideDir = resolve(target, ".github/agentic-lib/getting-started-guide");
+  if (existsSync(oldGuideDir)) {
+    if (!dryRun) rmSync(oldGuideDir, { recursive: true });
+    console.log("  REMOVE: .github/agentic-lib/getting-started-guide/ (obsolete)");
+    initChanges++;
+  }
+}
+
+function initPurge(seedsDir) {
+  console.log("\n--- Purge: Reset Source Files to Seed State ---");
   const SEED_MAP = {
     "zero-main.js": "src/lib/main.js",
     "zero-main.test.js": "tests/unit/main.test.js",
@@ -733,19 +786,6 @@ function initPurge(seedsDir, agenticDir) {
     if (existsSync(src)) {
       initCopyFile(src, resolve(target, targetRel), `SEED: ${seedFile} → ${targetRel}`);
     }
-  }
-  const intentionFile = resolve(target, "intentïon.md");
-  if (existsSync(intentionFile)) {
-    if (!dryRun) rmSync(intentionFile);
-    console.log("  REMOVE: intentïon.md");
-    initChanges++;
-  }
-  const featuresDir = resolve(agenticDir, "features");
-  if (!existsSync(featuresDir)) return;
-  for (const f of readdirSync(featuresDir)) {
-    if (!dryRun) rmSync(resolve(featuresDir, f));
-    console.log(`  REMOVE: features/${f}`);
-    initChanges++;
   }
 }
 
@@ -767,6 +807,7 @@ function runInit() {
   console.log("=== @xn-intenton-z2a/agentic-lib init ===");
   console.log(`Source:  ${srcDir}`);
   console.log(`Target:  ${target}`);
+  console.log(`Reseed:  ${reseed}`);
   console.log(`Purge:   ${purge}`);
   console.log(`Mode:    ${dryRun ? "DRY RUN" : "LIVE"}`);
   console.log("");
@@ -777,7 +818,8 @@ function runInit() {
   initDirContents("seeds", resolve(agenticDir, "seeds"), "Seeds");
   initScripts(agenticDir);
   initConfig(seedsDir);
-  if (purge) initPurge(seedsDir, agenticDir);
+  if (reseed) initReseed();
+  if (purge) initPurge(seedsDir);
 
   console.log(`\n${initChanges} change(s)${dryRun ? " (dry run)" : ""}`);
 

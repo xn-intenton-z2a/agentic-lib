@@ -41,7 +41,7 @@ describe("config-loader", () => {
       expect(config.writablePaths).toEqual([
         "src/lib/",
         "tests/unit/",
-        ".github/agentic-lib/features/",
+        "features/",
         "docs/",
         "README.md",
         "package.json",
@@ -58,14 +58,14 @@ describe("config-loader", () => {
           'mission = "MISSION.md"',
           'source = "src/lib/"',
           'tests = "tests/unit/"',
-          'features = ".github/agentic-lib/features/"',
+          'features = "features/"',
         ].join("\n"),
       );
 
       const config = loadConfig(configPath);
       expect(config.writablePaths).toContain("src/lib/");
       expect(config.writablePaths).toContain("tests/unit/");
-      expect(config.writablePaths).toContain(".github/agentic-lib/features/");
+      expect(config.writablePaths).toContain("features/");
       expect(config.readOnlyPaths).toContain("MISSION.md");
     });
 

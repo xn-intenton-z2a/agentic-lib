@@ -82,7 +82,8 @@ your-repo/
 ├── package.json                              # [USER] Your package config (seeded on --purge)
 ├── README.md                                 # [USER] Your readme (seeded on --purge)
 ├── intentïon.md                              # [GENERATED] Activity log (cleared on --purge)
-└── .github/agentic-lib/features/             # [GENERATED] Feature definitions (cleared on --purge)
+├── features/                                  # [GENERATED] Feature definitions (cleared on --purge)
+└── library/                                   # [GENERATED] Library documents
 ```
 
 **Legend:**
@@ -123,7 +124,7 @@ tier = "schedule-1"       # schedule-1 through schedule-4
 mission = "MISSION.md"
 source = "src/lib/"
 tests = "tests/unit/"
-features = ".github/agentic-lib/features/"
+features = "features/"
 docs = "docs/"
 readme = "README.md"
 dependencies = "package.json"
@@ -205,7 +206,7 @@ npx @xn-intenton-z2a/agentic-lib maintain-features
 #   [context] Mission loaded, features: 0, library: 0
 #   [copilot] Creating session...
 #   [copilot] Sending prompt...
-#   [event] tool.call: write_file({"path":".github/agentic-lib/features/csv-parsing.md",...})
+#   [event] tool.call: write_file({"path":"features/csv-parsing.md",...})
 #   === maintain-features completed in 12.3s ===
 
 # 5. Transform code toward the mission

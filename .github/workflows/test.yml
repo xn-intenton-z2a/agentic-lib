@@ -197,7 +197,7 @@ jobs:
         run: |
           bash scripts/self-init.sh
           cp src/seeds/zero-MISSION.md MISSION.md
-          mkdir -p .github/agentic-lib/features
+          mkdir -p features
 
       - name: Show init changes
         run: diff -rN --exclude=.git --exclude=node_modules /tmp/baseline . || true
@@ -228,7 +228,7 @@ jobs:
         run: |
           bash scripts/self-init.sh
           cp src/seeds/zero-MISSION.md MISSION.md
-          mkdir -p .github/agentic-lib/features
+          mkdir -p features
 
       - name: Show re-init changes
         run: diff -rN --exclude=.git --exclude=node_modules /tmp/post-init . || true
@@ -345,11 +345,11 @@ jobs:
       - name: Self-init + seed
         run: |
           bash scripts/self-init.sh
-          mkdir -p src/lib tests/unit .github/agentic-lib/features
+          mkdir -p src/lib tests/unit features
           cp src/seeds/zero-main.js src/lib/main.js
           cp src/seeds/zero-main.test.js tests/unit/main.test.js
           cp src/seeds/zero-MISSION.md MISSION.md
-          cat > .github/agentic-lib/features/hello-world.md << 'SEED_EOF'
+          cat > features/hello-world.md << 'SEED_EOF'
           # Feature: Hello World
 
           The main function should accept a name argument and print "Hello, <name>!" to stdout.
@@ -389,11 +389,11 @@ jobs:
       - name: Re-init + seed
         run: |
           bash scripts/self-init.sh
-          mkdir -p src/lib tests/unit .github/agentic-lib/features
+          mkdir -p src/lib tests/unit features
           cp src/seeds/zero-main.js src/lib/main.js
           cp src/seeds/zero-main.test.js tests/unit/main.test.js
           cp src/seeds/zero-MISSION.md MISSION.md
-          cat > .github/agentic-lib/features/hello-world.md << 'SEED_EOF'
+          cat > features/hello-world.md << 'SEED_EOF'
           # Feature: Hello World
 
           The main function should accept a name argument and print "Hello, <name>!" to stdout.
@@ -435,11 +435,11 @@ jobs:
 
       - name: Seed workspace
         run: |
-          mkdir -p src/lib tests/unit .github/agentic-lib/features
+          mkdir -p src/lib tests/unit features
           cp src/seeds/zero-main.js src/lib/main.js
           cp src/seeds/zero-main.test.js tests/unit/main.test.js
           cp src/seeds/zero-MISSION.md MISSION.md
-          cat > .github/agentic-lib/features/hello-world.md << 'SEED_EOF'
+          cat > features/hello-world.md << 'SEED_EOF'
           # Feature: Hello World
 
           The main function should accept a name argument and print "Hello, <name>!" to stdout.
@@ -471,11 +471,11 @@ jobs:
 
       - name: Re-seed workspace
         run: |
-          mkdir -p src/lib tests/unit .github/agentic-lib/features
+          mkdir -p src/lib tests/unit features
           cp src/seeds/zero-main.js src/lib/main.js
           cp src/seeds/zero-main.test.js tests/unit/main.test.js
           cp src/seeds/zero-MISSION.md MISSION.md
-          cat > .github/agentic-lib/features/hello-world.md << 'SEED_EOF'
+          cat > features/hello-world.md << 'SEED_EOF'
           # Feature: Hello World
 
           The main function should accept a name argument and print "Hello, <name>!" to stdout.
@@ -516,7 +516,7 @@ jobs:
       - name: Seed workspace
         run: |
           cp src/seeds/zero-MISSION.md MISSION.md
-          mkdir -p .github/agentic-lib/features
+          mkdir -p features
 
       - name: Show seed changes
         run: diff -rN --exclude=.git --exclude=node_modules /tmp/baseline . || true
@@ -541,7 +541,7 @@ jobs:
       - name: Re-seed workspace
         run: |
           cp src/seeds/zero-MISSION.md MISSION.md
-          mkdir -p .github/agentic-lib/features
+          mkdir -p features
 
       - name: Show re-seed changes
         run: diff -rN --exclude=.git --exclude=node_modules /tmp/post-seed . || true

@@ -165,14 +165,14 @@ echo ""
 echo "=== Step 4: maintain-features ==="
 echo ""
 
-mkdir -p "$WORKSPACE/.github/agentic-lib/features"
-FEATURES_BEFORE=$(find "$WORKSPACE/.github/agentic-lib/features" -name "*.md" | wc -l | tr -d ' ')
+mkdir -p "$WORKSPACE/features"
+FEATURES_BEFORE=$(find "$WORKSPACE/features" -name "*.md" | wc -l | tr -d ' ')
 echo "  Features before: $FEATURES_BEFORE"
 
 node "$CLI" maintain-features --target "$WORKSPACE" --model "$MODEL" $DRY_RUN
 echo ""
 
-FEATURES_AFTER=$(find "$WORKSPACE/.github/agentic-lib/features" -name "*.md" | wc -l | tr -d ' ')
+FEATURES_AFTER=$(find "$WORKSPACE/features" -name "*.md" | wc -l | tr -d ' ')
 echo "  Features after: $FEATURES_AFTER"
 
 if [[ -n "$DRY_RUN" ]]; then
@@ -180,7 +180,7 @@ if [[ -n "$DRY_RUN" ]]; then
 elif [[ "$FEATURES_AFTER" -gt "$FEATURES_BEFORE" ]]; then
   pass "maintain-features created $((FEATURES_AFTER - FEATURES_BEFORE)) feature(s)"
   echo "  Feature files:"
-  find "$WORKSPACE/.github/agentic-lib/features" -name "*.md" -exec echo "    - {}" \;
+  find "$WORKSPACE/features" -name "*.md" -exec echo "    - {}" \;
 else
   echo "  (no new features created — SDK may not have been available)"
 fi
