@@ -165,7 +165,7 @@ describe("tasks/discussions", () => {
     expect(callArgs.prompt).toContain("user1");
     expect(callArgs.prompt).toContain("Build an awesome tool");
     expect(callArgs.prompt).toContain("HTTP");
-    expect(callArgs.systemMessage).toContain("repository bot");
+    expect(callArgs.systemMessage).toContain("this repository");
   });
 
   it("parses ACTION:nop from response", async () => {

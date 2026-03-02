@@ -98,7 +98,7 @@ npx @xn-intenton-z2a/agentic-lib init --dry-run  # Preview init in current dir
 
 **You may**: create branches, commit changes, push branches, open pull requests
 
-**You may NOT**: merge PRs, push to main, delete branches, rewrite history
+**You may NOT** (without explicit permission on a command by command basis given immediately before execution): merge PRs, push to main, delete branches, rewrite history
 
 **Branch naming**: `claude/<short-description>`
 

@@ -212,7 +212,7 @@ jobs:
           COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
         with:
           task: "maintain-features"
-          config: agentic-lib.toml
+          config: tests/template/agentic-lib.toml
           model: ${{ needs.params.outputs.model }}
 
       - name: Show agent changes
@@ -286,7 +286,7 @@ jobs:
           COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
         with:
           task: "maintain-library"
-          config: agentic-lib.toml
+          config: tests/template/agentic-lib.toml
           model: ${{ needs.params.outputs.model }}
           writable-paths: "library/"
 
@@ -369,7 +369,7 @@ jobs:
           COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
         with:
           task: "transform"
-          config: agentic-lib.toml
+          config: tests/template/agentic-lib.toml
           model: ${{ needs.params.outputs.model }}
           writable-paths: "src/lib/;tests/unit/"
           test-command: "npm test"
