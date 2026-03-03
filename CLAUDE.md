@@ -4,9 +4,10 @@
 
 **After compaction or at session start:**
 
-1. Read all `PLAN_*.md` files in the project root — these are the active goals
-2. Run `TaskList` to see tracked tasks with status
-3. Do NOT start new work without checking these first
+1. Read `.claude/messages.md` — another Claude session may have left messages for you
+2. Read all `PLAN_*.md` files in the project root — these are the active goals
+3. Run `TaskList` to see tracked tasks with status
+4. Do NOT start new work without checking these first
 
 **During work:**
 
@@ -154,6 +155,19 @@ Current Copilot discussion: [#1775](https://github.com/xn-intenton-z2a/agentic-l
 - Ask questions that encourage the bot to respond as a distinct entity with its own perspective
 - Record all conversations in `CLAUDE_AND_COPILOT.md` so context survives across sessions
 - Use these conversations to validate assumptions, gather ecosystem knowledge, and coordinate work
+
+## Inter-Session Communication (Claude Code ↔ Claude Code)
+
+Multiple Claude Code sessions may work in this directory concurrently. Use `.claude/messages.md` to coordinate.
+
+**Protocol:**
+- **Read** `.claude/messages.md` at session start and before touching shared files
+- **Append** messages (never edit or delete existing entries)
+- **Format:** `## YYYY-MM-DDTHH:MM:SSZ [branch-name] description`
+- **Claim files:** State which files you're working on so the other session avoids them
+- **Report merges:** Note when you merge a PR so the other session knows to pull
+
+The file is gitignored (`.claude/` is in `.gitignore`). It's ephemeral — it exists for the current working session, not for history.
 
 ## Multi-Agent Citizenship
 
