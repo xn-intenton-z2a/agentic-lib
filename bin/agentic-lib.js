@@ -814,7 +814,7 @@ function initPurge(seedsDir) {
   clearAndRecreateDir(sourcePath, sourcePath);
   clearAndRecreateDir(testsPath, testsPath);
 
-  // Copy seed files
+  // Copy seed files (including config TOML)
   const SEED_MAP = {
     "zero-main.js": "src/lib/main.js",
     "zero-main.test.js": "tests/unit/main.test.js",
@@ -822,6 +822,7 @@ function initPurge(seedsDir) {
     "zero-SOURCES.md": "SOURCES.md",
     "zero-package.json": "package.json",
     "zero-README.md": "README.md",
+    "zero-agentic-lib.toml": "agentic-lib.toml",
   };
   for (const [seedFile, targetRel] of Object.entries(SEED_MAP)) {
     const src = resolve(seedsDir, seedFile);
