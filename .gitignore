@@ -115,3 +115,6 @@ web_modules/
 /response.json
 /result.json
 .env
+
+# Claude Code inter-session messages (ephemeral, not committed)
+.claude/
