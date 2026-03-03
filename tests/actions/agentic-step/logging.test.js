@@ -106,11 +106,17 @@ describe("logging", () => {
         outcome: "transformed",
         model: "claude-sonnet-4-5",
         tokensUsed: 1500,
+        inputTokens: 1200,
+        outputTokens: 300,
+        cost: 3,
+        durationMs: 45000,
       });
 
       const content = readFileSync(filepath, "utf8");
       expect(content).toContain("**Model:** claude-sonnet-4-5");
-      expect(content).toContain("**Tokens:** 1500");
+      expect(content).toContain("**Token Count:** 1500 (in: 1200, out: 300)");
+      expect(content).toContain("**Model Invocations:** 3");
+      expect(content).toContain("**Duration:** 45s (~0.8 GitHub Actions min)");
     });
 
     it("includes workflow URL", () => {
