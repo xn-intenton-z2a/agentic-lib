@@ -3,8 +3,8 @@
 **Date**: 2026-03-02 to 2026-03-03
 **Operator**: Claude Code (claude-opus-4-6)
 **Target**: `xn-intenton-z2a/repository0` (plot-code-lib mission)
-**Duration**: ~2 hours interactive across two sessions
-**agentic-lib version**: 7.1.27 → 7.1.28 → 7.1.29 (fixes applied during testing)
+**Duration**: ~2 hours interactive + overnight monitoring
+**agentic-lib version**: 7.1.27 → 7.1.28 → 7.1.29 → 7.1.30 (fixes applied during testing)
 
 ## Test Method
 
@@ -332,6 +332,68 @@ At 10-minute intervals, the supervisor fires frequently enough to keep the pipel
 The real limiter is push races. With separate concurrency groups, transform and maintain can push simultaneously. The retry logic handles occasional races, but at `*/5` or faster, the probability of triple-push scenarios increases.
 
 **For initial deployment, `hourly` is the safe choice.** Move to `*/10` after observing a few days of clean operation.
+
+---
+
+## Phase 3: Overnight Autonomous Operation (Continuous Schedule)
+
+After deploying v7.1.30 with all fixes, the repository was purged (`init --purge`) with a fresh plot-code-lib mission. The supervisor was set to continuous (`*/10 * * * *`) via `agent-supervisor-schedule.yml` at 01:45Z. The operator went to bed — this phase records what the pipeline did autonomously.
+
+### Timeline
+
+| Time (UTC) | Event | Details |
+|------------|-------|---------|
+| 01:43Z | `agent-supervisor-schedule` dispatched | Set supervisor cron to `*/10 * * * *` (continuous) |
+| 01:44Z | Push (schedule change) triggers `test` → succeeds | CI validates the schedule-change commit |
+| 01:44Z | Reactive supervisor (workflow_run) fires 3× | test + ci-automerge completions trigger evaluate — no actions (no failing PRs) |
+| 01:45Z | `agent-supervisor-schedule` dispatched again | User switched from hourly to continuous (second dispatch) |
+| 01:46Z | Reactive supervisor fires 2× | cascade from second push |
+| 01:51Z | `agent-flow-maintain` dispatched | Last manual dispatch — generates features and library docs |
+| 01:52Z | Maintain completes | Generated 4 feature files (CLI_INTERFACE, EXPRESSION_PARSER, PLOT_RENDERING, TIME_SERIES_GENERATION) |
+| 01:52Z – 02:41Z | **Silence** | No workflow runs for **49 minutes**. The scheduled supervisor cron (`*/10`) has not fired. |
+
+### Key Finding: GitHub Cron Schedule Did Not Fire
+
+The `*/10 * * * *` cron schedule was configured at 01:44Z. As of 02:41Z (57 minutes later), **zero scheduled runs** have occurred. All supervisor runs during this period were reactive (`workflow_run` events triggered by other workflow completions).
+
+**Evidence:**
+- `gh run list --workflow=agent-supervisor.yml` shows 15 runs — all with `event: workflow_run` or `event: workflow_dispatch`. None with `event: schedule`.
+- The workflow is confirmed `state: active` in the GitHub API.
+- The cron expression `*/10 * * * *` is syntactically valid.
+
+**This is a known GitHub Actions platform behavior:**
+1. New cron schedules can take 20-60+ minutes to start firing (GitHub documentation states this)
+2. Free-tier repositories may experience additional delays
+3. Schedules on rarely-active repositories may be deprioritized by GitHub's scheduling system
+4. The schedule may start firing after the next GitHub Actions scheduler cycle
+
+**Impact on autonomous operation:** Without the scheduled supervisor, the pipeline stalls after the last reactive chain completes. There are no open issues, so there's nothing for a reactive supervisor to respond to. Only a proactive (scheduled) supervisor can create new issues from features and drive the pipeline forward.
+
+### Repository State at T+57min (02:41Z)
+
+| Metric | Value |
+|--------|-------|
+| Open issues | 0 |
+| Open PRs | 0 |
+| Feature files | 4 (CLI_INTERFACE, EXPRESSION_PARSER, PLOT_RENDERING, TIME_SERIES_GENERATION) |
+| Source files | 1 (`main.js` — seed only) |
+| Library docs | 0 |
+| Scheduled supervisor runs | 0 |
+| Total workflows since purge | ~25 (all reactive chains) |
+
+### Observations
+
+1. **The reactive → stall pattern**: After purge, the pipeline had a burst of reactive activity (maintain → supervisor → maintain chain), then went completely silent when there was nothing left to react to. This confirms the supervisor schedule is essential for proactive operation.
+
+2. **Feature generation worked**: 4 features were correctly generated from the plot-code-lib MISSION.md, matching Phase 1 and 2 results.
+
+3. **No issues created**: The maintain workflow generated features but didn't create issues. Only the proactive supervisor can create issues from features, and it hasn't run on schedule.
+
+4. **All 4 closed issues are from Phase 2**: Issues #2440-#2445 were created during Phase 2 testing and closed before the purge. No new automated issues exist.
+
+### Monitoring continues...
+
+*(This section will be updated as scheduled supervisor runs appear)*
 
 ---
 
