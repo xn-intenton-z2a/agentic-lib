@@ -160,17 +160,62 @@ Research channel:
 
 ---
 
-## Revenue (Post-Launch)
+## Economics
 
-The MVP is pre-revenue. Revenue follows attention and credibility.
+### Cost structure: near-zero
 
-| Phase | Revenue Model | Target |
+intentïon costs almost nothing to run or distribute:
+
+| Resource | Who pays | Cost to intentïon |
 |---|---|---|
-| Launch | Free Marketplace action + showcase + research paper | GitHub stars, research citations, visibility |
-| +3 months | Freemium tier — Pro features ($9-29/mo per repo) | Active repos using free tier |
-| +6 months | Consulting — autonomous dev setup ($2-5k) | Teams who've seen the demo |
-| +12 months | Managed service ($99-499/mo) | Teams wanting the loop without setup |
-| +18 months | Enterprise license ($500-2k/mo per team) | Orgs with security/compliance requirements |
+| GitHub Actions minutes | User (free for public repos) | $0 |
+| GitHub Copilot SDK | User (included with Copilot subscription) | $0 |
+| npm publishing | OIDC trusted publishing, no tokens | $0 |
+| Hosting | GitHub Pages / repo / Actions | $0 |
+| Infrastructure | User's GitHub account | $0 |
+| Distribution | `npm install` / `npx init` | $0 |
+
+The user brings their own compute (Actions), their own AI (Copilot), and their own hosting (GitHub). intentïon is pure machinery — it costs nothing to stamp out another copy.
+
+This is a structural advantage over every funded competitor: Devin needs to run inference servers. Cursor needs to host cloud agents. intentïon runs on infrastructure the user already has.
+
+### Why there's no SaaS play
+
+An earlier idea was backend services (persistent "memories", analytics, curated knowledge) offered through the Marketplace action. This doesn't work because:
+
+1. **The LLM handles it locally.** All state lives as committed files in the repo — `intentïon.md`, `features/`, `library/`, the planning artifact. There's nothing a backend service adds that a committed file doesn't.
+2. **It kills the differentiator.** "Just GitHub — no external services, your data never leaves" is the strongest competitive claim. A backend service turns intentïon into another vendor.
+3. **Costs are zero without it.** There's no infrastructure to pay for, so there's no cost pressure to monetize.
+
+### Revenue: attention, not subscription
+
+The project is open source (GPL core, MIT distributed) with near-zero costs. There's no burn rate creating urgency to monetize. Revenue follows attention and credibility, not the other way around.
+
+**What the project generates:**
+
+| Asset | Value |
+|---|---|
+| Technical credibility | Portfolio piece, conference talks, research citations |
+| Research contribution | Novel application of classical AI planning to autonomous development; self-hosting as practical recursive self-improvement |
+| Industry visibility | GitHub Stars program, Marketplace listing, "most advanced Copilot SDK integration" narrative |
+| Conversation with GitHub | "Here's what autonomous development looks like on your infrastructure" — partnership, accelerator, or feature adoption |
+| Consulting leads | Mission engineering, enterprise setup, autonomous development strategy |
+
+**Realistic revenue paths (if/when desired):**
+
+| Path | What it looks like | Precondition |
+|---|---|---|
+| Consulting | Mission engineering, enterprise onboarding ($2-5k per engagement) | Demonstrated success with public demos |
+| Research funding | EPSRC, Innovate UK, academic partnership to implement CONCEPT.md | Published paper + university collaborator |
+| GitHub partnership | Feature adoption, accelerator, or acqui-hire | Marketplace traction + self-hosting proof |
+| Conference / teaching | Paid workshops on autonomous development patterns | Community recognition |
+
+**What's explicitly NOT the plan:**
+
+- No managed service (contradicts "just GitHub")
+- No freemium tiers (there's nothing to gate — it's all open source)
+- No backend services (see above)
+- No subscription pricing (the user already pays GitHub, not us)
 
 ---
 
