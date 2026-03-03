@@ -248,6 +248,7 @@ async function loadTaskConfig() {
     featuresPath: toml.paths?.features || "features/",
     libraryPath: toml.paths?.docs || "library/",
     sourcesPath: toml.paths?.["library-sources"] || "SOURCES.md",
+    examplesPath: toml.paths?.examples || "examples/",
     readmePath: toml.paths?.readme || "README.md",
     depsPath: toml.paths?.dependencies || "package.json",
     buildScript: toml.execution?.build || "npm run build",
@@ -264,6 +265,7 @@ function getWritablePathsFromConfig(config) {
     config.testsPath,
     config.featuresPath,
     config.libraryPath,
+    config.examplesPath,
     config.readmePath,
     config.depsPath,
   ].filter(Boolean);
@@ -362,6 +364,11 @@ function buildTransformPrompt(config, pathsSection) {
       "",
       `## Current Source Files (${sourceFiles.length})`,
       ...sourceFiles.map((f) => `### ${f.name}\n\`\`\`\n${f.content}\n\`\`\``),
+      "",
+      "## Output Artifacts",
+      "If your changes produce output artifacts (plots, visualizations, data files, usage examples),",
+      `save them to the \`${config.examplesPath || "examples/"}\` directory.`,
+      "This directory is for demonstrating what the code can do.",
       "",
       "## Your Task",
       "Analyze the mission, features, and source code.",
@@ -736,6 +743,14 @@ function initConfig(seedsDir) {
   } else {
     console.log("  SKIP: seed TOML not found");
   }
+
+  const giSeed = resolve(seedsDir, "zero-.gitignore");
+  const giTarget = resolve(target, ".gitignore");
+  if (existsSync(giSeed) && !existsSync(giTarget)) {
+    initCopyFile(giSeed, giTarget, ".gitignore (new)");
+  } else if (existsSync(giTarget)) {
+    console.log("  SKIP: .gitignore already exists");
+  }
 }
 
 function removeFile(filePath, label) {
@@ -769,6 +784,7 @@ function initReseed() {
   }
 
   clearDirContents(resolve(target, "library"), "library");
+  clearDirContents(resolve(target, "examples"), "examples");
 
   // Remove old getting-started-guide if it exists
   const oldGuideDir = resolve(target, ".github/agentic-lib/getting-started-guide");
@@ -782,19 +798,22 @@ function initReseed() {
 function readTomlPaths() {
   let sourcePath = "src/lib/";
   let testsPath = "tests/unit/";
+  let examplesPath = "examples/";
   const tomlTarget = resolve(target, "agentic-lib.toml");
   if (existsSync(tomlTarget)) {
     try {
       const tomlContent = readFileSync(tomlTarget, "utf8");
       const sourceMatch = tomlContent.match(/^source\s*=\s*"([^"]+)"/m);
       const testsMatch = tomlContent.match(/^tests\s*=\s*"([^"]+)"/m);
+      const examplesMatch = tomlContent.match(/^examples\s*=\s*"([^"]+)"/m);
       if (sourceMatch) sourcePath = sourceMatch[1];
       if (testsMatch) testsPath = testsMatch[1];
+      if (examplesMatch) examplesPath = examplesMatch[1];
     } catch (err) {
       console.log(`  WARN: Could not read TOML for paths, using defaults: ${err.message}`);
     }
   }
-  return { sourcePath, testsPath };
+  return { sourcePath, testsPath, examplesPath };
 }
 
 function clearAndRecreateDir(dirPath, label) {
@@ -810,9 +829,10 @@ function clearAndRecreateDir(dirPath, label) {
 function initPurge(seedsDir) {
   console.log("\n--- Purge: Reset Source Files to Seed State ---");
 
-  const { sourcePath, testsPath } = readTomlPaths();
+  const { sourcePath, testsPath, examplesPath } = readTomlPaths();
   clearAndRecreateDir(sourcePath, sourcePath);
   clearAndRecreateDir(testsPath, testsPath);
+  clearAndRecreateDir(examplesPath, examplesPath);
 
   // Copy seed files (including config TOML)
   const SEED_MAP = {
@@ -823,6 +843,7 @@ function initPurge(seedsDir) {
     "zero-package.json": "package.json",
     "zero-README.md": "README.md",
     "zero-agentic-lib.toml": "agentic-lib.toml",
+    "zero-.gitignore": ".gitignore",
   };
   for (const [seedFile, targetRel] of Object.entries(SEED_MAP)) {
     const src = resolve(seedsDir, seedFile);

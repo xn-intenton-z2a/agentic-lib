@@ -43,6 +43,7 @@ describe("config-loader", () => {
         "tests/unit/",
         "features/",
         "docs/",
+        "examples/",
         "README.md",
         "package.json",
       ]);

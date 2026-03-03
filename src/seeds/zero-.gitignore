@@ -1,0 +1,27 @@
+# Node
+node_modules/
+
+# Coverage
+coverage/
+
+# Environment and secrets
+.env
+secrets.env
+*.kdbx
+.npmrc
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Generated files at repo root (agents should use examples/ instead)
+/*.png
+/*.svg
+/*.pdf
+/*.csv
