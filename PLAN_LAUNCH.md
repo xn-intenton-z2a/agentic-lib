@@ -187,35 +187,66 @@ An earlier idea was backend services (persistent "memories", analytics, curated 
 2. **It kills the differentiator.** "Just GitHub — no external services, your data never leaves" is the strongest competitive claim. A backend service turns intentïon into another vendor.
 3. **Costs are zero without it.** There's no infrastructure to pay for, so there's no cost pressure to monetize.
 
-### Revenue: attention, not subscription
+### Strategy: build the machine, then pivot the person
 
-The project is open source (GPL core, MIT distributed) with near-zero costs. There's no burn rate creating urgency to monetize. Revenue follows attention and credibility, not the other way around.
+The project is open source (GPL core, MIT distributed) with near-zero costs. There's no burn rate. The goal is not to monetize the software — it's to build the most advanced recursive self-improvement system that exists, and let that create opportunities.
 
-**What the project generates:**
+**The thesis:** Classical AI planning theory from the [University of Essex Computer Science department](https://www.essex.ac.uk/departments/computer-science-and-electronic-engineering) in the 1990s (Steel & Ho, partial-order planning, truth maintenance) described concepts that couldn't be executed because the compute wasn't available. 2026 LLM technology provides that compute. intentïon is the implementation — grounded in academically-reviewed theory, built on commodity infrastructure, free to use, and heading toward self-hosting as a practical demonstration of recursive self-improvement.
 
-| Asset | Value |
+### The author: Antony Christopher Cartwright
+
+Antony is the sole developer and director of [Polycode Limited](https://polycode.co.uk/) (est. 2016), a UK-registered software consultancy. He holds an MSc in Computer Science from the [University of Essex](https://www.essex.ac.uk/departments/computer-science-and-electronic-engineering) (1991-1997) — the same department where Steel & Ho published the planning-execution theory that underpins CONCEPT.md.
+
+Current position: Associate Consultant at [Equal Experts](https://www.equalexperts.com/), working through Rothwell International BV (Netherlands). The Equal Experts associate model means working alongside peers on enterprise client engagements — Liberty Global, BskyB, Disney, Sky New Zealand, William Hill, Reuters, Leeds Building Society, NHS England among past clients. 25+ years on JVM-based languages, AWS Certified, with recent focus on Kotlin, serverless AWS (CDK/CloudFormation/DynamoDB), and GitHub Actions.
+
+[LinkedIn: antonycc](https://www.linkedin.com/in/antonycc/) | [GitHub: antonycc](https://github.com/antonycc) | [Polycode Limited](https://polycode.co.uk/)
+
+### Primary path: GitHub partnership
+
+Build the most advanced recursive self-improvement system. Make it free, public, and require nothing outside the GitHub repository. intentïon's natural home is GitHub — it showcases what their platform can do better than anything else in the ecosystem. The partnership conversation:
+
+- "Here is a working autonomous development loop running entirely on your infrastructure"
+- "Here is self-hosting — the system manages its own codebase using your Copilot SDK"
+- "The planning theory is academically grounded and the implementation is open source"
+- "What do you want to do with this?"
+
+This is lower probability but highest impact. GitHub Marketplace listing, GitHub Universe talk, GitHub Stars program — all feed this path.
+
+### Secondary path: consulting pivot
+
+If the GitHub conversation doesn't materialise (or takes time), the project enables a pivot in consulting positioning. The current associate model at Equal Experts is peer-to-peer technical delivery — architecture and development for enterprise clients. intentïon repositions the consulting offer:
+
+| Current positioning | Pivot positioning |
 |---|---|
-| Technical credibility | Portfolio piece, conference talks, research citations |
-| Research contribution | Novel application of classical AI planning to autonomous development; self-hosting as practical recursive self-improvement |
-| Industry visibility | GitHub Stars program, Marketplace listing, "most advanced Copilot SDK integration" narrative |
-| Conversation with GitHub | "Here's what autonomous development looks like on your infrastructure" — partnership, accelerator, or feature adoption |
-| Consulting leads | Mission engineering, enterprise setup, autonomous development strategy |
+| Java/Kotlin/AWS technical architect | AI-driven autonomous development strategist |
+| "I build your cloud infrastructure" | "I set up AI systems that build your infrastructure" |
+| Equal Experts associate (peer delivery) | Direct consulting (AI transformation) |
+| Day-rate technical work | Value-based AI rollout engagements |
 
-**Realistic revenue paths (if/when desired):**
+The pivot is natural: the same enterprise clients (financial services, telecom, media, healthcare) that need cloud architects today will need autonomous development strategy tomorrow. The [PwC Agentic SDLC report](https://www.pwc.com/m1/en/publications/2026/docs/future-of-solutions-dev-and-delivery-in-the-rise-of-gen-ai.pdf) and [CIO's agentic AI forecast](https://www.cio.com/article/4134741/how-agentic-ai-will-reshape-engineering-workflows-in-2026.html) both describe this shift. Antony's 25 years of enterprise delivery credibility + intentïon as a working demonstration = a differentiated consulting offer.
 
-| Path | What it looks like | Precondition |
-|---|---|---|
-| Consulting | Mission engineering, enterprise onboarding ($2-5k per engagement) | Demonstrated success with public demos |
-| Research funding | EPSRC, Innovate UK, academic partnership to implement CONCEPT.md | Published paper + university collaborator |
-| GitHub partnership | Feature adoption, accelerator, or acqui-hire | Marketplace traction + self-hosting proof |
-| Conference / teaching | Paid workshops on autonomous development patterns | Community recognition |
+Consulting engagements could include:
+- Autonomous development setup for enterprise repositories
+- Mission engineering workshops (writing effective MISSION.md for real codebases)
+- AI-heavy rollout strategy (how to introduce autonomous development into existing CI/CD)
+- Training: "From CI/CD to autonomous development" for engineering teams
 
-**What's explicitly NOT the plan:**
+The Equal Experts network remains valuable — some engagements may come through EE, others directly. The associate model is compatible with parallel consulting under Polycode Limited.
+
+### Tertiary path: research funding
+
+The Essex connection is genuine academic lineage, not a marketing story. If intentïon produces a publishable self-hosting result, there's a path to:
+- Collaboration with Essex CSEE on applied AI planning research
+- EPSRC or Innovate UK funding for CONCEPT.md implementation
+- Conference talks (ICLR, ICSE, GitHub Universe) that feed both partnership and consulting paths
+
+### What's explicitly NOT the plan
 
 - No managed service (contradicts "just GitHub")
 - No freemium tiers (there's nothing to gate — it's all open source)
-- No backend services (see above)
+- No backend services (the LLM handles state locally)
 - No subscription pricing (the user already pays GitHub, not us)
+- No VC fundraising (near-zero costs, no need for external capital)
 
 ---
 
