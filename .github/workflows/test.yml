@@ -42,6 +42,13 @@ on:
   pull_request:
     branches:
       - main
+    paths:
+      - "**/*.js"
+      - "**/*.json"
+      - "**/*.yml"
+      - "**/*.sh"
+      - "!_developers/**"
+      - "!exports/**"
   workflow_dispatch:
     inputs:
       skipLinter:
