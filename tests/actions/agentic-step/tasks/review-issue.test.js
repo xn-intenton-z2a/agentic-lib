@@ -113,7 +113,7 @@ describe("tasks/review-issue", () => {
     await reviewIssue(ctx);
 
     expect(octokit.rest.issues.listForRepo).toHaveBeenCalledWith(
-      expect.objectContaining({ state: "open", labels: "automated", per_page: 1, sort: "created", direction: "asc" }),
+      expect.objectContaining({ state: "open", labels: "automated", per_page: 5, sort: "created", direction: "asc" }),
     );
     expect(octokit.rest.issues.get).toHaveBeenCalledWith(expect.objectContaining({ issue_number: 17 }));
     // Should proceed to review the issue

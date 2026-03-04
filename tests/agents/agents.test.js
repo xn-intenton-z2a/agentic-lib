@@ -29,12 +29,6 @@ describe("src/agents", () => {
       expect(config).toBeTruthy();
     });
 
-    it("has a schedule field", () => {
-      const content = readFileSync(join(AGENTS_DIR, "agentic-lib.yml"), "utf8");
-      config = yaml.load(content);
-      expect(config.schedule).toBeTruthy();
-    });
-
     it("has a paths field", () => {
       const content = readFileSync(join(AGENTS_DIR, "agentic-lib.yml"), "utf8");
       config = yaml.load(content);

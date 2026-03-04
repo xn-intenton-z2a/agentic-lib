@@ -26,10 +26,10 @@ describe("config-loader", () => {
 
     it("loads a minimal TOML config with defaults", () => {
       const configPath = join(tmpDir, "config.toml");
-      writeFileSync(configPath, '[schedule]\ntier = "schedule-2"\n');
+      writeFileSync(configPath, '[schedule]\nsupervisor = "weekly"\n');
 
       const config = loadConfig(configPath);
-      expect(config.schedule).toBe("schedule-2");
+      expect(config.supervisor).toBe("weekly");
       expect(config.model).toBe("gpt-5-mini");
       expect(config.buildScript).toBe("npm run build");
       expect(config.testScript).toBe("npm test");
@@ -53,7 +53,7 @@ describe("config-loader", () => {
 
     it("parses model from schedule section", () => {
       const configPath = join(tmpDir, "config.toml");
-      writeFileSync(configPath, '[schedule]\ntier = "schedule-1"\nmodel = "claude-sonnet-4"\n');
+      writeFileSync(configPath, '[schedule]\nmodel = "claude-sonnet-4"\n');
 
       const config = loadConfig(configPath);
       expect(config.model).toBe("claude-sonnet-4");
@@ -146,10 +146,10 @@ describe("config-loader", () => {
       mkdirSync(agentsDir, { recursive: true });
       const yamlPath = join(agentsDir, "agentic-lib.yml");
       writeFileSync(yamlPath, ""); // dummy, not read
-      writeFileSync(join(tmpDir, "agentic-lib.toml"), '[schedule]\ntier = "schedule-3"\n');
+      writeFileSync(join(tmpDir, "agentic-lib.toml"), '[schedule]\nsupervisor = "hourly"\n');
 
       const config = loadConfig(yamlPath);
-      expect(config.schedule).toBe("schedule-3");
+      expect(config.supervisor).toBe("hourly");
     });
   });
 
