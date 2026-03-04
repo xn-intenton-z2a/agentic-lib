@@ -436,4 +436,70 @@ describe("tasks/supervise", () => {
 
     expect(result.model).toBe("claude-sonnet-4.5");
   });
+
+  it("parses set-schedule action from ACTIONS block", async () => {
+    runCopilotTask.mockResolvedValue({
+      content:
+        "[ACTIONS]\nset-schedule:weekly\n[/ACTIONS]\n[REASONING]\nMission complete, wind down.\n[/REASONING]",
+      tokensUsed: 60,
+    });
+    const octokit = createMockOctokit();
+    const ctx = createMockContext({ octokit });
+
+    const result = await supervise(ctx);
+
+    expect(octokit.rest.actions.createWorkflowDispatch).toHaveBeenCalledWith(
+      expect.objectContaining({
+        workflow_id: "agent-supervisor-schedule.yml",
+        ref: "main",
+        inputs: { frequency: "weekly" },
+      }),
+    );
+    expect(result.details).toContain("set-schedule:weekly");
+  });
+
+  it("dispatches schedule workflow for valid frequencies", async () => {
+    runCopilotTask.mockResolvedValue({
+      content:
+        "[ACTIONS]\nset-schedule:continuous\n[/ACTIONS]\n[REASONING]\nRamp up.\n[/REASONING]",
+      tokensUsed: 50,
+    });
+    const octokit = createMockOctokit();
+    const ctx = createMockContext({ octokit });
+
+    const result = await supervise(ctx);
+
+    expect(octokit.rest.actions.createWorkflowDispatch).toHaveBeenCalledWith(
+      expect.objectContaining({
+        workflow_id: "agent-supervisor-schedule.yml",
+        inputs: { frequency: "continuous" },
+      }),
+    );
+    expect(result.details).toContain("set-schedule:continuous");
+  });
+
+  it("skips set-schedule with invalid frequency", async () => {
+    runCopilotTask.mockResolvedValue({
+      content:
+        "[ACTIONS]\nset-schedule:invalid\n[/ACTIONS]\n[REASONING]\nBad frequency.\n[/REASONING]",
+      tokensUsed: 40,
+    });
+    const octokit = createMockOctokit();
+    const ctx = createMockContext({ octokit });
+
+    const result = await supervise(ctx);
+
+    expect(octokit.rest.actions.createWorkflowDispatch).not.toHaveBeenCalled();
+    expect(result.details).toContain("skipped:invalid-frequency:invalid");
+  });
+
+  it("includes set-schedule in prompt available actions", async () => {
+    const ctx = createMockContext();
+
+    await supervise(ctx);
+
+    const callArgs = runCopilotTask.mock.calls[0][0];
+    expect(callArgs.prompt).toContain("set-schedule:");
+    expect(callArgs.prompt).toContain("Schedule Control");
+  });
 });
