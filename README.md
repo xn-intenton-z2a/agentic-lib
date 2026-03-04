@@ -157,7 +157,6 @@ Configuration lives in `agentic-lib.toml` at your project root:
 
 ```toml
 [schedule]
-tier = "schedule-1"          # schedule-1 through schedule-4
 supervisor = "daily"         # off | weekly | daily | hourly | continuous
 
 [paths]

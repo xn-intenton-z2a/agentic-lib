@@ -134,7 +134,7 @@ async function runTask(taskName) {
   const writablePaths = getWritablePathsFromConfig(config);
   const readOnlyPaths = getReadOnlyPathsFromConfig(config);
 
-  console.log(`[config] schedule=${config.schedule}`);
+  console.log(`[config] supervisor=${config.supervisor || "daily"}`);
   console.log(`[config] writable=${writablePaths.join(", ")}`);
   console.log(`[config] test=${config.testScript}`);
   console.log("");
@@ -241,7 +241,6 @@ async function loadTaskConfig() {
   const { parse } = await import("smol-toml");
   const toml = parse(readFileSync(tomlPath, "utf8"));
   return {
-    schedule: toml.schedule?.tier || "schedule-1",
     missionPath: toml.paths?.mission || "MISSION.md",
     sourcePath: toml.paths?.source || "src/lib/",
     testsPath: toml.paths?.tests || "tests/unit/",

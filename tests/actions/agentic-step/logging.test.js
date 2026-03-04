@@ -146,6 +146,33 @@ describe("logging", () => {
       expect(content).toContain("The feature was already implemented");
     });
 
+    it("rotates log to keep only last 30 entries", () => {
+      const filepath = join(tmpDir, "intention.md");
+      // Create a log with 35 entries
+      let content = "# intentïon Activity Log\n";
+      for (let i = 1; i <= 35; i++) {
+        content += `\n## task-${i} at 2026-01-01T00:00:00Z\n\n**Outcome:** done\n\n---\n`;
+      }
+      writeFileSync(filepath, content);
+
+      // Add one more entry (total would be 36, should trigger rotation)
+      logActivity({
+        filepath,
+        task: "task-36",
+        outcome: "done",
+      });
+
+      const result = readFileSync(filepath, "utf8");
+      // Should contain the header
+      expect(result).toContain("# intent");
+      // Should NOT contain task-1 through task-6 (rotated out)
+      expect(result).not.toContain("task-1 at");
+      expect(result).not.toContain("task-5 at");
+      // Should contain task-7 onwards and the new task-36
+      expect(result).toContain("task-7 at");
+      expect(result).toContain("task-36");
+    });
+
     it("creates parent directories if needed", () => {
       const filepath = join(tmpDir, "sub", "dir", "intention.md");
       logActivity({
