@@ -87,6 +87,8 @@ export async function reviewIssue(context) {
     `## Current Tests (${testFiles.length} files)`,
     ...testFiles.map((f) => `### ${f.name}\n\`\`\`\n${f.content}\n\`\`\``),
     "",
+    config.configToml ? `## Configuration (agentic-lib.toml)\n\`\`\`toml\n${config.configToml}\n\`\`\`` : "",
+    "",
     "## Your Task",
     "Determine if this issue has been resolved by the current code.",
     "Respond with exactly one of:",

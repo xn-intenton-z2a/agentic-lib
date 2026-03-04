@@ -140,6 +140,16 @@ describe("config-loader", () => {
       expect(config.paths.librarySources.path).toBe("LINKS.md");
     });
 
+    it("returns raw configToml text", () => {
+      const configPath = join(tmpDir, "config.toml");
+      const tomlContent = '[schedule]\nsupervisor = "daily"\n';
+      writeFileSync(configPath, tomlContent);
+
+      const config = loadConfig(configPath);
+      expect(config.configToml).toContain("[schedule]");
+      expect(config.configToml).toContain('supervisor = "daily"');
+    });
+
     it("derives TOML path from YAML-style path (3 levels up)", () => {
       // Simulate .github/agentic-lib/agents/agentic-lib.yml → project root agentic-lib.toml
       const agentsDir = join(tmpDir, ".github", "agentic-lib", "agents");

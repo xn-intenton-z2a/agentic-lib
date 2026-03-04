@@ -98,4 +98,20 @@ describe("formatPathsSection", () => {
     expect(result).toContain("- src/");
     expect(result).toContain("- (none)");
   });
+
+  it("includes TOML config when provided", () => {
+    const toml = '[schedule]\nsupervisor = "daily"\n';
+    const result = formatPathsSection(["src/"], ["README.md"], toml);
+    expect(result).toContain("### Configuration (agentic-lib.toml)");
+    expect(result).toContain("```toml");
+    expect(result).toContain("[schedule]");
+    expect(result).toContain("supervisor");
+    expect(result).toContain("daily");
+  });
+
+  it("omits TOML section when configToml is not provided", () => {
+    const result = formatPathsSection(["src/"], ["README.md"]);
+    expect(result).not.toContain("### Configuration");
+    expect(result).not.toContain("```toml");
+  });
 });

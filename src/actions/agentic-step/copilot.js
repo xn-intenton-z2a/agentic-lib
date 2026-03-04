@@ -171,15 +171,20 @@ export function scanDirectory(dirPath, extensions, options = {}) {
  *
  * @param {string[]} writablePaths
  * @param {string[]} [readOnlyPaths=[]]
+ * @param {string} [configToml] - Raw TOML config text to include
  * @returns {string}
  */
-export function formatPathsSection(writablePaths, readOnlyPaths = []) {
-  return [
+export function formatPathsSection(writablePaths, readOnlyPaths = [], configToml) {
+  const lines = [
     "## File Paths",
     "### Writable (you may modify these)",
     writablePaths.length > 0 ? writablePaths.map((p) => `- ${p}`).join("\n") : "- (none)",
     "",
     "### Read-Only (for context only, do NOT modify)",
     readOnlyPaths.length > 0 ? readOnlyPaths.map((p) => `- ${p}`).join("\n") : "- (none)",
-  ].join("\n");
+  ];
+  if (configToml) {
+    lines.push("", "### Configuration (agentic-lib.toml)", "```toml", configToml, "```");
+  }
+  return lines.join("\n");
 }

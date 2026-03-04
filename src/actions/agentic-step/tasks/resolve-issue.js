@@ -71,7 +71,7 @@ export async function resolveIssue(context) {
     comments.length > 0 ? "## Issue Comments" : "",
     ...comments.map((c) => `**${c.user.login}:** ${c.body}`),
     "",
-    formatPathsSection(writablePaths, readOnlyPaths),
+    formatPathsSection(writablePaths, readOnlyPaths, config.configToml),
     "",
     "## Constraints",
     `- Run \`${testCommand}\` to validate your changes`,
