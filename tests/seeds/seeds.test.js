@@ -12,8 +12,8 @@ const allFiles = readdirSync(SEEDS_DIR).sort();
 const ymlFiles = allFiles.filter((f) => f.endsWith(".yml"));
 
 describe("src/seeds", () => {
-  it("has 11 seed files", () => {
-    expect(allFiles).toHaveLength(11);
+  it("has 12 seed entries (11 files + missions directory)", () => {
+    expect(allFiles).toHaveLength(12);
   });
 
   describe("zero-package.json", () => {
