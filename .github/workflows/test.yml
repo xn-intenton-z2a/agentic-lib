@@ -21,6 +21,7 @@
 #     test-cli-maintain-library   — CLI maintain-library
 #
 # COPILOT_GITHUB_TOKEN is required for all transform jobs.
+# Transform jobs are skipped when the token is unavailable (e.g. Dependabot PRs).
 #
 # Use workflow_dispatch to override the model.
 
@@ -84,9 +85,16 @@ jobs:
           echo "skipLinter=${SKIP_LINTER:-true}" >> $GITHUB_OUTPUT
           MODEL='${{ inputs.model }}'
           echo "model=${MODEL:-gpt-5-mini}" >> $GITHUB_OUTPUT
+      - name: Check COPILOT_GITHUB_TOKEN availability
+        id: secrets
+        shell: bash
+        env:
+          HAS_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN != '' }}
+        run: echo "hasCopilotToken=${HAS_TOKEN}" >> $GITHUB_OUTPUT
     outputs:
       skipLinter: ${{ steps.normalise.outputs.skipLinter }}
       model: ${{ steps.normalise.outputs.model }}
+      hasCopilotToken: ${{ steps.secrets.outputs.hasCopilotToken }}
 
   # ─── CI: each check as its own job ─────────────────────────────────
 
@@ -174,6 +182,7 @@ jobs:
 
   test-maintain-features:
     needs: params
+    if: needs.params.outputs.hasCopilotToken == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
@@ -242,6 +251,7 @@ jobs:
 
   test-maintain-library:
     needs: params
+    if: needs.params.outputs.hasCopilotToken == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
@@ -323,6 +333,7 @@ jobs:
 
   test-transform:
     needs: params
+    if: needs.params.outputs.hasCopilotToken == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
@@ -414,6 +425,7 @@ jobs:
 
   test-cli-transform:
     needs: params
+    if: needs.params.outputs.hasCopilotToken == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
@@ -495,6 +507,7 @@ jobs:
 
   test-cli-maintain-features:
     needs: params
+    if: needs.params.outputs.hasCopilotToken == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
@@ -557,6 +570,7 @@ jobs:
 
   test-cli-maintain-library:
     needs: params
+    if: needs.params.outputs.hasCopilotToken == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
