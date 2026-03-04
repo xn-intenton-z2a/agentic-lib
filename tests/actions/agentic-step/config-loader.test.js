@@ -30,6 +30,7 @@ describe("config-loader", () => {
 
       const config = loadConfig(configPath);
       expect(config.schedule).toBe("schedule-2");
+      expect(config.model).toBe("gpt-5-mini");
       expect(config.buildScript).toBe("npm run build");
       expect(config.testScript).toBe("npm test");
       expect(config.mainScript).toBe("npm run start");
@@ -48,6 +49,14 @@ describe("config-loader", () => {
         "package.json",
       ]);
       expect(config.readOnlyPaths).toEqual(["MISSION.md", "library/", "SOURCES.md", "CONTRIBUTING.md"]);
+    });
+
+    it("parses model from schedule section", () => {
+      const configPath = join(tmpDir, "config.toml");
+      writeFileSync(configPath, '[schedule]\ntier = "schedule-1"\nmodel = "claude-sonnet-4"\n');
+
+      const config = loadConfig(configPath);
+      expect(config.model).toBe("claude-sonnet-4");
     });
 
     it("parses custom paths and marks writable keys correctly", () => {
