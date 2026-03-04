@@ -502,4 +502,46 @@ describe("tasks/supervise", () => {
     expect(callArgs.prompt).toContain("set-schedule:");
     expect(callArgs.prompt).toContain("Schedule Control");
   });
+
+  it("dispatches ci-automerge workflow", async () => {
+    runCopilotTask.mockResolvedValue({
+      content:
+        "[ACTIONS]\ndispatch:ci-automerge\n[/ACTIONS]\n[REASONING]\nMerge ready PRs.\n[/REASONING]",
+      tokensUsed: 80,
+    });
+    const octokit = createMockOctokit();
+    const ctx = createMockContext({ octokit });
+
+    const result = await supervise(ctx);
+
+    expect(octokit.rest.actions.createWorkflowDispatch).toHaveBeenCalledWith(
+      expect.objectContaining({
+        workflow_id: "ci-automerge.yml",
+        ref: "main",
+      }),
+    );
+    expect(result.details).toContain("dispatched:ci-automerge.yml");
+  });
+
+  it("includes dispatch:ci-automerge in prompt available actions", async () => {
+    const ctx = createMockContext();
+
+    await supervise(ctx);
+
+    const callArgs = runCopilotTask.mock.calls[0][0];
+    expect(callArgs.prompt).toContain("dispatch:ci-automerge");
+  });
+
+  it("includes configToml in prompt when available", async () => {
+    const config = createMockConfig({ configToml: '[schedule]\nsupervisor = "daily"\n' });
+    const ctx = createMockContext({ config });
+
+    await supervise(ctx);
+
+    const callArgs = runCopilotTask.mock.calls[0][0];
+    expect(callArgs.prompt).toContain("### Configuration");
+    expect(callArgs.prompt).toContain("[schedule]");
+    expect(callArgs.prompt).toContain("supervisor");
+    expect(callArgs.prompt).toContain("daily");
+  });
 });

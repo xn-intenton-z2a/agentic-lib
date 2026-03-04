@@ -140,6 +140,34 @@ describe("config-loader", () => {
       expect(config.paths.librarySources.path).toBe("LINKS.md");
     });
 
+    it("returns raw configToml text", () => {
+      const configPath = join(tmpDir, "config.toml");
+      const tomlContent = '[schedule]\nsupervisor = "daily"\n';
+      writeFileSync(configPath, tomlContent);
+
+      const config = loadConfig(configPath);
+      expect(config.configToml).toContain("[schedule]");
+      expect(config.configToml).toContain('supervisor = "daily"');
+    });
+
+    it("returns packageJson when package.json exists alongside TOML", () => {
+      const configPath = join(tmpDir, "config.toml");
+      writeFileSync(configPath, '[paths]\ndependencies = "package.json"\n');
+      writeFileSync(join(tmpDir, "package.json"), '{"name": "test-pkg", "version": "1.0.0"}');
+
+      const config = loadConfig(configPath);
+      expect(config.packageJson).toContain("test-pkg");
+      expect(config.packageJson).toContain("1.0.0");
+    });
+
+    it("returns empty packageJson when package.json does not exist", () => {
+      const configPath = join(tmpDir, "config.toml");
+      writeFileSync(configPath, "");
+
+      const config = loadConfig(configPath);
+      expect(config.packageJson).toBe("");
+    });
+
     it("derives TOML path from YAML-style path (3 levels up)", () => {
       // Simulate .github/agentic-lib/agents/agentic-lib.yml → project root agentic-lib.toml
       const agentsDir = join(tmpDir, ".github", "agentic-lib", "agents");
