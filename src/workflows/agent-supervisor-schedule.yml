@@ -103,23 +103,24 @@ jobs:
 
               // Update model setting within [schedule] section
               // Match model line that appears after [schedule] but before any other section
-              const scheduleModelRegex = /(\[schedule\][^\[]*?)(^model\s*=\s*"[^"]*")/m;
+              // Allow optional leading whitespace for robustness
+              const scheduleModelRegex = /(\[schedule\][^\[]*?)(^\s*model\s*=\s*"[^"]*")/m;
               if (scheduleModelRegex.test(toml)) {
                 // Model exists in schedule section - update it
                 toml = toml.replace(scheduleModelRegex, `$1model = "${model}"`);
               } else if (toml.match(/^\[schedule\]/m)) {
                 // No model in schedule section - add it after supervisor line (or after section header)
-                const supervisorLineRegex = /^(supervisor\s*=\s*"[^"]*")(\s*#.*)?$/m;
+                const supervisorLineRegex = /^(\s*supervisor\s*=\s*"[^"]*")(\s*#.*)?$/m;
                 if (supervisorLineRegex.test(toml)) {
                   toml = toml.replace(supervisorLineRegex, `$1$2\nmodel = "${model}"`);
                 } else {
-                  // Add after [schedule] header
-                  toml = toml.replace(/^(\[schedule\]\s*$)/m, `$1\nmodel = "${model}"`);
+                  // Add after [schedule] header (handle optional trailing content)
+                  toml = toml.replace(/^(\[schedule\].*)$/m, `$1\nmodel = "${model}"`);
                 }
               }
 
               // Update supervisor setting within [schedule] section
-              const scheduleSupervisorRegex = /(\[schedule\][^\[]*?)(^supervisor\s*=\s*"[^"]*")/m;
+              const scheduleSupervisorRegex = /(\[schedule\][^\[]*?)(^\s*supervisor\s*=\s*"[^"]*")/m;
               if (scheduleSupervisorRegex.test(toml)) {
                 toml = toml.replace(scheduleSupervisorRegex, `$1supervisor = "${frequency}"`);
               }
