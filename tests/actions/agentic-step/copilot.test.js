@@ -101,7 +101,7 @@ describe("formatPathsSection", () => {
 
   it("includes TOML config when provided", () => {
     const toml = '[schedule]\nsupervisor = "daily"\n';
-    const result = formatPathsSection(["src/"], ["README.md"], toml);
+    const result = formatPathsSection(["src/"], ["README.md"], { configToml: toml });
     expect(result).toContain("### Configuration (agentic-lib.toml)");
     expect(result).toContain("```toml");
     expect(result).toContain("[schedule]");
@@ -109,9 +109,18 @@ describe("formatPathsSection", () => {
     expect(result).toContain("daily");
   });
 
-  it("omits TOML section when configToml is not provided", () => {
+  it("includes package.json when provided", () => {
+    const pkg = '{"name": "my-pkg", "version": "2.0.0"}';
+    const result = formatPathsSection(["src/"], ["README.md"], { packageJson: pkg });
+    expect(result).toContain("### Dependencies (package.json)");
+    expect(result).toContain("```json");
+    expect(result).toContain("my-pkg");
+    expect(result).toContain("2.0.0");
+  });
+
+  it("omits context file sections when not provided", () => {
     const result = formatPathsSection(["src/"], ["README.md"]);
     expect(result).not.toContain("### Configuration");
-    expect(result).not.toContain("```toml");
+    expect(result).not.toContain("### Dependencies");
   });
 });

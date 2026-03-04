@@ -88,6 +88,7 @@ export async function reviewIssue(context) {
     ...testFiles.map((f) => `### ${f.name}\n\`\`\`\n${f.content}\n\`\`\``),
     "",
     config.configToml ? `## Configuration (agentic-lib.toml)\n\`\`\`toml\n${config.configToml}\n\`\`\`` : "",
+    config.packageJson ? `## Dependencies (package.json)\n\`\`\`json\n${config.packageJson}\n\`\`\`` : "",
     "",
     "## Your Task",
     "Determine if this issue has been resolved by the current code.",
