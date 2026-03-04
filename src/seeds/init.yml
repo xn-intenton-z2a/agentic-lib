@@ -75,7 +75,7 @@ jobs:
           SCHEDULE='${{ inputs.schedule }}'
           echo "schedule=${SCHEDULE}" >> $GITHUB_OUTPUT
           MODEL='${{ inputs.model }}'
-          echo "model=${MODEL}" >> $GITHUB_OUTPUT
+          echo "model=${MODEL:-gpt-5-mini}" >> $GITHUB_OUTPUT
     outputs:
       mode: ${{ steps.normalise.outputs.mode }}
       dry-run: ${{ steps.normalise.outputs.dry-run }}
@@ -158,5 +158,5 @@ jobs:
     uses: ./.github/workflows/agent-supervisor-schedule.yml
     with:
       frequency: ${{ needs.params.outputs.schedule }}
-      model: ${{ needs.params.outputs.model || 'gpt-5-mini' }}
+      model: ${{ needs.params.outputs.model }}
     secrets: inherit

@@ -62,7 +62,7 @@ jobs:
           script: |
             const fs = require('fs');
             const frequency = '${{ inputs.frequency }}';
-            const model = '${{ inputs.model }}' || 'gpt-5-mini';
+            const model = '${{ inputs.model || 'gpt-5-mini' }}';
             const workflowPath = '.github/workflows/agent-supervisor.yml';
             const tomlPath = 'agentic-lib.toml';
 
@@ -101,26 +101,27 @@ jobs:
             if (fs.existsSync(tomlPath)) {
               let toml = fs.readFileSync(tomlPath, 'utf8');
 
-              // Update or add model setting in [schedule] section
-              if (toml.match(/^model\s*=/m)) {
-                toml = toml.replace(/^model\s*=\s*"[^"]*"/m, `model = "${model}"`);
+              // Update model setting within [schedule] section
+              // Match model line that appears after [schedule] but before any other section
+              const scheduleModelRegex = /(\[schedule\][^\[]*?)(^model\s*=\s*"[^"]*")/m;
+              if (scheduleModelRegex.test(toml)) {
+                // Model exists in schedule section - update it
+                toml = toml.replace(scheduleModelRegex, `$1model = "${model}"`);
               } else if (toml.match(/^\[schedule\]/m)) {
-                // Add model after [schedule] section header
-                toml = toml.replace(/^(\[schedule\][^\[]*)/m, (match) => {
-                  // Insert before next section or at end of schedule section
-                  const lines = match.split('\n');
-                  const insertIndex = lines.findIndex((l, i) => i > 0 && l.trim().startsWith('['));
-                  if (insertIndex === -1) {
-                    return match.trimEnd() + `\nmodel = "${model}"\n`;
-                  }
-                  lines.splice(insertIndex, 0, `model = "${model}"`);
-                  return lines.join('\n');
-                });
+                // No model in schedule section - add it after supervisor line (or after section header)
+                const supervisorLineRegex = /^(supervisor\s*=\s*"[^"]*")(\s*#.*)?$/m;
+                if (supervisorLineRegex.test(toml)) {
+                  toml = toml.replace(supervisorLineRegex, `$1$2\nmodel = "${model}"`);
+                } else {
+                  // Add after [schedule] header
+                  toml = toml.replace(/^(\[schedule\]\s*$)/m, `$1\nmodel = "${model}"`);
+                }
               }
 
-              // Update supervisor setting
-              if (toml.match(/^supervisor\s*=/m)) {
-                toml = toml.replace(/^supervisor\s*=\s*"[^"]*"/m, `supervisor = "${frequency}"`);
+              // Update supervisor setting within [schedule] section
+              const scheduleSupervisorRegex = /(\[schedule\][^\[]*?)(^supervisor\s*=\s*"[^"]*")/m;
+              if (scheduleSupervisorRegex.test(toml)) {
+                toml = toml.replace(scheduleSupervisorRegex, `$1supervisor = "${frequency}"`);
               }
 
               fs.writeFileSync(tomlPath, toml);
