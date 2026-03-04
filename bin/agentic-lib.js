@@ -54,6 +54,7 @@ Options:
   --reseed             Clear features + activity log (keep source code)
   --dry-run            Show what would be done without making changes
   --target <path>      Target repository (default: current directory)
+  --mission <name>     Mission seed name (default: hamming-distance) [purge only]
   --model <name>       Copilot SDK model (default: claude-sonnet-4)
 
 Examples:
@@ -81,6 +82,8 @@ const targetPath = targetIdx >= 0 ? flags[targetIdx + 1] : process.cwd();
 const target = resolve(targetPath);
 const modelIdx = flags.indexOf("--model");
 const model = modelIdx >= 0 ? flags[modelIdx + 1] : "claude-sonnet-4";
+const missionIdx = flags.indexOf("--mission");
+const mission = missionIdx >= 0 ? flags[missionIdx + 1] : "hamming-distance";
 
 // ─── Task Commands ───────────────────────────────────────────────────
 
@@ -825,7 +828,7 @@ function clearAndRecreateDir(dirPath, label) {
   if (!dryRun) mkdirSync(fullPath, { recursive: true });
 }
 
-function initPurge(seedsDir) {
+function initPurge(seedsDir, missionName) {
   console.log("\n--- Purge: Reset Source Files to Seed State ---");
 
   const { sourcePath, testsPath, examplesPath } = readTomlPaths();
@@ -833,11 +836,10 @@ function initPurge(seedsDir) {
   clearAndRecreateDir(testsPath, testsPath);
   clearAndRecreateDir(examplesPath, examplesPath);
 
-  // Copy seed files (including config TOML)
+  // Copy seed files (including config TOML) — MISSION.md handled separately via mission seed
   const SEED_MAP = {
     "zero-main.js": "src/lib/main.js",
     "zero-main.test.js": "tests/unit/main.test.js",
-    "zero-MISSION.md": "MISSION.md",
     "zero-SOURCES.md": "SOURCES.md",
     "zero-package.json": "package.json",
     "zero-README.md": "README.md",
@@ -849,6 +851,25 @@ function initPurge(seedsDir) {
     if (existsSync(src)) {
       initCopyFile(src, resolve(target, targetRel), `SEED: ${seedFile} → ${targetRel}`);
     }
+  }
+
+  // Copy mission seed file as MISSION.md
+  const missionsDir = resolve(seedsDir, "missions");
+  const missionFile = resolve(missionsDir, `${missionName}.md`);
+  if (existsSync(missionFile)) {
+    initCopyFile(missionFile, resolve(target, "MISSION.md"), `MISSION: missions/${missionName}.md → MISSION.md`);
+  } else {
+    // List available missions and error
+    const available = existsSync(missionsDir)
+      ? readdirSync(missionsDir)
+          .filter((f) => f.endsWith(".md"))
+          .map((f) => f.replace(/\.md$/, ""))
+      : [];
+    console.error(`\nERROR: Unknown mission "${missionName}".`);
+    if (available.length > 0) {
+      console.error(`Available missions: ${available.join(", ")}`);
+    }
+    process.exit(1);
   }
 }
 
@@ -1026,6 +1047,7 @@ function runInit() {
   console.log(`Target:  ${target}`);
   console.log(`Reseed:  ${reseed}`);
   console.log(`Purge:   ${purge}`);
+  if (purge) console.log(`Mission: ${mission}`);
   console.log(`Mode:    ${dryRun ? "DRY RUN" : "LIVE"}`);
   console.log("");
 
@@ -1036,7 +1058,7 @@ function runInit() {
   initScripts(agenticDir);
   initConfig(seedsDir);
   if (reseed) initReseed();
-  if (purge) initPurge(seedsDir);
+  if (purge) initPurge(seedsDir, mission);
   if (purge) initPurgeGitHub();
 
   console.log(`\n${initChanges} change(s)${dryRun ? " (dry run)" : ""}`);
