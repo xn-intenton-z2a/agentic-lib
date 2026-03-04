@@ -958,6 +958,52 @@ function initPurgeGitHub() {
   } catch {
     console.log("  SKIP: Could not list discussions (feature may not be enabled)");
   }
+
+  // Create a new "Talk to the repository" discussion
+  try {
+    // Get the repository node ID and "General" category ID
+    const repoQuery = JSON.stringify({
+      query: `{ repository(owner:"${owner}", name:"${repo}") { id discussionCategories(first:20) { nodes { id name } } } }`,
+    });
+    const repoResult = execSync(`gh api graphql --input -`, {
+      cwd: target,
+      encoding: "utf8",
+      timeout: 30000,
+      input: repoQuery,
+      stdio: ["pipe", "pipe", "pipe"],
+    });
+    const repoParsed = JSON.parse(repoResult);
+    const repoId = repoParsed?.data?.repository?.id;
+    const categories = repoParsed?.data?.repository?.discussionCategories?.nodes || [];
+    const generalCat = categories.find((c) => c.name === "General");
+    if (!repoId || !generalCat) {
+      console.log('  SKIP: Could not find repository ID or "General" discussion category');
+    } else {
+      console.log('  CREATE: discussion "Talk to the repository" in General category');
+      if (!dryRun) {
+        const createMutation = JSON.stringify({
+          query: `mutation { createDiscussion(input: { repositoryId: "${repoId}", categoryId: "${generalCat.id}", title: "Talk to the repository", body: "This discussion is the main channel for interacting with the repository's autonomous agents.\\n\\nUse this thread to:\\n- Submit feature requests or ideas\\n- Ask questions about the project\\n- Chat with the discussions bot\\n\\n---\\n*Created by init --purge*" }) { discussion { number url } } }`,
+        });
+        const createResult = execSync(`gh api graphql --input -`, {
+          cwd: target,
+          encoding: "utf8",
+          timeout: 15000,
+          input: createMutation,
+          stdio: ["pipe", "pipe", "pipe"],
+        });
+        const createParsed = JSON.parse(createResult);
+        const newDisc = createParsed?.data?.createDiscussion?.discussion;
+        if (newDisc) {
+          console.log(`  CREATED: discussion #${newDisc.number} — ${newDisc.url}`);
+          initChanges++;
+        }
+      } else {
+        initChanges++;
+      }
+    }
+  } catch (err) {
+    console.log(`  SKIP: Could not create discussion (${err.message})`);
+  }
 }
 
 function runInit() {
