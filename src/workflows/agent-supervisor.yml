@@ -29,7 +29,6 @@ on:
       - agent-flow-maintain
       - agent-flow-review
       - ci-automerge
-      - init
       - agent-discussions-bot
     types:
       - completed
