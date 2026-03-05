@@ -140,7 +140,7 @@ describe("tasks/supervise", () => {
 
   it("dispatches a workflow when LLM chooses dispatch action", async () => {
     runCopilotTask.mockResolvedValue({
-      content: "[ACTIONS]\ndispatch:agent-flow-transform\n[/ACTIONS]\n[REASONING]\nPick up next issue.\n[/REASONING]",
+      content: "[ACTIONS]\ndispatch:agentic-lib-workflow\n[/ACTIONS]\n[REASONING]\nPick up next issue.\n[/REASONING]",
       tokensUsed: 120,
     });
     const octokit = createMockOctokit();
@@ -152,17 +152,17 @@ describe("tasks/supervise", () => {
     expect(result.outcome).toBe("supervised:1-actions");
     expect(octokit.rest.actions.createWorkflowDispatch).toHaveBeenCalledWith(
       expect.objectContaining({
-        workflow_id: "agent-flow-transform.yml",
+        workflow_id: "agentic-lib-workflow.yml",
         ref: "main",
       }),
     );
-    expect(result.details).toContain("dispatched:agent-flow-transform.yml");
+    expect(result.details).toContain("dispatched:agentic-lib-workflow.yml");
   });
 
-  it("dispatches fix-code with pr-number param", async () => {
+  it("dispatches workflow with pr-number param", async () => {
     runCopilotTask.mockResolvedValue({
       content:
-        "[ACTIONS]\ndispatch:agent-flow-fix-code | pr-number: 42\n[/ACTIONS]\n[REASONING]\nFix failing PR.\n[/REASONING]",
+        "[ACTIONS]\ndispatch:agentic-lib-workflow | pr-number: 42\n[/ACTIONS]\n[REASONING]\nFix failing PR.\n[/REASONING]",
       tokensUsed: 90,
     });
     const octokit = createMockOctokit();
@@ -172,12 +172,12 @@ describe("tasks/supervise", () => {
 
     expect(octokit.rest.actions.createWorkflowDispatch).toHaveBeenCalledWith(
       expect.objectContaining({
-        workflow_id: "agent-flow-fix-code.yml",
+        workflow_id: "agentic-lib-workflow.yml",
         ref: "main",
         inputs: { "pr-number": "42" },
       }),
     );
-    expect(result.details).toContain("dispatched:agent-flow-fix-code.yml");
+    expect(result.details).toContain("dispatched:agentic-lib-workflow.yml");
   });
 
   it("creates an issue via github:create-issue", async () => {
@@ -243,8 +243,8 @@ describe("tasks/supervise", () => {
     runCopilotTask.mockResolvedValue({
       content: [
         "[ACTIONS]",
-        "dispatch:agent-flow-transform",
-        "dispatch:agent-flow-maintain",
+        "dispatch:agentic-lib-workflow | mode: dev-only | issue-number: 1",
+        "dispatch:agentic-lib-workflow | mode: maintain-only",
         "github:create-issue | title: New feature | labels: automated",
         "[/ACTIONS]",
         "[REASONING]",
@@ -302,7 +302,7 @@ describe("tasks/supervise", () => {
 
   it("handles action execution failure gracefully", async () => {
     runCopilotTask.mockResolvedValue({
-      content: "[ACTIONS]\ndispatch:agent-flow-transform\n[/ACTIONS]\n[REASONING]\nDispatch.\n[/REASONING]",
+      content: "[ACTIONS]\ndispatch:agentic-lib-workflow\n[/ACTIONS]\n[REASONING]\nDispatch.\n[/REASONING]",
       tokensUsed: 90,
     });
     const octokit = createMockOctokit();
@@ -313,7 +313,7 @@ describe("tasks/supervise", () => {
     const result = await supervise(ctx);
 
     expect(result.outcome).toBe("supervised:1-actions");
-    expect(result.details).toContain("error:dispatch:agent-flow-transform:API error");
+    expect(result.details).toContain("error:dispatch:agentic-lib-workflow:API error");
   });
 
   it("gathers context from issues, PRs, and workflow runs", async () => {
@@ -401,10 +401,10 @@ describe("tasks/supervise", () => {
 
     expect(octokit.rest.actions.createWorkflowDispatch).toHaveBeenCalledWith(
       expect.objectContaining({
-        workflow_id: "agent-discussions-bot.yml",
+        workflow_id: "agentic-lib-bot.yml",
         ref: "main",
         inputs: {
-          message: "Working on it",
+          "message": "Working on it",
           "discussion-url": "https://github.com/org/repo/discussions/1",
         },
       }),
@@ -446,8 +446,7 @@ describe("tasks/supervise", () => {
 
   it("parses set-schedule action from ACTIONS block", async () => {
     runCopilotTask.mockResolvedValue({
-      content:
-        "[ACTIONS]\nset-schedule:weekly\n[/ACTIONS]\n[REASONING]\nMission complete, wind down.\n[/REASONING]",
+      content: "[ACTIONS]\nset-schedule:weekly\n[/ACTIONS]\n[REASONING]\nMission complete, wind down.\n[/REASONING]",
       tokensUsed: 60,
     });
     const octokit = createMockOctokit();
@@ -457,7 +456,7 @@ describe("tasks/supervise", () => {
 
     expect(octokit.rest.actions.createWorkflowDispatch).toHaveBeenCalledWith(
       expect.objectContaining({
-        workflow_id: "agent-supervisor-schedule.yml",
+        workflow_id: "agentic-lib-schedule.yml",
         ref: "main",
         inputs: { frequency: "weekly" },
       }),
@@ -467,8 +466,7 @@ describe("tasks/supervise", () => {
 
   it("dispatches schedule workflow for valid frequencies", async () => {
     runCopilotTask.mockResolvedValue({
-      content:
-        "[ACTIONS]\nset-schedule:continuous\n[/ACTIONS]\n[REASONING]\nRamp up.\n[/REASONING]",
+      content: "[ACTIONS]\nset-schedule:continuous\n[/ACTIONS]\n[REASONING]\nRamp up.\n[/REASONING]",
       tokensUsed: 50,
     });
     const octokit = createMockOctokit();
@@ -478,7 +476,7 @@ describe("tasks/supervise", () => {
 
     expect(octokit.rest.actions.createWorkflowDispatch).toHaveBeenCalledWith(
       expect.objectContaining({
-        workflow_id: "agent-supervisor-schedule.yml",
+        workflow_id: "agentic-lib-schedule.yml",
         inputs: { frequency: "continuous" },
       }),
     );
@@ -487,8 +485,7 @@ describe("tasks/supervise", () => {
 
   it("skips set-schedule with invalid frequency", async () => {
     runCopilotTask.mockResolvedValue({
-      content:
-        "[ACTIONS]\nset-schedule:invalid\n[/ACTIONS]\n[REASONING]\nBad frequency.\n[/REASONING]",
+      content: "[ACTIONS]\nset-schedule:invalid\n[/ACTIONS]\n[REASONING]\nBad frequency.\n[/REASONING]",
       tokensUsed: 40,
     });
     const octokit = createMockOctokit();
@@ -513,7 +510,7 @@ describe("tasks/supervise", () => {
   it("forwards issue-number to transform dispatch", async () => {
     runCopilotTask.mockResolvedValue({
       content:
-        "[ACTIONS]\ndispatch:agent-flow-transform | issue-number: 7\n[/ACTIONS]\n[REASONING]\nResolve issue.\n[/REASONING]",
+        "[ACTIONS]\ndispatch:agentic-lib-workflow | issue-number: 7\n[/ACTIONS]\n[REASONING]\nResolve issue.\n[/REASONING]",
       tokensUsed: 100,
     });
     const octokit = createMockOctokit();
@@ -524,18 +521,18 @@ describe("tasks/supervise", () => {
 
     expect(octokit.rest.actions.createWorkflowDispatch).toHaveBeenCalledWith(
       expect.objectContaining({
-        workflow_id: "agent-flow-transform.yml",
+        workflow_id: "agentic-lib-workflow.yml",
         ref: "main",
         inputs: { "issue-number": "7" },
       }),
     );
-    expect(result.details).toContain("dispatched:agent-flow-transform.yml");
+    expect(result.details).toContain("dispatched:agentic-lib-workflow.yml");
   });
 
   it("skips transform dispatch when transform is already running", async () => {
     runCopilotTask.mockResolvedValue({
       content:
-        "[ACTIONS]\ndispatch:agent-flow-transform | issue-number: 7\n[/ACTIONS]\n[REASONING]\nResolve issue.\n[/REASONING]",
+        "[ACTIONS]\ndispatch:agentic-lib-workflow | issue-number: 7\n[/ACTIONS]\n[REASONING]\nResolve issue.\n[/REASONING]",
       tokensUsed: 100,
     });
     const octokit = createMockOctokit();
@@ -544,15 +541,15 @@ describe("tasks/supervise", () => {
 
     const result = await supervise(ctx);
 
-    expect(result.details).toContain("skipped:transform-already-running");
+    expect(result.details).toContain("skipped:workflow-already-running");
     // Should NOT have dispatched
     expect(octokit.rest.actions.createWorkflowDispatch).not.toHaveBeenCalled();
   });
 
-  it("dispatches ci-automerge workflow", async () => {
+  it("dispatches pr-cleanup-only workflow", async () => {
     runCopilotTask.mockResolvedValue({
       content:
-        "[ACTIONS]\ndispatch:ci-automerge\n[/ACTIONS]\n[REASONING]\nMerge ready PRs.\n[/REASONING]",
+        "[ACTIONS]\ndispatch:agentic-lib-workflow | mode: pr-cleanup-only\n[/ACTIONS]\n[REASONING]\nMerge ready PRs.\n[/REASONING]",
       tokensUsed: 80,
     });
     const octokit = createMockOctokit();
@@ -562,20 +559,20 @@ describe("tasks/supervise", () => {
 
     expect(octokit.rest.actions.createWorkflowDispatch).toHaveBeenCalledWith(
       expect.objectContaining({
-        workflow_id: "ci-automerge.yml",
+        workflow_id: "agentic-lib-workflow.yml",
         ref: "main",
       }),
     );
-    expect(result.details).toContain("dispatched:ci-automerge.yml");
+    expect(result.details).toContain("dispatched:agentic-lib-workflow.yml");
   });
 
-  it("includes dispatch:ci-automerge in prompt available actions", async () => {
+  it("includes dispatch:agentic-lib-workflow pr-cleanup in prompt available actions", async () => {
     const ctx = createMockContext();
 
     await supervise(ctx);
 
     const callArgs = runCopilotTask.mock.calls[0][0];
-    expect(callArgs.prompt).toContain("dispatch:ci-automerge");
+    expect(callArgs.prompt).toContain("dispatch:agentic-lib-workflow | mode: pr-cleanup-only");
   });
 
   it("includes configToml in prompt when available", async () => {
