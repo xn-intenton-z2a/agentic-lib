@@ -5,13 +5,16 @@
 # Self-contained init: update agentic-lib, purge, push to main [skip ci].
 # Does NOT create a PR. Does NOT trigger any other workflow.
 # Closes hanging init PRs before running.
+#
+# In agentic-lib: schedule trigger is commented out.
+# During init: #@dist restores the schedule.
 
 name: agentic-lib-init
 run-name: "agentic-lib-init [${{ github.ref_name }}]"
 
 on:
-  schedule:
-    - cron: "0 5 * * *"
+  #@dist schedule:
+  #@dist   - cron: "0 5 * * *"
   workflow_dispatch:
     inputs:
       mode:

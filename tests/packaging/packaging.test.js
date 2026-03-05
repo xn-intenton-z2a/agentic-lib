@@ -67,8 +67,10 @@ describe("npm pack --dry-run", () => {
     expect(testFiles).toEqual([]);
   });
 
-  it("includes src/ distributable content", () => {
-    expect(filePaths.some((p) => p.startsWith("src/workflows/"))).toBe(true);
+  it("includes distributable content", () => {
+    expect(filePaths.some((p) => p.startsWith(".github/workflows/agentic-lib-"))).toBe(true);
+    expect(filePaths).toContain("agentic-lib.toml");
+    expect(filePaths).toContain("src/dist-transform.js");
     expect(filePaths.some((p) => p.startsWith("src/actions/"))).toBe(true);
     expect(filePaths.some((p) => p.startsWith("src/agents/"))).toBe(true);
     expect(filePaths.some((p) => p.startsWith("src/seeds/"))).toBe(true);
@@ -78,9 +80,12 @@ describe("npm pack --dry-run", () => {
     expect(filePaths).toContain("bin/agentic-lib.js");
   });
 
-  it("does not include dev files", () => {
+  it("does not include dev files (except distributable workflows)", () => {
     const devFiles = filePaths.filter(
-      (p) => p.startsWith(".github/") || p.startsWith("node_modules/") || p.startsWith("coverage/"),
+      (p) =>
+        (p.startsWith(".github/") && !p.startsWith(".github/workflows/agentic-lib-")) ||
+        p.startsWith("node_modules/") ||
+        p.startsWith("coverage/"),
     );
     expect(devFiles).toEqual([]);
   });

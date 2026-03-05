@@ -4,6 +4,8 @@
 #
 # Changes the agentic-lib-workflow's cron schedule by editing the workflow file
 # directly and pushing to main. Also updates the model setting in agentic-lib.toml.
+#
+# No trigger changes needed — uses workflow_call and workflow_dispatch only.
 
 name: agentic-lib-schedule
 run-name: "agentic-lib-schedule -> ${{ inputs.frequency }} (${{ inputs.model }})"

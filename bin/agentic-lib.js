@@ -15,6 +15,7 @@
 //   npx @xn-intenton-z2a/agentic-lib fix-code
 
 import { copyFileSync, existsSync, mkdirSync, rmSync, rmdirSync, readdirSync, readFileSync, writeFileSync } from "fs";
+import { applyDistTransform } from "../src/dist-transform.js";
 import { resolve, dirname, join } from "path";
 import { fileURLToPath } from "url";
 import { execSync } from "child_process";
@@ -611,6 +612,19 @@ function createCliTools(writablePaths, defineTool) {
 
 // ─── Init Runner ─────────────────────────────────────────────────────
 
+function initTransformFile(src, dst, label) {
+  const content = readFileSync(src, "utf8");
+  const transformed = applyDistTransform(content);
+  if (dryRun) {
+    console.log(`  TRANSFORM: ${label}`);
+  } else {
+    mkdirSync(dirname(dst), { recursive: true });
+    writeFileSync(dst, transformed);
+    console.log(`  TRANSFORM: ${label}`);
+  }
+  initChanges++;
+}
+
 function initCopyFile(src, dst, label) {
   if (dryRun) {
     console.log(`  COPY: ${label}`);
@@ -655,32 +669,16 @@ function removeStaleWorkflows(templateWorkflows) {
 
 function initWorkflows() {
   console.log("--- Workflows ---");
-  const workflowsDir = resolve(srcDir, "workflows");
-  if (!existsSync(workflowsDir)) return;
+  // Distributable workflows live in .github/workflows/agentic-lib-*.yml
+  // and are transformed via #@dist markers during init
+  const ownWorkflowsDir = resolve(pkgRoot, ".github/workflows");
+  if (!existsSync(ownWorkflowsDir)) return;
   const templateWorkflows = new Set();
-  for (const f of readdirSync(workflowsDir)) {
-    if (f.endsWith(".yml")) {
+  for (const f of readdirSync(ownWorkflowsDir)) {
+    if (f.startsWith("agentic-lib-") && f.endsWith(".yml")) {
       templateWorkflows.add(f);
-      initCopyFile(resolve(workflowsDir, f), resolve(target, ".github/workflows", f), `workflows/${f}`);
+      initTransformFile(resolve(ownWorkflowsDir, f), resolve(target, ".github/workflows", f), `workflows/${f}`);
     }
-  }
-  const seedTest = resolve(srcDir, "seeds/agentic-lib-test.yml");
-  if (existsSync(seedTest)) {
-    templateWorkflows.add("agentic-lib-test.yml");
-    initCopyFile(
-      seedTest,
-      resolve(target, ".github/workflows/agentic-lib-test.yml"),
-      "workflows/agentic-lib-test.yml (from seeds)",
-    );
-  }
-  const seedInit = resolve(srcDir, "seeds/agentic-lib-init.yml");
-  if (existsSync(seedInit)) {
-    templateWorkflows.add("agentic-lib-init.yml");
-    initCopyFile(
-      seedInit,
-      resolve(target, ".github/workflows/agentic-lib-init.yml"),
-      "workflows/agentic-lib-init.yml (from seeds)",
-    );
   }
   removeStaleWorkflows(templateWorkflows);
 }
@@ -748,14 +746,15 @@ function initScripts(agenticDir) {
 
 function initConfig(seedsDir) {
   console.log("\n--- Config ---");
-  const tomlSeed = resolve(seedsDir, "zero-agentic-lib.toml");
+  // Config TOML lives at project root with #@dist markers — transform for distribution
+  const tomlSource = resolve(pkgRoot, "agentic-lib.toml");
   const tomlTarget = resolve(target, "agentic-lib.toml");
-  if (existsSync(tomlSeed) && !existsSync(tomlTarget)) {
-    initCopyFile(tomlSeed, tomlTarget, "agentic-lib.toml (new)");
+  if (existsSync(tomlSource) && !existsSync(tomlTarget)) {
+    initTransformFile(tomlSource, tomlTarget, "agentic-lib.toml (new)");
   } else if (existsSync(tomlTarget)) {
     console.log("  SKIP: agentic-lib.toml already exists");
   } else {
-    console.log("  SKIP: seed TOML not found");
+    console.log("  SKIP: source TOML not found");
   }
 
   const giSeed = resolve(seedsDir, "zero-.gitignore");
@@ -856,7 +855,6 @@ function initPurge(seedsDir, missionName) {
     "zero-SOURCES.md": "SOURCES.md",
     "zero-package.json": "package.json",
     "zero-README.md": "README.md",
-    "zero-agentic-lib.toml": "agentic-lib.toml",
     "zero-.gitignore": ".gitignore",
   };
   for (const [seedFile, targetRel] of Object.entries(SEED_MAP)) {
@@ -864,6 +862,12 @@ function initPurge(seedsDir, missionName) {
     if (existsSync(src)) {
       initCopyFile(src, resolve(target, targetRel), `SEED: ${seedFile} → ${targetRel}`);
     }
+  }
+
+  // Force-overwrite agentic-lib.toml during purge (transformed from root)
+  const tomlSource = resolve(pkgRoot, "agentic-lib.toml");
+  if (existsSync(tomlSource)) {
+    initTransformFile(tomlSource, resolve(target, "agentic-lib.toml"), "SEED: agentic-lib.toml (transformed)");
   }
 
   // Copy mission seed file as MISSION.md

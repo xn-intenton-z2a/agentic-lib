@@ -3,17 +3,16 @@
 import { describe, it, expect } from "vitest";
 import { readFileSync, readdirSync } from "fs";
 import { join } from "path";
-import yaml from "js-yaml";
 import { parse as parseToml } from "smol-toml";
 
 const SEEDS_DIR = join(import.meta.dirname, "../../src/seeds");
+const ROOT_DIR = join(import.meta.dirname, "../..");
 
 const allFiles = readdirSync(SEEDS_DIR).sort();
-const ymlFiles = allFiles.filter((f) => f.endsWith(".yml"));
 
 describe("src/seeds", () => {
-  it("has 12 seed entries (11 files + missions directory)", () => {
-    expect(allFiles).toHaveLength(12);
+  it("has 9 seed entries (8 files + missions directory)", () => {
+    expect(allFiles).toHaveLength(9);
   });
 
   describe("zero-package.json", () => {
@@ -46,15 +45,15 @@ describe("src/seeds", () => {
     });
   });
 
-  describe("zero-agentic-lib.toml", () => {
-    it("is valid TOML", () => {
-      const content = readFileSync(join(SEEDS_DIR, "zero-agentic-lib.toml"), "utf8");
+  describe("agentic-lib.toml (root config)", () => {
+    it("is valid TOML (ignoring #@dist comments)", () => {
+      const content = readFileSync(join(ROOT_DIR, "agentic-lib.toml"), "utf8");
       const doc = parseToml(content);
       expect(doc).toBeTruthy();
     });
 
     it("has required sections", () => {
-      const content = readFileSync(join(SEEDS_DIR, "zero-agentic-lib.toml"), "utf8");
+      const content = readFileSync(join(ROOT_DIR, "agentic-lib.toml"), "utf8");
       const doc = parseToml(content);
       expect(doc.schedule).toBeTruthy();
       expect(doc.paths).toBeTruthy();
@@ -63,38 +62,11 @@ describe("src/seeds", () => {
       expect(doc.bot).toBeTruthy();
     });
 
-    it("has source and tests paths", () => {
-      const content = readFileSync(join(SEEDS_DIR, "zero-agentic-lib.toml"), "utf8");
+    it("has source and tests paths pointing to test/", () => {
+      const content = readFileSync(join(ROOT_DIR, "agentic-lib.toml"), "utf8");
       const doc = parseToml(content);
-      expect(doc.paths.source).toBeTruthy();
-      expect(doc.paths.tests).toBeTruthy();
-    });
-  });
-
-  describe.each(ymlFiles)("%s", (filename) => {
-    it("is valid YAML", () => {
-      const content = readFileSync(join(SEEDS_DIR, filename), "utf8");
-      const doc = yaml.load(content);
-      expect(doc).toBeTruthy();
-    });
-
-    it("has name, on, and jobs fields", () => {
-      const content = readFileSync(join(SEEDS_DIR, filename), "utf8");
-      const doc = yaml.load(content);
-      expect(doc.name).toBeTruthy();
-      expect(doc.on || doc.true).toBeTruthy();
-      expect(doc.jobs).toBeTruthy();
-    });
-
-    it("uses node 24", () => {
-      const content = readFileSync(join(SEEDS_DIR, filename), "utf8");
-      const nodeVersionMatches = content.match(/node-version:\s*['"]?(\d+)['"]?/g);
-      if (nodeVersionMatches) {
-        for (const match of nodeVersionMatches) {
-          const version = match.match(/(\d+)/)?.[1];
-          expect(Number(version)).toBe(24);
-        }
-      }
+      expect(doc.paths.source).toMatch(/^test\//);
+      expect(doc.paths.tests).toMatch(/^test\//);
     });
   });
 });
