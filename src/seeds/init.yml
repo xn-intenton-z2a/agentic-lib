@@ -103,10 +103,14 @@ jobs:
         run: |
           echo "Closing any hanging init-related PRs..."
           INIT_PRS=$(gh pr list --state open --json number,headRefName --jq '.[] | select(.headRefName | startswith("agentic-lib-init-")) | .number')
-          for PR_NUM in $INIT_PRS; do
-            echo "Closing PR #$PR_NUM"
-            gh pr close "$PR_NUM" --comment "Closed by init purge workflow to avoid conflicts." --delete-branch || true
-          done
+          if [ -z "$INIT_PRS" ]; then
+            echo "No hanging init PRs found"
+          else
+            for PR_NUM in $INIT_PRS; do
+              echo "Closing PR #$PR_NUM"
+              gh pr close "$PR_NUM" --comment "Closed by init purge workflow to avoid conflicts." --delete-branch || echo "Warning: Failed to close PR #$PR_NUM"
+            done
+          fi
 
       - name: Update agentic-lib to latest
         run: npm update @xn-intenton-z2a/agentic-lib
@@ -234,5 +238,8 @@ jobs:
           GH_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
         run: |
           if gh workflow list --json name --jq '.[].name' | grep -q "^agent-supervisor$"; then
-            gh workflow run agent-supervisor.yml --repo $GITHUB_REPOSITORY || true
+            echo "Dispatching agent-supervisor workflow..."
+            gh workflow run agent-supervisor.yml --repo $GITHUB_REPOSITORY || echo "Warning: Failed to dispatch agent-supervisor workflow"
+          else
+            echo "agent-supervisor workflow not found, skipping dispatch"
           fi
