@@ -95,6 +95,10 @@ jobs:
         with:
           node-version: "24"
 
+      - name: Self-init (agentic-lib dev only)
+        if: hashFiles('scripts/self-init.sh') != '' && hashFiles('.github/agentic-lib/actions/agentic-step/package.json') == ''
+        run: bash scripts/self-init.sh
+
       - name: Install agentic-step dependencies
         working-directory: .github/agentic-lib/actions/agentic-step
         run: npm ci

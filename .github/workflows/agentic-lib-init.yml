@@ -142,9 +142,12 @@ jobs:
       INIT_MISSION_TEXT: ${{ needs.params.outputs.mission-text }}
     steps:
       - uses: actions/checkout@v4
+        if: needs.params.outputs.dry-run == 'true'
+      - uses: actions/checkout@v4
+        if: needs.params.outputs.dry-run != 'true'
         with:
           ref: main
-          token: ${{ secrets.WORKFLOW_TOKEN || github.token }}
+          token: ${{ secrets.WORKFLOW_TOKEN }}
 
       - uses: actions/setup-node@v4
         with:
@@ -174,7 +177,12 @@ jobs:
           if [ "$INIT_MODE" = "reseed" ]; then FLAGS="$FLAGS --reseed"; fi
           if [ "$INIT_MODE" = "purge" ]; then FLAGS="$FLAGS --purge --mission $INIT_MISSION_SEED"; fi
           if [ "$INIT_DRY_RUN" = "true" ]; then FLAGS="$FLAGS --dry-run"; fi
-          npx @xn-intenton-z2a/agentic-lib $FLAGS
+          # Use local CLI if available (agentic-lib dev), otherwise npx
+          if [ -f "bin/agentic-lib.js" ]; then
+            node bin/agentic-lib.js $FLAGS
+          else
+            npx @xn-intenton-z2a/agentic-lib $FLAGS
+          fi
 
       - name: Write mission text (if provided, overrides seed)
         if: env.INIT_MISSION_TEXT != '' && needs.params.outputs.dry-run != 'true'
