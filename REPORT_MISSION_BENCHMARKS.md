@@ -24,21 +24,32 @@ Track pipeline performance across different missions and LLM models. Each run st
 - **00:12:17–00:12:46** — 5 supervisor runs, concurrent reviews cancelled each other
 - **00:13** — Flow stabilised: supervisor → transform → review chain completed successfully
 - **00:13** — 5 open issues created (#2500-#2504) — all about plot-code-lib (stale context from pre-purge state)
-- Waiting for next supervisor cycle to see if it creates hamming-distance issues and works on those
+- **00:25** — Cron schedule did NOT fire. Root cause: `agent-supervisor-schedule.yml` committed workflow changes as `github-actions[bot]` — GitHub does not re-register cron for bot-authored pushes
+- **00:25** — Stale issues #2500-#2504 manually closed
 
-### Issues
+### Fixes Applied (agentic-lib 7.1.47–7.1.48)
 
-| # | Title | Labels | Notes |
-|---|-------|--------|-------|
-| 2500 | Implement CLI expression parser... | automated, ready | Stale (plot-code-lib) |
-| 2501 | Add CLI example... | automated | Stale (plot-code-lib) |
-| 2502 | Implement CLI expression parsing... | automated | Stale (plot-code-lib) |
-| 2503 | Implement CLI expression parsing... | automated, ready | Stale (plot-code-lib) |
-| 2504 | Implement PNG export... | automated | Stale (plot-code-lib) |
+- **7.1.47** — Use `gh api /user` with WORKFLOW_TOKEN to resolve PAT owner identity for git commits in `agent-supervisor-schedule.yml` and `init.yml`
+- **7.1.48** — Purge `docs/` directory during `init --purge`
+
+### Run 1b: Re-init with fixes
+
+| Parameter | Value |
+|-----------|-------|
+| agentic-lib | 7.1.48 |
+| Re-init | 2026-03-05T01:17Z |
+| Init run | [#527](https://github.com/xn-intenton-z2a/repository0/actions/runs/22697591217) |
+| Init PR | [#2515](https://github.com/xn-intenton-z2a/repository0/pull/2515) |
+
+- **01:17** — Init --purge dispatched with agentic-lib@7.1.48
+- **01:18** — Init PR #2515 created with `automerge` label
+- **01:18** — Automerge job ran but saw `mergeable_state: unstable` (race condition — checks still running)
+- **01:19** — All checks passed, PR is CLEAN but automerge already ran and missed it
+- **01:21** — Waiting for supervisor cron (~01:30Z) to pick up stuck PR and validate cron fix
 
 ### Timeline
 
-_Updating as cycles complete..._
+_Watching for first cron-triggered supervisor run..._
 
 ## Planned Runs
 
