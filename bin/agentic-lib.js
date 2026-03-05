@@ -839,6 +839,7 @@ function initPurge(seedsDir, missionName) {
   clearAndRecreateDir(sourcePath, sourcePath);
   clearAndRecreateDir(testsPath, testsPath);
   clearAndRecreateDir(examplesPath, examplesPath);
+  clearAndRecreateDir("docs", "docs");
 
   // Copy seed files (including config TOML) — MISSION.md handled separately via mission seed
   const SEED_MAP = {
