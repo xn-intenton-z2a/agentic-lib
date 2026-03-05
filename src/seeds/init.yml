@@ -164,6 +164,88 @@ jobs:
 
       - run: npm test
 
+      # Inline schedule configuration (if schedule parameter provided)
+      # This is inlined to keep init.yml self-contained and avoid triggering other workflows
+      - name: Update supervisor schedule and model
+        if: needs.params.outputs.schedule != ''
+        uses: actions/github-script@v7
+        env:
+          INPUT_FREQUENCY: ${{ needs.params.outputs.schedule }}
+          INPUT_MODEL: ${{ needs.params.outputs.model }}
+        with:
+          script: |
+            const fs = require('fs');
+            const frequency = process.env.INPUT_FREQUENCY;
+            const model = process.env.INPUT_MODEL || 'gpt-5-mini';
+            const workflowPath = '.github/workflows/agent-supervisor.yml';
+            const tomlPath = 'agentic-lib.toml';
+
+            const SCHEDULE_MAP = {
+              off: null,
+              weekly: '0 6 * * 1',
+              daily: '0 6 * * *',
+              hourly: '0 * * * *',
+              continuous: '*/15 * * * *',
+            };
+
+            // Update agent-supervisor.yml schedule
+            if (fs.existsSync(workflowPath)) {
+              let content = fs.readFileSync(workflowPath, 'utf8');
+              const cron = SCHEDULE_MAP[frequency];
+
+              // Remove any existing schedule block (between 'on:' triggers)
+              content = content.replace(/\n  schedule:\n    - cron: "[^"]*"\n/g, '\n');
+
+              if (cron) {
+                // Insert schedule block after the 'on:' line
+                const scheduleBlock = `\n  schedule:\n    - cron: "${cron}"\n`;
+                content = content.replace(/\non:\n/, `\non:${scheduleBlock}`);
+              }
+
+              // Always stamp the file with current date so the commit is never empty
+              const dateStamp = `# Schedule updated: ${new Date().toISOString()}`;
+              const stampRegex = /^# Schedule updated: .*/m;
+              if (stampRegex.test(content)) {
+                content = content.replace(stampRegex, dateStamp);
+              } else {
+                content = content.replace(/^(# .*\n)+/m, (match) => match + dateStamp + '\n');
+              }
+
+              fs.writeFileSync(workflowPath, content);
+              core.info(`Updated supervisor schedule to: ${frequency} (cron: ${cron || 'none'})`);
+            } else {
+              core.warning('agent-supervisor.yml not found — skipping schedule update');
+            }
+
+            // Update agentic-lib.toml with model and supervisor settings
+            if (fs.existsSync(tomlPath)) {
+              let toml = fs.readFileSync(tomlPath, 'utf8');
+
+              // Update model setting within [schedule] section
+              const scheduleModelRegex = /(\[schedule\][^\[]*?)(^\s*model\s*=\s*"[^"]*")/m;
+              if (scheduleModelRegex.test(toml)) {
+                toml = toml.replace(scheduleModelRegex, `$1model = "${model}"`);
+              } else if (toml.match(/^\[schedule\]/m)) {
+                const supervisorLineRegex = /^(\s*supervisor\s*=\s*"[^"]*")(\s*#.*)?$/m;
+                if (supervisorLineRegex.test(toml)) {
+                  toml = toml.replace(supervisorLineRegex, `$1$2\nmodel = "${model}"`);
+                } else {
+                  toml = toml.replace(/^(\[schedule\].*)$/m, `$1\nmodel = "${model}"`);
+                }
+              }
+
+              // Update supervisor setting within [schedule] section
+              const scheduleSupervisorRegex = /(\[schedule\][^\[]*?)(^\s*supervisor\s*=\s*"[^"]*")/m;
+              if (scheduleSupervisorRegex.test(toml)) {
+                toml = toml.replace(scheduleSupervisorRegex, `$1supervisor = "${frequency}"`);
+              }
+
+              fs.writeFileSync(tomlPath, toml);
+              core.info(`Updated agentic-lib.toml: model=${model}, supervisor=${frequency}`);
+            } else {
+              core.warning('agentic-lib.toml not found — skipping config update');
+            }
+
       - name: Commit and push to main
         env:
           GH_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
@@ -176,15 +258,18 @@ jobs:
           git add -A
           git diff --cached --quiet && echo "No changes to commit" && exit 0
           VERSION=$(npx @xn-intenton-z2a/agentic-lib version 2>/dev/null || echo "latest")
-          git commit -m "init ${INIT_MODE} (agentic-lib@${VERSION})"
+          SCHEDULE="${{ needs.params.outputs.schedule }}"
+          MODEL="${{ needs.params.outputs.model }}"
+          if [ -n "$SCHEDULE" ]; then
+            git commit -m "init ${INIT_MODE} (agentic-lib@${VERSION}), schedule=${SCHEDULE}, model=${MODEL:-gpt-5-mini}"
+          else
+            git commit -m "init ${INIT_MODE} (agentic-lib@${VERSION})"
+          fi
           git push origin main
 
-  # Configure schedule after init completes (if schedule parameter provided)
-  configure-schedule:
-    needs: [params, init]
-    if: needs.params.outputs.schedule != ''
-    uses: ./.github/workflows/agent-supervisor-schedule.yml
-    with:
-      frequency: ${{ needs.params.outputs.schedule }}
-      model: ${{ needs.params.outputs.model }}
-    secrets: inherit
+      # Dispatch supervisor if schedule is set and not 'off'
+      - name: Dispatch supervisor
+        if: needs.params.outputs.schedule != '' && needs.params.outputs.schedule != 'off'
+        env:
+          GH_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
+        run: gh workflow run agent-supervisor.yml --repo $GITHUB_REPOSITORY || echo "Warning: Could not dispatch supervisor"
