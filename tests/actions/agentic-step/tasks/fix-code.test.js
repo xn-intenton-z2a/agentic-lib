@@ -5,6 +5,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 // Mock @actions/core
 vi.mock("@actions/core", () => ({
   info: vi.fn(),
+  debug: vi.fn(),
   warning: vi.fn(),
   setOutput: vi.fn(),
   getInput: vi.fn(),
@@ -19,8 +20,14 @@ vi.mock("../../../../src/actions/agentic-step/copilot.js", () => ({
   formatPathsSection: vi.fn().mockReturnValue("## File Paths\n- mock"),
 }));
 
+// Mock child_process
+vi.mock("child_process", () => ({
+  execSync: vi.fn().mockReturnValue("FAIL tests/unit/main.test.js\n  ✕ should return correct value\n    Error: expected 42 but got undefined"),
+}));
+
 import { fixCode } from "../../../../src/actions/agentic-step/tasks/fix-code.js";
 import { runCopilotTask } from "../../../../src/actions/agentic-step/copilot.js";
+import { execSync } from "child_process";
 
 // --- Helpers ---
 
@@ -129,9 +136,19 @@ describe("tasks/fix-code", () => {
     octokit.rest.checks.listForRef.mockResolvedValue({
       data: {
         check_runs: [
-          { name: "unit-tests", conclusion: "failure", output: { summary: "TypeError: cannot read property" } },
+          {
+            name: "unit-tests",
+            conclusion: "failure",
+            details_url: "https://github.com/owner/repo/actions/runs/12345",
+            output: { summary: "TypeError: cannot read property" },
+          },
           { name: "lint", conclusion: "success", output: {} },
-          { name: "e2e", conclusion: "failure", output: { summary: "Timeout waiting for selector" } },
+          {
+            name: "e2e",
+            conclusion: "failure",
+            details_url: "https://github.com/owner/repo/actions/runs/12346",
+            output: { summary: "Timeout waiting for selector" },
+          },
         ],
       },
     });
@@ -141,11 +158,36 @@ describe("tasks/fix-code", () => {
 
     const callArgs = runCopilotTask.mock.calls[0][0];
     expect(callArgs.prompt).toContain("unit-tests");
-    expect(callArgs.prompt).toContain("TypeError: cannot read property");
+    // Should contain the actual log output from execSync mock
+    expect(callArgs.prompt).toContain("FAIL tests/unit/main.test.js");
     expect(callArgs.prompt).toContain("e2e");
-    expect(callArgs.prompt).toContain("Timeout waiting for selector");
     expect(callArgs.prompt).toContain("Test PR");
     expect(callArgs.systemMessage).toContain("#99");
+    // execSync should have been called for each failed check
+    expect(execSync).toHaveBeenCalledTimes(2);
+  });
+
+  it("falls back to summary when log fetch fails", async () => {
+    execSync.mockImplementation(() => { throw new Error("gh not found"); });
+    const octokit = createMockOctokit();
+    octokit.rest.checks.listForRef.mockResolvedValue({
+      data: {
+        check_runs: [
+          {
+            name: "unit-tests",
+            conclusion: "failure",
+            details_url: "https://github.com/owner/repo/actions/runs/12345",
+            output: { summary: "TypeError: cannot read property" },
+          },
+        ],
+      },
+    });
+    const ctx = createMockContext({ octokit });
+
+    await fixCode(ctx);
+
+    const callArgs = runCopilotTask.mock.calls[0][0];
+    expect(callArgs.prompt).toContain("TypeError: cannot read property");
   });
 
   it("returns fix-applied outcome on happy path", async () => {
@@ -167,6 +209,7 @@ describe("tasks/fix-code", () => {
   });
 
   it("uses default failure message when output summary is missing", async () => {
+    execSync.mockImplementation(() => { throw new Error("gh not found"); });
     const octokit = createMockOctokit();
     octokit.rest.checks.listForRef.mockResolvedValue({
       data: {
@@ -178,6 +221,7 @@ describe("tasks/fix-code", () => {
     await fixCode(ctx);
 
     const callArgs = runCopilotTask.mock.calls[0][0];
-    expect(callArgs.prompt).toContain("**build:** Failed");
+    expect(callArgs.prompt).toContain("**build:**");
+    expect(callArgs.prompt).toContain("Failed");
   });
 });

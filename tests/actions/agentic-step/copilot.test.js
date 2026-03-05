@@ -73,6 +73,14 @@ describe("scanDirectory", () => {
     expect(result).toHaveLength(4);
   });
 
+  it("works when directory path does not have trailing slash", () => {
+    const result = scanDirectory(dir, ".md");
+    expect(result).toHaveLength(3);
+    expect(result.map((f) => f.name).sort()).toEqual(["a.md", "b.md", "d.md"]);
+    // Verify content was read correctly (not corrupted by missing separator)
+    expect(result.find((f) => f.name === "a.md").content).toBe("# Alpha");
+  });
+
   it("returns empty array for nonexistent directory", () => {
     expect(scanDirectory("/nonexistent/", ".md")).toEqual([]);
   });

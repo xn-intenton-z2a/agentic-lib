@@ -113,7 +113,7 @@ describe("tasks/review-issue", () => {
     await reviewIssue(ctx);
 
     expect(octokit.rest.issues.listForRepo).toHaveBeenCalledWith(
-      expect.objectContaining({ state: "open", labels: "automated", per_page: 5, sort: "created", direction: "asc" }),
+      expect.objectContaining({ state: "open", labels: "automated", per_page: 8, sort: "created", direction: "asc" }),
     );
     expect(octokit.rest.issues.get).toHaveBeenCalledWith(expect.objectContaining({ issue_number: 17 }));
     // Should proceed to review the issue
@@ -170,6 +170,29 @@ describe("tasks/review-issue", () => {
         state: "closed",
       }),
     );
+  });
+
+  it("uses batch mode when no issueNumber provided", async () => {
+    const octokit = createMockOctokit();
+    octokit.rest.issues.listForRepo.mockResolvedValue({
+      data: [
+        { number: 5, title: "Issue 5" },
+        { number: 6, title: "Issue 6" },
+        { number: 7, title: "Issue 7" },
+      ],
+    });
+    octokit.rest.issues.listComments.mockResolvedValue({ data: [] });
+    octokit.rest.issues.get.mockResolvedValue({
+      data: { state: "open", title: "Test Issue", body: "body", labels: [] },
+    });
+    const ctx = createMockContext({ octokit, issueNumber: "" });
+
+    const result = await reviewIssue(ctx);
+
+    // Should review 3 issues in batch
+    expect(runCopilotTask).toHaveBeenCalledTimes(3);
+    expect(result.outcome).toBe("issues-reviewed");
+    expect(result.details).toContain("Batch reviewed 3 issues");
   });
 
   it("returns issue-still-open when verdict does not start with RESOLVED", async () => {

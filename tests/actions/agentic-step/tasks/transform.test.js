@@ -174,6 +174,28 @@ describe("tasks/transform", () => {
     expect(callArgs.writablePaths).toEqual(["src/", "tests/"]);
   });
 
+  it("includes target issue in prompt when issueNumber is set", async () => {
+    readOptionalFile.mockReturnValue("Build a tool");
+    const octokit = createMockOctokit();
+    octokit.rest.issues.get.mockResolvedValue({
+      data: {
+        number: 7,
+        state: "open",
+        title: "Add hamming distance",
+        body: "Implement hamming distance function",
+        labels: [{ name: "ready" }, { name: "automated" }],
+      },
+    });
+    const ctx = createMockContext({ octokit, issueNumber: "7" });
+
+    await transform(ctx);
+
+    const callArgs = runCopilotTask.mock.calls[0][0];
+    expect(callArgs.prompt).toContain("Target Issue #7");
+    expect(callArgs.prompt).toContain("Add hamming distance");
+    expect(callArgs.prompt).toContain("Focus your transformation on resolving this specific issue");
+  });
+
   it("uses TDD mode when config.tdd is true", async () => {
     readOptionalFile.mockReturnValue("Build a tool");
     const ctx = createMockContext({ config: createMockConfig({ tdd: true }) });
