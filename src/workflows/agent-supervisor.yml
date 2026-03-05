@@ -30,6 +30,7 @@ on:
       - agent-flow-review
       - ci-automerge
       - init
+      - agent-discussions-bot
     types:
       - completed
   workflow_dispatch:
