@@ -11,9 +11,9 @@
 
 name: agentic-lib-bot
 run-name: "agentic-lib-bot [${{ github.ref_name }}]"
-concurrency:
-  group: agentic-lib-bot-${{ github.event.discussion.node_id || github.run_id }}
-  cancel-in-progress: false
+#concurrency:
+#  group: agentic-lib-bot-${{ github.event.discussion.node_id || github.run_id }}
+#  cancel-in-progress: false
 
 on:
   #@dist discussion:

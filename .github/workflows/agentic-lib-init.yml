@@ -193,7 +193,12 @@ jobs:
       - run: npm install
 
       - name: Install agentic-step deps
+        if: hashFiles('.github/agentic-lib/actions/agentic-step/package.json') != ''
         run: cd .github/agentic-lib/actions/agentic-step && npm ci
+
+      - name: Install sub-project dependencies (agentic-lib dev only)
+        if: hashFiles('src/actions/agentic-step/package.json') != ''
+        run: cd src/actions/agentic-step && npm ci
 
       - run: npm test
 
