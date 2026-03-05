@@ -144,6 +144,7 @@ describe("tasks/supervise", () => {
       tokensUsed: 120,
     });
     const octokit = createMockOctokit();
+    octokit.rest.actions.listWorkflowRuns = vi.fn().mockResolvedValue({ data: { total_count: 0 } });
     const ctx = createMockContext({ octokit });
 
     const result = await supervise(ctx);
@@ -253,6 +254,7 @@ describe("tasks/supervise", () => {
       tokensUsed: 200,
     });
     const octokit = createMockOctokit();
+    octokit.rest.actions.listWorkflowRuns = vi.fn().mockResolvedValue({ data: { total_count: 0 } });
     const ctx = createMockContext({ octokit });
 
     const result = await supervise(ctx);
@@ -304,6 +306,7 @@ describe("tasks/supervise", () => {
       tokensUsed: 90,
     });
     const octokit = createMockOctokit();
+    octokit.rest.actions.listWorkflowRuns = vi.fn().mockResolvedValue({ data: { total_count: 0 } });
     octokit.rest.actions.createWorkflowDispatch.mockRejectedValue(new Error("API error"));
     const ctx = createMockContext({ octokit });
 
@@ -400,6 +403,10 @@ describe("tasks/supervise", () => {
       expect.objectContaining({
         workflow_id: "agent-discussions-bot.yml",
         ref: "main",
+        inputs: {
+          message: "Working on it",
+          "discussion-url": "https://github.com/org/repo/discussions/1",
+        },
       }),
     );
     expect(result.details).toContain("respond-discussions");
@@ -501,6 +508,45 @@ describe("tasks/supervise", () => {
     const callArgs = runCopilotTask.mock.calls[0][0];
     expect(callArgs.prompt).toContain("set-schedule:");
     expect(callArgs.prompt).toContain("Schedule Control");
+  });
+
+  it("forwards issue-number to transform dispatch", async () => {
+    runCopilotTask.mockResolvedValue({
+      content:
+        "[ACTIONS]\ndispatch:agent-flow-transform | issue-number: 7\n[/ACTIONS]\n[REASONING]\nResolve issue.\n[/REASONING]",
+      tokensUsed: 100,
+    });
+    const octokit = createMockOctokit();
+    octokit.rest.actions.listWorkflowRuns = vi.fn().mockResolvedValue({ data: { total_count: 0 } });
+    const ctx = createMockContext({ octokit });
+
+    const result = await supervise(ctx);
+
+    expect(octokit.rest.actions.createWorkflowDispatch).toHaveBeenCalledWith(
+      expect.objectContaining({
+        workflow_id: "agent-flow-transform.yml",
+        ref: "main",
+        inputs: { "issue-number": "7" },
+      }),
+    );
+    expect(result.details).toContain("dispatched:agent-flow-transform.yml");
+  });
+
+  it("skips transform dispatch when transform is already running", async () => {
+    runCopilotTask.mockResolvedValue({
+      content:
+        "[ACTIONS]\ndispatch:agent-flow-transform | issue-number: 7\n[/ACTIONS]\n[REASONING]\nResolve issue.\n[/REASONING]",
+      tokensUsed: 100,
+    });
+    const octokit = createMockOctokit();
+    octokit.rest.actions.listWorkflowRuns = vi.fn().mockResolvedValue({ data: { total_count: 1 } });
+    const ctx = createMockContext({ octokit });
+
+    const result = await supervise(ctx);
+
+    expect(result.details).toContain("skipped:transform-already-running");
+    // Should NOT have dispatched
+    expect(octokit.rest.actions.createWorkflowDispatch).not.toHaveBeenCalled();
   });
 
   it("dispatches ci-automerge workflow", async () => {

@@ -112,9 +112,34 @@ describe("tasks/enhance-issue", () => {
     scanDirectory.mockReturnValue([]);
   });
 
-  it("throws if issueNumber is missing", async () => {
-    const ctx = createMockContext({ issueNumber: "" });
-    await expect(enhanceIssue(ctx)).rejects.toThrow("enhance-issue task requires issue-number input");
+  it("uses batch mode when issueNumber is missing", async () => {
+    const octokit = createMockOctokit();
+    octokit.rest.issues.listForRepo.mockResolvedValue({
+      data: [
+        { number: 10, title: "Issue 10", labels: [{ name: "automated" }] },
+        { number: 11, title: "Issue 11", labels: [{ name: "automated" }] },
+        { number: 12, title: "Issue 12", labels: [{ name: "automated" }, { name: "ready" }] },
+      ],
+    });
+    const ctx = createMockContext({ octokit, issueNumber: "" });
+
+    const result = await enhanceIssue(ctx);
+
+    // Should enhance 2 unready issues (10 and 11), skip 12 (already ready)
+    expect(runCopilotTask).toHaveBeenCalledTimes(2);
+    expect(result.outcome).toBe("issues-enhanced");
+    expect(result.details).toContain("Batch enhanced 2/2 issues");
+  });
+
+  it("returns nop in batch mode when no unready issues exist", async () => {
+    const octokit = createMockOctokit();
+    octokit.rest.issues.listForRepo.mockResolvedValue({ data: [] });
+    const ctx = createMockContext({ octokit, issueNumber: "" });
+
+    const result = await enhanceIssue(ctx);
+
+    expect(result.outcome).toBe("nop");
+    expect(result.details).toContain("No unready automated issues");
   });
 
   it("returns nop if issue is already resolved", async () => {
@@ -124,7 +149,7 @@ describe("tasks/enhance-issue", () => {
     const result = await enhanceIssue(ctx);
 
     expect(result.outcome).toBe("nop");
-    expect(result.details).toBe("Issue already resolved");
+    expect(result.details).toBe("Issue #42 already resolved");
     expect(runCopilotTask).not.toHaveBeenCalled();
   });
 
@@ -138,7 +163,7 @@ describe("tasks/enhance-issue", () => {
     const result = await enhanceIssue(ctx);
 
     expect(result.outcome).toBe("nop");
-    expect(result.details).toBe("Issue already has ready label");
+    expect(result.details).toBe("Issue #42 already has ready label");
     expect(runCopilotTask).not.toHaveBeenCalled();
   });
 
