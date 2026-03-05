@@ -664,15 +664,23 @@ function initWorkflows() {
       initCopyFile(resolve(workflowsDir, f), resolve(target, ".github/workflows", f), `workflows/${f}`);
     }
   }
-  const seedTest = resolve(srcDir, "seeds/test.yml");
+  const seedTest = resolve(srcDir, "seeds/agentic-lib-test.yml");
   if (existsSync(seedTest)) {
-    templateWorkflows.add("test.yml");
-    initCopyFile(seedTest, resolve(target, ".github/workflows/test.yml"), "workflows/test.yml (from seeds)");
+    templateWorkflows.add("agentic-lib-test.yml");
+    initCopyFile(
+      seedTest,
+      resolve(target, ".github/workflows/agentic-lib-test.yml"),
+      "workflows/agentic-lib-test.yml (from seeds)",
+    );
   }
-  const seedInit = resolve(srcDir, "seeds/init.yml");
+  const seedInit = resolve(srcDir, "seeds/agentic-lib-init.yml");
   if (existsSync(seedInit)) {
-    templateWorkflows.add("init.yml");
-    initCopyFile(seedInit, resolve(target, ".github/workflows/init.yml"), "workflows/init.yml (from seeds)");
+    templateWorkflows.add("agentic-lib-init.yml");
+    initCopyFile(
+      seedInit,
+      resolve(target, ".github/workflows/agentic-lib-init.yml"),
+      "workflows/agentic-lib-init.yml (from seeds)",
+    );
   }
   removeStaleWorkflows(templateWorkflows);
 }
@@ -911,10 +919,12 @@ function initPurgeGitHub() {
 
   // Close all open issues
   try {
-    const issuesJson = execSync(
-      `gh issue list --repo ${repoSlug} --state open --json number,title --limit 100`,
-      { cwd: target, encoding: "utf8", timeout: 30000, stdio: ["pipe", "pipe", "pipe"] },
-    );
+    const issuesJson = execSync(`gh issue list --repo ${repoSlug} --state open --json number,title --limit 100`, {
+      cwd: target,
+      encoding: "utf8",
+      timeout: 30000,
+      stdio: ["pipe", "pipe", "pipe"],
+    });
     const issues = JSON.parse(issuesJson || "[]");
     if (issues.length === 0) {
       console.log("  No open issues to close");
