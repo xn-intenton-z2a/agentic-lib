@@ -374,6 +374,9 @@ jobs:
         with:
           node-version: "24"
 
+      - name: Install project dependencies
+        run: npm ci
+
       - name: Install agentic-step dependencies
         working-directory: .github/agentic-lib/actions/agentic-step
         run: npm ci
@@ -514,6 +517,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "24"
+
+      - name: Install project dependencies
+        run: npm ci
 
       - name: Install agentic-step dependencies
         working-directory: .github/agentic-lib/actions/agentic-step
