@@ -26,6 +26,16 @@ on:
   #@dist   types:
   #@dist     - created
   #@dist     - edited
+  workflow_call:
+    inputs:
+      discussion-url:
+        type: string
+        required: false
+        default: ""
+      model:
+        type: string
+        required: false
+        default: "gpt-5-mini"
   workflow_dispatch:
     inputs:
       discussion-url:

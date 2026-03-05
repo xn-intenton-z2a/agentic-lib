@@ -4,7 +4,7 @@
 #
 # All testing for agentic-lib in one workflow.
 #
-# Every push/PR runs 10 concurrent jobs:
+# Every push/PR runs up to 17 concurrent jobs:
 #
 #   CI (4 jobs — each fails independently for maximum signal):
 #     lint               — ESLint
@@ -19,6 +19,14 @@
 #     test-cli-transform          — CLI transform
 #     test-cli-maintain-features  — CLI maintain-features
 #     test-cli-maintain-library   — CLI maintain-library
+#   Workflow dry-runs (7 jobs — call distributable workflows in inert mode):
+#     test-workflow-maintain  — agentic-lib-workflow maintain-only
+#     test-workflow-review   — agentic-lib-workflow review-only
+#     test-workflow-dev      — agentic-lib-workflow dev-only
+#     test-workflow-bot      — agentic-lib-bot (test discussion)
+#     test-workflow-schedule — agentic-lib-schedule (dry-run)
+#     test-workflow-init     — agentic-lib-init (dry-run)
+#     test-workflow-test     — agentic-lib-test (npm test)
 #
 # COPILOT_GITHUB_TOKEN is required for all transform jobs.
 # Transform jobs are skipped when the token is unavailable (e.g. Dependabot PRs).
@@ -228,7 +236,7 @@ jobs:
           COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
         with:
           task: "maintain-features"
-          config: tests/template/agentic-lib.toml
+          config: agentic-lib.toml
           model: ${{ needs.params.outputs.model }}
 
       - name: Show agent changes
@@ -303,7 +311,7 @@ jobs:
           COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
         with:
           task: "maintain-library"
-          config: tests/template/agentic-lib.toml
+          config: agentic-lib.toml
           model: ${{ needs.params.outputs.model }}
           writable-paths: "library/"
 
@@ -387,7 +395,7 @@ jobs:
           COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
         with:
           task: "transform"
-          config: tests/template/agentic-lib.toml
+          config: agentic-lib.toml
           model: ${{ needs.params.outputs.model }}
           writable-paths: "src/lib/;tests/unit/"
           test-command: "npm test"
@@ -458,7 +466,6 @@ jobs:
           cp src/seeds/zero-main.js src/lib/main.js
           cp src/seeds/zero-main.test.js tests/unit/main.test.js
           cp src/seeds/zero-MISSION.md MISSION.md
-          cp tests/template/agentic-lib.toml agentic-lib.toml
           cat > features/hello-world.md << 'SEED_EOF'
           # Feature: Hello World
 
@@ -537,7 +544,6 @@ jobs:
       - name: Seed workspace
         run: |
           cp src/seeds/zero-MISSION.md MISSION.md
-          cp tests/template/agentic-lib.toml agentic-lib.toml
           mkdir -p features
 
       - name: Show seed changes
@@ -600,7 +606,6 @@ jobs:
       - name: Seed workspace
         run: |
           cp src/seeds/zero-MISSION.md MISSION.md
-          cp tests/template/agentic-lib.toml agentic-lib.toml
           mkdir -p docs
           cat > SOURCES.md << 'SEED_EOF'
           # Library Sources
@@ -642,3 +647,73 @@ jobs:
 
       - name: Show re-seed changes
         run: diff -rN --exclude=.git --exclude=node_modules /tmp/post-seed . || true
+
+  # ─── Workflow dry-run tests: call distributable workflows ──────────
+  #
+  # These exercise the 5 distributable workflows in inert mode:
+  #   - agentic-lib-workflow: 3 concurrent modes (maintain, review, dev)
+  #   - agentic-lib-bot: responds to a test discussion
+  #   - agentic-lib-schedule: edits files but skips push
+  #   - agentic-lib-init: runs init --dry-run, skips push
+  #   - agentic-lib-test: runs npm test on the checkout
+
+  test-workflow-maintain:
+    needs: params
+    if: needs.params.outputs.hasCopilotToken == 'true'
+    uses: ./.github/workflows/agentic-lib-workflow.yml
+    with:
+      dry-run: "true"
+      config-path: "agentic-lib.toml"
+      model: ${{ needs.params.outputs.model }}
+      mode: "maintain-only"
+    secrets: inherit
+
+  test-workflow-review:
+    needs: params
+    if: needs.params.outputs.hasCopilotToken == 'true'
+    uses: ./.github/workflows/agentic-lib-workflow.yml
+    with:
+      dry-run: "true"
+      config-path: "agentic-lib.toml"
+      model: ${{ needs.params.outputs.model }}
+      mode: "review-only"
+    secrets: inherit
+
+  test-workflow-dev:
+    needs: params
+    if: needs.params.outputs.hasCopilotToken == 'true'
+    uses: ./.github/workflows/agentic-lib-workflow.yml
+    with:
+      dry-run: "true"
+      config-path: "agentic-lib.toml"
+      model: ${{ needs.params.outputs.model }}
+      mode: "dev-only"
+    secrets: inherit
+
+  test-workflow-bot:
+    needs: params
+    if: needs.params.outputs.hasCopilotToken == 'true'
+    uses: ./.github/workflows/agentic-lib-bot.yml
+    with:
+      discussion-url: "https://github.com/xn-intenton-z2a/agentic-lib/discussions/1840"
+      model: ${{ needs.params.outputs.model }}
+    secrets: inherit
+
+  test-workflow-schedule:
+    uses: ./.github/workflows/agentic-lib-schedule.yml
+    with:
+      frequency: "daily"
+      model: "gpt-5-mini"
+      dry-run: "true"
+    secrets: inherit
+
+  test-workflow-init:
+    uses: ./.github/workflows/agentic-lib-init.yml
+    with:
+      mode: "update"
+      dry-run: "true"
+    secrets: inherit
+
+  test-workflow-test:
+    uses: ./.github/workflows/agentic-lib-test.yml
+    secrets: inherit
