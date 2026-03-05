@@ -697,8 +697,12 @@ function initDirContents(srcSubdir, dstDir, label) {
   console.log(`\n--- ${label} ---`);
   const dir = resolve(srcDir, srcSubdir);
   if (!existsSync(dir)) return;
-  for (const f of readdirSync(dir)) {
-    initCopyFile(resolve(dir, f), resolve(dstDir, f), `${srcSubdir}/${f}`);
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    if (entry.isDirectory()) {
+      initCopyDirRecursive(resolve(dir, entry.name), resolve(dstDir, entry.name), `${srcSubdir}/${entry.name}`);
+    } else {
+      initCopyFile(resolve(dir, entry.name), resolve(dstDir, entry.name), `${srcSubdir}/${entry.name}`);
+    }
   }
 }
 

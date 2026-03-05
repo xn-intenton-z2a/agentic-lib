@@ -45,8 +45,14 @@ echo ""
 echo "--- Seeds ---"
 mkdir -p "${AGENTIC_DIR}/seeds"
 for f in "${SRC_DIR}/seeds"/*; do
-  cp "$f" "${AGENTIC_DIR}/seeds/$(basename "$f")"
-  echo "  COPY: seeds/$(basename "$f")"
+  name=$(basename "$f")
+  if [ -d "$f" ]; then
+    cp -r "$f" "${AGENTIC_DIR}/seeds/${name}"
+    echo "  COPY: seeds/${name}/ (directory)"
+  else
+    cp "$f" "${AGENTIC_DIR}/seeds/${name}"
+    echo "  COPY: seeds/${name}"
+  fi
 done
 
 # 4. Scripts → .github/agentic-lib/scripts/ (selected only)
