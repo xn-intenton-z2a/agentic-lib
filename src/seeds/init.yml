@@ -3,8 +3,9 @@
 # .github/workflows/init.yml
 #
 # Self-contained init workflow: updates agentic-lib, runs init, tests, and
-# pushes directly to main. Does not create PRs to avoid triggering other workflows.
+# pushes directly to main with [skip ci] to prevent triggering any other workflows.
 # On purge mode, closes any hanging init-related PRs to avoid conflicts.
+# This workflow is completely isolated - no other workflows depend on it or are triggered by it.
 
 name: init
 run-name: "init [${{ github.ref_name }}]"
@@ -260,16 +261,11 @@ jobs:
           VERSION=$(npx @xn-intenton-z2a/agentic-lib version 2>/dev/null || echo "latest")
           SCHEDULE="${{ needs.params.outputs.schedule }}"
           MODEL="${{ needs.params.outputs.model }}"
+          # Use [skip ci] to prevent triggering other workflows (test, ci-automerge, agent-supervisor, etc.)
+          # This keeps init.yml completely self-contained with no downstream workflow triggers
           if [ -n "$SCHEDULE" ]; then
-            git commit -m "init ${INIT_MODE} (agentic-lib@${VERSION}), schedule=${SCHEDULE}, model=${MODEL:-gpt-5-mini}"
+            git commit -m "init ${INIT_MODE} (agentic-lib@${VERSION}), schedule=${SCHEDULE}, model=${MODEL:-gpt-5-mini} [skip ci]"
           else
-            git commit -m "init ${INIT_MODE} (agentic-lib@${VERSION})"
+            git commit -m "init ${INIT_MODE} (agentic-lib@${VERSION}) [skip ci]"
           fi
           git push origin main
-
-      # Dispatch supervisor if schedule is set and not 'off'
-      - name: Dispatch supervisor
-        if: needs.params.outputs.schedule != '' && needs.params.outputs.schedule != 'off'
-        env:
-          GH_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
-        run: gh workflow run agent-supervisor.yml --repo $GITHUB_REPOSITORY || echo "Warning: Could not dispatch supervisor"
