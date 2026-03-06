@@ -81,7 +81,8 @@
     "src/actions/setup-npmrc/",
     "src/agents/",
     "src/seeds/",
-    "src/scripts/"
+    "src/scripts/",
+    "src/mcp/"
   ],
   "overrides": {
     "minimatch": ">=10.2.3"
@@ -99,6 +100,7 @@
     "@actions/core": "^3.0.0",
     "@actions/github": "^9.0.0",
     "@github/copilot-sdk": "^0.1.29",
+    "@modelcontextprotocol/sdk": "^1.27.0",
     "smol-toml": "^1.6.0"
   }
 }
