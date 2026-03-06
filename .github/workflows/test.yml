@@ -459,6 +459,7 @@ jobs:
 
       - name: Seed workspace via init --purge
         run: |
+          mkdir -p /tmp/test-workspace
           node bin/agentic-lib.js init --purge --mission fizz-buzz --target /tmp/test-workspace
           cd /tmp/test-workspace && npm install
 
@@ -516,7 +517,9 @@ jobs:
         run: cd src/actions/agentic-step && npm ci
 
       - name: Seed workspace via init --purge
-        run: node bin/agentic-lib.js init --purge --mission fizz-buzz --target /tmp/test-workspace
+        run: |
+          mkdir -p /tmp/test-workspace
+          node bin/agentic-lib.js init --purge --mission fizz-buzz --target /tmp/test-workspace
 
       - name: Snapshot post-seed
         run: rsync -a --exclude=.git --exclude=node_modules /tmp/test-workspace/ /tmp/post-seed/
@@ -568,7 +571,9 @@ jobs:
         run: cd src/actions/agentic-step && npm ci
 
       - name: Seed workspace via init --purge
-        run: node bin/agentic-lib.js init --purge --mission fizz-buzz --target /tmp/test-workspace
+        run: |
+          mkdir -p /tmp/test-workspace
+          node bin/agentic-lib.js init --purge --mission fizz-buzz --target /tmp/test-workspace
 
       - name: Snapshot post-seed
         run: rsync -a --exclude=.git --exclude=node_modules /tmp/test-workspace/ /tmp/post-seed/
