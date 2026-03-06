@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 // Copyright (C) 2025-2026 Polycode Limited
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
-import { readOptionalFile, scanDirectory, formatPathsSection, supportsReasoningEffort, logTuningParam, cleanSource, generateOutline, filterIssues, summariseIssue, extractFeatureSummary } from "../../../src/actions/agentic-step/copilot.js";
+import { readOptionalFile, scanDirectory, formatPathsSection, supportsReasoningEffort, logTuningParam, cleanSource, generateOutline, filterIssues, summariseIssue, extractFeatureSummary, isRateLimitError, retryDelayMs } from "../../../src/actions/agentic-step/copilot.js";
 import { writeFileSync, mkdirSync, rmSync } from "fs";
 import { join } from "path";
 import { tmpdir } from "os";
@@ -439,5 +439,88 @@ describe("scanDirectory clipping", () => {
   it("clips content when contentLimit is exceeded", () => {
     const result = scanDirectory(dir, ".md", { contentLimit: 10 });
     expect(result[0].content).toHaveLength(10);
+  });
+});
+
+describe("isRateLimitError", () => {
+  it("returns true for error with status 429", () => {
+    expect(isRateLimitError({ status: 429, message: "Too Many Requests" })).toBe(true);
+  });
+
+  it("returns true for error with statusCode 429", () => {
+    expect(isRateLimitError({ statusCode: 429, message: "rate limit" })).toBe(true);
+  });
+
+  it("returns true for error with string status '429'", () => {
+    expect(isRateLimitError({ status: "429", message: "error" })).toBe(true);
+  });
+
+  it("returns true for error with message containing '429'", () => {
+    expect(isRateLimitError({ message: "Request failed with status 429" })).toBe(true);
+  });
+
+  it("returns true for error with message 'too many requests'", () => {
+    expect(isRateLimitError({ message: "Too Many Requests" })).toBe(true);
+  });
+
+  it("returns true for error with message containing 'rate limit'", () => {
+    expect(isRateLimitError({ message: "API rate limit exceeded" })).toBe(true);
+  });
+
+  it("returns false for non-rate-limit HTTP errors", () => {
+    expect(isRateLimitError({ status: 500, message: "Internal Server Error" })).toBe(false);
+  });
+
+  it("returns false for non-rate-limit errors without status", () => {
+    expect(isRateLimitError({ message: "Network error" })).toBe(false);
+  });
+
+  it("returns false for null", () => {
+    expect(isRateLimitError(null)).toBe(false);
+  });
+
+  it("returns false for non-object values", () => {
+    expect(isRateLimitError("429")).toBe(false);
+    expect(isRateLimitError(429)).toBe(false);
+  });
+});
+
+describe("retryDelayMs", () => {
+  it("parses Retry-After header in seconds", () => {
+    const err = { headers: { "retry-after": "30" } };
+    expect(retryDelayMs(err, 0)).toBe(30000);
+  });
+
+  it("parses retryAfter property in seconds", () => {
+    const err = { retryAfter: "45" };
+    expect(retryDelayMs(err, 0)).toBe(45000);
+  });
+
+  it("parses Retry-After from response headers", () => {
+    const err = { response: { headers: { "retry-after": "60" } } };
+    expect(retryDelayMs(err, 0)).toBe(60000);
+  });
+
+  it("uses exponential backoff when no Retry-After header", () => {
+    const err = { status: 429 };
+    expect(retryDelayMs(err, 0)).toBe(60000);
+    expect(retryDelayMs(err, 1)).toBe(120000);
+    expect(retryDelayMs(err, 2)).toBe(240000);
+  });
+
+  it("uses custom base delay for backoff", () => {
+    const err = { status: 429 };
+    expect(retryDelayMs(err, 0, 10000)).toBe(10000);
+    expect(retryDelayMs(err, 1, 10000)).toBe(20000);
+  });
+
+  it("ignores invalid Retry-After values", () => {
+    const err = { headers: { "retry-after": "abc" } };
+    expect(retryDelayMs(err, 0)).toBe(60000);
+  });
+
+  it("ignores zero Retry-After values", () => {
+    const err = { headers: { "retry-after": "0" } };
+    expect(retryDelayMs(err, 0)).toBe(60000);
   });
 });
