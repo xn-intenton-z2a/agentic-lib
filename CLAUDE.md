@@ -30,7 +30,7 @@
 
 ## What This Repository Is
 
-The **core SDK** of the intentïon project. A collection of reusable GitHub Actions workflows that enable repositories to operate autonomously — reviewing, fixing, updating, and transforming code through branches and issues.
+The **core SDK** of the intentïon project. A collection of reusable GitHub Actions workflows that enable repositories to operate autonomously — reviewing, fixing, updating, and transforming code through branches and issues. Includes a CLI with `iterate` command for budget-tracked transformation cycles and an MCP server for Claude Code integration.
 
 - **Package**: `@xn-intenton-z2a/agentic-lib`
 - **Organisation**: `xn-intenton-z2a`
@@ -79,7 +79,7 @@ Stale workflows (in consumer but not in template) are automatically removed.
 ## Test Commands
 
 ```bash
-npm test              # 277 unit tests (vitest)
+npm test              # 393 unit tests (vitest)
 npm run linting       # ESLint
 npm run lint:workflows # Validate workflow YAML (15 files)
 npm run security      # npm audit (0 vulnerabilities)

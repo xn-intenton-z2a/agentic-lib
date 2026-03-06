@@ -120,6 +120,11 @@ async function run() {
     const closingNotes = result.closingNotes || generateClosingNotes(limitsStatus);
     const profileName = config.tuning?.profileName || "unknown";
 
+    // Transformation cost: 1 for code-changing tasks, 0 otherwise
+    const COST_TASKS = ["transform", "fix-code"];
+    const isNop = result.outcome === "nop" || result.outcome === "error";
+    const transformationCost = COST_TASKS.includes(task) && !isNop ? 1 : 0;
+
     // Log to intentïon.md (commit-if-changed excludes this on non-default branches)
     const intentionFilepath = config.intentionBot?.intentionFilepath;
     if (intentionFilepath) {
@@ -144,6 +149,7 @@ async function run() {
         limitsStatus,
         promptBudget: result.promptBudget,
         closingNotes,
+        transformationCost,
       });
     }
 

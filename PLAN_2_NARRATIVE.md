@@ -1,5 +1,9 @@
 # PLAN: Narrative Alignment with CONCEPT.md
 
+**Status:** Pre-implementation. Vocabulary map defined, no renames executed yet.
+
+**Prerequisite:** PLAN_CONTEXT_QUALITY and PLAN_ITERATOR are now implemented — the `iterate` CLI, transformation budget, `MISSION_COMPLETE.md` signal, enriched intentïon.md logging, and clean/compress/limit pipeline are all live. These new features should use the CONCEPT.md vocabulary when renamed.
+
 Every human-readable artifact across all three repositories must speak the same language as CONCEPT.md. One borrowed taxonomy (manufacturing) for what's in the repo. GitHub is just GitHub. No "transform" or "transformation" anywhere.
 
 ---
@@ -53,6 +57,21 @@ These happen everywhere, all at once:
 | `maintenanceIssuesWipLimit`        | `stewardshipWipLimit` | agentic-lib.yml                                                               |
 
 ---
+
+### New Features Added Since Plan Creation
+
+These were added by PLAN_CONTEXT_QUALITY and PLAN_ITERATOR. They use internal code names that should be renamed during the narrative alignment:
+
+| Current Internal Name | Narrative Name | Location |
+|---|---|---|
+| `iterate` CLI command | "navigation loop" or "iteration" | `bin/agentic-lib.js`, `src/iterate.js` |
+| `transformation-budget` | "navigation budget" | `config-loader.js`, `agentic-lib.toml` |
+| `MISSION_COMPLETE.md` | `REALIZATION.md` or `INTENTION_REALIZED.md` | `tasks/transform.js`, `tasks/discussions.js`, workflow |
+| `cleanSource()` | — (internal, no rename needed) | `copilot.js` |
+| `generateOutline()` | — (internal) | `copilot.js` |
+| `filterIssues()` | — (internal) | `copilot.js` |
+| `transformationCost` log line | "navigation cost" | `logging.js` |
+| `intentïon.md` activity log | "intentïon record" | All task handlers, `logging.js` |
 
 ## Documents to Rewrite: FEATURES.md and FEATURES_ROADMAP.md
 

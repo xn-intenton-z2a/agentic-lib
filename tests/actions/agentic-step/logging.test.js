@@ -252,6 +252,44 @@ describe("logging", () => {
       expect(content).toContain("All limits within normal range.");
     });
 
+    it("includes transformation cost when provided", () => {
+      const filepath = join(tmpDir, "intention.md");
+      logActivity({
+        filepath,
+        task: "transform",
+        outcome: "transformed",
+        transformationCost: 1,
+      });
+
+      const content = readFileSync(filepath, "utf8");
+      expect(content).toContain("**agentic-lib transformation cost:** 1");
+    });
+
+    it("includes transformation cost of 0", () => {
+      const filepath = join(tmpDir, "intention.md");
+      logActivity({
+        filepath,
+        task: "maintain-features",
+        outcome: "features-maintained",
+        transformationCost: 0,
+      });
+
+      const content = readFileSync(filepath, "utf8");
+      expect(content).toContain("**agentic-lib transformation cost:** 0");
+    });
+
+    it("omits transformation cost when not provided", () => {
+      const filepath = join(tmpDir, "intention.md");
+      logActivity({
+        filepath,
+        task: "review-issue",
+        outcome: "issue-closed",
+      });
+
+      const content = readFileSync(filepath, "utf8");
+      expect(content).not.toContain("agentic-lib transformation cost");
+    });
+
     it("creates parent directories if needed", () => {
       const filepath = join(tmpDir, "sub", "dir", "intention.md");
       logActivity({

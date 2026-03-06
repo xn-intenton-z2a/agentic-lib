@@ -33,6 +33,7 @@ import * as core from "@actions/core";
  * @param {Array} [options.limitsStatus] - Limit status entries { name, value, remaining, status }
  * @param {Array} [options.promptBudget] - Prompt budget entries { section, size, files, notes }
  * @param {string} [options.closingNotes] - Auto-generated limit concern notes
+ * @param {number} [options.transformationCost] - Transformation cost for this entry (0 or 1)
  */
 export function logActivity({
   filepath,
@@ -55,6 +56,7 @@ export function logActivity({
   limitsStatus,
   promptBudget,
   closingNotes,
+  transformationCost,
 }) {
   const dir = dirname(filepath);
   if (!existsSync(dir)) {
@@ -76,6 +78,7 @@ export function logActivity({
     const mins = (durationMs / 60000).toFixed(1);
     parts.push(`**Duration:** ${secs}s (~${mins} GitHub Actions min)`);
   }
+  if (transformationCost != null) parts.push(`**agentic-lib transformation cost:** ${transformationCost}`);
   if (workflowUrl) parts.push(`**Workflow:** [${workflowUrl}](${workflowUrl})`);
   if (changes && changes.length > 0) {
     parts.push("", "### What Changed");

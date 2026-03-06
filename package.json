@@ -69,6 +69,7 @@
     "package.json",
     "bin/",
     "src/dist-transform.js",
+    "src/iterate.js",
     ".github/workflows/agentic-lib-*.yml",
     "agentic-lib.toml",
     "src/actions/agentic-step/*.js",
