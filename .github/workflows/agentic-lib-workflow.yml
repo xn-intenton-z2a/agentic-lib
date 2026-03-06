@@ -125,7 +125,14 @@ jobs:
           PR='${{ inputs.pr-number }}'
           echo "pr-number=${PR}" >> $GITHUB_OUTPUT
           DRY_RUN='${{ inputs.dry-run }}'
-          echo "dry-run=${DRY_RUN:-true}" >> $GITHUB_OUTPUT
+          # Schedule triggers have no inputs, so DRY_RUN is empty.
+          # Default to false for schedule events (they should run live).
+          if [ "${{ github.event_name }}" = "schedule" ]; then
+            DRY_RUN="${DRY_RUN:-false}"
+          else
+            DRY_RUN="${DRY_RUN:-true}"
+          fi
+          echo "dry-run=${DRY_RUN}" >> $GITHUB_OUTPUT
           CONFIG='${{ inputs.config-path }}'
           echo "config-path=${CONFIG:-${{ env.configPath }}}" >> $GITHUB_OUTPUT
     outputs:
