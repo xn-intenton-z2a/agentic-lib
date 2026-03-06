@@ -233,6 +233,62 @@ const TOOLS = [
       required: ["workspace"],
     },
   },
+  {
+    name: "prepare_iteration",
+    description:
+      "Gather full context for a workspace iteration: mission, features, source code, test results, and transformation instructions. Use this when YOU (Claude/the MCP client) are the LLM — read the returned context, write code via workspace_write_file, then verify with run_tests. No Copilot token needed.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        workspace: { type: "string", description: "Workspace ID" },
+        focus: {
+          type: "string",
+          enum: ["transform", "maintain-features", "fix-code"],
+          description: "What kind of iteration to prepare context for. Default: transform",
+        },
+      },
+      required: ["workspace"],
+    },
+  },
+  {
+    name: "workspace_read_file",
+    description: "Read a file from a workspace. Use with prepare_iteration when Claude is the LLM.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        workspace: { type: "string", description: "Workspace ID" },
+        path: { type: "string", description: "Relative path within the workspace (e.g. 'src/lib/main.js')" },
+      },
+      required: ["workspace", "path"],
+    },
+  },
+  {
+    name: "workspace_write_file",
+    description:
+      "Write a file to a workspace. Parent directories are created automatically. Use with prepare_iteration when Claude is the LLM.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        workspace: { type: "string", description: "Workspace ID" },
+        path: { type: "string", description: "Relative path within the workspace (e.g. 'src/lib/main.js')" },
+        content: { type: "string", description: "File content to write" },
+      },
+      required: ["workspace", "path", "content"],
+    },
+  },
+  {
+    name: "workspace_exec",
+    description:
+      "Run a shell command in a workspace. Use for builds, custom test commands, or inspecting workspace state. Git write commands are blocked.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        workspace: { type: "string", description: "Workspace ID" },
+        command: { type: "string", description: "Shell command to execute" },
+      },
+      required: ["workspace", "command"],
+    },
+  },
 ];
 
 // ─── Tool Handlers ──────────────────────────────────────────────────
@@ -619,6 +675,161 @@ async function handleConfigSet({ workspace, profile, model, overrides }) {
   return text(`Configuration updated for ${workspace}:\n${changes.map((c) => `- ${c}`).join("\n")}`);
 }
 
+async function handlePrepareIteration({ workspace, focus = "transform" }) {
+  const wsPath = workspacePath(workspace);
+  const meta = readMetadata(wsPath);
+  if (!meta) {
+    return text(`Workspace "${workspace}" not found.`);
+  }
+
+  const sections = [];
+  const iterNum = (meta.iterations?.length || 0) + 1;
+
+  sections.push(`# Iteration ${iterNum} — ${focus}`);
+  sections.push(`Workspace: ${meta.id} | Profile: ${meta.profile}`);
+  sections.push("");
+
+  // Mission
+  const missionFile = join(wsPath, "MISSION.md");
+  if (existsSync(missionFile)) {
+    sections.push("## Mission", readFileSync(missionFile, "utf8"), "");
+  }
+
+  // Features
+  const featuresDir = join(wsPath, "features");
+  if (existsSync(featuresDir)) {
+    const features = readdirSync(featuresDir).filter((f) => f.endsWith(".md"));
+    if (features.length > 0) {
+      sections.push(`## Features (${features.length})`);
+      for (const f of features.slice(0, 10)) {
+        sections.push(`### ${f}`, readFileSync(join(featuresDir, f), "utf8"), "");
+      }
+    }
+  }
+
+  // Source files
+  const srcDir = join(wsPath, "src/lib");
+  if (existsSync(srcDir)) {
+    const srcFiles = readdirSync(srcDir, { recursive: true })
+      .filter((f) => String(f).match(/\.(js|ts)$/))
+      .slice(0, 20);
+    sections.push(`## Source Files (${srcFiles.length})`);
+    for (const f of srcFiles) {
+      const content = readFileSync(join(srcDir, String(f)), "utf8");
+      sections.push(`### src/lib/${f}`, "```js", content.substring(0, 5000), "```", "");
+    }
+  }
+
+  // Test files
+  const testsDir = join(wsPath, "tests/unit");
+  if (existsSync(testsDir)) {
+    const testFiles = readdirSync(testsDir, { recursive: true })
+      .filter((f) => String(f).match(/\.(js|ts)$/))
+      .slice(0, 10);
+    sections.push(`## Test Files (${testFiles.length})`);
+    for (const f of testFiles) {
+      const content = readFileSync(join(testsDir, String(f)), "utf8");
+      sections.push(`### tests/unit/${f}`, "```js", content.substring(0, 3000), "```", "");
+    }
+  }
+
+  // Current test results
+  const testResult = runInWorkspace("npm test 2>&1", wsPath, 60000);
+  sections.push("## Current Test Results");
+  sections.push(testResult.success ? "**All tests passing.**" : "**Tests failing.**");
+  sections.push("```", testResult.output.substring(0, 3000), "```", "");
+
+  // Instructions based on focus
+  sections.push("## Your Task");
+  if (focus === "transform") {
+    sections.push(
+      "Analyze the mission, features, and source code above.",
+      "Determine the single most impactful next step to advance the code toward the mission.",
+      "Then implement it by calling `workspace_write_file` to modify source files.",
+      "After writing, call `run_tests` to verify your changes.",
+    );
+  } else if (focus === "maintain-features") {
+    sections.push(
+      "Review the mission and current features.",
+      "Create, update, or prune feature files to keep the project focused on its mission.",
+      "Use `workspace_write_file` to write feature files to `features/<name>.md`.",
+      "Each feature should have clear, testable acceptance criteria.",
+    );
+  } else if (focus === "fix-code") {
+    sections.push(
+      "The test output above shows failing tests.",
+      "Analyze the failures and fix the source code.",
+      "Make minimal, targeted changes using `workspace_write_file`.",
+      "Then call `run_tests` to verify the fix.",
+    );
+  }
+  sections.push("");
+  sections.push("## Writable Paths");
+  sections.push("- src/lib/ (source code)");
+  sections.push("- tests/unit/ (test files)");
+  sections.push("- features/ (feature specs)");
+  sections.push("- examples/ (output artifacts)");
+  sections.push("- README.md, package.json");
+
+  return text(sections.join("\n"));
+}
+
+async function handleWorkspaceReadFile({ workspace, path }) {
+  const wsPath = workspacePath(workspace);
+  if (!readMetadata(wsPath)) {
+    return text(`Workspace "${workspace}" not found.`);
+  }
+  const filePath = resolve(wsPath, path);
+  // Prevent path traversal
+  if (!filePath.startsWith(wsPath)) {
+    return text(`Path traversal not allowed: ${path}`);
+  }
+  if (!existsSync(filePath)) {
+    return text(`File not found: ${path}`);
+  }
+  const content = readFileSync(filePath, "utf8");
+  return text(`## ${path}\n\n\`\`\`\n${content}\n\`\`\``);
+}
+
+async function handleWorkspaceWriteFile({ workspace, path, content }) {
+  const wsPath = workspacePath(workspace);
+  if (!readMetadata(wsPath)) {
+    return text(`Workspace "${workspace}" not found.`);
+  }
+  const filePath = resolve(wsPath, path);
+  if (!filePath.startsWith(wsPath)) {
+    return text(`Path traversal not allowed: ${path}`);
+  }
+  const dir = dirname(filePath);
+  if (!existsSync(dir)) {
+    mkdirSync(dir, { recursive: true });
+  }
+  writeFileSync(filePath, content, "utf8");
+  return text(`Written ${content.length} chars to ${path}`);
+}
+
+async function handleWorkspaceExec({ workspace, command }) {
+  const wsPath = workspacePath(workspace);
+  if (!readMetadata(wsPath)) {
+    return text(`Workspace "${workspace}" not found.`);
+  }
+  // Block git write commands
+  const blocked = /\bgit\s+(commit|push|add|reset|checkout|rebase|merge|stash)\b/;
+  if (blocked.test(command)) {
+    return text(`Git write commands are not allowed: ${command}`);
+  }
+  const result = runInWorkspace(command, wsPath, 120000);
+  return text(
+    [
+      `## exec: ${command}`,
+      `Exit code: ${result.exitCode || 0}`,
+      "```",
+      result.output.substring(0, 5000),
+      "```",
+    ].join("\n"),
+  );
+}
+
 // ─── Helpers ────────────────────────────────────────────────────────
 
 function text(content) {
@@ -670,6 +881,10 @@ const toolHandlers = {
   run_tests: handleRunTests,
   config_get: handleConfigGet,
   config_set: handleConfigSet,
+  prepare_iteration: handlePrepareIteration,
+  workspace_read_file: handleWorkspaceReadFile,
+  workspace_write_file: handleWorkspaceWriteFile,
+  workspace_exec: handleWorkspaceExec,
 };
 
 export async function startServer() {

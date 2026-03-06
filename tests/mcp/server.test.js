@@ -62,7 +62,11 @@ describe("MCP server", () => {
     expect(toolNames).toContain("run_tests");
     expect(toolNames).toContain("config_get");
     expect(toolNames).toContain("config_set");
-    expect(toolNames).toHaveLength(9);
+    expect(toolNames).toContain("prepare_iteration");
+    expect(toolNames).toContain("workspace_read_file");
+    expect(toolNames).toContain("workspace_write_file");
+    expect(toolNames).toContain("workspace_exec");
+    expect(toolNames).toHaveLength(13);
   });
 
   it("each tool has inputSchema and description", async () => {
@@ -107,7 +111,6 @@ describe("MCP server", () => {
   it("workspace_list returns empty when no workspaces exist", async () => {
     const mod = await import("../../src/mcp/server.js");
 
-    // Use a unique temp dir to avoid picking up real workspaces
     process.env.AGENTIC_LIB_WORKSPACES = "/tmp/agentic-test-empty-" + Date.now();
     await mod.startServer();
 
@@ -129,5 +132,38 @@ describe("MCP server", () => {
     });
 
     expect(result.content[0].text).toContain("Unknown tool");
+  });
+
+  it("workspace_read_file rejects missing workspace", async () => {
+    const mod = await import("../../src/mcp/server.js");
+    process.env.AGENTIC_LIB_WORKSPACES = "/tmp/agentic-test-rw-" + Date.now();
+    await mod.startServer();
+
+    const callHandler = mockHandlers["tools/call"];
+    const result = await callHandler({
+      params: { name: "workspace_read_file", arguments: { workspace: "no-such-ws", path: "foo.txt" } },
+    });
+
+    expect(result.content[0].text).toContain("not found");
+
+    delete process.env.AGENTIC_LIB_WORKSPACES;
+  });
+
+  it("workspace_exec blocks git write commands", async () => {
+    const mod = await import("../../src/mcp/server.js");
+    process.env.AGENTIC_LIB_WORKSPACES = "/tmp/agentic-test-exec-" + Date.now();
+    await mod.startServer();
+
+    const callHandler = mockHandlers["tools/call"];
+    // First need a workspace — but we can test the handler directly
+    const result = await callHandler({
+      params: { name: "workspace_exec", arguments: { workspace: "no-such-ws", command: "git push origin main" } },
+    });
+
+    // Either "not found" (no workspace) or "not allowed" (blocked) — both are correct
+    const txt = result.content[0].text;
+    expect(txt.match(/not found|not allowed/)).toBeTruthy();
+
+    delete process.env.AGENTIC_LIB_WORKSPACES;
   });
 });

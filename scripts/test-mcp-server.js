@@ -100,6 +100,10 @@ async function main() {
     "run_tests",
     "config_get",
     "config_set",
+    "prepare_iteration",
+    "workspace_read_file",
+    "workspace_write_file",
+    "workspace_exec",
   ];
 
   let failures = 0;
