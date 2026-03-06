@@ -98,7 +98,7 @@
   "dependencies": {
     "@actions/core": "^3.0.0",
     "@actions/github": "^9.0.0",
-    "@github/copilot-sdk": "^0.1.30",
+    "@github/copilot-sdk": "^0.1.31-unstable.0",
     "@modelcontextprotocol/sdk": "^1.27.1",
     "smol-toml": "^1.6.0"
   }
