@@ -65,32 +65,72 @@ const TUNING_PROFILES = {
   min: {
     reasoningEffort: "low",
     infiniteSessions: false,
+    transformationBudget: 4,
     featuresScan: 3,
     sourceScan: 3,
     sourceContent: 1000,
+    testContent: 500,
     issuesScan: 5,
+    issueBodyLimit: 200,
+    staleDays: 14,
     documentSummary: 500,
     discussionComments: 5,
   },
   recommended: {
     reasoningEffort: "medium",
     infiniteSessions: true,
+    transformationBudget: 8,
     featuresScan: 10,
     sourceScan: 10,
     sourceContent: 5000,
+    testContent: 3000,
     issuesScan: 20,
+    issueBodyLimit: 500,
+    staleDays: 30,
     documentSummary: 2000,
     discussionComments: 10,
   },
   max: {
     reasoningEffort: "high",
     infiniteSessions: true,
+    transformationBudget: 32,
     featuresScan: 50,
     sourceScan: 50,
     sourceContent: 20000,
+    testContent: 15000,
     issuesScan: 100,
+    issueBodyLimit: 2000,
+    staleDays: 90,
     documentSummary: 10000,
     discussionComments: 25,
+  },
+};
+
+// Limits profiles: scale WIP limits and constraints with tuning profile
+const LIMITS_PROFILES = {
+  min: {
+    featureIssues: 1,
+    maintenanceIssues: 1,
+    attemptsPerBranch: 2,
+    attemptsPerIssue: 1,
+    featuresLimit: 2,
+    libraryLimit: 8,
+  },
+  recommended: {
+    featureIssues: 2,
+    maintenanceIssues: 1,
+    attemptsPerBranch: 3,
+    attemptsPerIssue: 2,
+    featuresLimit: 4,
+    libraryLimit: 32,
+  },
+  max: {
+    featureIssues: 4,
+    maintenanceIssues: 2,
+    attemptsPerBranch: 5,
+    attemptsPerIssue: 4,
+    featuresLimit: 8,
+    libraryLimit: 64,
   },
 };
 
@@ -126,10 +166,14 @@ function resolveTuning(tuningSection) {
     tuning.infiniteSessions = tuningSection["infinite-sessions"];
   }
   const numericOverrides = {
+    "transformation-budget": "transformationBudget",
     "features-scan": "featuresScan",
     "source-scan": "sourceScan",
     "source-content": "sourceContent",
+    "test-content": "testContent",
     "issues-scan": "issuesScan",
+    "issue-body-limit": "issueBodyLimit",
+    "stale-days": "staleDays",
     "document-summary": "documentSummary",
     "discussion-comments": "discussionComments",
   };
@@ -138,6 +182,21 @@ function resolveTuning(tuningSection) {
   }
 
   return tuning;
+}
+
+/**
+ * Resolve limits configuration: start from profile defaults, apply explicit overrides.
+ */
+function resolveLimits(limitsSection, profileName) {
+  const profile = LIMITS_PROFILES[profileName] || LIMITS_PROFILES.recommended;
+  return {
+    featureIssues: limitsSection["feature-issues"] || profile.featureIssues,
+    maintenanceIssues: limitsSection["maintenance-issues"] || profile.maintenanceIssues,
+    attemptsPerBranch: limitsSection["attempts-per-branch"] || profile.attemptsPerBranch,
+    attemptsPerIssue: limitsSection["attempts-per-issue"] || profile.attemptsPerIssue,
+    featuresLimit: limitsSection["features-limit"] || profile.featuresLimit,
+    libraryLimit: limitsSection["library-limit"] || profile.libraryLimit,
+  };
 }
 
 /**
@@ -191,12 +250,13 @@ export function loadConfig(configPath) {
     }
   }
 
-  // Apply limits from [limits] section or use defaults
-  const limits = toml.limits || {};
-  paths.features.limit = limits["features-limit"] || LIMIT_DEFAULTS.features;
-  paths.library.limit = limits["library-limit"] || LIMIT_DEFAULTS.library;
-
   const tuning = resolveTuning(toml.tuning || {});
+  const limitsSection = toml.limits || {};
+  const resolvedLimits = resolveLimits(limitsSection, tuning.profileName);
+
+  // Apply resolved limits to path objects
+  paths.features.limit = resolvedLimits.featuresLimit;
+  paths.library.limit = resolvedLimits.libraryLimit;
 
   const execution = toml.execution || {};
   const bot = toml.bot || {};
@@ -209,10 +269,11 @@ export function loadConfig(configPath) {
     buildScript: execution.build || "npm run build",
     testScript: execution.test || "npm test",
     mainScript: execution.start || "npm run start",
-    featureDevelopmentIssuesWipLimit: limits["feature-issues"] || 2,
-    maintenanceIssuesWipLimit: limits["maintenance-issues"] || 1,
-    attemptsPerBranch: limits["attempts-per-branch"] || 3,
-    attemptsPerIssue: limits["attempts-per-issue"] || 2,
+    featureDevelopmentIssuesWipLimit: resolvedLimits.featureIssues,
+    maintenanceIssuesWipLimit: resolvedLimits.maintenanceIssues,
+    attemptsPerBranch: resolvedLimits.attemptsPerBranch,
+    attemptsPerIssue: resolvedLimits.attemptsPerIssue,
+    transformationBudget: tuning.transformationBudget,
     seeding: toml.seeding || {},
     intentionBot: {
       intentionFilepath: bot["log-file"] || "intentïon.md",

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 // Copyright (C) 2025-2026 Polycode Limited
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
-import { readOptionalFile, scanDirectory, formatPathsSection, supportsReasoningEffort, logTuningParam } from "../../../src/actions/agentic-step/copilot.js";
+import { readOptionalFile, scanDirectory, formatPathsSection, supportsReasoningEffort, logTuningParam, cleanSource, generateOutline, filterIssues, summariseIssue, extractFeatureSummary } from "../../../src/actions/agentic-step/copilot.js";
 import { writeFileSync, mkdirSync, rmSync } from "fs";
 import { join } from "path";
 import { tmpdir } from "os";
@@ -162,6 +162,257 @@ describe("logTuningParam", () => {
 
   it("accepts optional clip info", () => {
     expect(() => logTuningParam("featuresScan", 10, "recommended", "gpt-5-mini", { requested: 50, available: 10 })).not.toThrow();
+  });
+});
+
+describe("cleanSource", () => {
+  it("strips SPDX and Copyright lines", () => {
+    const raw = "// SPDX-License-Identifier: MIT\n// Copyright (C) 2025 Acme\nconst x = 1;\n";
+    const result = cleanSource(raw);
+    expect(result).not.toContain("SPDX");
+    expect(result).not.toContain("Copyright");
+    expect(result).toContain("const x = 1;");
+  });
+
+  it("collapses multiple blank lines", () => {
+    const raw = "a\n\n\n\n\nb\n";
+    expect(cleanSource(raw)).toBe("a\n\nb\n");
+  });
+
+  it("strips eslint-disable comments", () => {
+    const raw = "// eslint-disable-next-line no-unused-vars\nconst x = 1;\n";
+    const result = cleanSource(raw);
+    expect(result).not.toContain("eslint-disable");
+    expect(result).toContain("const x = 1;");
+  });
+
+  it("trims leading whitespace from result", () => {
+    const raw = "\n\n\nconst x = 1;\n";
+    expect(cleanSource(raw)).toBe("const x = 1;\n");
+  });
+
+  it("returns empty string for empty input", () => {
+    expect(cleanSource("")).toBe("");
+  });
+});
+
+describe("generateOutline", () => {
+  it("extracts imports", () => {
+    const raw = 'import { foo } from "bar";\nimport baz from "qux";\n\nconst x = 1;\n';
+    const outline = generateOutline(raw, "test.js");
+    expect(outline).toContain("// imports: bar, qux");
+  });
+
+  it("extracts exported functions", () => {
+    const raw = "export function myFunc(a, b) {\n  return a + b;\n}\n";
+    const outline = generateOutline(raw, "test.js");
+    expect(outline).toContain("// exports: myFunc");
+    expect(outline).toContain("// function myFunc()");
+  });
+
+  it("extracts classes", () => {
+    const raw = "export class MyClass {\n  constructor() {}\n}\n";
+    const outline = generateOutline(raw, "test.js");
+    expect(outline).toContain("// exports: MyClass");
+    expect(outline).toContain("// class MyClass");
+  });
+
+  it("includes file size info in header", () => {
+    const raw = "const x = 1;\n";
+    const outline = generateOutline(raw, "test.js");
+    expect(outline).toContain("// file: test.js");
+    expect(outline).toContain("lines");
+    expect(outline).toContain("KB)");
+  });
+});
+
+describe("filterIssues", () => {
+  it("filters out stale issues", () => {
+    const now = new Date();
+    const old = new Date(now.getTime() - 60 * 86400000); // 60 days ago
+    const issues = [
+      { number: 1, updated_at: now.toISOString(), created_at: now.toISOString(), labels: [] },
+      { number: 2, updated_at: old.toISOString(), created_at: old.toISOString(), labels: [] },
+    ];
+    const result = filterIssues(issues, { staleDays: 30 });
+    expect(result).toHaveLength(1);
+    expect(result[0].number).toBe(1);
+  });
+
+  it("filters out bot-only labeled issues", () => {
+    const now = new Date().toISOString();
+    const issues = [
+      { number: 1, updated_at: now, created_at: now, labels: [{ name: "automated" }] },
+      { number: 2, updated_at: now, created_at: now, labels: [{ name: "bug" }] },
+      { number: 3, updated_at: now, created_at: now, labels: [{ name: "automated" }, { name: "stale" }] },
+    ];
+    const result = filterIssues(issues);
+    expect(result).toHaveLength(1);
+    expect(result[0].number).toBe(2);
+  });
+
+  it("keeps issues with mixed labels", () => {
+    const now = new Date().toISOString();
+    const issues = [
+      { number: 1, updated_at: now, created_at: now, labels: [{ name: "automated" }, { name: "bug" }] },
+    ];
+    expect(filterIssues(issues)).toHaveLength(1);
+  });
+
+  it("returns all issues when no filters apply", () => {
+    const now = new Date().toISOString();
+    const issues = [
+      { number: 1, updated_at: now, created_at: now, labels: [{ name: "bug" }] },
+    ];
+    expect(filterIssues(issues)).toHaveLength(1);
+  });
+});
+
+describe("summariseIssue", () => {
+  it("creates a compact summary", () => {
+    const issue = {
+      number: 42,
+      title: "Fix the thing",
+      created_at: new Date().toISOString(),
+      labels: [{ name: "bug" }],
+      body: "Description here",
+    };
+    const result = summariseIssue(issue);
+    expect(result).toContain("#42: Fix the thing");
+    expect(result).toContain("[bug]");
+    expect(result).toContain("Description here");
+  });
+
+  it("respects body limit", () => {
+    const issue = {
+      number: 1,
+      title: "Test",
+      created_at: new Date().toISOString(),
+      labels: [],
+      body: "x".repeat(1000),
+    };
+    const result = summariseIssue(issue, 50);
+    expect(result.length).toBeLessThan(200);
+  });
+
+  it("handles missing body", () => {
+    const issue = {
+      number: 1,
+      title: "Test",
+      created_at: new Date().toISOString(),
+      labels: [],
+    };
+    const result = summariseIssue(issue);
+    expect(result).toContain("#1: Test");
+  });
+});
+
+describe("extractFeatureSummary", () => {
+  it("extracts title from heading", () => {
+    const content = "# My Feature\n\nSome description\n";
+    const result = extractFeatureSummary(content, "feature.md");
+    expect(result).toContain("Feature: My Feature");
+  });
+
+  it("counts checked and unchecked items", () => {
+    const content = "# Feature\n- [x] Done\n- [x] Also done\n- [ ] Not done\n";
+    const result = extractFeatureSummary(content, "f.md");
+    expect(result).toContain("Status: 2/3 items complete");
+    expect(result).toContain("Remaining:");
+    expect(result).toContain("Not done");
+  });
+
+  it("uses filename as fallback title", () => {
+    const content = "No heading here\n";
+    const result = extractFeatureSummary(content, "my-feature.md");
+    expect(result).toContain("Feature: my-feature.md");
+  });
+
+  it("handles file with no checkboxes", () => {
+    const content = "# Feature\nJust a description\n";
+    const result = extractFeatureSummary(content, "f.md");
+    expect(result).toContain("Feature: Feature");
+    expect(result).not.toContain("Status:");
+  });
+});
+
+describe("scanDirectory with sortByMtime", () => {
+  let dir;
+
+  beforeEach(() => {
+    dir = join(tmpdir(), `copilot-mtime-${Date.now()}`);
+    mkdirSync(dir, { recursive: true });
+  });
+
+  afterEach(() => {
+    rmSync(dir, { recursive: true });
+  });
+
+  it("sorts files by modification time when sortByMtime is true", async () => {
+    // Create files with different mtimes
+    writeFileSync(join(dir, "old.md"), "old content");
+    // Wait a tiny bit to ensure different mtimes
+    await new Promise((r) => setTimeout(r, 50));
+    writeFileSync(join(dir, "new.md"), "new content");
+
+    const result = scanDirectory(dir, ".md", { sortByMtime: true });
+    expect(result).toHaveLength(2);
+    expect(result[0].name).toBe("new.md");
+    expect(result[1].name).toBe("old.md");
+  });
+});
+
+describe("scanDirectory with clean option", () => {
+  let dir;
+
+  beforeEach(() => {
+    dir = join(tmpdir(), `copilot-clean-${Date.now()}`);
+    mkdirSync(dir, { recursive: true });
+  });
+
+  afterEach(() => {
+    rmSync(dir, { recursive: true });
+  });
+
+  it("strips license headers when clean is true", () => {
+    writeFileSync(join(dir, "a.js"), "// SPDX-License-Identifier: MIT\n// Copyright 2025\nconst x = 1;\n");
+    const result = scanDirectory(dir, ".js", { clean: true });
+    expect(result[0].content).not.toContain("SPDX");
+    expect(result[0].content).toContain("const x = 1;");
+  });
+
+  it("does not strip headers when clean is false", () => {
+    writeFileSync(join(dir, "a.js"), "// SPDX-License-Identifier: MIT\nconst x = 1;\n");
+    const result = scanDirectory(dir, ".js", { clean: false });
+    expect(result[0].content).toContain("SPDX");
+  });
+});
+
+describe("scanDirectory with outline option", () => {
+  let dir;
+
+  beforeEach(() => {
+    dir = join(tmpdir(), `copilot-outline-${Date.now()}`);
+    mkdirSync(dir, { recursive: true });
+  });
+
+  afterEach(() => {
+    rmSync(dir, { recursive: true });
+  });
+
+  it("generates outline when content exceeds limit", () => {
+    const bigContent = 'import { foo } from "bar";\nexport function myFunc() {\n' + "  // lots of code\n".repeat(200) + "}\n";
+    writeFileSync(join(dir, "big.js"), bigContent);
+    const result = scanDirectory(dir, ".js", { outline: true, contentLimit: 100 });
+    expect(result[0].content).toContain("// file: big.js");
+    expect(result[0].content).toContain("// imports: bar");
+    expect(result[0].content).toContain("// function myFunc()");
+  });
+
+  it("returns full content when under limit", () => {
+    writeFileSync(join(dir, "small.js"), "const x = 1;\n");
+    const result = scanDirectory(dir, ".js", { outline: true, contentLimit: 1000 });
+    expect(result[0].content).toBe("const x = 1;\n");
   });
 });
 

@@ -17,7 +17,15 @@ vi.mock("../../../../src/actions/agentic-step/copilot.js", () => ({
   readOptionalFile: vi.fn().mockReturnValue(""),
   scanDirectory: vi.fn().mockReturnValue([]),
   formatPathsSection: vi.fn().mockReturnValue("## File Paths\n- mock"),
+  filterIssues: vi.fn().mockImplementation((issues) => issues),
+  summariseIssue: vi.fn().mockImplementation((i) => `#${i.number}: ${i.title}`),
+  extractFeatureSummary: vi.fn().mockImplementation((content, name) => `Feature: ${name}`),
 }));
+
+vi.mock("fs", async (importOriginal) => {
+  const actual = await importOriginal();
+  return { ...actual, existsSync: vi.fn().mockReturnValue(false), writeFileSync: vi.fn() };
+});
 
 // Use dynamic import after mocks are set up
 const { transform } = await import("../../../../src/actions/agentic-step/tasks/transform.js");

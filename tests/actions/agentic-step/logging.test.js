@@ -14,7 +14,7 @@ vi.mock("../../../src/actions/agentic-step/node_modules/@actions/core/lib/core.j
 }));
 
 const core = await import("../../../src/actions/agentic-step/node_modules/@actions/core/lib/core.js");
-const { logActivity, logSafetyCheck } = await import("../../../src/actions/agentic-step/logging.js");
+const { logActivity, logSafetyCheck, generateClosingNotes } = await import("../../../src/actions/agentic-step/logging.js");
 
 describe("logging", () => {
   let tmpDir;
@@ -173,6 +173,85 @@ describe("logging", () => {
       expect(result).toContain("task-36");
     });
 
+    it("includes profile when provided", () => {
+      const filepath = join(tmpDir, "intention.md");
+      logActivity({
+        filepath,
+        task: "transform",
+        outcome: "transformed",
+        profile: "recommended",
+      });
+
+      const content = readFileSync(filepath, "utf8");
+      expect(content).toContain("**Profile:** recommended");
+    });
+
+    it("includes changes section when provided", () => {
+      const filepath = join(tmpDir, "intention.md");
+      logActivity({
+        filepath,
+        task: "maintain-features",
+        outcome: "features-maintained",
+        changes: [
+          { action: "Created", file: "features/HTTP_SERVER.md", sizeInfo: "new, 1.2KB" },
+          { action: "Deleted", file: "features/OLD.md" },
+        ],
+      });
+
+      const content = readFileSync(filepath, "utf8");
+      expect(content).toContain("### What Changed");
+      expect(content).toContain("Created: `features/HTTP_SERVER.md` (new, 1.2KB)");
+      expect(content).toContain("Deleted: `features/OLD.md`");
+    });
+
+    it("includes limits status table when provided", () => {
+      const filepath = join(tmpDir, "intention.md");
+      logActivity({
+        filepath,
+        task: "transform",
+        outcome: "transformed",
+        limitsStatus: [
+          { name: "feature-issues", value: "1/2", remaining: "1", status: "" },
+          { name: "library", value: "?/32", remaining: "?", status: "n/a" },
+        ],
+      });
+
+      const content = readFileSync(filepath, "utf8");
+      expect(content).toContain("### Limits Status");
+      expect(content).toContain("| feature-issues | 1/2 | 1 remaining |");
+    });
+
+    it("includes prompt budget table when provided", () => {
+      const filepath = join(tmpDir, "intention.md");
+      logActivity({
+        filepath,
+        task: "transform",
+        outcome: "transformed",
+        promptBudget: [
+          { section: "mission", size: 450, files: "1", notes: "full" },
+          { section: "source", size: 8500, files: "6/10", notes: "4 full, 2 outlined" },
+        ],
+      });
+
+      const content = readFileSync(filepath, "utf8");
+      expect(content).toContain("### Prompt Budget");
+      expect(content).toContain("| mission | 450 chars | 1 | full |");
+    });
+
+    it("includes closing notes when provided", () => {
+      const filepath = join(tmpDir, "intention.md");
+      logActivity({
+        filepath,
+        task: "transform",
+        outcome: "transformed",
+        closingNotes: "All limits within normal range.",
+      });
+
+      const content = readFileSync(filepath, "utf8");
+      expect(content).toContain("### Closing Notes");
+      expect(content).toContain("All limits within normal range.");
+    });
+
     it("creates parent directories if needed", () => {
       const filepath = join(tmpDir, "sub", "dir", "intention.md");
       logActivity({
@@ -206,6 +285,41 @@ describe("logging", () => {
     it("works with no details", () => {
       logSafetyCheck("path-writable", true);
       expect(core.info).toHaveBeenCalledWith(expect.stringContaining("Safety check [path-writable]: PASSED"));
+    });
+  });
+
+  describe("generateClosingNotes", () => {
+    it("returns empty string for null input", () => {
+      expect(generateClosingNotes(null)).toBe("");
+    });
+
+    it("returns empty string for empty array", () => {
+      expect(generateClosingNotes([])).toBe("");
+    });
+
+    it("returns normal range message when all limits are fine", () => {
+      const limitsStatus = [
+        { name: "features", valueNum: 1, capacityNum: 4, status: "" },
+        { name: "library", valueNum: 2, capacityNum: 32, status: "" },
+      ];
+      expect(generateClosingNotes(limitsStatus)).toBe("All limits within normal range.");
+    });
+
+    it("flags limits approaching capacity (>=80%)", () => {
+      const limitsStatus = [
+        { name: "features", valueNum: 4, capacityNum: 4, status: "" },
+        { name: "library", valueNum: 2, capacityNum: 32, status: "" },
+      ];
+      const result = generateClosingNotes(limitsStatus);
+      expect(result).toContain("features at capacity");
+      expect(result).toContain("actions will be blocked");
+    });
+
+    it("skips n/a limits", () => {
+      const limitsStatus = [
+        { name: "features", valueNum: 4, capacityNum: 4, status: "n/a" },
+      ];
+      expect(generateClosingNotes(limitsStatus)).toBe("");
     });
   });
 });

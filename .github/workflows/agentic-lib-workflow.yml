@@ -341,6 +341,17 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Check mission-complete signal
+        id: mission-check
+        run: |
+          if [ -f MISSION_COMPLETE.md ]; then
+            echo "mission-complete=true" >> $GITHUB_OUTPUT
+            echo "Mission is complete — skipping budget-consuming tasks"
+            cat MISSION_COMPLETE.md
+          else
+            echo "mission-complete=false" >> $GITHUB_OUTPUT
+          fi
+
       - uses: actions/setup-node@v6
         with:
           node-version: "24"
@@ -364,6 +375,7 @@ jobs:
           echo "libraryWritablePaths=${LIBRARY};${SOURCES}" >> $GITHUB_OUTPUT
 
       - name: Maintain features
+        if: steps.mission-check.outputs.mission-complete != 'true'
         uses: ./.github/agentic-lib/actions/agentic-step
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -376,6 +388,7 @@ jobs:
           model: ${{ needs.params.outputs.model }}
 
       - name: Maintain library
+        if: steps.mission-check.outputs.mission-complete != 'true'
         uses: ./.github/agentic-lib/actions/agentic-step
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -422,7 +435,18 @@ jobs:
         working-directory: .github/agentic-lib/actions/agentic-step
         run: npm ci
 
+      - name: Check mission-complete signal
+        id: fix-mission-check
+        run: |
+          if [ -f MISSION_COMPLETE.md ]; then
+            echo "mission-complete=true" >> $GITHUB_OUTPUT
+            echo "Mission is complete — skipping fix-stuck"
+          else
+            echo "mission-complete=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: Find and fix stuck PRs
+        if: steps.fix-mission-check.outputs.mission-complete != 'true'
         uses: actions/github-script@v8
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -483,14 +507,14 @@ jobs:
             }
 
       - name: Checkout PR branch
-        if: env.FIX_PR_NUMBER != ''
+        if: env.FIX_PR_NUMBER != '' && steps.fix-mission-check.outputs.mission-complete != 'true'
         run: |
           gh pr checkout ${{ env.FIX_PR_NUMBER }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: "Tier 1: Auto-resolve trivial merge conflicts"
-        if: env.FIX_PR_NUMBER != '' && env.FIX_REASON == 'merge conflicts'
+        if: env.FIX_PR_NUMBER != '' && env.FIX_REASON == 'merge conflicts' && steps.fix-mission-check.outputs.mission-complete != 'true'
         id: trivial-resolve
         run: |
           git fetch origin main
@@ -522,6 +546,7 @@ jobs:
       - name: "Tier 2: LLM fix (conflicts or failing checks)"
         if: |
           env.FIX_PR_NUMBER != '' &&
+          steps.fix-mission-check.outputs.mission-complete != 'true' &&
           (env.FIX_REASON != 'merge conflicts' ||
            steps.trivial-resolve.outputs.resolved == 'none')
         uses: ./.github/agentic-lib/actions/agentic-step
@@ -538,7 +563,7 @@ jobs:
           model: ${{ needs.params.outputs.model }}
 
       - name: Commit and push fixes
-        if: github.repository != 'xn-intenton-z2a/agentic-lib' && env.FIX_PR_NUMBER != ''
+        if: github.repository != 'xn-intenton-z2a/agentic-lib' && env.FIX_PR_NUMBER != '' && steps.fix-mission-check.outputs.mission-complete != 'true'
         uses: ./.github/agentic-lib/actions/commit-if-changed
         with:
           commit-message: "agentic-step: fix failing tests / resolve conflicts"
@@ -631,7 +656,19 @@ jobs:
           DEPS=$(yq -r '.paths.dependenciesFilepath.path // "package.json"' "$CONFIG")
           echo "writablePaths=${SOURCE};${TESTS};${FEATURES};${DOCS};${LIBRARY};${SOURCES};${README};${DEPS}" >> $GITHUB_OUTPUT
 
+      - name: Check mission-complete signal
+        id: dev-mission-check
+        run: |
+          if [ -f MISSION_COMPLETE.md ]; then
+            echo "mission-complete=true" >> $GITHUB_OUTPUT
+            echo "Mission is complete — skipping dev transformation"
+            cat MISSION_COMPLETE.md
+          else
+            echo "mission-complete=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: Find target issue
+        if: steps.dev-mission-check.outputs.mission-complete != 'true'
         id: issue
         uses: actions/github-script@v8
         with:

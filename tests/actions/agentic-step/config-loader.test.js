@@ -245,6 +245,84 @@ describe("config-loader", () => {
       expect(config.tuning.profileName).toBe("recommended");
     });
 
+    it("resolves transformation-budget from profile", () => {
+      const configPath = join(tmpDir, "config.toml");
+      writeFileSync(configPath, '[tuning]\nprofile = "min"\n');
+
+      const config = loadConfig(configPath);
+      expect(config.tuning.transformationBudget).toBe(4);
+      expect(config.transformationBudget).toBe(4);
+    });
+
+    it("allows transformation-budget override", () => {
+      const configPath = join(tmpDir, "config.toml");
+      writeFileSync(configPath, '[tuning]\nprofile = "min"\ntransformation-budget = 10\n');
+
+      const config = loadConfig(configPath);
+      expect(config.tuning.transformationBudget).toBe(10);
+    });
+
+    it("resolves testContent from profile", () => {
+      const configPath = join(tmpDir, "config.toml");
+      writeFileSync(configPath, '[tuning]\nprofile = "recommended"\n');
+
+      const config = loadConfig(configPath);
+      expect(config.tuning.testContent).toBe(3000);
+    });
+
+    it("resolves issueBodyLimit from profile", () => {
+      const configPath = join(tmpDir, "config.toml");
+      writeFileSync(configPath, '[tuning]\nprofile = "max"\n');
+
+      const config = loadConfig(configPath);
+      expect(config.tuning.issueBodyLimit).toBe(2000);
+    });
+
+    it("resolves staleDays from profile", () => {
+      const configPath = join(tmpDir, "config.toml");
+      writeFileSync(configPath, '[tuning]\nprofile = "min"\n');
+
+      const config = loadConfig(configPath);
+      expect(config.tuning.staleDays).toBe(14);
+    });
+
+    it("scales limits with tuning profile (min)", () => {
+      const configPath = join(tmpDir, "config.toml");
+      writeFileSync(configPath, '[tuning]\nprofile = "min"\n');
+
+      const config = loadConfig(configPath);
+      expect(config.featureDevelopmentIssuesWipLimit).toBe(1);
+      expect(config.maintenanceIssuesWipLimit).toBe(1);
+      expect(config.attemptsPerBranch).toBe(2);
+      expect(config.attemptsPerIssue).toBe(1);
+      expect(config.paths.features.limit).toBe(2);
+      expect(config.paths.library.limit).toBe(8);
+    });
+
+    it("scales limits with tuning profile (max)", () => {
+      const configPath = join(tmpDir, "config.toml");
+      writeFileSync(configPath, '[tuning]\nprofile = "max"\n');
+
+      const config = loadConfig(configPath);
+      expect(config.featureDevelopmentIssuesWipLimit).toBe(4);
+      expect(config.maintenanceIssuesWipLimit).toBe(2);
+      expect(config.attemptsPerBranch).toBe(5);
+      expect(config.attemptsPerIssue).toBe(4);
+      expect(config.paths.features.limit).toBe(8);
+      expect(config.paths.library.limit).toBe(64);
+    });
+
+    it("overrides profile limits with explicit values", () => {
+      const configPath = join(tmpDir, "config.toml");
+      writeFileSync(configPath, '[tuning]\nprofile = "min"\n\n[limits]\nfeature-issues = 10\nlibrary-limit = 100\n');
+
+      const config = loadConfig(configPath);
+      expect(config.featureDevelopmentIssuesWipLimit).toBe(10);
+      expect(config.paths.library.limit).toBe(100);
+      // Non-overridden values use min profile defaults
+      expect(config.attemptsPerBranch).toBe(2);
+    });
+
     it('treats reasoning-effort = "none" as empty string', () => {
       const configPath = join(tmpDir, "config.toml");
       writeFileSync(configPath, '[tuning]\nreasoning-effort = "none"\n');

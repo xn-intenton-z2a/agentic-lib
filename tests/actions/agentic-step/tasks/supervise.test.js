@@ -20,12 +20,13 @@ vi.mock("../../../../src/actions/agentic-step/copilot.js", () => ({
   readOptionalFile: vi.fn().mockReturnValue("mock content"),
   scanDirectory: vi.fn().mockReturnValue([]),
   formatPathsSection: vi.fn().mockReturnValue("## File Paths\n- mock"),
+  filterIssues: vi.fn().mockImplementation((issues) => issues),
 }));
 
 // Mock fs
 vi.mock("fs", async (importOriginal) => {
   const actual = await importOriginal();
-  return { ...actual, existsSync: vi.fn().mockReturnValue(false) };
+  return { ...actual, existsSync: vi.fn().mockReturnValue(false), readFileSync: vi.fn().mockReturnValue("") };
 });
 
 import { supervise } from "../../../../src/actions/agentic-step/tasks/supervise.js";

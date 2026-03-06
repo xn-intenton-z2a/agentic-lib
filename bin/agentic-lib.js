@@ -796,6 +796,7 @@ function clearDirContents(dirPath, label) {
 function initReseed() {
   console.log("\n--- Reseed: Clear Features + Activity Log ---");
   removeFile(resolve(target, "intentïon.md"), "intentïon.md");
+  removeFile(resolve(target, "MISSION_COMPLETE.md"), "MISSION_COMPLETE.md");
   clearDirContents(resolve(target, "features"), "features");
 
   // Clear old features location if it exists

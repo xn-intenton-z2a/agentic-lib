@@ -19,6 +19,11 @@ vi.mock("../../../../src/actions/agentic-step/copilot.js", () => ({
   formatPathsSection: vi.fn().mockReturnValue("## File Paths\n- mock"),
 }));
 
+vi.mock("fs", async (importOriginal) => {
+  const actual = await importOriginal();
+  return { ...actual, existsSync: vi.fn().mockReturnValue(false) };
+});
+
 import { maintainLibrary } from "../../../../src/actions/agentic-step/tasks/maintain-library.js";
 import { runCopilotTask, readOptionalFile, scanDirectory } from "../../../../src/actions/agentic-step/copilot.js";
 

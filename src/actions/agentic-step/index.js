@@ -8,7 +8,7 @@
 import * as core from "@actions/core";
 import * as github from "@actions/github";
 import { loadConfig, getWritablePaths } from "./config-loader.js";
-import { logActivity } from "./logging.js";
+import { logActivity, generateClosingNotes } from "./logging.js";
 import { readFileSync } from "fs";
 
 // Task implementations
@@ -98,6 +98,28 @@ async function run() {
     if (result.action) core.setOutput("action", result.action);
     if (result.actionArg) core.setOutput("action-arg", result.actionArg);
 
+    // Compute limits status for enriched logging
+    const limitsStatus = [
+      { name: "transformation-budget", valueNum: 0, capacityNum: config.transformationBudget || 0, value: `0/${config.transformationBudget || 0}`, remaining: `${config.transformationBudget || 0} remaining`, status: "" },
+      { name: "feature-issues", valueNum: 0, capacityNum: config.featureDevelopmentIssuesWipLimit, value: `?/${config.featureDevelopmentIssuesWipLimit}`, remaining: "?", status: "" },
+      { name: "maintenance-issues", valueNum: 0, capacityNum: config.maintenanceIssuesWipLimit, value: `?/${config.maintenanceIssuesWipLimit}`, remaining: "?", status: "" },
+      { name: "attempts-per-issue", valueNum: 0, capacityNum: config.attemptsPerIssue, value: `?/${config.attemptsPerIssue}`, remaining: "?", status: task === "resolve-issue" ? "" : "n/a" },
+      { name: "attempts-per-branch", valueNum: 0, capacityNum: config.attemptsPerBranch, value: `?/${config.attemptsPerBranch}`, remaining: "?", status: task === "fix-code" ? "" : "n/a" },
+      { name: "features", valueNum: 0, capacityNum: config.paths?.features?.limit || 4, value: `?/${config.paths?.features?.limit || 4}`, remaining: "?", status: ["maintain-features", "transform"].includes(task) ? "" : "n/a" },
+      { name: "library", valueNum: 0, capacityNum: config.paths?.library?.limit || 32, value: `?/${config.paths?.library?.limit || 32}`, remaining: "?", status: task === "maintain-library" ? "" : "n/a" },
+    ];
+
+    // Merge task-reported limits if available
+    if (result.limitsStatus) {
+      for (const reported of result.limitsStatus) {
+        const existing = limitsStatus.find((ls) => ls.name === reported.name);
+        if (existing) Object.assign(existing, reported);
+      }
+    }
+
+    const closingNotes = result.closingNotes || generateClosingNotes(limitsStatus);
+    const profileName = config.tuning?.profileName || "unknown";
+
     // Log to intentïon.md (commit-if-changed excludes this on non-default branches)
     const intentionFilepath = config.intentionBot?.intentionFilepath;
     if (intentionFilepath) {
@@ -116,6 +138,12 @@ async function run() {
         model: result.model || model,
         details: result.details,
         workflowUrl: `${process.env.GITHUB_SERVER_URL}/${github.context.repo.owner}/${github.context.repo.repo}/actions/runs/${github.context.runId}`,
+        profile: profileName,
+        changes: result.changes,
+        contextNotes: result.contextNotes,
+        limitsStatus,
+        promptBudget: result.promptBudget,
+        closingNotes,
       });
     }
 
