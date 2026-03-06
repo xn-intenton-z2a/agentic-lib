@@ -168,6 +168,91 @@ describe("config-loader", () => {
       expect(config.packageJson).toBe("");
     });
 
+    it("uses recommended tuning profile by default", () => {
+      const configPath = join(tmpDir, "config.toml");
+      writeFileSync(configPath, "");
+
+      const config = loadConfig(configPath);
+      expect(config.tuning).toBeDefined();
+      expect(config.tuning.reasoningEffort).toBe("medium");
+      expect(config.tuning.infiniteSessions).toBe(true);
+      expect(config.tuning.featuresScan).toBe(10);
+      expect(config.tuning.sourceScan).toBe(10);
+      expect(config.tuning.sourceContent).toBe(5000);
+      expect(config.tuning.issuesScan).toBe(20);
+      expect(config.tuning.documentSummary).toBe(2000);
+    });
+
+    it("uses min tuning profile when specified", () => {
+      const configPath = join(tmpDir, "config.toml");
+      writeFileSync(configPath, '[tuning]\nprofile = "min"\n');
+
+      const config = loadConfig(configPath);
+      expect(config.tuning.reasoningEffort).toBe("low");
+      expect(config.tuning.infiniteSessions).toBe(false);
+      expect(config.tuning.featuresScan).toBe(3);
+      expect(config.tuning.sourceContent).toBe(1000);
+      expect(config.tuning.issuesScan).toBe(5);
+    });
+
+    it("uses max tuning profile when specified", () => {
+      const configPath = join(tmpDir, "config.toml");
+      writeFileSync(configPath, '[tuning]\nprofile = "max"\n');
+
+      const config = loadConfig(configPath);
+      expect(config.tuning.reasoningEffort).toBe("high");
+      expect(config.tuning.featuresScan).toBe(50);
+      expect(config.tuning.sourceContent).toBe(20000);
+      expect(config.tuning.issuesScan).toBe(100);
+    });
+
+    it("overrides individual tuning knobs", () => {
+      const configPath = join(tmpDir, "config.toml");
+      writeFileSync(
+        configPath,
+        [
+          "[tuning]",
+          'profile = "min"',
+          'reasoning-effort = "high"',
+          "infinite-sessions = true",
+          "features-scan = 25",
+          "source-content = 8000",
+        ].join("\n"),
+      );
+
+      const config = loadConfig(configPath);
+      expect(config.tuning.reasoningEffort).toBe("high");
+      expect(config.tuning.infiniteSessions).toBe(true);
+      expect(config.tuning.featuresScan).toBe(25);
+      expect(config.tuning.sourceContent).toBe(8000);
+      // sourceScan not overridden, uses min profile default
+      expect(config.tuning.sourceScan).toBe(3);
+    });
+
+    it("reads model from tuning section", () => {
+      const configPath = join(tmpDir, "config.toml");
+      writeFileSync(configPath, '[tuning]\nmodel = "claude-sonnet-4"\n');
+
+      const config = loadConfig(configPath);
+      expect(config.model).toBe("claude-sonnet-4");
+    });
+
+    it("falls back to schedule.model for backwards compatibility", () => {
+      const configPath = join(tmpDir, "config.toml");
+      writeFileSync(configPath, '[schedule]\nmodel = "gpt-4.1"\n');
+
+      const config = loadConfig(configPath);
+      expect(config.model).toBe("gpt-4.1");
+    });
+
+    it("prefers tuning.model over schedule.model", () => {
+      const configPath = join(tmpDir, "config.toml");
+      writeFileSync(configPath, '[schedule]\nmodel = "gpt-4.1"\n\n[tuning]\nmodel = "claude-sonnet-4"\n');
+
+      const config = loadConfig(configPath);
+      expect(config.model).toBe("claude-sonnet-4");
+    });
+
     it("derives TOML path from YAML-style path (3 levels up)", () => {
       // Simulate .github/agentic-lib/agents/agentic-lib.yml → project root agentic-lib.toml
       const agentsDir = join(tmpDir, ".github", "agentic-lib", "agents");

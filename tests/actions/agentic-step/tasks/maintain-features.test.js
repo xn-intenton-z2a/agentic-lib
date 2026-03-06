@@ -110,7 +110,7 @@ describe("tasks/maintain-features", () => {
     await maintainFeatures(ctx);
 
     expect(readOptionalFile).toHaveBeenCalledWith("MISSION.md");
-    expect(scanDirectory).toHaveBeenCalledWith("features/", ".md");
+    expect(scanDirectory).toHaveBeenCalledWith("features/", ".md", { fileLimit: 10 });
     expect(scanDirectory).toHaveBeenCalledWith("library/", ".md", { contentLimit: 1000 });
   });
 
