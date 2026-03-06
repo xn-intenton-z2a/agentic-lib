@@ -177,10 +177,10 @@ test = "npm test"
 start = "npm run start"
 
 [limits]
-feature-issues = 2
-maintenance-issues = 1
-attempts-per-branch = 3
-attempts-per-issue = 2
+max-feature-issues = 2
+max-maintenance-issues = 1
+max-attempts-per-branch = 3
+max-attempts-per-issue = 2
 features-limit = 4
 library-limit = 32
 

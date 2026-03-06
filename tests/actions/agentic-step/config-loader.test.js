@@ -13,19 +13,19 @@ const PROFILE_MIN = `
 reasoning-effort = "low"
 infinite-sessions = false
 transformation-budget = 4
-features-scan = 3
-source-scan = 3
-source-content = 1000
-test-content = 500
-issues-scan = 5
+max-feature-files = 3
+max-source-files = 3
+max-source-chars = 1000
+max-test-chars = 500
+max-issues = 5
 issue-body-limit = 200
 stale-days = 14
-document-summary = 500
-discussion-comments = 5
-feature-issues = 1
-maintenance-issues = 1
-attempts-per-branch = 2
-attempts-per-issue = 1
+max-summary-chars = 500
+max-discussion-comments = 5
+max-feature-issues = 1
+max-maintenance-issues = 1
+max-attempts-per-branch = 2
+max-attempts-per-issue = 1
 features-limit = 2
 library-limit = 8
 `;
@@ -35,19 +35,19 @@ const PROFILE_RECOMMENDED = `
 reasoning-effort = "medium"
 infinite-sessions = true
 transformation-budget = 8
-features-scan = 10
-source-scan = 10
-source-content = 5000
-test-content = 3000
-issues-scan = 20
+max-feature-files = 10
+max-source-files = 10
+max-source-chars = 5000
+max-test-chars = 3000
+max-issues = 20
 issue-body-limit = 500
 stale-days = 30
-document-summary = 2000
-discussion-comments = 10
-feature-issues = 2
-maintenance-issues = 1
-attempts-per-branch = 3
-attempts-per-issue = 2
+max-summary-chars = 2000
+max-discussion-comments = 10
+max-feature-issues = 2
+max-maintenance-issues = 1
+max-attempts-per-branch = 3
+max-attempts-per-issue = 2
 features-limit = 4
 library-limit = 32
 `;
@@ -57,19 +57,19 @@ const PROFILE_MAX = `
 reasoning-effort = "high"
 infinite-sessions = true
 transformation-budget = 32
-features-scan = 50
-source-scan = 50
-source-content = 20000
-test-content = 15000
-issues-scan = 100
+max-feature-files = 50
+max-source-files = 50
+max-source-chars = 20000
+max-test-chars = 15000
+max-issues = 100
 issue-body-limit = 2000
 stale-days = 90
-document-summary = 10000
-discussion-comments = 25
-feature-issues = 4
-maintenance-issues = 2
-attempts-per-branch = 5
-attempts-per-issue = 4
+max-summary-chars = 10000
+max-discussion-comments = 25
+max-feature-issues = 4
+max-maintenance-issues = 2
+max-attempts-per-branch = 5
+max-attempts-per-issue = 4
 features-limit = 8
 library-limit = 64
 `;
@@ -166,10 +166,10 @@ describe("config-loader", () => {
         configPath,
         [
           "[limits]",
-          "feature-issues = 3",
-          "maintenance-issues = 2",
-          "attempts-per-branch = 5",
-          "attempts-per-issue = 4",
+          "max-feature-issues = 3",
+          "max-maintenance-issues = 2",
+          "max-attempts-per-branch = 5",
+          "max-attempts-per-issue = 4",
           "features-limit = 8",
           "library-limit = 64",
         ].join("\n"),
@@ -283,8 +283,8 @@ describe("config-loader", () => {
           'profile = "min"',
           'reasoning-effort = "high"',
           "infinite-sessions = true",
-          "features-scan = 25",
-          "source-content = 8000",
+          "max-feature-files = 25",
+          "max-source-chars = 8000",
         ].join("\n") + PROFILE_MIN,
       );
 
@@ -382,7 +382,7 @@ describe("config-loader", () => {
 
     it("overrides profile limits with explicit values", () => {
       const configPath = join(tmpDir, "config.toml");
-      writeFileSync(configPath, '[tuning]\nprofile = "min"\n\n[limits]\nfeature-issues = 10\nlibrary-limit = 100\n' + PROFILE_MIN);
+      writeFileSync(configPath, '[tuning]\nprofile = "min"\n\n[limits]\nmax-feature-issues = 10\nlibrary-limit = 100\n' + PROFILE_MIN);
 
       const config = loadConfig(configPath);
       expect(config.featureDevelopmentIssuesWipLimit).toBe(10);

@@ -227,7 +227,7 @@ const TOOLS = [
         overrides: {
           type: "object",
           description:
-            "Individual tuning knob overrides. Keys: reasoning-effort, infinite-sessions, features-scan, source-scan, source-content, issues-scan, document-summary, discussion-comments",
+            "Individual tuning knob overrides. Keys: reasoning-effort, infinite-sessions, max-feature-files, max-source-files, max-source-chars, max-issues, max-summary-chars, max-discussion-comments",
         },
       },
       required: ["workspace"],

@@ -211,14 +211,14 @@ describe("logging", () => {
         task: "transform",
         outcome: "transformed",
         limitsStatus: [
-          { name: "feature-issues", value: "1/2", remaining: "1", status: "" },
+          { name: "max-feature-issues", value: "1/2", remaining: "1", status: "" },
           { name: "library", value: "?/32", remaining: "?", status: "n/a" },
         ],
       });
 
       const content = readFileSync(filepath, "utf8");
       expect(content).toContain("### Limits Status");
-      expect(content).toContain("| feature-issues | 1/2 | 1 remaining |");
+      expect(content).toContain("| max-feature-issues | 1/2 | 1 remaining |");
     });
 
     it("includes prompt budget table when provided", () => {

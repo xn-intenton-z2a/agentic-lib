@@ -332,7 +332,7 @@ async function loadTaskConfig() {
     buildScript: toml.execution?.build || "npm run build",
     testScript: toml.execution?.test || "npm test",
     mainScript: toml.execution?.start || "npm run start",
-    featureLimit: toml.limits?.["feature-issues"] || 2,
+    featureLimit: toml.limits?.["max-feature-issues"] || 2,
     intentionPath: toml.bot?.["log-file"] || "intentïon.md",
   };
 }

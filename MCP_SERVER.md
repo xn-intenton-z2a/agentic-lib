@@ -313,7 +313,7 @@ config_set(workspace: "...", profile: "max")
 
 Override individual knobs:
 ```
-config_set(workspace: "...", overrides: { "reasoning-effort": "high", "source-scan": 20 })
+config_set(workspace: "...", overrides: { "reasoning-effort": "high", "max-source-files": 20 })
 ```
 
 ## Available Missions

@@ -101,10 +101,10 @@ async function run() {
     // Compute limits status for enriched logging
     const limitsStatus = [
       { name: "transformation-budget", valueNum: 0, capacityNum: config.transformationBudget || 0, value: `0/${config.transformationBudget || 0}`, remaining: `${config.transformationBudget || 0} remaining`, status: "" },
-      { name: "feature-issues", valueNum: 0, capacityNum: config.featureDevelopmentIssuesWipLimit, value: `?/${config.featureDevelopmentIssuesWipLimit}`, remaining: "?", status: "" },
-      { name: "maintenance-issues", valueNum: 0, capacityNum: config.maintenanceIssuesWipLimit, value: `?/${config.maintenanceIssuesWipLimit}`, remaining: "?", status: "" },
-      { name: "attempts-per-issue", valueNum: 0, capacityNum: config.attemptsPerIssue, value: `?/${config.attemptsPerIssue}`, remaining: "?", status: task === "resolve-issue" ? "" : "n/a" },
-      { name: "attempts-per-branch", valueNum: 0, capacityNum: config.attemptsPerBranch, value: `?/${config.attemptsPerBranch}`, remaining: "?", status: task === "fix-code" ? "" : "n/a" },
+      { name: "max-feature-issues", valueNum: 0, capacityNum: config.featureDevelopmentIssuesWipLimit, value: `?/${config.featureDevelopmentIssuesWipLimit}`, remaining: "?", status: "" },
+      { name: "max-maintenance-issues", valueNum: 0, capacityNum: config.maintenanceIssuesWipLimit, value: `?/${config.maintenanceIssuesWipLimit}`, remaining: "?", status: "" },
+      { name: "max-attempts-per-issue", valueNum: 0, capacityNum: config.attemptsPerIssue, value: `?/${config.attemptsPerIssue}`, remaining: "?", status: task === "resolve-issue" ? "" : "n/a" },
+      { name: "max-attempts-per-branch", valueNum: 0, capacityNum: config.attemptsPerBranch, value: `?/${config.attemptsPerBranch}`, remaining: "?", status: task === "fix-code" ? "" : "n/a" },
       { name: "features", valueNum: 0, capacityNum: config.paths?.features?.limit || 4, value: `?/${config.paths?.features?.limit || 4}`, remaining: "?", status: ["maintain-features", "transform"].includes(task) ? "" : "n/a" },
       { name: "library", valueNum: 0, capacityNum: config.paths?.library?.limit || 32, value: `?/${config.paths?.library?.limit || 32}`, remaining: "?", status: task === "maintain-library" ? "" : "n/a" },
     ];

@@ -95,15 +95,15 @@ function parseTuningProfile(profileSection) {
     reasoningEffort: profileSection["reasoning-effort"] || "medium",
     infiniteSessions: profileSection["infinite-sessions"] ?? true,
     transformationBudget: profileSection["transformation-budget"] || 8,
-    featuresScan: profileSection["features-scan"] || 10,
-    sourceScan: profileSection["source-scan"] || 10,
-    sourceContent: profileSection["source-content"] || 5000,
-    testContent: profileSection["test-content"] || 3000,
-    issuesScan: profileSection["issues-scan"] || 20,
+    featuresScan: profileSection["max-feature-files"] || 10,
+    sourceScan: profileSection["max-source-files"] || 10,
+    sourceContent: profileSection["max-source-chars"] || 5000,
+    testContent: profileSection["max-test-chars"] || 3000,
+    issuesScan: profileSection["max-issues"] || 20,
     issueBodyLimit: profileSection["issue-body-limit"] || 500,
     staleDays: profileSection["stale-days"] || 30,
-    documentSummary: profileSection["document-summary"] || 2000,
-    discussionComments: profileSection["discussion-comments"] || 10,
+    documentSummary: profileSection["max-summary-chars"] || 2000,
+    discussionComments: profileSection["max-discussion-comments"] || 10,
   };
 }
 
@@ -113,10 +113,10 @@ function parseTuningProfile(profileSection) {
 function parseLimitsProfile(profileSection) {
   if (!profileSection) return null;
   return {
-    featureIssues: profileSection["feature-issues"] || 2,
-    maintenanceIssues: profileSection["maintenance-issues"] || 1,
-    attemptsPerBranch: profileSection["attempts-per-branch"] || 3,
-    attemptsPerIssue: profileSection["attempts-per-issue"] || 2,
+    featureIssues: profileSection["max-feature-issues"] || 2,
+    maintenanceIssues: profileSection["max-maintenance-issues"] || 1,
+    attemptsPerBranch: profileSection["max-attempts-per-branch"] || 3,
+    attemptsPerIssue: profileSection["max-attempts-per-issue"] || 2,
     featuresLimit: profileSection["features-limit"] || 4,
     libraryLimit: profileSection["library-limit"] || 32,
   };
@@ -158,15 +158,15 @@ function resolveTuning(tuningSection, profilesSection) {
   }
   const numericOverrides = {
     "transformation-budget": "transformationBudget",
-    "features-scan": "featuresScan",
-    "source-scan": "sourceScan",
-    "source-content": "sourceContent",
-    "test-content": "testContent",
-    "issues-scan": "issuesScan",
+    "max-feature-files": "featuresScan",
+    "max-source-files": "sourceScan",
+    "max-source-chars": "sourceContent",
+    "max-test-chars": "testContent",
+    "max-issues": "issuesScan",
     "issue-body-limit": "issueBodyLimit",
     "stale-days": "staleDays",
-    "document-summary": "documentSummary",
-    "discussion-comments": "discussionComments",
+    "max-summary-chars": "documentSummary",
+    "max-discussion-comments": "discussionComments",
   };
   for (const [tomlKey, jsKey] of Object.entries(numericOverrides)) {
     if (tuningSection[tomlKey] > 0) tuning[jsKey] = tuningSection[tomlKey];
@@ -185,10 +185,10 @@ function resolveLimits(limitsSection, profileName, profilesSection) {
   const tomlProfile = profilesSection?.[profileName];
   const profile = parseLimitsProfile(tomlProfile) || FALLBACK_LIMITS;
   return {
-    featureIssues: limitsSection["feature-issues"] || profile.featureIssues,
-    maintenanceIssues: limitsSection["maintenance-issues"] || profile.maintenanceIssues,
-    attemptsPerBranch: limitsSection["attempts-per-branch"] || profile.attemptsPerBranch,
-    attemptsPerIssue: limitsSection["attempts-per-issue"] || profile.attemptsPerIssue,
+    featureIssues: limitsSection["max-feature-issues"] || profile.featureIssues,
+    maintenanceIssues: limitsSection["max-maintenance-issues"] || profile.maintenanceIssues,
+    attemptsPerBranch: limitsSection["max-attempts-per-branch"] || profile.attemptsPerBranch,
+    attemptsPerIssue: limitsSection["max-attempts-per-issue"] || profile.attemptsPerIssue,
     featuresLimit: limitsSection["features-limit"] || profile.featuresLimit,
     libraryLimit: limitsSection["library-limit"] || profile.libraryLimit,
   };
