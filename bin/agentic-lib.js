@@ -31,7 +31,7 @@ const flags = args.slice(1);
 let initChanges = 0;
 const TASK_COMMANDS = ["transform", "maintain-features", "maintain-library", "fix-code"];
 const INIT_COMMANDS = ["init", "update", "reset"];
-const ALL_COMMANDS = [...INIT_COMMANDS, ...TASK_COMMANDS, "version"];
+const ALL_COMMANDS = [...INIT_COMMANDS, ...TASK_COMMANDS, "version", "mcp"];
 
 const HELP = `
 @xn-intenton-z2a/agentic-lib — Agentic Coding Systems SDK
@@ -49,6 +49,9 @@ Tasks (run Copilot SDK transformations):
   maintain-features    Generate feature files from mission
   maintain-library     Update library docs from SOURCES.md
   fix-code             Fix failing tests
+
+MCP Server:
+  mcp                  Start MCP server (for Claude Code, Cursor, etc.)
 
 Options:
   --purge              Full reset — clear features, activity log, source code
@@ -87,6 +90,13 @@ const missionIdx = flags.indexOf("--mission");
 const mission = missionIdx >= 0 ? flags[missionIdx + 1] : "hamming-distance";
 
 // ─── Task Commands ───────────────────────────────────────────────────
+
+if (command === "mcp") {
+  const { startServer } = await import("../src/mcp/server.js");
+  await startServer();
+  // Server runs until stdin closes — don't exit
+  await new Promise(() => {}); // block forever
+}
 
 if (TASK_COMMANDS.includes(command)) {
   process.exit(await runTask(command));
