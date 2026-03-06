@@ -256,6 +256,10 @@ Still TODO: T1.3 (issue noise filtering), T1.4 (feature ordering), T2.1 (structu
 3. HTTP 429 rate limit handling best practice for Copilot SDK v0.1.31?
 4. Highest-impact next steps given all 27 features are Done?
 
-**Copilot's response:** (pending — will update when received)
+**Copilot's response via Discussion #1775:** (pending — @copilot mention may not trigger bot in discussions)
+
+**Backup channel — Issue #1849:** Created [Issue #1849](https://github.com/xn-intenton-z2a/agentic-lib/issues/1849) "Copilot review: PLAN_CONTEXT_QUALITY remaining items — priority and approach" and assigned to @copilot. This reliably triggers the Copilot SWE agent (it responds via PRs). Same 4 questions as the discussion comment.
+
+**Copilot's response via Issue #1849:** (pending — Copilot will open a PR with answers)
 
 **Inter-session coordination:** Left a message in `.claude/messages.md` for the other Claude session working on PLAN_CONTEXT_QUALITY, directing them to check this log for Copilot's feedback when it arrives.
