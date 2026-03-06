@@ -457,39 +457,26 @@ jobs:
       - name: Install sub-project dependencies
         run: cd src/actions/agentic-step && npm ci
 
-      - name: Snapshot baseline
-        run: rsync -a --exclude=.git --exclude=node_modules . /tmp/baseline/
-
-      - name: Seed workspace
+      - name: Seed workspace via init --purge
         run: |
-          mkdir -p src/lib tests/unit features
-          cp src/seeds/zero-main.js src/lib/main.js
-          cp src/seeds/zero-main.test.js tests/unit/main.test.js
-          cp src/seeds/zero-MISSION.md MISSION.md
-          cat > features/hello-world.md << 'SEED_EOF'
-          # Feature: Hello World
-
-          The main function should accept a name argument and print "Hello, <name>!" to stdout.
-          When no name is provided, it should default to "World".
-          SEED_EOF
-
-      - name: Show seed changes
-        run: diff -rN --exclude=.git --exclude=node_modules /tmp/baseline . || true
+          node bin/agentic-lib.js init --purge --mission fizz-buzz --target /tmp/test-workspace
+          cd /tmp/test-workspace && npm install
 
       - name: Snapshot post-seed
-        run: rsync -a --exclude=.git --exclude=node_modules . /tmp/post-seed/
+        run: rsync -a --exclude=.git --exclude=node_modules /tmp/test-workspace/ /tmp/post-seed/
 
       - name: "CLI: transform"
         env:
           COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
-        run: node bin/agentic-lib.js transform --model ${{ needs.params.outputs.model }}
+        run: node bin/agentic-lib.js transform --model ${{ needs.params.outputs.model }} --target /tmp/test-workspace
 
       - name: Verify tests pass after transform
+        working-directory: /tmp/test-workspace
         run: npm test
 
       - name: Show agent changes
         run: |
-          OUTPUT=$(diff -rN --exclude=.git --exclude=node_modules /tmp/post-seed . || true)
+          OUTPUT=$(diff -rN --exclude=.git --exclude=node_modules /tmp/post-seed /tmp/test-workspace || true)
           echo "$OUTPUT"
           if [ -z "$OUTPUT" ]; then
             echo "ERROR: transform produced no changes"
@@ -497,20 +484,10 @@ jobs:
           fi
 
       - name: Re-seed workspace
-        run: |
-          mkdir -p src/lib tests/unit features
-          cp src/seeds/zero-main.js src/lib/main.js
-          cp src/seeds/zero-main.test.js tests/unit/main.test.js
-          cp src/seeds/zero-MISSION.md MISSION.md
-          cat > features/hello-world.md << 'SEED_EOF'
-          # Feature: Hello World
-
-          The main function should accept a name argument and print "Hello, <name>!" to stdout.
-          When no name is provided, it should default to "World".
-          SEED_EOF
+        run: node bin/agentic-lib.js init --purge --mission fizz-buzz --target /tmp/test-workspace
 
       - name: Show re-seed changes
-        run: diff -rN --exclude=.git --exclude=node_modules /tmp/post-seed . || true
+        run: diff -rN --exclude=.git --exclude=node_modules /tmp/post-seed /tmp/test-workspace || true
 
   test-cli-maintain-features:
     needs: params
@@ -538,28 +515,20 @@ jobs:
       - name: Install sub-project dependencies
         run: cd src/actions/agentic-step && npm ci
 
-      - name: Snapshot baseline
-        run: rsync -a --exclude=.git --exclude=node_modules . /tmp/baseline/
-
-      - name: Seed workspace
-        run: |
-          cp src/seeds/zero-MISSION.md MISSION.md
-          mkdir -p features
-
-      - name: Show seed changes
-        run: diff -rN --exclude=.git --exclude=node_modules /tmp/baseline . || true
+      - name: Seed workspace via init --purge
+        run: node bin/agentic-lib.js init --purge --mission fizz-buzz --target /tmp/test-workspace
 
       - name: Snapshot post-seed
-        run: rsync -a --exclude=.git --exclude=node_modules . /tmp/post-seed/
+        run: rsync -a --exclude=.git --exclude=node_modules /tmp/test-workspace/ /tmp/post-seed/
 
       - name: "CLI: maintain-features"
         env:
           COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
-        run: node bin/agentic-lib.js maintain-features --model ${{ needs.params.outputs.model }}
+        run: node bin/agentic-lib.js maintain-features --model ${{ needs.params.outputs.model }} --target /tmp/test-workspace
 
       - name: Show agent changes
         run: |
-          OUTPUT=$(diff -rN --exclude=.git --exclude=node_modules /tmp/post-seed . || true)
+          OUTPUT=$(diff -rN --exclude=.git --exclude=node_modules /tmp/post-seed /tmp/test-workspace || true)
           echo "$OUTPUT"
           if [ -z "$OUTPUT" ]; then
             echo "ERROR: maintain-features produced no changes"
@@ -567,12 +536,10 @@ jobs:
           fi
 
       - name: Re-seed workspace
-        run: |
-          cp src/seeds/zero-MISSION.md MISSION.md
-          mkdir -p features
+        run: node bin/agentic-lib.js init --purge --mission fizz-buzz --target /tmp/test-workspace
 
       - name: Show re-seed changes
-        run: diff -rN --exclude=.git --exclude=node_modules /tmp/post-seed . || true
+        run: diff -rN --exclude=.git --exclude=node_modules /tmp/post-seed /tmp/test-workspace || true
 
   test-cli-maintain-library:
     needs: params
@@ -600,28 +567,20 @@ jobs:
       - name: Install sub-project dependencies
         run: cd src/actions/agentic-step && npm ci
 
-      - name: Snapshot baseline
-        run: rsync -a --exclude=.git --exclude=node_modules . /tmp/baseline/
-
-      - name: Seed workspace
-        run: |
-          cp src/seeds/zero-MISSION.md test/MISSION.md
-          mkdir -p test/library
-
-      - name: Show seed changes
-        run: diff -rN --exclude=.git --exclude=node_modules /tmp/baseline . || true
+      - name: Seed workspace via init --purge
+        run: node bin/agentic-lib.js init --purge --mission fizz-buzz --target /tmp/test-workspace
 
       - name: Snapshot post-seed
-        run: rsync -a --exclude=.git --exclude=node_modules . /tmp/post-seed/
+        run: rsync -a --exclude=.git --exclude=node_modules /tmp/test-workspace/ /tmp/post-seed/
 
       - name: "CLI: maintain-library"
         env:
           COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
-        run: node bin/agentic-lib.js maintain-library --model ${{ needs.params.outputs.model }}
+        run: node bin/agentic-lib.js maintain-library --model ${{ needs.params.outputs.model }} --target /tmp/test-workspace
 
       - name: Show agent changes
         run: |
-          OUTPUT=$(diff -rN --exclude=.git --exclude=node_modules /tmp/post-seed . || true)
+          OUTPUT=$(diff -rN --exclude=.git --exclude=node_modules /tmp/post-seed /tmp/test-workspace || true)
           echo "$OUTPUT"
           if [ -z "$OUTPUT" ]; then
             echo "ERROR: maintain-library produced no changes"
@@ -629,12 +588,10 @@ jobs:
           fi
 
       - name: Re-seed workspace
-        run: |
-          cp src/seeds/zero-MISSION.md test/MISSION.md
-          mkdir -p test/library
+        run: node bin/agentic-lib.js init --purge --mission fizz-buzz --target /tmp/test-workspace
 
       - name: Show re-seed changes
-        run: diff -rN --exclude=.git --exclude=node_modules /tmp/post-seed . || true
+        run: diff -rN --exclude=.git --exclude=node_modules /tmp/post-seed /tmp/test-workspace || true
 
   # ─── Workflow dry-run tests: call distributable workflows ──────────
   #
