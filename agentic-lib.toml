@@ -27,16 +27,17 @@ test = "npm test"
 start = "npm run start"
 
 [limits]
-feature-issues = 2
-maintenance-issues = 1
-attempts-per-branch = 3
-attempts-per-issue = 2
-features-limit = 2
-library-limit = 32
+# Override profile defaults here. Omit to use the active profile's values.
+# feature-issues = 2
+# maintenance-issues = 1
+# attempts-per-branch = 3
+# attempts-per-issue = 2
+# features-limit = 2
+# library-limit = 32
 
 [tuning]
-# Profile sets defaults for all tuning knobs: min | recommended | max
-# See [tuning.profile.*] below for the full default values per profile.
+# Profile sets defaults for all tuning and limit knobs: min | recommended | max
+# Profile definitions live in [profiles.*] sections below.
 profile = "min"                                  #@dist "recommended"
 #
 # Model selection — each has different strengths:
@@ -61,38 +62,73 @@ infinite-sessions = false        # set to true for long sessions with compaction
 # document-summary = 500         # max chars for document summaries
 # discussion-comments = 5        # discussion comments to include
 
-# ─── Tuning Profile Reference ────────────────────────────────────────
-# These document the built-in profile defaults (in config-loader.js).
-# The active profile is set by profile = above. Override individual
-# knobs in [tuning] to deviate from a profile.
-#
-# min (fast & cheap — CI testing, quick validation):
-#   reasoning-effort = "low", infinite-sessions = false
-#   transformation-budget = 4, features-scan = 3, source-scan = 3
-#   source-content = 1000, test-content = 500, issues-scan = 5
-#   issue-body-limit = 200, stale-days = 14
-#   document-summary = 500, discussion-comments = 5
-#
-# recommended (balanced — good results without excessive cost):
-#   reasoning-effort = "medium", infinite-sessions = true
-#   transformation-budget = 8, features-scan = 10, source-scan = 10
-#   source-content = 5000, test-content = 3000, issues-scan = 20
-#   issue-body-limit = 500, stale-days = 30
-#   document-summary = 2000, discussion-comments = 10
-#
-# max (thorough — maximum context, highest quality):
-#   reasoning-effort = "high", infinite-sessions = true
-#   transformation-budget = 32, features-scan = 50, source-scan = 50
-#   source-content = 20000, test-content = 15000, issues-scan = 100
-#   issue-body-limit = 2000, stale-days = 90
-#   document-summary = 10000, discussion-comments = 25
-#
-# ─── Limits Profile Reference ────────────────────────────────────────
-# Limits scale with the tuning profile. Override individual limits in [limits].
-#
-# min:    feature-issues=1, maintenance-issues=1, attempts-per-branch=2, attempts-per-issue=1, features-limit=2, library-limit=8
-# recommended: feature-issues=2, maintenance-issues=1, attempts-per-branch=3, attempts-per-issue=2, features-limit=4, library-limit=32
-# max:    feature-issues=4, maintenance-issues=2, attempts-per-branch=5, attempts-per-issue=4, features-limit=8, library-limit=64
+# ─── Profile Definitions ────────────────────────────────────────────
+# Each profile defines tuning and limits defaults. The active profile
+# is set by [tuning].profile above. Override individual values in
+# [tuning] or [limits] to deviate from the active profile.
+
+[profiles.min]
+# Fast & cheap — CI testing, quick validation, budget-conscious iteration.
+reasoning-effort = "low"                # low | medium | high | none
+infinite-sessions = false               # enable session compaction for long runs
+transformation-budget = 4              # max code-changing cycles per run
+features-scan = 3                      # max feature files included in prompts
+source-scan = 3                        # max source files included in prompts
+source-content = 1000                  # max chars per source file in prompts
+test-content = 500                     # max chars per test file in prompts
+issues-scan = 5                        # max open issues included in prompts
+issue-body-limit = 200                 # max chars per issue body in prompts
+stale-days = 14                        # days of inactivity before issue is excluded
+document-summary = 500                 # max chars for document summaries in prompts
+discussion-comments = 5               # max discussion comments included in prompts
+feature-issues = 1                     # max concurrent feature development issues
+maintenance-issues = 1                 # max concurrent maintenance issues
+attempts-per-branch = 2               # max transform attempts on a single branch
+attempts-per-issue = 1                 # max transform attempts on a single issue
+features-limit = 2                     # max feature files in features/ directory
+library-limit = 8                      # max library entries in library/ directory
+
+[profiles.recommended]
+# Balanced — good results without excessive cost. Default for consumer repos.
+reasoning-effort = "medium"            # low | medium | high | none
+infinite-sessions = true               # enable session compaction for long runs
+transformation-budget = 8             # max code-changing cycles per run
+features-scan = 10                     # max feature files included in prompts
+source-scan = 10                       # max source files included in prompts
+source-content = 5000                  # max chars per source file in prompts
+test-content = 3000                    # max chars per test file in prompts
+issues-scan = 20                       # max open issues included in prompts
+issue-body-limit = 500                 # max chars per issue body in prompts
+stale-days = 30                        # days of inactivity before issue is excluded
+document-summary = 2000                # max chars for document summaries in prompts
+discussion-comments = 10              # max discussion comments included in prompts
+feature-issues = 2                     # max concurrent feature development issues
+maintenance-issues = 1                 # max concurrent maintenance issues
+attempts-per-branch = 3               # max transform attempts on a single branch
+attempts-per-issue = 2                 # max transform attempts on a single issue
+features-limit = 4                     # max feature files in features/ directory
+library-limit = 32                     # max library entries in library/ directory
+
+[profiles.max]
+# Thorough — maximum context, highest quality. For complex missions.
+reasoning-effort = "high"              # low | medium | high | none
+infinite-sessions = true               # enable session compaction for long runs
+transformation-budget = 32            # max code-changing cycles per run
+features-scan = 50                     # max feature files included in prompts
+source-scan = 50                       # max source files included in prompts
+source-content = 20000                 # max chars per source file in prompts
+test-content = 15000                   # max chars per test file in prompts
+issues-scan = 100                      # max open issues included in prompts
+issue-body-limit = 2000                # max chars per issue body in prompts
+stale-days = 90                        # days of inactivity before issue is excluded
+document-summary = 10000               # max chars for document summaries in prompts
+discussion-comments = 25              # max discussion comments included in prompts
+feature-issues = 4                     # max concurrent feature development issues
+maintenance-issues = 2                 # max concurrent maintenance issues
+attempts-per-branch = 5               # max transform attempts on a single branch
+attempts-per-issue = 4                 # max transform attempts on a single issue
+features-limit = 8                     # max feature files in features/ directory
+library-limit = 64                     # max library entries in library/ directory
 
 [bot]
 log-file = "test/intentïon.md"                  #@dist "intentïon.md"

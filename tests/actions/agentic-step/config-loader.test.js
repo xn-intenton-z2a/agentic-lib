@@ -6,6 +6,74 @@ import { writeFileSync, mkdirSync, rmSync } from "fs";
 import { join } from "path";
 import { tmpdir } from "os";
 
+// Profile sections that tests append to their TOML fixtures.
+// These mirror [profiles.*] in agentic-lib.toml — the source of truth.
+const PROFILE_MIN = `
+[profiles.min]
+reasoning-effort = "low"
+infinite-sessions = false
+transformation-budget = 4
+features-scan = 3
+source-scan = 3
+source-content = 1000
+test-content = 500
+issues-scan = 5
+issue-body-limit = 200
+stale-days = 14
+document-summary = 500
+discussion-comments = 5
+feature-issues = 1
+maintenance-issues = 1
+attempts-per-branch = 2
+attempts-per-issue = 1
+features-limit = 2
+library-limit = 8
+`;
+
+const PROFILE_RECOMMENDED = `
+[profiles.recommended]
+reasoning-effort = "medium"
+infinite-sessions = true
+transformation-budget = 8
+features-scan = 10
+source-scan = 10
+source-content = 5000
+test-content = 3000
+issues-scan = 20
+issue-body-limit = 500
+stale-days = 30
+document-summary = 2000
+discussion-comments = 10
+feature-issues = 2
+maintenance-issues = 1
+attempts-per-branch = 3
+attempts-per-issue = 2
+features-limit = 4
+library-limit = 32
+`;
+
+const PROFILE_MAX = `
+[profiles.max]
+reasoning-effort = "high"
+infinite-sessions = true
+transformation-budget = 32
+features-scan = 50
+source-scan = 50
+source-content = 20000
+test-content = 15000
+issues-scan = 100
+issue-body-limit = 2000
+stale-days = 90
+document-summary = 10000
+discussion-comments = 25
+feature-issues = 4
+maintenance-issues = 2
+attempts-per-branch = 5
+attempts-per-issue = 4
+features-limit = 8
+library-limit = 64
+`;
+
 describe("config-loader", () => {
   let tmpDir;
 
@@ -185,7 +253,7 @@ describe("config-loader", () => {
 
     it("uses min tuning profile when specified", () => {
       const configPath = join(tmpDir, "config.toml");
-      writeFileSync(configPath, '[tuning]\nprofile = "min"\n');
+      writeFileSync(configPath, '[tuning]\nprofile = "min"\n' + PROFILE_MIN);
 
       const config = loadConfig(configPath);
       expect(config.tuning.reasoningEffort).toBe("low");
@@ -197,7 +265,7 @@ describe("config-loader", () => {
 
     it("uses max tuning profile when specified", () => {
       const configPath = join(tmpDir, "config.toml");
-      writeFileSync(configPath, '[tuning]\nprofile = "max"\n');
+      writeFileSync(configPath, '[tuning]\nprofile = "max"\n' + PROFILE_MAX);
 
       const config = loadConfig(configPath);
       expect(config.tuning.reasoningEffort).toBe("high");
@@ -217,7 +285,7 @@ describe("config-loader", () => {
           "infinite-sessions = true",
           "features-scan = 25",
           "source-content = 8000",
-        ].join("\n"),
+        ].join("\n") + PROFILE_MIN,
       );
 
       const config = loadConfig(configPath);
@@ -247,7 +315,7 @@ describe("config-loader", () => {
 
     it("resolves transformation-budget from profile", () => {
       const configPath = join(tmpDir, "config.toml");
-      writeFileSync(configPath, '[tuning]\nprofile = "min"\n');
+      writeFileSync(configPath, '[tuning]\nprofile = "min"\n' + PROFILE_MIN);
 
       const config = loadConfig(configPath);
       expect(config.tuning.transformationBudget).toBe(4);
@@ -256,7 +324,7 @@ describe("config-loader", () => {
 
     it("allows transformation-budget override", () => {
       const configPath = join(tmpDir, "config.toml");
-      writeFileSync(configPath, '[tuning]\nprofile = "min"\ntransformation-budget = 10\n');
+      writeFileSync(configPath, '[tuning]\nprofile = "min"\ntransformation-budget = 10\n' + PROFILE_MIN);
 
       const config = loadConfig(configPath);
       expect(config.tuning.transformationBudget).toBe(10);
@@ -264,7 +332,7 @@ describe("config-loader", () => {
 
     it("resolves testContent from profile", () => {
       const configPath = join(tmpDir, "config.toml");
-      writeFileSync(configPath, '[tuning]\nprofile = "recommended"\n');
+      writeFileSync(configPath, '[tuning]\nprofile = "recommended"\n' + PROFILE_RECOMMENDED);
 
       const config = loadConfig(configPath);
       expect(config.tuning.testContent).toBe(3000);
@@ -272,7 +340,7 @@ describe("config-loader", () => {
 
     it("resolves issueBodyLimit from profile", () => {
       const configPath = join(tmpDir, "config.toml");
-      writeFileSync(configPath, '[tuning]\nprofile = "max"\n');
+      writeFileSync(configPath, '[tuning]\nprofile = "max"\n' + PROFILE_MAX);
 
       const config = loadConfig(configPath);
       expect(config.tuning.issueBodyLimit).toBe(2000);
@@ -280,7 +348,7 @@ describe("config-loader", () => {
 
     it("resolves staleDays from profile", () => {
       const configPath = join(tmpDir, "config.toml");
-      writeFileSync(configPath, '[tuning]\nprofile = "min"\n');
+      writeFileSync(configPath, '[tuning]\nprofile = "min"\n' + PROFILE_MIN);
 
       const config = loadConfig(configPath);
       expect(config.tuning.staleDays).toBe(14);
@@ -288,7 +356,7 @@ describe("config-loader", () => {
 
     it("scales limits with tuning profile (min)", () => {
       const configPath = join(tmpDir, "config.toml");
-      writeFileSync(configPath, '[tuning]\nprofile = "min"\n');
+      writeFileSync(configPath, '[tuning]\nprofile = "min"\n' + PROFILE_MIN);
 
       const config = loadConfig(configPath);
       expect(config.featureDevelopmentIssuesWipLimit).toBe(1);
@@ -301,7 +369,7 @@ describe("config-loader", () => {
 
     it("scales limits with tuning profile (max)", () => {
       const configPath = join(tmpDir, "config.toml");
-      writeFileSync(configPath, '[tuning]\nprofile = "max"\n');
+      writeFileSync(configPath, '[tuning]\nprofile = "max"\n' + PROFILE_MAX);
 
       const config = loadConfig(configPath);
       expect(config.featureDevelopmentIssuesWipLimit).toBe(4);
@@ -314,7 +382,7 @@ describe("config-loader", () => {
 
     it("overrides profile limits with explicit values", () => {
       const configPath = join(tmpDir, "config.toml");
-      writeFileSync(configPath, '[tuning]\nprofile = "min"\n\n[limits]\nfeature-issues = 10\nlibrary-limit = 100\n');
+      writeFileSync(configPath, '[tuning]\nprofile = "min"\n\n[limits]\nfeature-issues = 10\nlibrary-limit = 100\n' + PROFILE_MIN);
 
       const config = loadConfig(configPath);
       expect(config.featureDevelopmentIssuesWipLimit).toBe(10);

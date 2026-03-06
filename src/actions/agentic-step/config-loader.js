@@ -60,79 +60,67 @@ const LIMIT_DEFAULTS = {
   library: 32,
 };
 
-// Tuning profiles: min (fast/cheap), recommended (balanced), max (thorough)
-const TUNING_PROFILES = {
-  min: {
-    reasoningEffort: "low",
-    infiniteSessions: false,
-    transformationBudget: 4,
-    featuresScan: 3,
-    sourceScan: 3,
-    sourceContent: 1000,
-    testContent: 500,
-    issuesScan: 5,
-    issueBodyLimit: 200,
-    staleDays: 14,
-    documentSummary: 500,
-    discussionComments: 5,
-  },
-  recommended: {
-    reasoningEffort: "medium",
-    infiniteSessions: true,
-    transformationBudget: 8,
-    featuresScan: 10,
-    sourceScan: 10,
-    sourceContent: 5000,
-    testContent: 3000,
-    issuesScan: 20,
-    issueBodyLimit: 500,
-    staleDays: 30,
-    documentSummary: 2000,
-    discussionComments: 10,
-  },
-  max: {
-    reasoningEffort: "high",
-    infiniteSessions: true,
-    transformationBudget: 32,
-    featuresScan: 50,
-    sourceScan: 50,
-    sourceContent: 20000,
-    testContent: 15000,
-    issuesScan: 100,
-    issueBodyLimit: 2000,
-    staleDays: 90,
-    documentSummary: 10000,
-    discussionComments: 25,
-  },
+// Fallback profile defaults — used only when [profiles.*] is missing from TOML.
+// The canonical source of truth is the [profiles.*] sections in agentic-lib.toml.
+const FALLBACK_TUNING = {
+  reasoningEffort: "medium",
+  infiniteSessions: true,
+  transformationBudget: 8,
+  featuresScan: 10,
+  sourceScan: 10,
+  sourceContent: 5000,
+  testContent: 3000,
+  issuesScan: 20,
+  issueBodyLimit: 500,
+  staleDays: 30,
+  documentSummary: 2000,
+  discussionComments: 10,
 };
 
-// Limits profiles: scale WIP limits and constraints with tuning profile
-const LIMITS_PROFILES = {
-  min: {
-    featureIssues: 1,
-    maintenanceIssues: 1,
-    attemptsPerBranch: 2,
-    attemptsPerIssue: 1,
-    featuresLimit: 2,
-    libraryLimit: 8,
-  },
-  recommended: {
-    featureIssues: 2,
-    maintenanceIssues: 1,
-    attemptsPerBranch: 3,
-    attemptsPerIssue: 2,
-    featuresLimit: 4,
-    libraryLimit: 32,
-  },
-  max: {
-    featureIssues: 4,
-    maintenanceIssues: 2,
-    attemptsPerBranch: 5,
-    attemptsPerIssue: 4,
-    featuresLimit: 8,
-    libraryLimit: 64,
-  },
+const FALLBACK_LIMITS = {
+  featureIssues: 2,
+  maintenanceIssues: 1,
+  attemptsPerBranch: 3,
+  attemptsPerIssue: 2,
+  featuresLimit: 4,
+  libraryLimit: 32,
 };
+
+/**
+ * Parse a TOML profile section into tuning defaults (camelCase keys).
+ */
+function parseTuningProfile(profileSection) {
+  if (!profileSection) return null;
+  return {
+    reasoningEffort: profileSection["reasoning-effort"] || "medium",
+    infiniteSessions: profileSection["infinite-sessions"] ?? true,
+    transformationBudget: profileSection["transformation-budget"] || 8,
+    featuresScan: profileSection["features-scan"] || 10,
+    sourceScan: profileSection["source-scan"] || 10,
+    sourceContent: profileSection["source-content"] || 5000,
+    testContent: profileSection["test-content"] || 3000,
+    issuesScan: profileSection["issues-scan"] || 20,
+    issueBodyLimit: profileSection["issue-body-limit"] || 500,
+    staleDays: profileSection["stale-days"] || 30,
+    documentSummary: profileSection["document-summary"] || 2000,
+    discussionComments: profileSection["discussion-comments"] || 10,
+  };
+}
+
+/**
+ * Parse a TOML profile section into limits defaults (camelCase keys).
+ */
+function parseLimitsProfile(profileSection) {
+  if (!profileSection) return null;
+  return {
+    featureIssues: profileSection["feature-issues"] || 2,
+    maintenanceIssues: profileSection["maintenance-issues"] || 1,
+    attemptsPerBranch: profileSection["attempts-per-branch"] || 3,
+    attemptsPerIssue: profileSection["attempts-per-issue"] || 2,
+    featuresLimit: profileSection["features-limit"] || 4,
+    libraryLimit: profileSection["library-limit"] || 32,
+  };
+}
 
 /**
  * Read package.json from the project root, returning empty string if not found.
@@ -152,10 +140,13 @@ function readPackageJson(tomlPath, depsRelPath) {
 
 /**
  * Resolve tuning configuration: start from profile defaults, apply explicit overrides.
+ * @param {Object} tuningSection - The [tuning] section from TOML
+ * @param {Object} [profilesSection] - The [profiles] section from TOML (source of truth)
  */
-function resolveTuning(tuningSection) {
+function resolveTuning(tuningSection, profilesSection) {
   const profileName = tuningSection.profile || "recommended";
-  const profile = TUNING_PROFILES[profileName] || TUNING_PROFILES.recommended;
+  const tomlProfile = profilesSection?.[profileName];
+  const profile = parseTuningProfile(tomlProfile) || FALLBACK_TUNING;
   const tuning = { ...profile, profileName };
 
   // "none" explicitly disables reasoning-effort regardless of profile
@@ -186,9 +177,13 @@ function resolveTuning(tuningSection) {
 
 /**
  * Resolve limits configuration: start from profile defaults, apply explicit overrides.
+ * @param {Object} limitsSection - The [limits] section from TOML
+ * @param {string} profileName - Active profile name
+ * @param {Object} [profilesSection] - The [profiles] section from TOML (source of truth)
  */
-function resolveLimits(limitsSection, profileName) {
-  const profile = LIMITS_PROFILES[profileName] || LIMITS_PROFILES.recommended;
+function resolveLimits(limitsSection, profileName, profilesSection) {
+  const tomlProfile = profilesSection?.[profileName];
+  const profile = parseLimitsProfile(tomlProfile) || FALLBACK_LIMITS;
   return {
     featureIssues: limitsSection["feature-issues"] || profile.featureIssues,
     maintenanceIssues: limitsSection["maintenance-issues"] || profile.maintenanceIssues,
@@ -250,9 +245,10 @@ export function loadConfig(configPath) {
     }
   }
 
-  const tuning = resolveTuning(toml.tuning || {});
+  const profilesSection = toml.profiles || {};
+  const tuning = resolveTuning(toml.tuning || {}, profilesSection);
   const limitsSection = toml.limits || {};
-  const resolvedLimits = resolveLimits(limitsSection, tuning.profileName);
+  const resolvedLimits = resolveLimits(limitsSection, tuning.profileName, profilesSection);
 
   // Apply resolved limits to path objects
   paths.features.limit = resolvedLimits.featuresLimit;
