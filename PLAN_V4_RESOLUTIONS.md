@@ -473,33 +473,65 @@ The Copilot SDK (v0.1.30) exposes `client.listModels()` with `supportedReasoning
 
 ---
 
+## Additional Items (continued)
+
+### ITEM-12: Inert Workflow Guards (repository != agentic-lib)
+
+Distributable workflows (`agentic-lib-workflow.yml`, `agentic-lib-bot.yml`, `agentic-lib-init.yml`, `agentic-lib-schedule.yml`) had active `workflow_dispatch` triggers in agentic-lib. The supervisor or other dispatchers could trigger real write operations (PR merges, git pushes, workflow dispatches) in the source repo.
+
+**Fix**: Added `github.repository != 'xn-intenton-z2a/agentic-lib'` guards at **step level** on all write/dispatch steps (12 step guards + 1 job guard). Jobs themselves still run their read-only parts (checkout, npm ci, telemetry gathering, stuck PR detection) in agentic-lib — only the mutation steps are blocked.
+
+**Files changed**: `agentic-lib-workflow.yml` (7 guards), `agentic-lib-bot.yml` (1 guard), `agentic-lib-init.yml` (3 guards), `agentic-lib-schedule.yml` (1 guard)
+
+### ITEM-13: Fine-Grained Dry-Run (exercise more in test mode)
+
+Jobs previously gated entirely by `dry-run != 'true'` at job level (`pr-cleanup`, `telemetry`, `supervisor`, `fix-stuck`) now run their read-only steps in dry-run mode. Only the write steps within each job check `dry-run`. This means dry-run tests exercise the full workflow pipeline including telemetry gathering, stuck PR detection, and supervisor setup — only actual mutations are skipped.
+
+**Files changed**: `agentic-lib-workflow.yml` — removed `dry-run` from 4 job-level `if` conditions; write steps retain both `repository` and `dry-run` guards.
+
+### ITEM-14: Concurrency Group on test.yml
+
+Added `concurrency: { group: test-${{ github.head_ref || github.ref_name }}, cancel-in-progress: true }` to `test.yml`. When pushing to a branch with an open PR, both `push` and `pull_request` triggers fire; the concurrency group cancels the older run so only one completes.
+
+**Files changed**: `.github/workflows/test.yml`
+
+### ITEM-15: Copilot SDK Protocol v3 Upgrade
+
+The Copilot SDK server upgraded to protocol v3, breaking all SDK calls with: `SDK protocol version mismatch: SDK expects version 2, but server reports version 3`. Updated `@github/copilot-sdk` from `0.1.30` (protocol v2) to `0.1.31-unstable.0` (protocol v3).
+
+**Files changed**: `package.json`, `package-lock.json`
+
+---
+
 ## Implementation Status
 
-**Branch**: `claude/v4-resolutions`
-**PR**: https://github.com/xn-intenton-z2a/agentic-lib/pull/1847
-**State**: PR open, CI has a security test failure being resolved by user.
+**State**: All changes on main. PR #1847 merged (steps 1-8, 10, ITEMs 8-10). Subsequent fixes (ITEMs 12-15) pushed directly to main.
 
-### What is done (committed on branch)
+### What is done
 
-All code changes for steps 1-8, 10, and ITEM-8 through ITEM-10 are committed:
+All code changes for steps 1-8, 10, and ITEMs 8-15 are complete:
 - Steps 1-8, 10: ISSUE-1 through ISSUE-7, OPT-3, OPT-4 — all implemented
 - ITEM-8: Tuning parameter logging with clipping
 - ITEM-9: Model annotations in agentic-lib.toml
 - ITEM-10: Bot scope & engagement prompt
-- 14 files changed, 333 tests pass (19 new tests, up from 314)
-- Lint clean, workflow YAML validation passes
+- ITEM-12: Repository guards on all write/dispatch steps in distributable workflows
+- ITEM-13: Fine-grained dry-run — jobs exercise read-only steps, only writes gated
+- ITEM-14: test.yml concurrency group to deduplicate push+PR triggers
+- ITEM-15: Copilot SDK protocol v3 upgrade (0.1.30 → 0.1.31-unstable.0)
+- 333 tests pass, lint clean, workflow YAML validation passes
 
 ### What is NOT done yet
 
 | Step | Item | Status |
 |------|------|--------|
-| 9 | ISSUE-2b: max-iterations config knob | Not started — deferred to post-merge |
-| 11 | OPT-2: MCP_SERVER.md docs update | Not started — deferred to post-merge |
-| 12 | ISSUE-3: Multi-model validation testing | Blocked on deploy — post-merge activity |
+| 9 | ISSUE-2b: max-iterations config knob | Not started — deferred |
+| 11 | OPT-2: MCP_SERVER.md docs update | Not started — deferred |
+| 12 | ISSUE-3: Multi-model validation testing | Blocked on deploy to repository0 |
 
-### Blockers
+### Next Steps
 
-- CI security test failure on PR #1847 — being resolved by user separately
+- User testing ITEM-15 (SDK protocol v3) on repository0
+- After validation: run multi-model tests (ISSUE-3), update MCP docs (OPT-2)
 
 ## Out of Scope
 
