@@ -605,14 +605,8 @@ jobs:
 
       - name: Seed workspace
         run: |
-          cp src/seeds/zero-MISSION.md MISSION.md
-          mkdir -p docs
-          cat > SOURCES.md << 'SEED_EOF'
-          # Library Sources
-
-          - https://docs.github.com/en/actions/creating-actions/about-custom-actions
-          - https://docs.github.com/en/rest/overview/resources-in-the-rest-api
-          SEED_EOF
+          cp src/seeds/zero-MISSION.md test/MISSION.md
+          mkdir -p test/library
 
       - name: Show seed changes
         run: diff -rN --exclude=.git --exclude=node_modules /tmp/baseline . || true
@@ -636,14 +630,8 @@ jobs:
 
       - name: Re-seed workspace
         run: |
-          cp src/seeds/zero-MISSION.md MISSION.md
-          mkdir -p docs
-          cat > SOURCES.md << 'SEED_EOF'
-          # Library Sources
-
-          - https://docs.github.com/en/actions/creating-actions/about-custom-actions
-          - https://docs.github.com/en/rest/overview/resources-in-the-rest-api
-          SEED_EOF
+          cp src/seeds/zero-MISSION.md test/MISSION.md
+          mkdir -p test/library
 
       - name: Show re-seed changes
         run: diff -rN --exclude=.git --exclude=node_modules /tmp/post-seed . || true
