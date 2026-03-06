@@ -128,6 +128,144 @@ ollama pull qwen2.5-coder:7b
 
 > **Note:** Ollama integration is planned but not yet implemented. The env vars above show the intended interface. For now, use Claude mode (no API needed) or Copilot mode.
 
+## Walkthrough: From Mission to Working Code
+
+This shows a complete session in Claude Code using Claude mode. You ask Claude to build something, and it uses the MCP tools to create a workspace, iterate on the code, and deliver working tests.
+
+### Step 1: Discover available missions
+
+> **You:** What missions are available?
+
+Claude calls `list_missions` and gets back:
+
+```
+Available missions (11):
+
+- **hamming-distance**: Hamming Distance
+- **fizz-buzz**: FizzBuzz
+- **roman-numerals**: Roman Numerals
+- **string-utils**: String Utilities
+- **dense-encoding**: Dense Binary Encoding
+- **cron-engine**: Cron Expression Parser
+- **lunar-lander**: Lunar Lander Simulation
+- **owl-ontology**: OWL Ontology Processor
+- **plot-code-lib**: Code Visualization Library
+- **time-series-lab**: Time Series Analysis
+- **empty**: Empty Mission
+```
+
+### Step 2: Create a workspace
+
+> **You:** Let's do hamming-distance with the lowest resources.
+
+Claude calls `workspace_create(mission: "hamming-distance", profile: "min")`:
+
+```
+Workspace created: hamming-distance-20260306T143200
+Path: ~/.agentic-lib/workspaces/hamming-distance-20260306T143200
+Mission: hamming-distance
+Profile: min
+Model: gpt-5-mini
+
+Init: OK
+npm install: OK
+Copilot SDK: OK
+
+Ready for `iterate` or `run_tests`.
+```
+
+### Step 3: Check the starting state
+
+Claude calls `run_tests(workspace: "hamming-distance-20260306T143200")`:
+
+```
+FAIL — tests are failing.
+
+ FAIL  tests/unit/main.test.js
+   ✓ main module exports (2ms)
+   ✗ hamming distance of identical strings is 0
+   ✗ hamming distance counts differing positions
+   ✗ throws on strings of different length
+```
+
+The seed code has placeholder tests that define what needs to be built but the implementation is a stub.
+
+### Step 4: Prepare context and write code (Claude mode)
+
+Claude calls `prepare_iteration(workspace: "hamming-distance-20260306T143200", focus: "transform")`.
+
+This returns the full context: mission description, feature specs, current source code, test files, and test output. Claude reads it all, then decides what to implement.
+
+Claude calls `workspace_write_file` to update `src/lib/main.js`:
+
+```js
+// Hamming distance — count positions where two strings differ
+export function hammingDistance(a, b) {
+  if (a.length !== b.length) {
+    throw new Error("Strings must be the same length");
+  }
+  let distance = 0;
+  for (let i = 0; i < a.length; i++) {
+    if (a[i] !== b[i]) distance++;
+  }
+  return distance;
+}
+```
+
+### Step 5: Verify
+
+Claude calls `run_tests(workspace: "hamming-distance-20260306T143200")`:
+
+```
+PASS — all tests passing.
+
+ PASS  tests/unit/main.test.js
+   ✓ main module exports (2ms)
+   ✓ hamming distance of identical strings is 0 (1ms)
+   ✓ hamming distance counts differing positions (1ms)
+   ✓ throws on strings of different length (1ms)
+```
+
+Done — working code in one iteration.
+
+### Step 6: Scale up or try another mission
+
+> **You:** Now try roman-numerals with the recommended profile.
+
+Claude creates a new workspace with `profile: "recommended"` and repeats the cycle. Each mission has its own isolated workspace — you can compare results across profiles and models.
+
+> **You:** What workspaces do I have?
+
+Claude calls `workspace_list`:
+
+```
+Workspaces (2):
+
+- hamming-distance-20260306T143200 | mission: hamming-distance | profile: min | iterations: 1 | status: ready
+- roman-numerals-20260306T144500 | mission: roman-numerals | profile: recommended | iterations: 3 | status: ready
+```
+
+### Step 7: Clean up
+
+> **You:** Destroy the hamming-distance workspace.
+
+Claude calls `workspace_destroy(workspace: "hamming-distance-20260306T143200")`.
+
+### Alternative: Autonomous iteration (Copilot mode)
+
+If you have a `COPILOT_GITHUB_TOKEN`, you can skip the manual read/write cycle and let the Copilot SDK drive everything:
+
+> **You:** Run hamming-distance with min profile for 10 cycles, then switch to recommended and compare.
+
+Claude calls:
+1. `workspace_create(mission: "hamming-distance", profile: "min")`
+2. `iterate(workspace: "...", cycles: 10)` — autonomous loop
+3. `config_set(workspace: "...", profile: "recommended")`
+4. `iterate(workspace: "...", cycles: 5)` — continues from where it left off
+5. `workspace_status(workspace: "...")` — full comparison
+
+Each iteration records elapsed time, files changed, and test status — giving you data to compare profiles.
+
 ## Available Tools
 
 ### Workspace Lifecycle
