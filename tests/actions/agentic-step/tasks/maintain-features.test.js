@@ -17,7 +17,17 @@ vi.mock("../../../../src/actions/agentic-step/copilot.js", () => ({
   readOptionalFile: vi.fn().mockReturnValue("mock mission"),
   scanDirectory: vi.fn().mockReturnValue([]),
   formatPathsSection: vi.fn().mockReturnValue("## File Paths\n- mock"),
+  extractFeatureSummary: vi.fn().mockImplementation((content, name) => `Feature: ${name}`),
 }));
+
+vi.mock("../../../../src/actions/agentic-step/safety.js", () => ({
+  checkWipLimit: vi.fn().mockResolvedValue({ allowed: true, count: 0 }),
+}));
+
+vi.mock("fs", async (importOriginal) => {
+  const actual = await importOriginal();
+  return { ...actual, existsSync: vi.fn().mockReturnValue(false) };
+});
 
 import { maintainFeatures } from "../../../../src/actions/agentic-step/tasks/maintain-features.js";
 import { runCopilotTask, readOptionalFile, scanDirectory } from "../../../../src/actions/agentic-step/copilot.js";

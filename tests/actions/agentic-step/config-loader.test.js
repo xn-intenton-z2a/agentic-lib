@@ -6,6 +6,74 @@ import { writeFileSync, mkdirSync, rmSync } from "fs";
 import { join } from "path";
 import { tmpdir } from "os";
 
+// Profile sections that tests append to their TOML fixtures.
+// These mirror [profiles.*] in agentic-lib.toml — the source of truth.
+const PROFILE_MIN = `
+[profiles.min]
+reasoning-effort = "low"
+infinite-sessions = false
+transformation-budget = 4
+max-feature-files = 3
+max-source-files = 3
+max-source-chars = 1000
+max-test-chars = 500
+max-issues = 5
+issue-body-limit = 200
+stale-days = 14
+max-summary-chars = 500
+max-discussion-comments = 5
+max-feature-issues = 1
+max-maintenance-issues = 1
+max-attempts-per-branch = 2
+max-attempts-per-issue = 1
+features-limit = 2
+library-limit = 8
+`;
+
+const PROFILE_RECOMMENDED = `
+[profiles.recommended]
+reasoning-effort = "medium"
+infinite-sessions = true
+transformation-budget = 8
+max-feature-files = 10
+max-source-files = 10
+max-source-chars = 5000
+max-test-chars = 3000
+max-issues = 20
+issue-body-limit = 500
+stale-days = 30
+max-summary-chars = 2000
+max-discussion-comments = 10
+max-feature-issues = 2
+max-maintenance-issues = 1
+max-attempts-per-branch = 3
+max-attempts-per-issue = 2
+features-limit = 4
+library-limit = 32
+`;
+
+const PROFILE_MAX = `
+[profiles.max]
+reasoning-effort = "high"
+infinite-sessions = true
+transformation-budget = 32
+max-feature-files = 50
+max-source-files = 50
+max-source-chars = 20000
+max-test-chars = 15000
+max-issues = 100
+issue-body-limit = 2000
+stale-days = 90
+max-summary-chars = 10000
+max-discussion-comments = 25
+max-feature-issues = 4
+max-maintenance-issues = 2
+max-attempts-per-branch = 5
+max-attempts-per-issue = 4
+features-limit = 8
+library-limit = 64
+`;
+
 describe("config-loader", () => {
   let tmpDir;
 
@@ -31,9 +99,7 @@ describe("config-loader", () => {
       const config = loadConfig(configPath);
       expect(config.supervisor).toBe("weekly");
       expect(config.model).toBe("gpt-5-mini");
-      expect(config.buildScript).toBe("npm run build");
-      expect(config.testScript).toBe("npm test");
-      expect(config.mainScript).toBe("npm run start");
+      expect(config.testScript).toBe("npm ci && npm test");
       expect(config.featureDevelopmentIssuesWipLimit).toBe(2);
       expect(config.maintenanceIssuesWipLimit).toBe(1);
       expect(config.attemptsPerBranch).toBe(3);
@@ -79,17 +145,12 @@ describe("config-loader", () => {
       expect(config.readOnlyPaths).toContain("MISSION.md");
     });
 
-    it("parses execution scripts", () => {
+    it("parses execution test script", () => {
       const configPath = join(tmpDir, "config.toml");
-      writeFileSync(
-        configPath,
-        ["[execution]", 'build = "make build"', 'test = "make test"', 'start = "node app.js"'].join("\n"),
-      );
+      writeFileSync(configPath, '[execution]\ntest = "make ci-test"\n');
 
       const config = loadConfig(configPath);
-      expect(config.buildScript).toBe("make build");
-      expect(config.testScript).toBe("make test");
-      expect(config.mainScript).toBe("node app.js");
+      expect(config.testScript).toBe("make ci-test");
     });
 
     it("parses limits", () => {
@@ -98,10 +159,10 @@ describe("config-loader", () => {
         configPath,
         [
           "[limits]",
-          "feature-issues = 3",
-          "maintenance-issues = 2",
-          "attempts-per-branch = 5",
-          "attempts-per-issue = 4",
+          "max-feature-issues = 3",
+          "max-maintenance-issues = 2",
+          "max-attempts-per-branch = 5",
+          "max-attempts-per-issue = 4",
           "features-limit = 8",
           "library-limit = 64",
         ].join("\n"),
@@ -185,7 +246,7 @@ describe("config-loader", () => {
 
     it("uses min tuning profile when specified", () => {
       const configPath = join(tmpDir, "config.toml");
-      writeFileSync(configPath, '[tuning]\nprofile = "min"\n');
+      writeFileSync(configPath, '[tuning]\nprofile = "min"\n' + PROFILE_MIN);
 
       const config = loadConfig(configPath);
       expect(config.tuning.reasoningEffort).toBe("low");
@@ -197,7 +258,7 @@ describe("config-loader", () => {
 
     it("uses max tuning profile when specified", () => {
       const configPath = join(tmpDir, "config.toml");
-      writeFileSync(configPath, '[tuning]\nprofile = "max"\n');
+      writeFileSync(configPath, '[tuning]\nprofile = "max"\n' + PROFILE_MAX);
 
       const config = loadConfig(configPath);
       expect(config.tuning.reasoningEffort).toBe("high");
@@ -215,9 +276,9 @@ describe("config-loader", () => {
           'profile = "min"',
           'reasoning-effort = "high"',
           "infinite-sessions = true",
-          "features-scan = 25",
-          "source-content = 8000",
-        ].join("\n"),
+          "max-feature-files = 25",
+          "max-source-chars = 8000",
+        ].join("\n") + PROFILE_MIN,
       );
 
       const config = loadConfig(configPath);
@@ -243,6 +304,84 @@ describe("config-loader", () => {
 
       const config = loadConfig(configPath);
       expect(config.tuning.profileName).toBe("recommended");
+    });
+
+    it("resolves transformation-budget from profile", () => {
+      const configPath = join(tmpDir, "config.toml");
+      writeFileSync(configPath, '[tuning]\nprofile = "min"\n' + PROFILE_MIN);
+
+      const config = loadConfig(configPath);
+      expect(config.tuning.transformationBudget).toBe(4);
+      expect(config.transformationBudget).toBe(4);
+    });
+
+    it("allows transformation-budget override", () => {
+      const configPath = join(tmpDir, "config.toml");
+      writeFileSync(configPath, '[tuning]\nprofile = "min"\ntransformation-budget = 10\n' + PROFILE_MIN);
+
+      const config = loadConfig(configPath);
+      expect(config.tuning.transformationBudget).toBe(10);
+    });
+
+    it("resolves testContent from profile", () => {
+      const configPath = join(tmpDir, "config.toml");
+      writeFileSync(configPath, '[tuning]\nprofile = "recommended"\n' + PROFILE_RECOMMENDED);
+
+      const config = loadConfig(configPath);
+      expect(config.tuning.testContent).toBe(3000);
+    });
+
+    it("resolves issueBodyLimit from profile", () => {
+      const configPath = join(tmpDir, "config.toml");
+      writeFileSync(configPath, '[tuning]\nprofile = "max"\n' + PROFILE_MAX);
+
+      const config = loadConfig(configPath);
+      expect(config.tuning.issueBodyLimit).toBe(2000);
+    });
+
+    it("resolves staleDays from profile", () => {
+      const configPath = join(tmpDir, "config.toml");
+      writeFileSync(configPath, '[tuning]\nprofile = "min"\n' + PROFILE_MIN);
+
+      const config = loadConfig(configPath);
+      expect(config.tuning.staleDays).toBe(14);
+    });
+
+    it("scales limits with tuning profile (min)", () => {
+      const configPath = join(tmpDir, "config.toml");
+      writeFileSync(configPath, '[tuning]\nprofile = "min"\n' + PROFILE_MIN);
+
+      const config = loadConfig(configPath);
+      expect(config.featureDevelopmentIssuesWipLimit).toBe(1);
+      expect(config.maintenanceIssuesWipLimit).toBe(1);
+      expect(config.attemptsPerBranch).toBe(2);
+      expect(config.attemptsPerIssue).toBe(1);
+      expect(config.paths.features.limit).toBe(2);
+      expect(config.paths.library.limit).toBe(8);
+    });
+
+    it("scales limits with tuning profile (max)", () => {
+      const configPath = join(tmpDir, "config.toml");
+      writeFileSync(configPath, '[tuning]\nprofile = "max"\n' + PROFILE_MAX);
+
+      const config = loadConfig(configPath);
+      expect(config.featureDevelopmentIssuesWipLimit).toBe(4);
+      expect(config.maintenanceIssuesWipLimit).toBe(2);
+      expect(config.attemptsPerBranch).toBe(5);
+      expect(config.attemptsPerIssue).toBe(4);
+      expect(config.paths.features.limit).toBe(8);
+      expect(config.paths.library.limit).toBe(64);
+    });
+
+    it("overrides profile limits with explicit values", () => {
+      const configPath = join(tmpDir, "config.toml");
+      writeFileSync(configPath, '[tuning]\nprofile = "min"\n\n[limits]\nmax-feature-issues = 10\nlibrary-limit = 100\n' + PROFILE_MIN);
+
+      const config = loadConfig(configPath);
+      expect(config.featureDevelopmentIssuesWipLimit).toBe(10);
+      expect(config.paths.library.limit).toBe(100);
+      // Non-overridden values use min profile defaults
+      expect(config.attemptsPerBranch).toBe(2);
     });
 
     it('treats reasoning-effort = "none" as empty string', () => {

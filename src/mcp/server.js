@@ -227,7 +227,7 @@ const TOOLS = [
         overrides: {
           type: "object",
           description:
-            "Individual tuning knob overrides. Keys: reasoning-effort, infinite-sessions, features-scan, source-scan, source-content, issues-scan, document-summary, discussion-comments",
+            "Individual tuning knob overrides. Keys: reasoning-effort, infinite-sessions, max-feature-files, max-source-files, max-source-chars, max-issues, max-summary-chars, max-discussion-comments",
         },
       },
       required: ["workspace"],
@@ -482,115 +482,40 @@ async function handleIterate({ workspace, cycles = 3, steps }) {
     return text(`Workspace "${workspace}" not found.`);
   }
 
+  const { runIterationLoop, formatIterationResults } = await import("../iterate.js");
   const stepsToRun = steps || ["maintain-features", "transform", "fix-code"];
-  const results = [];
-  let consecutivePasses = 0;
-  let consecutiveNoChanges = 0;
   const startIterNum = (meta.iterations?.length || 0) + 1;
 
   meta.status = "iterating";
   writeMetadata(wsPath, meta);
 
-  for (let i = 0; i < cycles; i++) {
-    const iterNum = startIterNum + i;
-    const iterStart = Date.now();
-    const iterSteps = [];
-
-    // Snapshot source files before
-    const srcBefore = snapshotDir(join(wsPath, "src/lib"));
-
-    for (const step of stepsToRun) {
-      const stepStart = Date.now();
-      const result = runCli(
-        `${step} --target ${wsPath} --model ${meta.model}`,
-        wsPath,
-        300000,
-      );
-      const stepElapsed = ((Date.now() - stepStart) / 1000).toFixed(1);
-      iterSteps.push({
-        step,
-        success: result.success,
-        elapsed: stepElapsed,
-        output: result.output.substring(0, 500),
+  const { results, totalCost, budget } = await runIterationLoop({
+    targetPath: wsPath,
+    model: meta.model,
+    maxCycles: cycles,
+    steps: stepsToRun,
+    onCycleComplete: (record) => {
+      if (record.stopped) return;
+      // Persist each iteration to workspace metadata
+      meta.iterations.push({
+        number: startIterNum + record.cycle - 1,
+        profile: meta.profile,
+        model: meta.model,
+        steps: record.steps,
+        testsPassed: record.testsPassed,
+        filesChanged: record.filesChanged,
+        elapsed: record.elapsed,
       });
-    }
-
-    // Run tests
-    const testResult = runInWorkspace("npm test 2>&1", wsPath, 60000);
-    const testsPassed = testResult.success;
-
-    // Snapshot source files after
-    const srcAfter = snapshotDir(join(wsPath, "src/lib"));
-    const filesChanged = countChanges(srcBefore, srcAfter);
-
-    const iterElapsed = ((Date.now() - iterStart) / 1000).toFixed(1);
-
-    const iterRecord = {
-      number: iterNum,
-      profile: meta.profile,
-      model: meta.model,
-      steps: iterSteps,
-      testsPassed,
-      filesChanged,
-      elapsed: iterElapsed,
-    };
-
-    meta.iterations.push(iterRecord);
-    writeMetadata(wsPath, meta);
-
-    results.push(iterRecord);
-
-    // Check stop conditions
-    if (testsPassed) {
-      consecutivePasses++;
-      if (consecutivePasses >= 2) {
-        results.push({ stopped: true, reason: "tests passed for 2 consecutive iterations" });
-        break;
-      }
-    } else {
-      consecutivePasses = 0;
-    }
-
-    if (filesChanged === 0) {
-      consecutiveNoChanges++;
-      if (consecutiveNoChanges >= 2) {
-        results.push({ stopped: true, reason: "no files changed for 2 consecutive iterations (stalled)" });
-        break;
-      }
-    } else {
-      consecutiveNoChanges = 0;
-    }
-  }
+      writeMetadata(wsPath, meta);
+    },
+  });
 
   meta.status = "ready";
   writeMetadata(wsPath, meta);
 
-  // Format results
-  const lines = [`# Iterate Results: ${workspace}`, `Cycles requested: ${cycles}`, ""];
-  for (const r of results) {
-    if (r.stopped) {
-      lines.push(`**Stopped early:** ${r.reason}`);
-      continue;
-    }
-    lines.push(`## Iteration ${r.number} (${r.model}, ${r.profile})`);
-    lines.push(`- Elapsed: ${r.elapsed}s`);
-    lines.push(`- Files changed: ${r.filesChanged}`);
-    lines.push(`- Tests: ${r.testsPassed ? "PASS" : "FAIL"}`);
-    for (const s of r.steps) {
-      lines.push(`  - ${s.step}: ${s.success ? "OK" : "FAIL"} (${s.elapsed}s)`);
-    }
-    lines.push("");
-  }
-
-  const totalIters = results.filter((r) => !r.stopped).length;
-  const lastPassed = results.filter((r) => !r.stopped).slice(-1)[0]?.testsPassed;
-  lines.push("## Summary");
-  lines.push(`- Iterations completed: ${totalIters}`);
-  lines.push(`- Final test status: ${lastPassed ? "PASS" : "FAIL"}`);
-  lines.push(`- Total iterations for this workspace: ${meta.iterations.length}`);
-  lines.push(`- Profile: ${meta.profile} | Model: ${meta.model}`);
-
-  return text(lines.join("\n"));
+  const output = formatIterationResults(results, totalCost, budget, `Iterate: ${workspace}`);
+  const extra = `\n- Total iterations for this workspace: ${meta.iterations.length}\n- Profile: ${meta.profile} | Model: ${meta.model}`;
+  return text(output + extra);
 }
 
 async function handleRunTests({ workspace }) {
@@ -839,34 +764,6 @@ function text(content) {
 function profileDefaultModel(profile) {
   const models = { min: "gpt-5-mini", recommended: "claude-sonnet-4", max: "gpt-4.1" };
   return models[profile] || "gpt-5-mini";
-}
-
-function snapshotDir(dirPath) {
-  const snapshot = {};
-  if (!existsSync(dirPath)) return snapshot;
-  try {
-    const files = readdirSync(dirPath, { recursive: true });
-    for (const f of files) {
-      const fp = join(dirPath, String(f));
-      try {
-        snapshot[String(f)] = readFileSync(fp, "utf8");
-      } catch {
-        // skip non-readable files
-      }
-    }
-  } catch {
-    // skip unreadable dirs
-  }
-  return snapshot;
-}
-
-function countChanges(before, after) {
-  let changes = 0;
-  const allKeys = new Set([...Object.keys(before), ...Object.keys(after)]);
-  for (const key of allKeys) {
-    if (before[key] !== after[key]) changes++;
-  }
-  return changes;
 }
 
 // ─── MCP Server ─────────────────────────────────────────────────────

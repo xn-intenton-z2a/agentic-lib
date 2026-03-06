@@ -31,7 +31,7 @@ const flags = args.slice(1);
 let initChanges = 0;
 const TASK_COMMANDS = ["transform", "maintain-features", "maintain-library", "fix-code"];
 const INIT_COMMANDS = ["init", "update", "reset"];
-const ALL_COMMANDS = [...INIT_COMMANDS, ...TASK_COMMANDS, "version", "mcp"];
+const ALL_COMMANDS = [...INIT_COMMANDS, ...TASK_COMMANDS, "version", "mcp", "iterate"];
 
 const HELP = `
 @xn-intenton-z2a/agentic-lib — Agentic Coding Systems SDK
@@ -50,6 +50,9 @@ Tasks (run Copilot SDK transformations):
   maintain-library     Update library docs from SOURCES.md
   fix-code             Fix failing tests
 
+Iterator:
+  iterate              Run N cycles of maintain → transform → fix with budget tracking
+
 MCP Server:
   mcp                  Start MCP server (for Claude Code, Cursor, etc.)
 
@@ -60,12 +63,16 @@ Options:
   --target <path>      Target repository (default: current directory)
   --mission <name>     Mission seed name (default: hamming-distance) [purge only]
   --model <name>       Copilot SDK model (default: claude-sonnet-4)
+  --cycles <N>         Max iteration cycles (default: from transformation-budget)
+  --steps <list>       Steps per cycle: maintain-features,transform,fix-code
 
 Examples:
   npx @xn-intenton-z2a/agentic-lib init
   npx @xn-intenton-z2a/agentic-lib transform
   npx @xn-intenton-z2a/agentic-lib maintain-features --model gpt-5-mini
   npx @xn-intenton-z2a/agentic-lib reset --dry-run
+  npx @xn-intenton-z2a/agentic-lib iterate --mission fizz-buzz --cycles 4
+  npx @xn-intenton-z2a/agentic-lib iterate --steps transform,fix-code --cycles 2
 `.trim();
 
 if (!command || command === "--help" || command === "-h" || command === "help") {
@@ -88,6 +95,10 @@ const modelIdx = flags.indexOf("--model");
 const model = modelIdx >= 0 ? flags[modelIdx + 1] : "claude-sonnet-4";
 const missionIdx = flags.indexOf("--mission");
 const mission = missionIdx >= 0 ? flags[missionIdx + 1] : "hamming-distance";
+const cyclesIdx = flags.indexOf("--cycles");
+const cycles = cyclesIdx >= 0 ? parseInt(flags[cyclesIdx + 1], 10) : 0;
+const stepsIdx = flags.indexOf("--steps");
+const stepsFlag = stepsIdx >= 0 ? flags[stepsIdx + 1] : "";
 
 // ─── Task Commands ───────────────────────────────────────────────────
 
@@ -96,6 +107,10 @@ if (command === "mcp") {
   await startServer();
   // Server runs until stdin closes — don't exit
   await new Promise(() => {}); // block forever
+}
+
+if (command === "iterate") {
+  process.exit(await runIterate());
 }
 
 if (TASK_COMMANDS.includes(command)) {
@@ -118,6 +133,56 @@ if (!ALL_COMMANDS.includes(command)) {
 }
 
 runInit();
+
+// ─── Iterator ────────────────────────────────────────────────────────
+
+async function runIterate() {
+  const { runIterationLoop, formatIterationResults } = await import("../src/iterate.js");
+
+  // If --mission is specified, run init --purge first
+  if (missionIdx >= 0) {
+    console.log(`\n=== Init with mission: ${mission} ===\n`);
+    const initResult = execSync(
+      `node ${resolve(pkgRoot, "bin/agentic-lib.js")} init --purge --mission ${mission} --target ${target}`,
+      { encoding: "utf8", timeout: 60000, stdio: "inherit" },
+    );
+  }
+
+  const iterSteps = stepsFlag
+    ? stepsFlag.split(",").map((s) => s.trim())
+    : ["maintain-features", "transform", "fix-code"];
+
+  console.log("");
+  console.log("=== agentic-lib iterate ===");
+  console.log(`Target:  ${target}`);
+  console.log(`Model:   ${model}`);
+  console.log(`Cycles:  ${cycles || "(from budget)"}`);
+  console.log(`Steps:   ${iterSteps.join(", ")}`);
+  console.log(`Dry-run: ${dryRun}`);
+  console.log("");
+
+  const { results, totalCost, budget } = await runIterationLoop({
+    targetPath: target,
+    model,
+    maxCycles: cycles,
+    steps: iterSteps,
+    dryRun,
+    onCycleComplete: (record) => {
+      if (record.stopped) return;
+      const status = record.testsPassed ? "PASS" : "FAIL";
+      console.log(
+        `  Cycle ${record.cycle}: ${record.filesChanged} files changed, tests ${status}, cost ${record.totalCost}/${record.budget} (${record.elapsed}s)`,
+      );
+    },
+  });
+
+  console.log("");
+  console.log(formatIterationResults(results, totalCost, budget));
+  console.log("");
+
+  const lastCycle = results.filter((r) => !r.stopped).slice(-1)[0];
+  return lastCycle?.testsPassed ? 0 : 1;
+}
 
 // ─── Task Runner ─────────────────────────────────────────────────────
 
@@ -264,10 +329,8 @@ async function loadTaskConfig() {
     examplesPath: toml.paths?.examples || "examples/",
     readmePath: toml.paths?.readme || "README.md",
     depsPath: toml.paths?.dependencies || "package.json",
-    buildScript: toml.execution?.build || "npm run build",
-    testScript: toml.execution?.test || "npm test",
-    mainScript: toml.execution?.start || "npm run start",
-    featureLimit: toml.limits?.["feature-issues"] || 2,
+    testScript: toml.execution?.test || "npm ci && npm test",
+    featureLimit: toml.limits?.["max-feature-issues"] || 2,
     intentionPath: toml.bot?.["log-file"] || "intentïon.md",
   };
 }
@@ -796,6 +859,7 @@ function clearDirContents(dirPath, label) {
 function initReseed() {
   console.log("\n--- Reseed: Clear Features + Activity Log ---");
   removeFile(resolve(target, "intentïon.md"), "intentïon.md");
+  removeFile(resolve(target, "MISSION_COMPLETE.md"), "MISSION_COMPLETE.md");
   clearDirContents(resolve(target, "features"), "features");
 
   // Clear old features location if it exists

@@ -172,21 +172,36 @@ contributing = "CONTRIBUTING.md"
 library-sources = "SOURCES.md"
 
 [execution]
-build = "npm run build"
-test = "npm test"
-start = "npm run start"
+test = "npm ci && npm test"
 
 [limits]
-feature-issues = 2
-maintenance-issues = 1
-attempts-per-branch = 3
-attempts-per-issue = 2
+max-feature-issues = 2
+max-maintenance-issues = 1
+max-attempts-per-branch = 3
+max-attempts-per-issue = 2
 features-limit = 4
 library-limit = 32
+
+[tuning]
+profile = "recommended"       # min | recommended | max
+# model = "gpt-5-mini"        # override model per-profile
+# transformation-budget = 8   # max code-changing cycles per run
 
 [bot]
 log-file = "intentïon.md"
 ```
+
+### Tuning Profiles
+
+The `profile` setting controls all tuning defaults. Three profiles are built in:
+
+| Profile | Budget | Source scan | Issues | Best for |
+|---------|--------|-------------|--------|----------|
+| `min` | 4 cycles | 3 files, 1000 chars | 5, 14d stale | CI testing, quick validation |
+| `recommended` | 8 cycles | 10 files, 5000 chars | 20, 30d stale | Balanced cost/quality |
+| `max` | 32 cycles | 50 files, 20000 chars | 100, 90d stale | Complex missions |
+
+Override individual knobs in `[tuning]` to deviate from a profile. Limits (`[limits]`) also scale with the profile.
 
 The YAML config at `.github/agentic-lib/agents/agentic-lib.yml` is also supported as a fallback.
 
@@ -217,6 +232,7 @@ npx @xn-intenton-z2a/agentic-lib transform            # advance code toward the 
 npx @xn-intenton-z2a/agentic-lib maintain-features     # generate feature files from mission
 npx @xn-intenton-z2a/agentic-lib maintain-library      # update library docs from SOURCES.md
 npx @xn-intenton-z2a/agentic-lib fix-code              # fix failing tests
+npx @xn-intenton-z2a/agentic-lib iterate               # run N cycles with budget tracking
 ```
 
 All task commands accept these flags:
@@ -226,6 +242,9 @@ All task commands accept these flags:
 | `--dry-run` | off | Show the prompt without calling the Copilot SDK |
 | `--target <path>` | current directory | Target repository to transform |
 | `--model <name>` | `claude-sonnet-4` | Copilot SDK model |
+| `--cycles <N>` | from budget | Max iteration cycles (iterate only) |
+| `--steps <list>` | all three | Comma-separated steps per cycle (iterate only) |
+| `--mission <name>` | hamming-distance | Init with --purge before iterating (iterate only) |
 
 ### Example: Full Walkthrough
 
@@ -278,6 +297,28 @@ Use `--dry-run` to see what prompt would be sent without calling the SDK:
 npx @xn-intenton-z2a/agentic-lib transform --dry-run
 ```
 
+### Iterator
+
+The `iterate` command runs multiple cycles of maintain → transform → fix with automatic stop conditions and budget tracking:
+
+```bash
+# Init a mission and iterate with default budget
+npx @xn-intenton-z2a/agentic-lib iterate --mission fizz-buzz --model gpt-5-mini
+
+# Run 4 cycles on an existing workspace
+npx @xn-intenton-z2a/agentic-lib iterate --cycles 4
+
+# Transform-only cycles (skip maintain)
+npx @xn-intenton-z2a/agentic-lib iterate --steps transform,fix-code --cycles 3
+```
+
+**Stop conditions:**
+- Tests pass for 2 consecutive cycles
+- No files change for 2 consecutive cycles
+- Transformation budget exhausted (configurable via `transformation-budget` in `agentic-lib.toml`)
+
+Each cycle logs `**agentic-lib transformation cost:** 1` to `intentïon.md` when source files change. The iterator reads these to track cumulative cost against the budget.
+
 ### Environment
 
 | Variable | Required | Purpose |
@@ -301,6 +342,8 @@ Built-in safety mechanisms:
 
 - **WIP limits** -- maximum concurrent issues to prevent runaway generation
 - **Attempt limits** -- maximum retries per branch and per issue
+- **Transformation budget** -- caps code-changing cycles per run (profile-scaled)
+- **Mission-complete signal** -- `MISSION_COMPLETE.md` gates budget-consuming jobs without LLM calls
 - **Path enforcement** -- writable and read-only path separation
 - **TDD mode** -- optionally require tests before implementation
 - **Mission protection** -- MISSION.md is read-only to the agent
@@ -331,7 +374,7 @@ src/
 
 ### Testing
 
-269 unit tests across 22 test files, plus system tests:
+393 unit tests across 26 test files, plus system tests:
 
 ```bash
 npm test                  # Run all tests (vitest)
