@@ -36,7 +36,7 @@ library-limit = 32
 
 [tuning]
 # Profile sets defaults for all tuning knobs: min | recommended | max
-# min = fast & cheap (CI testing), recommended = balanced, max = thorough
+# See [tuning.profiles.*] below for the full default values per profile.
 profile = "min"                                  #@dist "recommended"
 #
 # Model selection — each has different strengths:
@@ -50,12 +50,54 @@ model = "gpt-5-mini"
 # Override individual knobs below. Omit or comment out to use profile defaults.
 # reasoning-effort = "low"       # low | medium | high | none (none = disable entirely)
 infinite-sessions = false        # set to true for long sessions with compaction
+# transformation-budget = 4      # max code-changing cycles per run (0 = unlimited)
 # features-scan = 3              # feature files to include in prompts
 # source-scan = 3                # source files to include
 # source-content = 1000          # max chars per source file
 # issues-scan = 5                # open issues to include
 # document-summary = 500         # max chars for document summaries
 # discussion-comments = 5        # discussion comments to include
+
+# ─── Tuning Profile Reference ────────────────────────────────────────
+# These sections document the built-in profile defaults. They are
+# read-only reference — the active profile is set by [tuning].profile
+# above. Override individual knobs in [tuning] to deviate from a profile.
+
+[tuning.profiles.min]
+# Fast & cheap — CI testing, quick validation, budget-conscious iteration.
+reasoning-effort = "low"
+infinite-sessions = false
+transformation-budget = 4
+features-scan = 3
+source-scan = 3
+source-content = 1000
+issues-scan = 5
+document-summary = 500
+discussion-comments = 5
+
+[tuning.profiles.recommended]
+# Balanced — good results without excessive cost. Default for consumer repos.
+reasoning-effort = "medium"
+infinite-sessions = true
+transformation-budget = 8
+features-scan = 10
+source-scan = 10
+source-content = 5000
+issues-scan = 20
+document-summary = 2000
+discussion-comments = 10
+
+[tuning.profiles.max]
+# Thorough — maximum context, highest quality. For complex missions.
+reasoning-effort = "high"
+infinite-sessions = true
+transformation-budget = 32
+features-scan = 50
+source-scan = 50
+source-content = 20000
+issues-scan = 100
+document-summary = 10000
+discussion-comments = 25
 
 [bot]
 log-file = "test/intentïon.md"                  #@dist "intentïon.md"
