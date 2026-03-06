@@ -236,7 +236,7 @@ jobs:
       - name: "CLI: transform"
         env:
           COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
-        run: node bin/agentic-lib.js transform --model ${{ needs.params.outputs.model }} --target /tmp/test-workspace
+        run: node bin/agentic-lib.js transform --model ${{ needs.params.outputs.model }} --target /tmp/test-workspace 2>&1 | tee /tmp/cli-output.log
 
       - name: Verify tests pass after transform
         working-directory: /tmp/test-workspace
@@ -244,12 +244,14 @@ jobs:
 
       - name: Show agent changes
         run: |
-          OUTPUT=$(diff -rN --exclude=.git --exclude=node_modules /tmp/post-seed /tmp/test-workspace || true)
-          echo "$OUTPUT"
-          if [ -z "$OUTPUT" ]; then
-            echo "ERROR: transform produced no changes"
+          echo "--- CLI log markers ---"
+          grep -E '^\[(context|copilot|config|prompt)\]' /tmp/cli-output.log || true
+          if ! grep -q '\[copilot\]' /tmp/cli-output.log; then
+            echo "ERROR: No [copilot] log lines — LLM was not called"
             exit 1
           fi
+          echo "--- File changes ---"
+          diff -rN --exclude=.git --exclude=node_modules /tmp/post-seed /tmp/test-workspace || true
 
       - name: Re-seed workspace
         run: node bin/agentic-lib.js init --purge --mission fizz-buzz --target /tmp/test-workspace
@@ -294,16 +296,18 @@ jobs:
       - name: "CLI: maintain-features"
         env:
           COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
-        run: node bin/agentic-lib.js maintain-features --model ${{ needs.params.outputs.model }} --target /tmp/test-workspace
+        run: node bin/agentic-lib.js maintain-features --model ${{ needs.params.outputs.model }} --target /tmp/test-workspace 2>&1 | tee /tmp/cli-output.log
 
       - name: Show agent changes
         run: |
-          OUTPUT=$(diff -rN --exclude=.git --exclude=node_modules /tmp/post-seed /tmp/test-workspace || true)
-          echo "$OUTPUT"
-          if [ -z "$OUTPUT" ]; then
-            echo "ERROR: maintain-features produced no changes"
+          echo "--- CLI log markers ---"
+          grep -E '^\[(context|copilot|config|prompt)\]' /tmp/cli-output.log || true
+          if ! grep -q '\[copilot\]' /tmp/cli-output.log; then
+            echo "ERROR: No [copilot] log lines — LLM was not called"
             exit 1
           fi
+          echo "--- File changes ---"
+          diff -rN --exclude=.git --exclude=node_modules /tmp/post-seed /tmp/test-workspace || true
 
       - name: Re-seed workspace
         run: node bin/agentic-lib.js init --purge --mission fizz-buzz --target /tmp/test-workspace
@@ -348,16 +352,18 @@ jobs:
       - name: "CLI: maintain-library"
         env:
           COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
-        run: node bin/agentic-lib.js maintain-library --model ${{ needs.params.outputs.model }} --target /tmp/test-workspace
+        run: node bin/agentic-lib.js maintain-library --model ${{ needs.params.outputs.model }} --target /tmp/test-workspace 2>&1 | tee /tmp/cli-output.log
 
       - name: Show agent changes
         run: |
-          OUTPUT=$(diff -rN --exclude=.git --exclude=node_modules /tmp/post-seed /tmp/test-workspace || true)
-          echo "$OUTPUT"
-          if [ -z "$OUTPUT" ]; then
-            echo "ERROR: maintain-library produced no changes"
+          echo "--- CLI log markers ---"
+          grep -E '^\[(context|copilot|config|prompt)\]' /tmp/cli-output.log || true
+          if ! grep -q '\[copilot\]' /tmp/cli-output.log; then
+            echo "ERROR: No [copilot] log lines — LLM was not called"
             exit 1
           fi
+          echo "--- File changes ---"
+          diff -rN --exclude=.git --exclude=node_modules /tmp/post-seed /tmp/test-workspace || true
 
       - name: Re-seed workspace
         run: node bin/agentic-lib.js init --purge --mission fizz-buzz --target /tmp/test-workspace
