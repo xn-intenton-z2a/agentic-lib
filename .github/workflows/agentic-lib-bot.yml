@@ -143,7 +143,7 @@ jobs:
 
   dispatch-supervisor:
     needs: [params, respond]
-    if: needs.respond.outputs.action == 'request-supervisor'
+    if: github.repository != 'xn-intenton-z2a/agentic-lib' && needs.respond.outputs.action == 'request-supervisor'
     runs-on: ubuntu-latest
     steps:
       - name: Dispatch supervisor workflow
