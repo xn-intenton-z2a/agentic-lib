@@ -579,7 +579,7 @@ jobs:
         branch: [feature-a, feature-b] # parallel branches, each with its own goal
       max-parallel: 2
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ matrix.branch }}
       - uses: ./.github/agentic-lib/actions/agentic-step

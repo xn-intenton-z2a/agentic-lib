@@ -90,11 +90,11 @@ jobs:
       action: ${{ steps.respond.outputs.action }}
       action-arg: ${{ steps.respond.outputs.action-arg }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: "24"
 
@@ -108,7 +108,7 @@ jobs:
 
       - name: Get discussion URL
         id: discussion-url
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             let url = '${{ inputs.discussion-url }}' || '';
