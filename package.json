@@ -35,13 +35,11 @@
     "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-prettier": "^5.4.0",
     "eslint-plugin-promise": "^7.2.1",
-    "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-security": "^4.0.0",
     "eslint-plugin-sonarjs": "^4.0.0",
     "js-yaml": "^4.1.0",
     "markdown-it": "^14.1.0",
     "markdown-it-github": "^0.5.0",
-    "npm-check-updates": "^19.6.3",
     "prettier": "^3.8.1",
     "vitest": "^4.0.18"
   },
@@ -85,7 +83,8 @@
     "src/mcp/"
   ],
   "overrides": {
-    "minimatch": ">=10.2.3"
+    "minimatch": ">=10.2.3",
+    "@github/copilot": ">=0.0.423"
   },
   "repository": {
     "type": "git",
@@ -99,7 +98,7 @@
   "dependencies": {
     "@actions/core": "^3.0.0",
     "@actions/github": "^9.0.0",
-    "@github/copilot-sdk": "^0.1.29",
+    "@github/copilot-sdk": "^0.1.30",
     "@modelcontextprotocol/sdk": "^1.27.0",
     "smol-toml": "^1.6.0"
   }

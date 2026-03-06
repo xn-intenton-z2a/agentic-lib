@@ -5,7 +5,6 @@ import globals from "globals";
 import promise from "eslint-plugin-promise";
 import security from "eslint-plugin-security";
 import sonarjs from "eslint-plugin-sonarjs";
-import react from "eslint-plugin-react";
 import importPlugin from "eslint-plugin-import";
 
 const modifiedGoogleConfig = { ...google, rules: { ...google.rules } };
@@ -22,7 +21,6 @@ export default [
       promise,
       security,
       sonarjs,
-      react,
       import: importPlugin,
     },
     languageOptions: {
@@ -85,13 +83,6 @@ export default [
       "security/detect-non-literal-fs-filename": "off",
       "security/detect-object-injection": "off",
       "security/detect-unsafe-regex": "off",
-    },
-  },
-  {
-    settings: {
-      react: {
-        version: "18", // With no react installed we can't use "detect"
-      },
     },
   },
   {

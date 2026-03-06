@@ -475,7 +475,31 @@ The Copilot SDK (v0.1.30) exposes `client.listModels()` with `supportedReasoning
 
 ## Implementation Status
 
-All items implemented on branch `claude/v4-resolutions`. 333 tests pass (up from 314).
+**Branch**: `claude/v4-resolutions`
+**PR**: https://github.com/xn-intenton-z2a/agentic-lib/pull/1847
+**State**: PR open, CI has a security test failure being resolved by user.
+
+### What is done (committed on branch)
+
+All code changes for steps 1-8, 10, and ITEM-8 through ITEM-10 are committed:
+- Steps 1-8, 10: ISSUE-1 through ISSUE-7, OPT-3, OPT-4 — all implemented
+- ITEM-8: Tuning parameter logging with clipping
+- ITEM-9: Model annotations in agentic-lib.toml
+- ITEM-10: Bot scope & engagement prompt
+- 14 files changed, 333 tests pass (19 new tests, up from 314)
+- Lint clean, workflow YAML validation passes
+
+### What is NOT done yet
+
+| Step | Item | Status |
+|------|------|--------|
+| 9 | ISSUE-2b: max-iterations config knob | Not started — deferred to post-merge |
+| 11 | OPT-2: MCP_SERVER.md docs update | Not started — deferred to post-merge |
+| 12 | ISSUE-3: Multi-model validation testing | Blocked on deploy — post-merge activity |
+
+### Blockers
+
+- CI security test failure on PR #1847 — being resolved by user separately
 
 ## Out of Scope
 
