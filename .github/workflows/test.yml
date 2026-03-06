@@ -468,7 +468,9 @@ jobs:
         run: |
           mkdir -p /tmp/test-workspace
           node bin/agentic-lib.js init --purge --mission fizz-buzz --target /tmp/test-workspace
-          cd /tmp/test-workspace && npm install
+          cd /tmp/test-workspace
+          node -e "const p=JSON.parse(require('fs').readFileSync('package.json','utf8')); delete p.dependencies; require('fs').writeFileSync('package.json',JSON.stringify(p,null,2)+'\n')"
+          npm install
 
       - name: Snapshot post-seed
         run: rsync -a --exclude=.git --exclude=node_modules /tmp/test-workspace/ /tmp/post-seed/
@@ -658,6 +660,7 @@ jobs:
       - name: Install and test seeded workspace
         working-directory: /tmp/test-workspace
         run: |
+          node -e "const p=JSON.parse(require('fs').readFileSync('package.json','utf8')); delete p.dependencies; require('fs').writeFileSync('package.json',JSON.stringify(p,null,2)+'\n')"
           npm install
           npm test
 
@@ -694,6 +697,7 @@ jobs:
       - name: Add user content (simulates repository0 work)
         run: |
           echo 'export function hello() { return "custom"; }' > /tmp/test-workspace/src/lib/main.js
+          mkdir -p /tmp/test-workspace/features
           echo '# Custom Feature' > /tmp/test-workspace/features/custom.md
           echo '# My Mission' > /tmp/test-workspace/MISSION.md
 
