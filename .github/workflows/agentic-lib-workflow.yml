@@ -125,7 +125,14 @@ jobs:
           PR='${{ inputs.pr-number }}'
           echo "pr-number=${PR}" >> $GITHUB_OUTPUT
           DRY_RUN='${{ inputs.dry-run }}'
-          echo "dry-run=${DRY_RUN:-true}" >> $GITHUB_OUTPUT
+          # Schedule triggers have no inputs, so DRY_RUN is empty.
+          # Default to false for schedule events (they should run live).
+          if [ "${{ github.event_name }}" = "schedule" ]; then
+            DRY_RUN="${DRY_RUN:-false}"
+          else
+            DRY_RUN="${DRY_RUN:-true}"
+          fi
+          echo "dry-run=${DRY_RUN}" >> $GITHUB_OUTPUT
           CONFIG='${{ inputs.config-path }}'
           echo "config-path=${CONFIG:-${{ env.configPath }}}" >> $GITHUB_OUTPUT
     outputs:
@@ -142,11 +149,11 @@ jobs:
   pr-cleanup:
     needs: params
     if: |
-      needs.params.outputs.dry-run != 'true' &&
-      (needs.params.outputs.mode == 'full' || needs.params.outputs.mode == 'pr-cleanup-only')
+      needs.params.outputs.mode == 'full' || needs.params.outputs.mode == 'pr-cleanup-only'
     runs-on: ubuntu-latest
     steps:
       - name: PR cleanup
+        if: github.repository != 'xn-intenton-z2a/agentic-lib' && needs.params.outputs.dry-run != 'true'
         uses: actions/github-script@v7
         with:
           script: |
@@ -214,8 +221,7 @@ jobs:
   telemetry:
     needs: params
     if: |
-      needs.params.outputs.dry-run != 'true' &&
-      (needs.params.outputs.mode == 'full' || needs.params.outputs.mode == 'dev-only' || needs.params.outputs.mode == 'review-only')
+      needs.params.outputs.mode == 'full' || needs.params.outputs.mode == 'dev-only' || needs.params.outputs.mode == 'review-only'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -292,7 +298,6 @@ jobs:
     needs: [params, pr-cleanup, telemetry]
     if: |
       always() &&
-      needs.params.outputs.dry-run != 'true' &&
       (needs.params.outputs.mode == 'full' || needs.params.outputs.mode == 'dev-only') &&
       needs.params.result == 'success'
     runs-on: ubuntu-latest
@@ -312,6 +317,7 @@ jobs:
         run: npm ci
 
       - name: Run supervisor
+        if: github.repository != 'xn-intenton-z2a/agentic-lib'
         uses: ./.github/agentic-lib/actions/agentic-step
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -382,7 +388,7 @@ jobs:
           model: ${{ needs.params.outputs.model }}
 
       - name: Commit and push changes
-        if: needs.params.outputs.dry-run != 'true'
+        if: github.repository != 'xn-intenton-z2a/agentic-lib' && needs.params.outputs.dry-run != 'true'
         uses: ./.github/agentic-lib/actions/commit-if-changed
         with:
           commit-message: "agentic-step: maintain features and library"
@@ -393,7 +399,6 @@ jobs:
     needs: [params, supervisor]
     if: |
       always() &&
-      needs.params.outputs.dry-run != 'true' &&
       needs.params.outputs.mode == 'full' &&
       needs.params.result == 'success'
     runs-on: ubuntu-latest
@@ -533,7 +538,7 @@ jobs:
           model: ${{ needs.params.outputs.model }}
 
       - name: Commit and push fixes
-        if: env.FIX_PR_NUMBER != ''
+        if: github.repository != 'xn-intenton-z2a/agentic-lib' && env.FIX_PR_NUMBER != ''
         uses: ./.github/agentic-lib/actions/commit-if-changed
         with:
           commit-message: "agentic-step: fix failing tests / resolve conflicts"
@@ -674,14 +679,14 @@ jobs:
           writable-paths: ${{ steps.config.outputs.writablePaths }}
 
       - name: Commit and push
-        if: steps.issue.outputs.issue-number != '' && needs.params.outputs.dry-run != 'true'
+        if: github.repository != 'xn-intenton-z2a/agentic-lib' && steps.issue.outputs.issue-number != '' && needs.params.outputs.dry-run != 'true'
         uses: ./.github/agentic-lib/actions/commit-if-changed
         with:
           commit-message: "agentic-step: transform issue #${{ steps.issue.outputs.issue-number }}"
           push-ref: ${{ steps.branch.outputs.branchName }}
 
       - name: Create PR and attempt merge
-        if: steps.issue.outputs.issue-number != '' && needs.params.outputs.dry-run != 'true'
+        if: github.repository != 'xn-intenton-z2a/agentic-lib' && steps.issue.outputs.issue-number != '' && needs.params.outputs.dry-run != 'true'
         uses: actions/github-script@v7
         with:
           script: |

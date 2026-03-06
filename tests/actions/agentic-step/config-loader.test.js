@@ -229,6 +229,30 @@ describe("config-loader", () => {
       expect(config.tuning.sourceScan).toBe(3);
     });
 
+    it("includes profileName in tuning config", () => {
+      const configPath = join(tmpDir, "config.toml");
+      writeFileSync(configPath, '[tuning]\nprofile = "min"\n');
+
+      const config = loadConfig(configPath);
+      expect(config.tuning.profileName).toBe("min");
+    });
+
+    it("defaults profileName to recommended", () => {
+      const configPath = join(tmpDir, "config.toml");
+      writeFileSync(configPath, "");
+
+      const config = loadConfig(configPath);
+      expect(config.tuning.profileName).toBe("recommended");
+    });
+
+    it('treats reasoning-effort = "none" as empty string', () => {
+      const configPath = join(tmpDir, "config.toml");
+      writeFileSync(configPath, '[tuning]\nreasoning-effort = "none"\n');
+
+      const config = loadConfig(configPath);
+      expect(config.tuning.reasoningEffort).toBe("");
+    });
+
     it("reads model from tuning section", () => {
       const configPath = join(tmpDir, "config.toml");
       writeFileSync(configPath, '[tuning]\nmodel = "claude-sonnet-4"\n');
