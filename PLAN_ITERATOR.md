@@ -111,14 +111,14 @@ transformation-budget = 16   # override profile default
 
 Profile defaults are surfaced as read-only reference sections in `agentic-lib.toml`:
 ```toml
-[tuning.profiles.min]
+[tuning.profile.min]
 transformation-budget = 4
 # ...other knobs...
 
-[tuning.profiles.recommended]
+[tuning.profile.recommended]
 transformation-budget = 8
 
-[tuning.profiles.max]
+[tuning.profile.max]
 transformation-budget = 32
 ```
 
