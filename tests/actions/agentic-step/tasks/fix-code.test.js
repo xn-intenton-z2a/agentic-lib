@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 // Copyright (C) 2025-2026 Polycode Limited
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 
 // Mock @actions/core
 vi.mock("@actions/core", () => ({
@@ -22,12 +22,22 @@ vi.mock("../../../../src/actions/agentic-step/copilot.js", () => ({
 
 // Mock child_process
 vi.mock("child_process", () => ({
-  execSync: vi.fn().mockReturnValue("FAIL tests/unit/main.test.js\n  ✕ should return correct value\n    Error: expected 42 but got undefined"),
+  execSync: vi
+    .fn()
+    .mockReturnValue(
+      "FAIL tests/unit/main.test.js\n  ✕ should return correct value\n    Error: expected 42 but got undefined",
+    ),
+}));
+
+// Mock fs for conflict resolution tests
+vi.mock("fs", () => ({
+  readFileSync: vi.fn().mockReturnValue("mock file content"),
 }));
 
 import { fixCode } from "../../../../src/actions/agentic-step/tasks/fix-code.js";
 import { runCopilotTask } from "../../../../src/actions/agentic-step/copilot.js";
 import { execSync } from "child_process";
+import { readFileSync } from "fs";
 
 // --- Helpers ---
 
@@ -168,7 +178,9 @@ describe("tasks/fix-code", () => {
   });
 
   it("falls back to summary when log fetch fails", async () => {
-    execSync.mockImplementation(() => { throw new Error("gh not found"); });
+    execSync.mockImplementation(() => {
+      throw new Error("gh not found");
+    });
     const octokit = createMockOctokit();
     octokit.rest.checks.listForRef.mockResolvedValue({
       data: {
@@ -209,7 +221,9 @@ describe("tasks/fix-code", () => {
   });
 
   it("uses default failure message when output summary is missing", async () => {
-    execSync.mockImplementation(() => { throw new Error("gh not found"); });
+    execSync.mockImplementation(() => {
+      throw new Error("gh not found");
+    });
     const octokit = createMockOctokit();
     octokit.rest.checks.listForRef.mockResolvedValue({
       data: {
@@ -223,5 +237,115 @@ describe("tasks/fix-code", () => {
     const callArgs = runCopilotTask.mock.calls[0][0];
     expect(callArgs.prompt).toContain("**build:**");
     expect(callArgs.prompt).toContain("Failed");
+  });
+
+  describe("conflict resolution (Tier 2)", () => {
+    const originalEnv = process.env;
+
+    beforeEach(() => {
+      process.env = { ...originalEnv };
+      delete process.env.NON_TRIVIAL_FILES;
+      readFileSync.mockReturnValue("<<<<<<< HEAD\nours\n=======\ntheirs\n>>>>>>> main");
+      runCopilotTask.mockResolvedValue({
+        tokensUsed: 120,
+        inputTokens: 100,
+        outputTokens: 20,
+        cost: 0.01,
+      });
+    });
+
+    afterEach(() => {
+      process.env = originalEnv;
+    });
+
+    it("routes to resolveConflicts when NON_TRIVIAL_FILES is set", async () => {
+      process.env.NON_TRIVIAL_FILES = "src/main.js";
+      const ctx = createMockContext();
+
+      const result = await fixCode(ctx);
+
+      expect(result.outcome).toBe("conflicts-resolved");
+      expect(result.tokensUsed).toBe(120);
+      expect(result.model).toBe("claude-sonnet-4");
+      expect(result.details).toContain("1 conflicted file(s)");
+      expect(result.details).toContain("PR #99");
+    });
+
+    it("sends conflict markers in prompt to LLM", async () => {
+      process.env.NON_TRIVIAL_FILES = "src/main.js";
+      const ctx = createMockContext();
+
+      await fixCode(ctx);
+
+      const callArgs = runCopilotTask.mock.calls[0][0];
+      expect(callArgs.prompt).toContain("Resolve Merge Conflicts");
+      expect(callArgs.prompt).toContain("src/main.js");
+      expect(callArgs.prompt).toContain("<<<<<<< HEAD");
+      expect(callArgs.systemMessage).toContain("merge conflicts");
+      expect(callArgs.systemMessage).toContain("#99");
+    });
+
+    it("handles multiple conflicted files", async () => {
+      process.env.NON_TRIVIAL_FILES = "src/a.js\nsrc/b.js\nsrc/c.js";
+      const ctx = createMockContext();
+
+      const result = await fixCode(ctx);
+
+      expect(result.details).toContain("3 conflicted file(s)");
+      expect(readFileSync).toHaveBeenCalledTimes(3);
+      const callArgs = runCopilotTask.mock.calls[0][0];
+      expect(callArgs.prompt).toContain("src/a.js");
+      expect(callArgs.prompt).toContain("src/b.js");
+      expect(callArgs.prompt).toContain("src/c.js");
+    });
+
+    it("returns nop when NON_TRIVIAL_FILES is set but empty", async () => {
+      process.env.NON_TRIVIAL_FILES = "  \n  \n  ";
+      const ctx = createMockContext();
+
+      const result = await fixCode(ctx);
+
+      expect(result.outcome).toBe("nop");
+      expect(result.details).toContain("No non-trivial conflict files");
+      expect(runCopilotTask).not.toHaveBeenCalled();
+    });
+
+    it("handles unreadable conflicted files gracefully", async () => {
+      process.env.NON_TRIVIAL_FILES = "src/missing.js";
+      readFileSync.mockImplementation(() => {
+        throw new Error("ENOENT");
+      });
+      const ctx = createMockContext();
+
+      const result = await fixCode(ctx);
+
+      expect(result.outcome).toBe("conflicts-resolved");
+      const callArgs = runCopilotTask.mock.calls[0][0];
+      expect(callArgs.prompt).toContain("(could not read)");
+    });
+
+    it("skips conflict resolution and checks for failing checks when NON_TRIVIAL_FILES is not set", async () => {
+      // NON_TRIVIAL_FILES not set — should fall through to failing checks path
+      const octokit = createMockOctokit();
+      octokit.rest.checks.listForRef.mockResolvedValue({
+        data: { check_runs: [] },
+      });
+      const ctx = createMockContext({ octokit });
+
+      const result = await fixCode(ctx);
+
+      expect(result.outcome).toBe("nop");
+      expect(result.details).toBe("No failing checks found");
+    });
+
+    it("uses custom instructions for conflict resolution when provided", async () => {
+      process.env.NON_TRIVIAL_FILES = "src/main.js";
+      const ctx = createMockContext({ instructions: "Always prefer the PR version." });
+
+      await fixCode(ctx);
+
+      const callArgs = runCopilotTask.mock.calls[0][0];
+      expect(callArgs.prompt).toContain("Always prefer the PR version.");
+    });
   });
 });
