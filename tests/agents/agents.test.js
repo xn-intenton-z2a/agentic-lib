@@ -35,12 +35,10 @@ describe("src/agents", () => {
       expect(config.paths).toBeTruthy();
     });
 
-    it("has build/test/main scripts", () => {
+    it("has test script", () => {
       const content = readFileSync(join(AGENTS_DIR, "agentic-lib.yml"), "utf8");
       config = yaml.load(content);
-      expect(config.buildScript).toBeTruthy();
       expect(config.testScript).toBeTruthy();
-      expect(config.mainScript).toBeTruthy();
     });
   });
 

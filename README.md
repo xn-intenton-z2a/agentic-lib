@@ -172,9 +172,7 @@ contributing = "CONTRIBUTING.md"
 library-sources = "SOURCES.md"
 
 [execution]
-build = "npm run build"
-test = "npm test"
-start = "npm run start"
+test = "npm ci && npm test"
 
 [limits]
 max-feature-issues = 2

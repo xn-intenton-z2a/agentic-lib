@@ -559,7 +559,7 @@ jobs:
           config: ${{ needs.params.outputs.config-path }}
           instructions: ".github/agentic-lib/agents/agent-apply-fix.md"
           pr-number: ${{ env.FIX_PR_NUMBER }}
-          test-command: "npm test"
+          # test-command read from [execution].test in agentic-lib.toml
           model: ${{ needs.params.outputs.model }}
 
       - name: Commit and push fixes
@@ -710,7 +710,7 @@ jobs:
           task: "transform"
           config: ${{ needs.params.outputs.config-path }}
           instructions: ".github/agentic-lib/agents/agent-issue-resolution.md"
-          test-command: "npm test"
+          # test-command read from [execution].test in agentic-lib.toml
           model: ${{ needs.params.outputs.model }}
           issue-number: ${{ steps.issue.outputs.issue-number }}
           writable-paths: ${{ steps.config.outputs.writablePaths }}

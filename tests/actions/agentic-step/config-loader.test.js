@@ -99,9 +99,7 @@ describe("config-loader", () => {
       const config = loadConfig(configPath);
       expect(config.supervisor).toBe("weekly");
       expect(config.model).toBe("gpt-5-mini");
-      expect(config.buildScript).toBe("npm run build");
-      expect(config.testScript).toBe("npm test");
-      expect(config.mainScript).toBe("npm run start");
+      expect(config.testScript).toBe("npm ci && npm test");
       expect(config.featureDevelopmentIssuesWipLimit).toBe(2);
       expect(config.maintenanceIssuesWipLimit).toBe(1);
       expect(config.attemptsPerBranch).toBe(3);
@@ -147,17 +145,12 @@ describe("config-loader", () => {
       expect(config.readOnlyPaths).toContain("MISSION.md");
     });
 
-    it("parses execution scripts", () => {
+    it("parses execution test script", () => {
       const configPath = join(tmpDir, "config.toml");
-      writeFileSync(
-        configPath,
-        ["[execution]", 'build = "make build"', 'test = "make test"', 'start = "node app.js"'].join("\n"),
-      );
+      writeFileSync(configPath, '[execution]\ntest = "make ci-test"\n');
 
       const config = loadConfig(configPath);
-      expect(config.buildScript).toBe("make build");
-      expect(config.testScript).toBe("make test");
-      expect(config.mainScript).toBe("node app.js");
+      expect(config.testScript).toBe("make ci-test");
     });
 
     it("parses limits", () => {

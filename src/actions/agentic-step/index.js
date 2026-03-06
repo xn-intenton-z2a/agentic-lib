@@ -43,7 +43,7 @@ async function run() {
     const issueNumber = core.getInput("issue-number");
     const prNumber = core.getInput("pr-number");
     const writablePathsOverride = core.getInput("writable-paths");
-    const testCommand = core.getInput("test-command");
+    const testCommandInput = core.getInput("test-command");
     const discussionUrl = core.getInput("discussion-url");
     const model = core.getInput("model");
 
@@ -52,6 +52,7 @@ async function run() {
     // Load config
     const config = loadConfig(configPath);
     const writablePaths = getWritablePaths(config, writablePathsOverride);
+    const testCommand = testCommandInput || config.testScript;
 
     // Load instructions if provided
     let instructions = "";

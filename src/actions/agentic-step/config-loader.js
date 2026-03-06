@@ -22,9 +22,7 @@ import { parse as parseToml } from "smol-toml";
  * @property {string} supervisor - Supervisor frequency (off | weekly | daily | hourly | continuous)
  * @property {string} model - Copilot SDK model for LLM requests
  * @property {Object<string, PathConfig>} paths - Mapped paths with permissions
- * @property {string} buildScript - Build command
- * @property {string} testScript - Test command
- * @property {string} mainScript - Main entry command
+ * @property {string} testScript - Self-contained test command (e.g. "npm ci && npm test")
  * @property {number} featureDevelopmentIssuesWipLimit - Max concurrent feature issues
  * @property {number} maintenanceIssuesWipLimit - Max concurrent maintenance issues
  * @property {number} attemptsPerBranch - Max attempts per branch
@@ -262,9 +260,7 @@ export function loadConfig(configPath) {
     model: toml.tuning?.model || toml.schedule?.model || "gpt-5-mini",
     tuning,
     paths,
-    buildScript: execution.build || "npm run build",
-    testScript: execution.test || "npm test",
-    mainScript: execution.start || "npm run start",
+    testScript: execution.test || "npm ci && npm test",
     featureDevelopmentIssuesWipLimit: resolvedLimits.featureIssues,
     maintenanceIssuesWipLimit: resolvedLimits.maintenanceIssues,
     attemptsPerBranch: resolvedLimits.attemptsPerBranch,

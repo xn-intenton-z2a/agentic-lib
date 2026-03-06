@@ -22,9 +22,7 @@ contributing = "test/CONTRIBUTING.md"           #@dist "CONTRIBUTING.md"
 library-sources = "test/SOURCES.md"             #@dist "SOURCES.md"
 
 [execution]
-build = "npm run build"
-test = "npm test"
-start = "npm run start"
+test = "npm ci && npm test"
 
 [limits]
 # Override profile defaults here. Omit to use the active profile's values.
