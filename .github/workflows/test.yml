@@ -15,13 +15,14 @@
 #     test-cli-transform          — CLI transform
 #     test-cli-maintain-features  — CLI maintain-features
 #     test-cli-maintain-library   — CLI maintain-library
-#   Init pipeline (6 jobs — deterministic, no Copilot token needed):
+#   Init pipeline (7 jobs — deterministic, no Copilot token needed):
 #     test-init-idempotency      — init --purge twice produces no diff
 #     test-seeded-npm-test       — seeded workspace npm test passes
 #     test-dist-yaml-validity    — #@dist transform produces valid YAML
 #     test-init-update-mode      — update mode preserves user content
 #     test-stale-workflow-cleanup — stale workflows are removed
 #     test-all-missions-seed     — all 11 mission seeds work
+#     test-mcp-server            — MCP server starts, lists tools, responds to calls
 #   Workflow dry-runs (7 jobs — call distributable workflows in inert mode):
 #     test-workflow-maintain  — agentic-lib-workflow maintain-only
 #     test-workflow-review   — agentic-lib-workflow review-only
@@ -547,6 +548,19 @@ jobs:
             exit 1
           fi
           echo "All missions seed successfully"
+
+  test-mcp-server:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: "npm"
+      - run: npm ci
+      - name: MCP server integration test
+        run: node scripts/test-mcp-server.js
 
   # ─── Workflow dry-run tests: call distributable workflows ──────────
   #
