@@ -8,7 +8,9 @@
 # Manual release: workflow_dispatch with major/minor/prerelease choice.
 
 name: release
-concurrency: agentic-lib-release
+concurrency:
+  group: agentic-lib-release
+  cancel-in-progress: false
 run-name: "release [${{ github.ref_name }}] ${{ inputs.versionIncrement || 'patch (auto)' }}"
 
 on:

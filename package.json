@@ -70,7 +70,9 @@
   "files": [
     "package.json",
     "bin/",
-    "src/workflows/",
+    "src/dist-transform.js",
+    ".github/workflows/agentic-lib-*.yml",
+    "agentic-lib.toml",
     "src/actions/agentic-step/*.js",
     "src/actions/agentic-step/*.yml",
     "src/actions/agentic-step/*.json",

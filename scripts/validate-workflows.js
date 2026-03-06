@@ -3,7 +3,7 @@
 // Copyright (C) 2025-2026 Polycode Limited
 // validate-workflows.js — Validate GitHub Actions workflow files
 //
-// Loads all .yml files from .github/workflows/ and src/workflows/,
+// Loads all .yml files from .github/workflows/,
 // parses them (stripping GHA expressions), and checks required fields.
 
 import { readFileSync, readdirSync, existsSync } from "fs";
@@ -12,7 +12,7 @@ import yaml from "js-yaml";
 
 const ROOT = join(import.meta.dirname, "..");
 
-const WORKFLOW_DIRS = [join(ROOT, ".github/workflows"), join(ROOT, "src/workflows")];
+const WORKFLOW_DIRS = [join(ROOT, ".github/workflows")];
 
 function stripForYaml(content) {
   return content.replace(/\$\{\{[^}]*\}\}/g, "x").replace(/^(\s*run:\s*)(?!['"|>])([^\n]*:[^\n]*)$/gm, "$1'$2'"); // eslint-disable-line sonarjs/slow-regex

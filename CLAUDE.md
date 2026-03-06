@@ -56,9 +56,8 @@ Running `npx @xn-intenton-z2a/agentic-lib init --purge` in a consumer repo copie
 
 | Source in agentic-lib | Target in consumer repo | Notes |
 |-----------------------|-------------------------|-------|
-| `src/workflows/*.yml` | `.github/workflows/` | 8 workflow files |
-| `src/seeds/test.yml` | `.github/workflows/test.yml` | Seed workflow |
-| `src/seeds/init.yml` | `.github/workflows/init.yml` | Seed workflow |
+| `.github/workflows/agentic-lib-*.yml` | `.github/workflows/` | 5 workflow files (transformed via `#@dist` markers) |
+| `agentic-lib.toml` | `agentic-lib.toml` | Config file (transformed via `#@dist` markers, only if not exists) |
 | `src/actions/*/` | `.github/agentic-lib/actions/` | 3 actions (agentic-step, commit-if-changed, setup-npmrc) |
 | `src/agents/*` | `.github/agentic-lib/agents/` | Agent config + prompts |
 | `src/seeds/*` | `.github/agentic-lib/seeds/` | All seed files (for reference) |

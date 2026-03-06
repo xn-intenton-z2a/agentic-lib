@@ -1,0 +1,39 @@
+# SPDX-License-Identifier: GPL-3.0-only
+# Copyright (C) 2025-2026 Polycode Limited
+# agentic-lib.toml — Configuration for agentic-lib workflows
+#
+# Locally: paths point to test/ so dry-run workflows operate on test fixtures.
+# During init: #@dist transforms restore standard paths for consumer repos.
+
+[schedule]
+supervisor = "daily"              # off | weekly | daily | hourly | continuous
+model = "gpt-5-mini"              # gpt-5-mini | claude-sonnet-4 | gpt-4.1
+
+[paths]
+mission = "test/MISSION.md"                     #@dist "MISSION.md"
+source = "test/src/lib/"                        #@dist "src/lib/"
+tests = "test/tests/unit/"                      #@dist "tests/unit/"
+features = "test/features/"                     #@dist "features/"
+library = "test/library/"                       #@dist "library/"
+docs = "test/docs/"                             #@dist "docs/"
+examples = "test/examples/"                     #@dist "examples/"
+readme = "test/README.md"                       #@dist "README.md"
+dependencies = "test/package.json"              #@dist "package.json"
+contributing = "test/CONTRIBUTING.md"           #@dist "CONTRIBUTING.md"
+library-sources = "test/SOURCES.md"             #@dist "SOURCES.md"
+
+[execution]
+build = "npm run build"
+test = "npm test"
+start = "npm run start"
+
+[limits]
+feature-issues = 2
+maintenance-issues = 1
+attempts-per-branch = 3
+attempts-per-issue = 2
+features-limit = 2
+library-limit = 32
+
+[bot]
+log-file = "test/intentïon.md"                  #@dist "intentïon.md"

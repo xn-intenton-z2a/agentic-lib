@@ -5,10 +5,10 @@ import { readFileSync, readdirSync } from "fs";
 import { join } from "path";
 import yaml from "js-yaml";
 
-const WORKFLOWS_DIR = join(import.meta.dirname, "../../src/workflows");
+const WORKFLOWS_DIR = join(import.meta.dirname, "../../.github/workflows");
 
 const workflowFiles = readdirSync(WORKFLOWS_DIR)
-  .filter((f) => f.endsWith(".yml"))
+  .filter((f) => f.startsWith("agentic-lib-") && f.endsWith(".yml"))
   .sort();
 
 /**
@@ -26,9 +26,9 @@ function stripForYaml(content) {
   );
 }
 
-describe("src/workflows", () => {
-  it("has 3 workflow files", () => {
-    expect(workflowFiles).toHaveLength(3);
+describe(".github/workflows (distributable)", () => {
+  it("has 5 workflow files", () => {
+    expect(workflowFiles).toHaveLength(5);
   });
 
   describe.each(workflowFiles)("%s", (filename) => {
