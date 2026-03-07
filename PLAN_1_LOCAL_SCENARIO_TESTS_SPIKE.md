@@ -321,18 +321,146 @@ process.exit(pass ? 0 : 1);
 
 ## Spike Results
 
-_To be filled in after running the spike._
+### Run 1: SmolLM2-360M-Instruct Q8_0
 
 ```
-Date:
-Platform:
-node-llama-cpp version:
-Model:
-Model load time:
-Prompt time:
-Tool calls:
-File changed:
-Valid JS:
-Verdict:
-Notes:
+Date:           2026-03-07
+Platform:       macOS Darwin 25.3.0
+node-llama-cpp: 3.17.1
+Model:          hf:bartowski/SmolLM2-360M-Instruct-GGUF:Q8_0 (386MB)
+Model load:     0.4s (cached), 8.4s (first load with download)
+Prompt time:    1.0-5.7s
+Tool calls:     0
+File changed:   NO
+Valid JS:       YES (unchanged)
+Verdict:        FAILED — model does NOT engage with function calling at all
+Notes:          Model responds with text describing what it would do, never
+                actually invokes tools. Tried explicit prompts ("Call the
+                read_file function..."), temperature 0, single-tool prompts.
+                Grammar-constrained generation doesn't help if the model
+                never decides to call a function in the first place.
 ```
+
+### Run 2: Qwen2.5-0.5B-Instruct Q8_0
+
+```
+Date:           2026-03-07
+Platform:       macOS Darwin 25.3.0
+node-llama-cpp: 3.17.1
+Model:          hf:Qwen/Qwen2.5-0.5B-Instruct-GGUF:Q8_0 (676MB)
+Model load:     12.2s (first load with download)
+Prompt time:    2.7s
+Tool calls:     1 (read_file only)
+File changed:   NO
+Valid JS:       YES (unchanged)
+Verdict:        PARTIAL — calls read_file but not write_file
+Notes:          Model calls read_file correctly, reads the file, then
+                describes the contents in text instead of calling write_file.
+                Better than SmolLM2 but still insufficient.
+```
+
+### Run 3: Llama-3.2-1B-Instruct Q4_K_M
+
+```
+Date:           2026-03-07
+Platform:       macOS Darwin 25.3.0
+node-llama-cpp: 3.17.1
+Model:          hf:bartowski/Llama-3.2-1B-Instruct-GGUF:Q4_K_M (808MB)
+Model load:     3.3-16.3s
+Prompt time:    11.8-84.8s
+Tool calls:     5-55 (excessive looping)
+File changed:   YES
+Valid JS:       NO
+Verdict:        PARTIAL — calls tools but loops, writes JSON responses as content
+Notes:          First write_file was 78 chars: the JSON response from read_file
+                echoed back as file content. Then loops read/write with 1-char
+                writes. Function calling MECHANICS work but model cannot
+                produce meaningful content. Needs maxTokens cap to prevent
+                infinite loop.
+```
+
+### Run 4: Llama-3.2-3B-Instruct Q4_K_M
+
+```
+Date:           2026-03-07
+Platform:       macOS Darwin 25.3.0
+node-llama-cpp: 3.17.1
+Model:          hf:bartowski/Llama-3.2-3B-Instruct-GGUF:Q4_K_M (2.02GB)
+Model load:     9.2s (cached)
+Prompt time:    28.7-71.9s
+Tool calls:     6-21 (still loops but less)
+File changed:   YES
+Has 'hello':    YES
+Valid JS:       NO
+Verdict:        BEST RESULT — function calling works, semantic intent correct, content garbled
+Notes:          Model correctly calls read_file then write_file. Content shows
+                understanding of the task — writes "hello()" and "Hello, World!"
+                but garbles the content with JSON fragments, escaped strings,
+                and partial writes. Final file content:
+                  Hello, World!\nexport function hello() { return
+                The model understands WHAT to write but cannot cleanly encode
+                multi-line JS as a JSON string parameter. This is a fundamental
+                limitation of small models with grammar-constrained generation.
+```
+
+### Run 5: Llama-3.2-3B-Instruct Q4_K_M — plain-string tool returns (THE FIX)
+
+```
+Date:           2026-03-07
+Platform:       macOS Darwin 25.3.0
+node-llama-cpp: 3.17.1
+Model:          hf:bartowski/Llama-3.2-3B-Instruct-GGUF:Q4_K_M (2.02GB)
+Model load:     10.0s (cached)
+Prompt time:    26.3s
+Tool calls:     7 (2 reads, 1 bad read, 2 writes, 2 re-reads)
+File changed:   YES
+Has 'hello':    YES
+Valid JS:       YES <<<
+Verdict:        PASSED — correct, valid JavaScript produced
+Notes:          THE KEY FIX: return plain strings from tool handlers instead of
+                JSON.stringify({content: ...}). The JSON-wrapped returns in
+                runs 3-4 confused the model into echoing JSON as file content.
+                With plain strings, the second write_file call produced:
+                  export function hello() {
+                    return "Hello, World!";
+                  }
+                Perfect JavaScript. Model still makes some extra reads (7 calls
+                instead of 2) but the output is correct.
+```
+
+## Conclusions
+
+### What Works
+1. **node-llama-cpp installs cleanly** — 4s, prebuilt binaries, zero compilation
+2. **Model download via resolveModelFile() works perfectly** — auto-downloads from HuggingFace
+3. **node-llama-cpp API is correct** — defineChatSessionFunction, session.prompt({functions}), all as documented
+4. **Llama-3.2-3B-Instruct produces correct tool calls and valid JavaScript** — with plain-string tool returns
+5. **Model load is fast on cached models** — 10s for 2GB model
+
+### Critical Finding: Tool Return Format
+
+**Tool handlers MUST return plain strings, not JSON.** When handlers returned `JSON.stringify({content: "..."})`, the model echoed the JSON wrapper as file content. When handlers return the raw string, the model produces correct content.
+
+This means the `createCliTools()` in `bin/agentic-lib.js` and the tool definitions in the main plan need to return plain strings for the local LLM path.
+
+### What Needs Tuning
+1. **Extra tool calls** — model makes 7 calls instead of 2, but produces correct output
+2. **Occasional garbled read paths** — e.g. `read_file("main.js}}assistant{")` but recovers
+3. **~26s per prompt on CPU** — acceptable for scenario tests but not fast
+
+### Model Selection
+
+| Model | Function Calling | Content Quality | Speed | Verdict |
+|-------|-----------------|----------------|-------|---------|
+| SmolLM2-360M | None | N/A | <3s | Unusable |
+| Qwen2.5-0.5B | Partial (read only) | N/A | <3s | Unusable |
+| Llama-3.2-1B | Works but loops | Garbage | 12s | Unusable |
+| **Llama-3.2-3B** | **Works** | **Correct JS** | **26s** | **Use this** |
+
+### Recommendation
+
+**Proceed with the main plan using Llama-3.2-3B-Instruct Q4_K_M** as the default model. Key adjustments:
+- Default model URI: `hf:bartowski/Llama-3.2-3B-Instruct-GGUF:Q4_K_M` (2GB)
+- Tool handlers must return plain strings (not JSON)
+- Performance budget: ~30s per scenario, ~90s for full suite
+- Override model via `LOCAL_LLM_MODEL_URI` env var for experimentation

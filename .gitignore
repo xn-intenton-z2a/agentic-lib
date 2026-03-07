@@ -116,5 +116,9 @@ web_modules/
 /result.json
 .env
 
+# Local LLM models (large binary files)
+models/
+*.gguf
+
 # Claude Code inter-session messages (ephemeral, not committed)
 .claude/
