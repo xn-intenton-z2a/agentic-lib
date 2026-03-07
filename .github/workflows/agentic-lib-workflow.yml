@@ -293,44 +293,10 @@ jobs:
     outputs:
       telemetry: ${{ steps.gather.outputs.telemetry }}
 
-  # ─── Supervisor: LLM decides what to do ─────────────────────────────
-  supervisor:
-    needs: [params, pr-cleanup, telemetry]
-    if: |
-      always() &&
-      (needs.params.outputs.mode == 'full' || needs.params.outputs.mode == 'dev-only') &&
-      needs.params.result == 'success'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v6
-
-      - uses: actions/setup-node@v6
-        with:
-          node-version: "24"
-
-      - name: Self-init (agentic-lib dev only)
-        if: hashFiles('scripts/self-init.sh') != '' && hashFiles('.github/agentic-lib/actions/agentic-step/package.json') == ''
-        run: bash scripts/self-init.sh
-
-      - name: Install agentic-step dependencies
-        working-directory: .github/agentic-lib/actions/agentic-step
-        run: npm ci
-
-      - name: Run supervisor
-        if: github.repository != 'xn-intenton-z2a/agentic-lib'
-        uses: ./.github/agentic-lib/actions/agentic-step
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
-        with:
-          task: "supervise"
-          config: ${{ needs.params.outputs.config-path }}
-          instructions: ".github/agentic-lib/agents/agent-supervisor.md"
-          model: ${{ needs.params.outputs.model }}
-
   # ─── Maintain: features + library (push to main) ───────────────────
+  # Runs early (parallel with pr-cleanup/telemetry) so supervisor sees features.
   maintain:
-    needs: [params, supervisor]
+    needs: [params]
     if: |
       always() &&
       (needs.params.outputs.mode == 'full' || needs.params.outputs.mode == 'maintain-only') &&
@@ -415,6 +381,41 @@ jobs:
         with:
           commit-message: "agentic-step: maintain features and library"
           push-ref: ${{ github.ref_name }}
+
+  # ─── Supervisor: LLM decides what to do (after maintain has features) ──
+  supervisor:
+    needs: [params, pr-cleanup, telemetry, maintain]
+    if: |
+      always() &&
+      (needs.params.outputs.mode == 'full' || needs.params.outputs.mode == 'dev-only') &&
+      needs.params.result == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+
+      - name: Self-init (agentic-lib dev only)
+        if: hashFiles('scripts/self-init.sh') != '' && hashFiles('.github/agentic-lib/actions/agentic-step/package.json') == ''
+        run: bash scripts/self-init.sh
+
+      - name: Install agentic-step dependencies
+        working-directory: .github/agentic-lib/actions/agentic-step
+        run: npm ci
+
+      - name: Run supervisor
+        if: github.repository != 'xn-intenton-z2a/agentic-lib'
+        uses: ./.github/agentic-lib/actions/agentic-step
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
+        with:
+          task: "supervise"
+          config: ${{ needs.params.outputs.config-path }}
+          instructions: ".github/agentic-lib/agents/agent-supervisor.md"
+          model: ${{ needs.params.outputs.model }}
 
   # ─── Fix stuck PRs with failing checks ─────────────────────────────
   fix-stuck:
@@ -579,7 +580,7 @@ jobs:
 
   # ─── Review: close resolved issues, enhance with criteria ──────────
   review-features:
-    needs: [params, maintain]
+    needs: [params, supervisor]
     if: |
       always() &&
       (needs.params.outputs.mode == 'full' || needs.params.outputs.mode == 'review-only') &&
