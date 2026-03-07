@@ -18,6 +18,8 @@ vi.mock("../../../../src/actions/agentic-step/copilot.js", () => ({
   readOptionalFile: vi.fn().mockReturnValue("mock content"),
   scanDirectory: vi.fn().mockReturnValue([]),
   formatPathsSection: vi.fn().mockReturnValue("## File Paths\n- mock"),
+  extractNarrative: vi.fn().mockImplementation((_content, fallback) => fallback || ""),
+  NARRATIVE_INSTRUCTION: "\n\nAfter completing your task, end your response with a line starting with [NARRATIVE]...",
 }));
 
 // Mock child_process

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 // Copyright (C) 2025-2026 Polycode Limited
 import { describe, it, expect, afterEach } from "vitest";
-import { buildClientOptions } from "../../../src/actions/agentic-step/copilot.js";
+import { buildClientOptions, extractNarrative, NARRATIVE_INSTRUCTION } from "../../../src/actions/agentic-step/copilot.js";
 
 describe("buildClientOptions", () => {
   let originalToken;
@@ -54,5 +54,35 @@ describe("buildClientOptions", () => {
     // The env should contain the original process.env keys plus overrides
     expect(opts.env.GITHUB_TOKEN).toBe("ghp_test");
     expect(opts.env.GH_TOKEN).toBe("ghp_test");
+  });
+});
+
+describe("extractNarrative", () => {
+  it("extracts [NARRATIVE] line from response", () => {
+    const content = "I wrote some code.\n[NARRATIVE] Created a fizz-buzz implementation with 3 functions.";
+    expect(extractNarrative(content)).toBe("Created a fizz-buzz implementation with 3 functions.");
+  });
+
+  it("returns fallback when no [NARRATIVE] tag present", () => {
+    const content = "I wrote some code but no narrative tag.";
+    expect(extractNarrative(content, "Fallback sentence.")).toBe("Fallback sentence.");
+  });
+
+  it("returns empty string when no content and no fallback", () => {
+    expect(extractNarrative("")).toBe("");
+    expect(extractNarrative(null)).toBe("");
+    expect(extractNarrative(undefined)).toBe("");
+  });
+
+  it("handles [NARRATIVE] tag mid-content", () => {
+    const content = "Line one.\nLine two.\n[NARRATIVE] Did the thing.\nLine four.";
+    expect(extractNarrative(content)).toBe("Did the thing.");
+  });
+});
+
+describe("NARRATIVE_INSTRUCTION", () => {
+  it("is a non-empty string containing [NARRATIVE]", () => {
+    expect(typeof NARRATIVE_INSTRUCTION).toBe("string");
+    expect(NARRATIVE_INSTRUCTION).toContain("[NARRATIVE]");
   });
 });

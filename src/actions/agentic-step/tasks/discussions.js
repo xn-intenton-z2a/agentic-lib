@@ -336,6 +336,7 @@ export async function discussions(context) {
     cost,
     model,
     details: `Action: ${action}${argSuffix}\nReply: ${replyBody.substring(0, 200)}`,
+    narrative: `Responded to discussion with action ${action}${argSuffix}.`,
     action,
     actionArg,
     replyBody,

@@ -6,7 +6,7 @@
 // prunes completed/irrelevant features, and ensures quality.
 
 import { existsSync } from "fs";
-import { runCopilotTask, readOptionalFile, scanDirectory, formatPathsSection, extractFeatureSummary } from "../copilot.js";
+import { runCopilotTask, readOptionalFile, scanDirectory, formatPathsSection, extractFeatureSummary, extractNarrative, NARRATIVE_INSTRUCTION } from "../copilot.js";
 import { checkWipLimit } from "../safety.js";
 
 /**
@@ -83,10 +83,10 @@ export async function maintainFeatures(context) {
     "- Feature files must be markdown with a descriptive filename (e.g. HTTP_SERVER.md)",
   ].join("\n");
 
-  const { tokensUsed, inputTokens, outputTokens, cost } = await runCopilotTask({
+  const { content: resultContent, tokensUsed, inputTokens, outputTokens, cost } = await runCopilotTask({
     model,
     systemMessage:
-      "You are a feature lifecycle manager. Create, update, and prune feature specification files to keep the project focused on its mission.",
+      "You are a feature lifecycle manager. Create, update, and prune feature specification files to keep the project focused on its mission." + NARRATIVE_INSTRUCTION,
     prompt,
     writablePaths,
     tuning: t,
@@ -100,5 +100,6 @@ export async function maintainFeatures(context) {
     cost,
     model,
     details: `Maintained features (${features.length} existing, limit ${featureLimit})`,
+    narrative: extractNarrative(resultContent, `Maintained ${features.length} features (limit ${featureLimit}).`),
   };
 }

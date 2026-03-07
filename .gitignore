@@ -122,3 +122,4 @@ models/
 
 # Claude Code inter-session messages (ephemeral, not committed)
 .claude/
+/models/

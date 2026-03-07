@@ -399,6 +399,28 @@ async function _runCopilotTaskOnce({
 }
 
 /**
+ * Extract a [NARRATIVE] line from an LLM response.
+ * Returns the text after the tag, or a fallback summary.
+ *
+ * @param {string} content - Raw LLM response content
+ * @param {string} [fallback] - Fallback if no [NARRATIVE] tag found
+ * @returns {string} The narrative sentence
+ */
+export function extractNarrative(content, fallback) {
+  if (!content) return fallback || "";
+  const match = content.match(/\[NARRATIVE\]\s*(.+)/);
+  if (match) return match[1].trim();
+  return fallback || "";
+}
+
+/**
+ * Narrative solicitation to append to system messages.
+ * Asks the LLM to end its response with a one-sentence summary.
+ */
+export const NARRATIVE_INSTRUCTION =
+  "\n\nAfter completing your task, end your response with a line starting with [NARRATIVE] followed by one plain English sentence describing what you did and why, for the activity log.";
+
+/**
  * Read a file, returning empty string on failure. For optional context files.
  *
  * @param {string} filePath - Path to read
