@@ -10,6 +10,18 @@ of the codebase's primary purpose.
 
 Do as much as you can all at once.
 
+## Tests Must Pass
+
+Your changes MUST leave all existing tests passing. If you change function signatures, return values, or
+output formats, you MUST also update the corresponding tests. The mission's acceptance criteria are the
+source of truth for expected values — if tests and acceptance criteria disagree, fix the tests to match
+the acceptance criteria and fix the code to pass those tests.
+
+When writing both tests and implementation:
+- Write tests that match the acceptance criteria in MISSION.md exactly (casing, types, error classes)
+- Ensure the implementation passes those tests before delivering
+- Do not write tests with different expectations than the implementation produces
+
 Follow the linting guidelines and the formatting guidelines from the included config.
 
 ## Evidence Gathering
