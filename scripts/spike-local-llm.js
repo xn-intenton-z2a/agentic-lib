@@ -61,8 +61,8 @@ const functions = {
       const resolved = resolve(workspace, path);
       console.log(`  [tool] read_file("${path}")`);
       toolCalls.push({ tool: "read_file", path });
-      if (!existsSync(resolved)) return JSON.stringify({ error: `Not found: ${path}` });
-      return JSON.stringify({ content: readFileSync(resolved, "utf8") });
+      if (!existsSync(resolved)) return `Error: file not found: ${path}`;
+      return readFileSync(resolved, "utf8");
     }
   }),
 
@@ -83,7 +83,7 @@ const functions = {
       const dir = dirname(resolved);
       if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
       writeFileSync(resolved, content, "utf8");
-      return JSON.stringify({ success: true });
+      return "File written successfully.";
     }
   })
 };

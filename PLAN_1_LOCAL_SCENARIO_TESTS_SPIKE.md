@@ -403,45 +403,64 @@ Notes:          Model correctly calls read_file then write_file. Content shows
                 limitation of small models with grammar-constrained generation.
 ```
 
+### Run 5: Llama-3.2-3B-Instruct Q4_K_M — plain-string tool returns (THE FIX)
+
+```
+Date:           2026-03-07
+Platform:       macOS Darwin 25.3.0
+node-llama-cpp: 3.17.1
+Model:          hf:bartowski/Llama-3.2-3B-Instruct-GGUF:Q4_K_M (2.02GB)
+Model load:     10.0s (cached)
+Prompt time:    26.3s
+Tool calls:     7 (2 reads, 1 bad read, 2 writes, 2 re-reads)
+File changed:   YES
+Has 'hello':    YES
+Valid JS:       YES <<<
+Verdict:        PASSED — correct, valid JavaScript produced
+Notes:          THE KEY FIX: return plain strings from tool handlers instead of
+                JSON.stringify({content: ...}). The JSON-wrapped returns in
+                runs 3-4 confused the model into echoing JSON as file content.
+                With plain strings, the second write_file call produced:
+                  export function hello() {
+                    return "Hello, World!";
+                  }
+                Perfect JavaScript. Model still makes some extra reads (7 calls
+                instead of 2) but the output is correct.
+```
+
 ## Conclusions
 
 ### What Works
 1. **node-llama-cpp installs cleanly** — 4s, prebuilt binaries, zero compilation
 2. **Model download via resolveModelFile() works perfectly** — auto-downloads from HuggingFace
 3. **node-llama-cpp API is correct** — defineChatSessionFunction, session.prompt({functions}), all as documented
-4. **Llama-3.2 family engages with function calling** — 1B and 3B both call tools
-5. **Model load is fast on cached models** — 0.4-9.2s depending on model size
+4. **Llama-3.2-3B-Instruct produces correct tool calls and valid JavaScript** — with plain-string tool returns
+5. **Model load is fast on cached models** — 10s for 2GB model
 
-### What Doesn't Work
-1. **SmolLM2-360M does NOT call tools at all** — despite being trained on function calling data
-2. **Qwen2.5-0.5B only calls read, not write** — partial engagement
-3. **No tested model produces clean file content** — all garble the write_file content parameter
-4. **Small models loop excessively** — no natural stopping point, need explicit caps
-5. **3B model is slow on CPU** — 29-72s per prompt, too slow for scenario tests targeting 10-20s
+### Critical Finding: Tool Return Format
+
+**Tool handlers MUST return plain strings, not JSON.** When handlers returned `JSON.stringify({content: "..."})`, the model echoed the JSON wrapper as file content. When handlers return the raw string, the model produces correct content.
+
+This means the `createCliTools()` in `bin/agentic-lib.js` and the tool definitions in the main plan need to return plain strings for the local LLM path.
+
+### What Needs Tuning
+1. **Extra tool calls** — model makes 7 calls instead of 2, but produces correct output
+2. **Occasional garbled read paths** — e.g. `read_file("main.js}}assistant{")` but recovers
+3. **~26s per prompt on CPU** — acceptable for scenario tests but not fast
+
+### Model Selection
+
+| Model | Function Calling | Content Quality | Speed | Verdict |
+|-------|-----------------|----------------|-------|---------|
+| SmolLM2-360M | None | N/A | <3s | Unusable |
+| Qwen2.5-0.5B | Partial (read only) | N/A | <3s | Unusable |
+| Llama-3.2-1B | Works but loops | Garbage | 12s | Unusable |
+| **Llama-3.2-3B** | **Works** | **Correct JS** | **26s** | **Use this** |
 
 ### Recommendation
 
-The local LLM approach via node-llama-cpp has **proven the function calling mechanics work** but small models (<=3B) cannot produce the **semantically correct content** needed for scenario tests. The options are:
-
-**Option A: Larger model (7B+)**
-- Llama-3.2-8B or Qwen2.5-7B would likely produce correct content
-- ~4-5GB download, 60-120s per prompt on CPU — too slow for quick test suite
-- Only viable with GPU acceleration
-
-**Option B: Ollama backend**
-- HTTP API, user may already have larger models installed
-- Adds external dependency but can use any model size
-- No grammar-constrained generation (tool calls may be malformed)
-
-**Option C: Canned tool-call sequences (mock the LLM)**
-- Write scenario tests that replay pre-recorded tool call sequences
-- Proves the CLI plumbing, config loading, tool handlers, and path safety work
-- Does NOT prove an LLM can follow the prompts
-- Simplest to implement, fastest to run, most deterministic
-
-**Option D: Hybrid — canned tests + optional live LLM**
-- Default: canned tool-call sequences (deterministic, fast, no model needed)
-- Optional `--live` flag: use a real LLM (Ollama or node-llama-cpp with user-selected model)
-- Best of both worlds: CI runs canned tests, developers can test with real LLMs
-
-**Recommendation: Option D.** The spike has proven that the mechanics work and identified the model size threshold. The main plan should be updated to use canned sequences by default with an optional live mode for developers who want to test with a real LLM.
+**Proceed with the main plan using Llama-3.2-3B-Instruct Q4_K_M** as the default model. Key adjustments:
+- Default model URI: `hf:bartowski/Llama-3.2-3B-Instruct-GGUF:Q4_K_M` (2GB)
+- Tool handlers must return plain strings (not JSON)
+- Performance budget: ~30s per scenario, ~90s for full suite
+- Override model via `LOCAL_LLM_MODEL_URI` env var for experimentation
