@@ -347,6 +347,12 @@ async function executeDispatch(octokit, repo, actionName, params) {
   if (params["pr-number"]) inputs["pr-number"] = params["pr-number"];
   if (params["issue-number"]) inputs["issue-number"] = params["issue-number"];
 
+  // Guard: never dispatch workflows from the SDK repo itself (agentic-lib)
+  if (process.env.GITHUB_REPOSITORY === "xn-intenton-z2a/agentic-lib") {
+    core.info(`Skipping dispatch of ${workflowFile} — running in SDK repo`);
+    return `skipped:sdk-repo:${workflowFile}`;
+  }
+
   // Guard: skip transform dispatch if one is already running
   if (workflowFile === "agentic-lib-workflow.yml") {
     try {
@@ -428,6 +434,10 @@ async function executeRespondDiscussions(octokit, repo, params) {
   const message = params.message || "";
   const url = params["discussion-url"] || "";
   if (message) {
+    if (process.env.GITHUB_REPOSITORY === "xn-intenton-z2a/agentic-lib") {
+      core.info("Skipping bot dispatch — running in SDK repo");
+      return `skipped:sdk-repo:respond-discussions`;
+    }
     core.info(`Dispatching discussions bot with response: ${message.substring(0, 100)}`);
     const inputs = { message };
     if (url) inputs["discussion-url"] = url;
@@ -455,15 +465,17 @@ async function executeMissionComplete(octokit, repo, params) {
   ].join("\n");
   writeFileSync("MISSION_COMPLETE.md", signal);
   core.info(`Mission complete signal written: ${reason}`);
-  try {
-    await octokit.rest.actions.createWorkflowDispatch({
-      ...repo,
-      workflow_id: "agentic-lib-schedule.yml",
-      ref: "main",
-      inputs: { frequency: "off" },
-    });
-  } catch (err) {
-    core.warning(`Could not set schedule to off: ${err.message}`);
+  if (process.env.GITHUB_REPOSITORY !== "xn-intenton-z2a/agentic-lib") {
+    try {
+      await octokit.rest.actions.createWorkflowDispatch({
+        ...repo,
+        workflow_id: "agentic-lib-schedule.yml",
+        ref: "main",
+        inputs: { frequency: "off" },
+      });
+    } catch (err) {
+      core.warning(`Could not set schedule to off: ${err.message}`);
+    }
   }
   return `mission-complete:${reason.substring(0, 100)}`;
 }
@@ -481,15 +493,17 @@ async function executeMissionFailed(octokit, repo, params) {
   ].join("\n");
   writeFileSync("MISSION_FAILED.md", signal);
   core.info(`Mission failed signal written: ${reason}`);
-  try {
-    await octokit.rest.actions.createWorkflowDispatch({
-      ...repo,
-      workflow_id: "agentic-lib-schedule.yml",
-      ref: "main",
-      inputs: { frequency: "off" },
-    });
-  } catch (err) {
-    core.warning(`Could not set schedule to off: ${err.message}`);
+  if (process.env.GITHUB_REPOSITORY !== "xn-intenton-z2a/agentic-lib") {
+    try {
+      await octokit.rest.actions.createWorkflowDispatch({
+        ...repo,
+        workflow_id: "agentic-lib-schedule.yml",
+        ref: "main",
+        inputs: { frequency: "off" },
+      });
+    } catch (err) {
+      core.warning(`Could not set schedule to off: ${err.message}`);
+    }
   }
   return `mission-failed:${reason.substring(0, 100)}`;
 }
@@ -507,6 +521,10 @@ async function executeSetSchedule(octokit, repo, frequency) {
   const valid = ["off", "weekly", "daily", "hourly", "continuous"];
   if (!valid.includes(frequency)) {
     return `skipped:invalid-frequency:${frequency}`;
+  }
+  if (process.env.GITHUB_REPOSITORY === "xn-intenton-z2a/agentic-lib") {
+    core.info(`Skipping schedule dispatch — running in SDK repo`);
+    return `skipped:sdk-repo:set-schedule:${frequency}`;
   }
   core.info(`Setting supervisor schedule to: ${frequency}`);
   await octokit.rest.actions.createWorkflowDispatch({

@@ -284,33 +284,44 @@ export async function discussions(context) {
     }
   }
 
+  // Guard: never dispatch workflows from the SDK repo itself (agentic-lib)
+  const isSdkRepo = process.env.GITHUB_REPOSITORY === "xn-intenton-z2a/agentic-lib";
+
   // Request supervisor evaluation
   if (action === "request-supervisor") {
-    try {
-      await octokit.rest.actions.createWorkflowDispatch({
-        ...context.repo,
-        workflow_id: "agentic-lib-workflow.yml",
-        ref: "main",
-        inputs: { message: actionArg || "Discussion bot referral" },
-      });
-      core.info(`Dispatched supervisor with message: ${actionArg}`);
-    } catch (err) {
-      core.warning(`Failed to dispatch supervisor: ${err.message}`);
+    if (isSdkRepo) {
+      core.info("Skipping supervisor dispatch — running in SDK repo");
+    } else {
+      try {
+        await octokit.rest.actions.createWorkflowDispatch({
+          ...context.repo,
+          workflow_id: "agentic-lib-workflow.yml",
+          ref: "main",
+          inputs: { message: actionArg || "Discussion bot referral" },
+        });
+        core.info(`Dispatched supervisor with message: ${actionArg}`);
+      } catch (err) {
+        core.warning(`Failed to dispatch supervisor: ${err.message}`);
+      }
     }
   }
 
   // Stop automation
   if (action === "stop") {
-    try {
-      await octokit.rest.actions.createWorkflowDispatch({
-        ...context.repo,
-        workflow_id: "agentic-lib-schedule.yml",
-        ref: "main",
-        inputs: { frequency: "off" },
-      });
-      core.info("Automation stopped via discussions bot");
-    } catch (err) {
-      core.warning(`Failed to stop automation: ${err.message}`);
+    if (isSdkRepo) {
+      core.info("Skipping schedule dispatch — running in SDK repo");
+    } else {
+      try {
+        await octokit.rest.actions.createWorkflowDispatch({
+          ...context.repo,
+          workflow_id: "agentic-lib-schedule.yml",
+          ref: "main",
+          inputs: { frequency: "off" },
+        });
+        core.info("Automation stopped via discussions bot");
+      } catch (err) {
+        core.warning(`Failed to stop automation: ${err.message}`);
+      }
     }
   }
 
