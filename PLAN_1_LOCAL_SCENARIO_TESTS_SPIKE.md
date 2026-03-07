@@ -321,18 +321,127 @@ process.exit(pass ? 0 : 1);
 
 ## Spike Results
 
-_To be filled in after running the spike._
+### Run 1: SmolLM2-360M-Instruct Q8_0
 
 ```
-Date:
-Platform:
-node-llama-cpp version:
-Model:
-Model load time:
-Prompt time:
-Tool calls:
-File changed:
-Valid JS:
-Verdict:
-Notes:
+Date:           2026-03-07
+Platform:       macOS Darwin 25.3.0
+node-llama-cpp: 3.17.1
+Model:          hf:bartowski/SmolLM2-360M-Instruct-GGUF:Q8_0 (386MB)
+Model load:     0.4s (cached), 8.4s (first load with download)
+Prompt time:    1.0-5.7s
+Tool calls:     0
+File changed:   NO
+Valid JS:       YES (unchanged)
+Verdict:        FAILED — model does NOT engage with function calling at all
+Notes:          Model responds with text describing what it would do, never
+                actually invokes tools. Tried explicit prompts ("Call the
+                read_file function..."), temperature 0, single-tool prompts.
+                Grammar-constrained generation doesn't help if the model
+                never decides to call a function in the first place.
 ```
+
+### Run 2: Qwen2.5-0.5B-Instruct Q8_0
+
+```
+Date:           2026-03-07
+Platform:       macOS Darwin 25.3.0
+node-llama-cpp: 3.17.1
+Model:          hf:Qwen/Qwen2.5-0.5B-Instruct-GGUF:Q8_0 (676MB)
+Model load:     12.2s (first load with download)
+Prompt time:    2.7s
+Tool calls:     1 (read_file only)
+File changed:   NO
+Valid JS:       YES (unchanged)
+Verdict:        PARTIAL — calls read_file but not write_file
+Notes:          Model calls read_file correctly, reads the file, then
+                describes the contents in text instead of calling write_file.
+                Better than SmolLM2 but still insufficient.
+```
+
+### Run 3: Llama-3.2-1B-Instruct Q4_K_M
+
+```
+Date:           2026-03-07
+Platform:       macOS Darwin 25.3.0
+node-llama-cpp: 3.17.1
+Model:          hf:bartowski/Llama-3.2-1B-Instruct-GGUF:Q4_K_M (808MB)
+Model load:     3.3-16.3s
+Prompt time:    11.8-84.8s
+Tool calls:     5-55 (excessive looping)
+File changed:   YES
+Valid JS:       NO
+Verdict:        PARTIAL — calls tools but loops, writes JSON responses as content
+Notes:          First write_file was 78 chars: the JSON response from read_file
+                echoed back as file content. Then loops read/write with 1-char
+                writes. Function calling MECHANICS work but model cannot
+                produce meaningful content. Needs maxTokens cap to prevent
+                infinite loop.
+```
+
+### Run 4: Llama-3.2-3B-Instruct Q4_K_M
+
+```
+Date:           2026-03-07
+Platform:       macOS Darwin 25.3.0
+node-llama-cpp: 3.17.1
+Model:          hf:bartowski/Llama-3.2-3B-Instruct-GGUF:Q4_K_M (2.02GB)
+Model load:     9.2s (cached)
+Prompt time:    28.7-71.9s
+Tool calls:     6-21 (still loops but less)
+File changed:   YES
+Has 'hello':    YES
+Valid JS:       NO
+Verdict:        BEST RESULT — function calling works, semantic intent correct, content garbled
+Notes:          Model correctly calls read_file then write_file. Content shows
+                understanding of the task — writes "hello()" and "Hello, World!"
+                but garbles the content with JSON fragments, escaped strings,
+                and partial writes. Final file content:
+                  Hello, World!\nexport function hello() { return
+                The model understands WHAT to write but cannot cleanly encode
+                multi-line JS as a JSON string parameter. This is a fundamental
+                limitation of small models with grammar-constrained generation.
+```
+
+## Conclusions
+
+### What Works
+1. **node-llama-cpp installs cleanly** — 4s, prebuilt binaries, zero compilation
+2. **Model download via resolveModelFile() works perfectly** — auto-downloads from HuggingFace
+3. **node-llama-cpp API is correct** — defineChatSessionFunction, session.prompt({functions}), all as documented
+4. **Llama-3.2 family engages with function calling** — 1B and 3B both call tools
+5. **Model load is fast on cached models** — 0.4-9.2s depending on model size
+
+### What Doesn't Work
+1. **SmolLM2-360M does NOT call tools at all** — despite being trained on function calling data
+2. **Qwen2.5-0.5B only calls read, not write** — partial engagement
+3. **No tested model produces clean file content** — all garble the write_file content parameter
+4. **Small models loop excessively** — no natural stopping point, need explicit caps
+5. **3B model is slow on CPU** — 29-72s per prompt, too slow for scenario tests targeting 10-20s
+
+### Recommendation
+
+The local LLM approach via node-llama-cpp has **proven the function calling mechanics work** but small models (<=3B) cannot produce the **semantically correct content** needed for scenario tests. The options are:
+
+**Option A: Larger model (7B+)**
+- Llama-3.2-8B or Qwen2.5-7B would likely produce correct content
+- ~4-5GB download, 60-120s per prompt on CPU — too slow for quick test suite
+- Only viable with GPU acceleration
+
+**Option B: Ollama backend**
+- HTTP API, user may already have larger models installed
+- Adds external dependency but can use any model size
+- No grammar-constrained generation (tool calls may be malformed)
+
+**Option C: Canned tool-call sequences (mock the LLM)**
+- Write scenario tests that replay pre-recorded tool call sequences
+- Proves the CLI plumbing, config loading, tool handlers, and path safety work
+- Does NOT prove an LLM can follow the prompts
+- Simplest to implement, fastest to run, most deterministic
+
+**Option D: Hybrid — canned tests + optional live LLM**
+- Default: canned tool-call sequences (deterministic, fast, no model needed)
+- Optional `--live` flag: use a real LLM (Ollama or node-llama-cpp with user-selected model)
+- Best of both worlds: CI runs canned tests, developers can test with real LLMs
+
+**Recommendation: Option D.** The spike has proven that the mechanics work and identified the model size threshold. The main plan should be updated to use canned sequences by default with an optional live mode for developers who want to test with a real LLM.
