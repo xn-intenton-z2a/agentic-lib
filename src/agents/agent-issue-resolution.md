@@ -8,7 +8,9 @@ Apply the contributing guidelines to your response, and when suggesting enhancem
 of the contributing guidelines. Prioritize changes that deliver user value and maintain the integrity
 of the codebase's primary purpose.
 
-Do as much as you can all at once.
+Do as much as you can all at once. Your goal is mission complete — if the mission can be fully
+accomplished in this single transform, it should be. Deliver all acceptance criteria, tests, website,
+docs, and README in one pass. Only leave work for a follow-up if it genuinely cannot fit.
 
 ## Tests Must Pass
 

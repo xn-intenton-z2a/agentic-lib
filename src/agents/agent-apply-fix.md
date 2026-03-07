@@ -12,6 +12,9 @@ You may complete the implementation of a feature and/or bring the code output in
 or other documentation. Do as much as you can all at once so that the build runs (even with nothing
 to build) and the tests pass and the main at least doesn't output an error.
 
+Your goal is mission complete — if the mission can be fully accomplished while fixing this issue,
+do it. Don't limit yourself to the minimal fix when you can deliver the whole mission in one pass.
+
 The repository has a website in `src/web/` that uses the JS library. If a fix affects library
 exports or behaviour, also update the website files to stay in sync.
 
