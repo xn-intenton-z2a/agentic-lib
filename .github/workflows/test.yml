@@ -48,22 +48,24 @@ on:
       - main
       - claude/*
     paths:
+      - "**/*.html"
       - "**/*.js"
       - "**/*.json"
-      - "**/*.yml"
+      - "**/*.md"
       - "**/*.sh"
+      - "**/*.yml"
       - "!_developers/**"
-      - "!exports/**"
   pull_request:
     branches:
       - main
     paths:
       - "**/*.js"
       - "**/*.json"
+      - "**/*.html"
       - "**/*.yml"
       - "**/*.sh"
+      - "**/*.md"
       - "!_developers/**"
-      - "!exports/**"
   workflow_dispatch:
     inputs:
       skipLinter:

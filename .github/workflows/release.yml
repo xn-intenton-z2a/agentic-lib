@@ -17,9 +17,15 @@ on:
   push:
     branches: [main]
     paths:
-      - "src/**"
-      - "bin/**"
-      - "package.json"
+      - "**/*.js"
+      - "**/*.json"
+      - "**/*.html"
+      - "**/*.yml"
+      - "**/*.sh"
+      - "**/*.md"
+      - "!_developers/**"
+      - "!test/**"
+      - "!tests/**"
   workflow_dispatch:
     inputs:
       versionIncrement:
