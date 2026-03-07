@@ -71,9 +71,9 @@ gh api repos/xn-intenton-z2a/repository0/contents/MISSION_COMPLETE.md -q '.name'
 
 ## Current State
 
-**Active scenario**: 3b (hamming-distance / gpt-5-mini / recommended — fresh re-init)
-**Status**: User re-init'd at 00:38 UTC (run #22787900916). Monitoring continuous schedule.
-**repository0 state**: hamming-distance mission, recommended profile, continuous schedule, seed code
+**Active scenario**: 5 (fizz-buzz / gpt-5-mini / recommended)
+**Status**: User re-init'd at 03:17 UTC (run #22790928241). First full workflow dispatched.
+**repository0 state**: fizz-buzz mission, recommended profile (budget 32), hourly schedule, seed code
 
 ---
 
@@ -267,15 +267,85 @@ The transform step generates code changes and creates a PR, but does NOT validat
 
 ---
 
-## Scenario 2: fizz-buzz / gpt-5-mini / recommended — PENDING
+## Scenario 5: fizz-buzz / gpt-5-mini / recommended (v7.1.68 + agent prompt fixes)
 
-Will be run after Scenario 1.
+**Mission**: FizzBuzz — simplest possible mission (2 functions)
+**Model**: gpt-5-mini
+**Profile**: recommended (budget 32)
+**Init**: [#22790928241](https://github.com/xn-intenton-z2a/repository0/actions/runs/22790928241) at 03:17 UTC (v7.1.68)
+**Schedule**: hourly (with manual dispatches)
+
+**Changes since Scenario 1** (not yet released — still on v7.1.68 published prompts):
+- Pre-merge test gate added to workflow (PR #1854 — not yet merged)
+- Agent prompts: "strive for mission complete" philosophy
+- Agent prompts: removed vague evaluative language ("high-impact", "substantial user value")
+- Agent prompts: "Tests Must Pass" section in issue-resolution
+- Seed test validation in CI
+
+**Note**: The agent prompt changes in PR #1854 are NOT in this run — they haven't been released yet. This scenario tests v7.1.68 with the recommended profile (vs Scenario 1's min profile). The prompt improvements will be tested in a later scenario after release.
+
+### Iterations
+
+| # | Run ID | Time | Duration | Transform? | PR | Source Lines | Tests | What Happened |
+|---|--------|------|----------|------------|-----|-------------|-------|---------------|
+| 1a | [22791015228](https://github.com/xn-intenton-z2a/repository0/actions/runs/22791015228) | 03:22 | ~2min | NO | — | 15 (seed) | 26 (seed) | Review-only. Created issue #2646 "Implement FizzBuzz library with tests, docs, and README". |
+| 1b | [22791019854](https://github.com/xn-intenton-z2a/repository0/actions/runs/22791019854) | 03:22 | ~7min | YES | #2647 merged | 39 (main.js) + 46 (fizzbuzz.js) | 26 (seed) | Full cycle. Supervisor created 5 more issues (#2637-2643). Transform wrote fizzbuzz.js with `fizz()`/`fizzSequence()` + main.js re-exports as `fizzBuzzSingle`/`fizzBuzz`. Tests NOT updated. All 6 issues closed by review. |
+| 2 | [22791127721](https://github.com/xn-intenton-z2a/repository0/actions/runs/22791127721) | 03:30 | ~5min | NO | — | 39+46 | 26 (seed) | Supervisor created #2648. Review closed it immediately as "resolved" (saw code exists, ignored missing tests). No transform. |
+| 3 | [22791216147](https://github.com/xn-intenton-z2a/repository0/actions/runs/22791216147) | 03:36 | ~8min | YES | #2650 merged | 161 (main.js) + 46 (fizzbuzz.js) | 26 (main) + 88 (fizzbuzz) + web | Transform expanded main.js (streaming, CLI) AND created fizzbuzz.test.js (88 lines) covering ALL acceptance criteria. Also created docs/, README, website. Review correctly identified resolution. |
+| 4 | [22791368178](https://github.com/xn-intenton-z2a/repository0/actions/runs/22791368178) | 03:46 | ~6min | NO | — | 161+46 | 26+88+web | New review prompt active. Supervisor created #2651, review correctly assessed as resolved (all acceptance criteria have matching tests). No transform needed. |
+
+### Observations
+
+**After iteration 1b:**
+- Implementation correct: `fizzbuzz.js` returns "Fizz"/"Buzz"/"FizzBuzz" (capitalized, matching MISSION.md)
+- Function naming: Internal names `fizz`/`fizzSequence`, re-exported as `fizzBuzzSingle`/`fizzBuzz`
+- Tests still seed-only at this point
+- Issue churn: 6 issues created and all closed in a single cycle
+
+**After iteration 3:**
+- `fizzbuzz.test.js` created with 88 lines covering ALL 8 acceptance criteria
+- main.js expanded to 161 lines with streaming, CLI, and Readable support
+- docs/ populated: fizzbuzz.md, examples/, evidence/, reports/
+- README updated with usage examples
+- **ALL MISSION.md acceptance criteria now covered by tests**
+
+**After iteration 4 (new review prompt):**
+- Review agent correctly assessed #2651 as resolved — no false close this time
+- No transform needed — mission appears complete
+
+### Acceptance Criteria Status
+
+| Criterion | Test | Status |
+|-----------|------|--------|
+| `fizzBuzz(15)` returns correct 15-element array ending with "FizzBuzz" | `fizzbuzz.test.js` line 21 | PASS |
+| `fizzBuzzSingle(3)` returns "Fizz" | `fizzbuzz.test.js` line 5 | PASS |
+| `fizzBuzzSingle(5)` returns "Buzz" | `fizzbuzz.test.js` line 9 | PASS |
+| `fizzBuzzSingle(15)` returns "FizzBuzz" | `fizzbuzz.test.js` line 13 | PASS |
+| `fizzBuzzSingle(7)` returns "7" | `fizzbuzz.test.js` line 17 | PASS |
+| `fizzBuzz(0)` returns `[]` | `fizzbuzz.test.js` line 28 | PASS |
+| All unit tests pass | CI green | PASS |
+| README documents usage with examples | README.md | PASS |
+
+### Issues
+
+| Issue | State | Labels | Title |
+|-------|-------|--------|-------|
+| #2646 | closed | enhancement,automated,merged,ready | Implement FizzBuzz library with tests, docs, and README |
+| #2643 | closed | enhancement,automated,merged,feature,ready | Implement fizzBuzz core functions (fizzBuzz & fizzBuzzSingle) |
+| #2641 | closed | enhancement,automated,merged,ready | Implement FizzBuzz core functions (fizzBuzz, fizzBuzzSingle) |
+| #2640 | closed | enhancement,automated | Implement fizzBuzz core functions |
+| #2638 | closed | enhancement,automated,merged,ready | Implement fizzBuzz core functions (fizzBuzz, fizzBuzzSingle) |
+| #2637 | closed | enhancement,automated | Implement FizzBuzz core functions (fizzBuzz, fizzBuzzSingle) |
+
+---
+
+## Scenario 2: fizz-buzz / gpt-5-mini / recommended — SUPERSEDED by Scenario 5
 
 ---
 
 ## Scenario 4: hamming-distance / claude-sonnet-4 / recommended — PENDING
 
-Will be run after Scenario 2. Note: V4 found that claude-sonnet-4 fails with reasoning-effort parameter. V5 should have fixed this (reasoning-effort only sent for gpt-5-mini).
+Will be run after Scenario 5. Note: V4 found that claude-sonnet-4 fails with reasoning-effort parameter. V5 should have fixed this (reasoning-effort only sent for gpt-5-mini).
 
 ---
 
@@ -322,12 +392,16 @@ Hypothesis: fizz-buzz's simplicity allows the LLM to "improve" endlessly (restru
 
 ## Fixes Applied
 
-| Fix | File | Description |
-|-----|------|-------------|
-| Pre-merge test gate | `agentic-lib-workflow.yml` | Dev job runs `testScript` before commit/PR — skips merge if tests fail |
-| Agent prompt: test consistency | `agent-issue-resolution.md` | "Tests Must Pass" section — match acceptance criteria, update tests with code |
-| Agent prompt: review check | `agent-review-issue.md` | Review should flag test/code mismatches |
-| CI: seed test validation | `test.yml` | `test-all-missions-seed` runs `npm test` for every mission seed |
+| Fix | File | Description | PR |
+|-----|------|-------------|-----|
+| Pre-merge test gate | `agentic-lib-workflow.yml` | Dev job runs `testScript` before commit/PR — skips merge if tests fail | #1854 |
+| Agent prompt: test consistency | `agent-issue-resolution.md` | "Tests Must Pass" section — match acceptance criteria, update tests with code | #1854 |
+| Agent prompt: review check | `agent-review-issue.md` | Review should flag test/code mismatches | #1854 |
+| CI: seed test validation | `test.yml` | `test-all-missions-seed` runs `npm test` for every mission seed | #1854 |
+| Mission-complete focus | `agent-supervisor.md` | Priority #1: "Always strive for mission complete", not fill backlog | #1854 |
+| Mission-complete focus | `agent-issue-resolution.md`, `agent-apply-fix.md` | "Your goal is mission complete" — deliver everything in one pass | #1854 |
+| Mission-complete focus | `agent-ready-issue.md` | Acceptance criteria should target full mission completion | #1854 |
+| Remove vague language | All agent prompts | Replaced "high-impact", "substantial user value" etc. with concrete mission-relative language | #1854 |
 
 ---
 
