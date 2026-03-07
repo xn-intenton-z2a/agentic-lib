@@ -469,6 +469,14 @@ jobs:
             exit 1
           fi
 
+      - name: Upload screenshot
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: seeded-screenshot
+          path: /tmp/test-workspace/SCREENSHOT_INDEX.png
+          if-no-files-found: ignore
+
   test-dist-yaml-validity:
     runs-on: ubuntu-latest
     timeout-minutes: 5
