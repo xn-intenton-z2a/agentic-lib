@@ -856,7 +856,7 @@ function clearDirContents(dirPath, label) {
   }
 }
 
-function initReseed() {
+function initReseed(initTimestamp) {
   console.log("\n--- Reseed: Clear Features + Activity Log ---");
   removeFile(resolve(target, "intentïon.md"), "intentïon.md");
   removeFile(resolve(target, "MISSION_COMPLETE.md"), "MISSION_COMPLETE.md");
@@ -865,19 +865,6 @@ function initReseed() {
   // Write init epoch header to the activity log
   const pkg = JSON.parse(readFileSync(resolve(pkgRoot, "package.json"), "utf8"));
   const mode = purge ? "purge" : "reseed";
-  // Reuse existing timestamp for idempotency if mode, mission, and version match
-  const logPath = resolve(target, "intentïon.md");
-  let initTimestamp = new Date().toISOString();
-  if (existsSync(logPath)) {
-    const existing = readFileSync(logPath, "utf8");
-    const m = existing.match(/\*\*init (\w+)\*\* at ([^\s]+) \(agentic-lib@([^)]+)\)/);
-    if (m && m[1] === mode && m[3] === pkg.version) {
-      const missionLine = existing.match(/\*\*mission:\*\* (.+)/);
-      if (missionLine && missionLine[1] === mission) {
-        initTimestamp = m[2];
-      }
-    }
-  }
   const initHeader = [
     `# intentïon activity log`,
     "",
@@ -888,7 +875,7 @@ function initReseed() {
     "",
   ].join("\n");
   if (!dryRun) {
-    writeFileSync(logPath, initHeader);
+    writeFileSync(resolve(target, "intentïon.md"), initHeader);
   }
   console.log("  WRITE: intentïon.md (init epoch header)");
   initChanges++;
@@ -949,7 +936,7 @@ function clearAndRecreateDir(dirPath, label) {
   if (!dryRun) mkdirSync(fullPath, { recursive: true });
 }
 
-function initPurge(seedsDir, missionName) {
+function initPurge(seedsDir, missionName, initTimestamp) {
   console.log("\n--- Purge: Reset Source Files to Seed State ---");
 
   const { sourcePath, testsPath, examplesPath, webPath } = readTomlPaths();
@@ -1019,16 +1006,10 @@ function initPurge(seedsDir, missionName) {
   if (existsSync(tomlTarget)) {
     let toml = readFileSync(tomlTarget, "utf8");
     const pkg = JSON.parse(readFileSync(resolve(pkgRoot, "package.json"), "utf8"));
-    // Reuse existing timestamp for idempotency if mode, mission, and version match
-    let tomlTimestamp = new Date().toISOString();
-    const existingTs = toml.match(/^\[init\]\s*\ntimestamp\s*=\s*"([^"]+)"\s*\nmode\s*=\s*"([^"]+)"\s*\nmission\s*=\s*"([^"]+)"\s*\nversion\s*=\s*"([^"]+)"/m);
-    if (existingTs && existingTs[2] === "purge" && existingTs[3] === missionName && existingTs[4] === pkg.version) {
-      tomlTimestamp = existingTs[1];
-    }
     const initSection = [
       "",
       "[init]",
-      `timestamp = "${tomlTimestamp}"`,
+      `timestamp = "${initTimestamp}"`,
       `mode = "purge"`,
       `mission = "${missionName}"`,
       `version = "${pkg.version}"`,
@@ -1402,14 +1383,31 @@ function runInit() {
   console.log(`Mode:    ${dryRun ? "DRY RUN" : "LIVE"}`);
   console.log("");
 
+  // Capture existing init timestamp before any destructive operations (for idempotency).
+  // The TOML [init] section is the authoritative record. If it matches the current
+  // mode/mission/version, reuse its timestamp so that re-running init is a no-op.
+  const pkg = JSON.parse(readFileSync(resolve(pkgRoot, "package.json"), "utf8"));
+  let initTimestamp = null;
+  const tomlPath = resolve(target, "agentic-lib.toml");
+  if (existsSync(tomlPath)) {
+    const tomlContent = readFileSync(tomlPath, "utf8");
+    const tm = tomlContent.match(/^\[init\]\s*\ntimestamp\s*=\s*"([^"]+)"\s*\nmode\s*=\s*"([^"]+)"\s*\nmission\s*=\s*"([^"]+)"\s*\nversion\s*=\s*"([^"]+)"/m);
+    const mode = purge ? "purge" : reseed ? "reseed" : null;
+    if (tm && mode && tm[2] === mode && tm[3] === mission && tm[4] === pkg.version) {
+      initTimestamp = tm[1];
+    }
+  }
+  // Use a single timestamp for the entire init run (for consistency across files)
+  if (!initTimestamp) initTimestamp = new Date().toISOString();
+
   initWorkflows();
   initActions(agenticDir);
   initDirContents("agents", resolve(agenticDir, "agents"), "Agents");
   initDirContents("seeds", resolve(agenticDir, "seeds"), "Seeds");
   initScripts(agenticDir);
   initConfig(seedsDir);
-  if (reseed) initReseed();
-  if (purge) initPurge(seedsDir, mission);
+  if (reseed) initReseed(initTimestamp);
+  if (purge) initPurge(seedsDir, mission, initTimestamp);
   if (purge) initPurgeGitHub();
 
   console.log(`\n${initChanges} change(s)${dryRun ? " (dry run)" : ""}`);
