@@ -11,8 +11,8 @@ const ROOT_DIR = join(import.meta.dirname, "../..");
 const allFiles = readdirSync(SEEDS_DIR).sort();
 
 describe("src/seeds", () => {
-  it("has 11 seed entries (10 files + missions directory)", () => {
-    expect(allFiles).toHaveLength(11);
+  it("has 13 seed entries (12 files + missions directory)", () => {
+    expect(allFiles).toHaveLength(13);
   });
 
   describe("zero-package.json", () => {
@@ -42,6 +42,38 @@ describe("src/seeds", () => {
       const content = readFileSync(join(SEEDS_DIR, "zero-package.json"), "utf8");
       pkg = JSON.parse(content);
       expect(pkg.scripts?.test).toBeTruthy();
+    });
+
+    it("has a test:behaviour script for Playwright", () => {
+      const content = readFileSync(join(SEEDS_DIR, "zero-package.json"), "utf8");
+      pkg = JSON.parse(content);
+      expect(pkg.scripts?.["test:behaviour"]).toContain("playwright");
+    });
+
+    it("has @playwright/test as a devDependency", () => {
+      const content = readFileSync(join(SEEDS_DIR, "zero-package.json"), "utf8");
+      pkg = JSON.parse(content);
+      expect(pkg.devDependencies?.["@playwright/test"]).toBeTruthy();
+    });
+  });
+
+  describe("zero-behaviour.test.js", () => {
+    it("exists and imports @playwright/test", () => {
+      const content = readFileSync(join(SEEDS_DIR, "zero-behaviour.test.js"), "utf8");
+      expect(content).toContain("@playwright/test");
+    });
+
+    it("takes a screenshot to SCREENSHOT_INDEX.png", () => {
+      const content = readFileSync(join(SEEDS_DIR, "zero-behaviour.test.js"), "utf8");
+      expect(content).toContain("SCREENSHOT_INDEX.png");
+    });
+  });
+
+  describe("zero-playwright.config.js", () => {
+    it("exists and defines a test directory", () => {
+      const content = readFileSync(join(SEEDS_DIR, "zero-playwright.config.js"), "utf8");
+      expect(content).toContain("testDir");
+      expect(content).toContain("tests/behaviour");
     });
   });
 

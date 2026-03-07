@@ -952,6 +952,8 @@ function initPurge(seedsDir, missionName, initTimestamp) {
     "zero-main.test.js": "tests/unit/main.test.js",
     "zero-index.html": "src/web/index.html",
     "zero-web.test.js": "tests/unit/web.test.js",
+    "zero-behaviour.test.js": "tests/behaviour/homepage.test.js",
+    "zero-playwright.config.js": "playwright.config.js",
     "zero-SOURCES.md": "SOURCES.md",
     "zero-package.json": "package.json",
     "zero-README.md": "README.md",
