@@ -534,7 +534,7 @@ jobs:
           cache: "npm"
       - run: npm ci
 
-      - name: Verify all missions seed successfully
+      - name: Verify all missions seed and pass tests
         run: |
           FAILURES=0
           for mission in $(ls src/seeds/missions/*.md | xargs -I{} basename {} .md); do
@@ -542,7 +542,16 @@ jobs:
             if node bin/agentic-lib.js init --purge --mission "$mission" --target /tmp/mission-test 2>&1; then
               # Verify key files exist
               if [ -f /tmp/mission-test/MISSION.md ] && [ -f /tmp/mission-test/src/lib/main.js ]; then
-                echo "OK: $mission"
+                # Install deps and run tests — seed code must pass seed tests
+                cd /tmp/mission-test
+                node -e "const p=JSON.parse(require('fs').readFileSync('package.json','utf8')); delete p.dependencies; require('fs').writeFileSync('package.json',JSON.stringify(p,null,2)+'\n')"
+                if npm install --ignore-scripts 2>&1 && npm test 2>&1; then
+                  echo "OK: $mission (seed + tests pass)"
+                else
+                  echo "ERROR: $mission — npm test failed"
+                  FAILURES=$((FAILURES + 1))
+                fi
+                cd -
               else
                 echo "ERROR: $mission — missing key files"
                 FAILURES=$((FAILURES + 1))
@@ -557,7 +566,7 @@ jobs:
             echo "ERROR: $FAILURES mission(s) failed"
             exit 1
           fi
-          echo "All missions seed successfully"
+          echo "All missions seed and pass tests successfully"
 
   test-mcp-server:
     runs-on: ubuntu-latest
