@@ -80,29 +80,41 @@ describe("tasks/maintain-library", () => {
     runCopilotTask.mockResolvedValue({ content: "library updated", tokensUsed: 90 });
   });
 
-  it("returns nop if no sources found (SOURCES.md empty)", async () => {
-    readOptionalFile.mockReturnValue("");
+  it("discovers sources when SOURCES.md is empty", async () => {
+    readOptionalFile.mockImplementation((path) => {
+      if (path === "MISSION.md") return "# Mission\nA JavaScript library for Hamming distance.";
+      return "";
+    });
     const ctx = createMockContext();
 
     const result = await maintainLibrary(ctx);
 
-    expect(result.outcome).toBe("nop");
-    expect(result.details).toContain("No SOURCES.md or empty");
-    expect(runCopilotTask).not.toHaveBeenCalled();
+    expect(result.outcome).toBe("sources-discovered");
+    expect(result.details).toContain("Discovered sources");
+    expect(runCopilotTask).toHaveBeenCalledTimes(1);
+    const callArgs = runCopilotTask.mock.calls[0][0];
+    expect(callArgs.prompt).toContain("SOURCES.md has no URLs");
+    expect(callArgs.prompt).toContain("Hamming distance");
   });
 
-  it("returns nop if sources is whitespace-only", async () => {
-    readOptionalFile.mockReturnValue("   \n  \t  ");
+  it("discovers sources when SOURCES.md has no URLs (whitespace-only)", async () => {
+    readOptionalFile.mockImplementation((path) => {
+      if (path === "MISSION.md") return "# Mission\nBuild something.";
+      return "# Sources\n\n";
+    });
     const ctx = createMockContext();
 
     const result = await maintainLibrary(ctx);
 
-    expect(result.outcome).toBe("nop");
-    expect(runCopilotTask).not.toHaveBeenCalled();
+    expect(result.outcome).toBe("sources-discovered");
+    expect(runCopilotTask).toHaveBeenCalledTimes(1);
   });
 
   it("includes library docs and sources in prompt", async () => {
-    readOptionalFile.mockReturnValue("- https://example.com/docs\n- https://nodejs.org/api");
+    readOptionalFile.mockImplementation((path) => {
+      if (path === "MISSION.md") return "# Mission\nTest mission";
+      return "- https://example.com/docs\n- https://nodejs.org/api";
+    });
     scanDirectory.mockReturnValue([
       { name: "express.md", content: "Express.js docs" },
       { name: "node-api.md", content: "Node.js API docs" },
@@ -121,7 +133,10 @@ describe("tasks/maintain-library", () => {
   });
 
   it("returns library-maintained outcome on happy path", async () => {
-    readOptionalFile.mockReturnValue("- https://example.com/docs");
+    readOptionalFile.mockImplementation((path) => {
+      if (path === "MISSION.md") return "# Mission\nTest";
+      return "- https://example.com/docs";
+    });
     scanDirectory.mockReturnValue([{ name: "doc.md", content: "some doc" }]);
     const ctx = createMockContext();
 
