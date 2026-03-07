@@ -26,8 +26,8 @@ npm run test:scenario
 The `--local-llm` flag routes through the same CLI path as `--model claude-sonnet-4`, but swaps the Copilot SDK backend for a local node-llama-cpp backend. This means:
 
 - The same `buildTaskPrompt()` functions construct the prompt (lines 320-494 of `bin/agentic-lib.js`)
-- The same tool definitions (`read_file`, `write_file`, `list_files`, `run_command`) are used
-- Only the "send prompt, get response, execute tool calls" loop changes
+- The same tool handler logic (`read_file`, `write_file`, `list_files`, `run_command`) is reused
+- node-llama-cpp handles the tool call loop internally (grammar-constrained generation forces valid JSON, library calls our handlers and feeds results back automatically)
 - Scenarios exercise the real CLI end-to-end, just with a different LLM
 
 ### Why Not Just Mock
@@ -67,8 +67,9 @@ Mocking `runCopilotTask()` (which the 277 unit tests do) proves the task handler
 
 **Model download strategy:**
 - Models are NOT committed to git (they're ~400MB)
-- `npm run scenario:download-model` downloads the model to `models/` (gitignored)
-- Scenario runner checks for model file and prints helpful error if missing
+- node-llama-cpp's built-in `resolveModelFile("hf:bartowski/SmolLM2-360M-Instruct-GGUF:Q8_0", modelsDir)` auto-downloads on first use
+- Alternatively: `npx node-llama-cpp pull --dir ./models hf:bartowski/SmolLM2-360M-Instruct-GGUF:Q8_0`
+- `models/` is gitignored
 - CI can cache the model directory between runs
 
 ### Performance Budget
@@ -88,45 +89,38 @@ Mocking `runCopilotTask()` (which the 277 unit tests do) proves the task handler
 
 #### `src/actions/agentic-step/local-llm.js`
 
-Purpose: Drop-in replacement for `runCopilotTask()` that uses node-llama-cpp.
+Purpose: Drop-in replacement for `runCopilotTask()` that uses node-llama-cpp. Simpler than a Copilot SDK backend because node-llama-cpp handles the tool call loop internally — it calls our handlers, feeds results back to the model, and repeats until the model produces a final text response.
 
 ```js
 // local-llm.js — Local LLM backend using node-llama-cpp
 //
 // Provides runLocalLlmTask() with the same interface as runCopilotTask():
-//   { model, systemMessage, prompt, writablePaths }
-//   → { content, tokensUsed }
+//   { systemMessage, prompt, writablePaths, targetDir }
+//   → { content }
 //
 // Uses grammar-constrained generation to force valid tool call JSON.
+// The tool call loop is handled internally by node-llama-cpp's LlamaChatSession.
 
-import { getLlama, LlamaChatSession } from "node-llama-cpp";
+import { getLlama, LlamaChatSession, defineChatSessionFunction, resolveModelFile } from "node-llama-cpp";
+import { readFileSync, writeFileSync, readdirSync, existsSync, mkdirSync } from "fs";
+import { execSync } from "child_process";
 import { resolve, dirname } from "path";
 import { fileURLToPath } from "url";
-import { existsSync } from "fs";
+import { isPathWritable } from "./safety.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const MODELS_DIR = resolve(__dirname, "../../../models");
-
-// Model resolution: check env var, then default path
-function resolveModelPath() {
-  if (process.env.LOCAL_LLM_MODEL) return resolve(process.env.LOCAL_LLM_MODEL);
-  const defaultModel = resolve(MODELS_DIR, "smollm2-360m-instruct-q8_0.gguf");
-  if (!existsSync(defaultModel)) {
-    throw new Error(
-      `Model not found at ${defaultModel}.\n` +
-      `Run: npm run scenario:download-model\n` +
-      `Or set LOCAL_LLM_MODEL=/path/to/model.gguf`
-    );
-  }
-  return defaultModel;
-}
+const MODEL_URI = "hf:bartowski/SmolLM2-360M-Instruct-GGUF:Q8_0";
 
 let _llama = null;   // singleton — expensive to create
 let _model = null;
 
 async function getOrLoadModel() {
   if (_model) return _model;
-  const modelPath = resolveModelPath();
+  mkdirSync(MODELS_DIR, { recursive: true });
+  const modelPath = process.env.LOCAL_LLM_MODEL
+    ? resolve(process.env.LOCAL_LLM_MODEL)
+    : await resolveModelFile(MODEL_URI, MODELS_DIR);
   console.log(`[local-llm] Loading model from ${modelPath}`);
   _llama = await getLlama();
   _model = await _llama.loadModel({ modelPath });
@@ -134,139 +128,126 @@ async function getOrLoadModel() {
   return _model;
 }
 
-export async function runLocalLlmTask({
-  systemMessage, prompt, writablePaths, tools
-}) {
+/**
+ * Build the functions object for node-llama-cpp's session.prompt().
+ * Mirrors the tool definitions in createCliTools() (bin/agentic-lib.js)
+ * but uses defineChatSessionFunction() instead of Copilot SDK's defineTool().
+ */
+function createLocalTools(targetDir, writablePaths) {
+  return {
+    read_file: defineChatSessionFunction({
+      description: "Read the contents of a file at the given path.",
+      params: {
+        type: "object",
+        properties: { path: { type: "string" } },
+      },
+      async handler({ path }) {
+        const resolved = resolve(targetDir, path);
+        console.log(`  [tool] read_file: ${resolved}`);
+        if (!existsSync(resolved)) return JSON.stringify({ error: `Not found: ${path}` });
+        return JSON.stringify({ content: readFileSync(resolved, "utf8") });
+      },
+    }),
+
+    write_file: defineChatSessionFunction({
+      description: "Write content to a file. Parent directories are created automatically.",
+      params: {
+        type: "object",
+        properties: {
+          path: { type: "string" },
+          content: { type: "string" },
+        },
+      },
+      async handler({ path, content }) {
+        const resolved = resolve(targetDir, path);
+        console.log(`  [tool] write_file: ${resolved} (${content.length} chars)`);
+        if (!isPathWritable(resolved, writablePaths)) {
+          return JSON.stringify({ error: `Not writable: ${path}` });
+        }
+        const dir = dirname(resolved);
+        if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
+        writeFileSync(resolved, content, "utf8");
+        return JSON.stringify({ success: true });
+      },
+    }),
+
+    list_files: defineChatSessionFunction({
+      description: "List files and directories at the given path.",
+      params: {
+        type: "object",
+        properties: { path: { type: "string" } },
+      },
+      async handler({ path }) {
+        const resolved = resolve(targetDir, path);
+        console.log(`  [tool] list_files: ${resolved}`);
+        if (!existsSync(resolved)) return JSON.stringify({ error: `Not found: ${path}` });
+        const entries = readdirSync(resolved, { withFileTypes: true });
+        return JSON.stringify({ files: entries.map(e => e.isDirectory() ? `${e.name}/` : e.name) });
+      },
+    }),
+
+    run_command: defineChatSessionFunction({
+      description: "Run a shell command and return stdout/stderr.",
+      params: {
+        type: "object",
+        properties: { command: { type: "string" } },
+      },
+      async handler({ command }) {
+        console.log(`  [tool] run_command: ${command}`);
+        const blocked = /\bgit\s+(commit|push|add|reset|checkout|rebase|merge|stash)\b/;
+        if (blocked.test(command)) {
+          return JSON.stringify({ error: "Git write commands blocked" });
+        }
+        try {
+          const stdout = execSync(command, { cwd: targetDir, encoding: "utf8", timeout: 30000 });
+          return JSON.stringify({ stdout, exitCode: 0 });
+        } catch (err) {
+          return JSON.stringify({ stderr: err.stderr || "", exitCode: err.status || 1 });
+        }
+      },
+    }),
+  };
+}
+
+export async function runLocalLlmTask({ systemMessage, prompt, writablePaths, targetDir }) {
   const model = await getOrLoadModel();
   const context = await model.createContext();
-  const session = new LlamaChatSession({ contextSequence: context.getSequence() });
+  const session = new LlamaChatSession({
+    contextSequence: context.getSequence(),
+    systemPrompt: systemMessage,    // plain string, not { content: "..." }
+  });
 
-  // Register tools using node-llama-cpp's function calling
-  // (details depend on exact API — see implementation section below)
+  const functions = createLocalTools(targetDir, writablePaths);
+  const timeout = parseInt(process.env.LOCAL_LLM_TIMEOUT || "60000", 10);
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeout);
 
-  // The conversation loop:
-  // 1. Send system message + prompt
-  // 2. Model responds with text or tool call
-  // 3. If tool call: execute tool, feed result back
-  // 4. Repeat until model responds with final text (no tool call)
-  // 5. Return { content, tokensUsed }
+  try {
+    // node-llama-cpp handles the tool call loop internally:
+    // model generates function call → library parses it → calls our handler →
+    // feeds result back → repeats until model produces final text
+    const content = await session.prompt(prompt, {
+      functions,
+      maxParallelFunctionCalls: 1,
+      maxTokens: 1024,
+      temperature: 0.3,
+      signal: controller.signal,
+      stopOnAbortSignal: true,
+    });
+    return { content };
+  } finally {
+    clearTimeout(timer);
+    await context.dispose();
+  }
 }
 ```
 
 Key implementation details:
-- **Singleton model**: The model is loaded once and reused across scenarios. Loading takes 2-5s; we don't want to pay that per-scenario.
-- **Tool calling loop**: node-llama-cpp's `LlamaChatSession` supports function calling via `defineChatSessionFunction()`. The grammar engine constrains generation to valid JSON matching the function schemas.
-- **Max iterations**: Cap at 10 tool call rounds to prevent infinite loops from confused tiny models.
-- **Timeout**: 60s total per task invocation as a safety net.
-
-#### `src/actions/agentic-step/local-tools.js`
-
-Purpose: Bridge between the tool definitions in `tools.js` (which use Copilot SDK's `defineTool()`) and node-llama-cpp's `defineChatSessionFunction()`.
-
-```js
-// local-tools.js — Adapt our tool handlers for node-llama-cpp
-//
-// The existing tools.js uses Copilot SDK's defineTool() format.
-// This module wraps the same handler logic for node-llama-cpp's
-// defineChatSessionFunction() format.
-
-import { readFileSync, writeFileSync, readdirSync, existsSync, mkdirSync } from "fs";
-import { execSync } from "child_process";
-import { dirname, resolve } from "path";
-import { isPathWritable } from "./safety.js";
-
-/**
- * Register filesystem tools on a LlamaChatSession.
- *
- * @param {LlamaChatSession} session - node-llama-cpp chat session
- * @param {string} targetDir - The workspace root (absolute path)
- * @param {string[]} writablePaths - Relative paths that are writable
- */
-export function registerLocalTools(session, targetDir, writablePaths) {
-  // read_file
-  session.defineChatSessionFunction({
-    name: "read_file",
-    description: "Read the contents of a file.",
-    params: {
-      type: "object",
-      properties: { path: { type: "string" } },
-      required: ["path"],
-    },
-    handler: ({ path }) => {
-      const resolved = resolve(targetDir, path);
-      if (!existsSync(resolved)) return JSON.stringify({ error: `Not found: ${path}` });
-      return JSON.stringify({ content: readFileSync(resolved, "utf8") });
-    },
-  });
-
-  // write_file
-  session.defineChatSessionFunction({
-    name: "write_file",
-    description: "Write content to a file.",
-    params: {
-      type: "object",
-      properties: {
-        path: { type: "string" },
-        content: { type: "string" },
-      },
-      required: ["path", "content"],
-    },
-    handler: ({ path, content }) => {
-      const resolved = resolve(targetDir, path);
-      const absWritable = writablePaths.map(wp => resolve(targetDir, wp));
-      if (!isPathWritable(resolved, absWritable)) {
-        return JSON.stringify({ error: `Not writable: ${path}` });
-      }
-      const dir = dirname(resolved);
-      if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
-      writeFileSync(resolved, content, "utf8");
-      return JSON.stringify({ success: true });
-    },
-  });
-
-  // list_files
-  session.defineChatSessionFunction({
-    name: "list_files",
-    description: "List files in a directory.",
-    params: {
-      type: "object",
-      properties: { path: { type: "string" } },
-      required: ["path"],
-    },
-    handler: ({ path }) => {
-      const resolved = resolve(targetDir, path);
-      if (!existsSync(resolved)) return JSON.stringify({ error: `Not found: ${path}` });
-      const entries = readdirSync(resolved, { withFileTypes: true });
-      return JSON.stringify({ files: entries.map(e => e.isDirectory() ? `${e.name}/` : e.name) });
-    },
-  });
-
-  // run_command
-  session.defineChatSessionFunction({
-    name: "run_command",
-    description: "Run a shell command.",
-    params: {
-      type: "object",
-      properties: { command: { type: "string" } },
-      required: ["command"],
-    },
-    handler: ({ command }) => {
-      const blocked = /\bgit\s+(commit|push|add|reset|checkout|rebase|merge|stash)\b/;
-      if (blocked.test(command)) {
-        return JSON.stringify({ error: "Git write commands blocked" });
-      }
-      try {
-        const stdout = execSync(command, { cwd: targetDir, encoding: "utf8", timeout: 30000 });
-        return JSON.stringify({ stdout, exitCode: 0 });
-      } catch (err) {
-        return JSON.stringify({ stderr: err.stderr || "", exitCode: err.status || 1 });
-      }
-    },
-  });
-}
-```
-
-Note: The exact `defineChatSessionFunction` API may differ from the sketch above. The node-llama-cpp docs should be consulted during implementation. The key point is that we reuse the same handler logic from `tools.js` and `safety.js`.
+- **Singleton model**: The model is loaded once and reused across scenarios. Loading takes 2-5s; we don't want to pay that per-scenario. Context is created per-task and disposed after.
+- **No manual tool loop**: node-llama-cpp handles function calling internally. `session.prompt()` returns the final text after all tool calls complete. This eliminates the need for a separate `local-tools.js` bridge module.
+- **Grammar-constrained generation**: node-llama-cpp forces the model to output valid JSON matching the function parameter schemas, even from tiny models.
+- **Auto-download**: `resolveModelFile()` downloads the model from HuggingFace on first use if not cached locally.
+- **Timeout**: 60s default via `AbortController`, configurable with `LOCAL_LLM_TIMEOUT` env var.
 
 #### `scripts/scenario-runner.js`
 
@@ -522,7 +503,7 @@ Add `--local-llm` flag. Changes to the `runTask()` function:
  const targetIdx = flags.indexOf("--target");
 ```
 
-In the `runTask()` function, after building the prompt (line ~152), add a branch:
+In the `runTask()` function, after building the prompt (line ~232), add a branch before the Copilot SDK path:
 
 ```diff
    if (dryRun) {
@@ -542,7 +523,7 @@ In the `runTask()` function, after building the prompt (line ~152), add a branch
 +        writablePaths: writablePaths.map(wp => resolve(target, wp)),
 +        targetDir: target,
 +      });
-+      console.log(`\n=== ${taskName} completed (${result.tokensUsed} tokens) ===`);
++      console.log(`\n=== ${taskName} completed ===`);
 +      console.log(result.content);
 +      return 0;
 +    } catch (err) {
@@ -580,7 +561,7 @@ Update the HELP text:
 +  "test:scenario:maintain": "node scripts/scenario-runner.js maintain-features",
 +  "test:scenario:transform": "node scripts/scenario-runner.js transform",
 +  "test:scenario:loop": "node scripts/scenario-runner.js full-loop",
-+  "scenario:download-model": "node scripts/download-model.js",
++  "scenario:download-model": "npx node-llama-cpp pull --dir ./models hf:bartowski/SmolLM2-360M-Instruct-GGUF:Q8_0",
    ...
  }
 ```
@@ -593,44 +574,12 @@ Update the HELP text:
 +*.gguf
 ```
 
-### Optional New File
+### No Custom Download Script Needed
 
-#### `scripts/download-model.js`
-
-Purpose: Download the GGUF model file from HuggingFace.
-
-```js
-// scripts/download-model.js — Download SmolLM2-360M model for local scenario tests
-//
-// Downloads to models/smollm2-360m-instruct-q8_0.gguf (~386MB)
-
-import { mkdirSync, existsSync, createWriteStream } from "fs";
-import { resolve, dirname } from "path";
-import { fileURLToPath } from "url";
-import { get } from "https";
-
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const MODELS_DIR = resolve(__dirname, "../models");
-const MODEL_FILE = "smollm2-360m-instruct-q8_0.gguf";
-const MODEL_PATH = resolve(MODELS_DIR, MODEL_FILE);
-
-// HuggingFace direct download URL (to be confirmed during implementation)
-const MODEL_URL =
-  "https://huggingface.co/bartowski/SmolLM2-360M-Instruct-GGUF/resolve/main/SmolLM2-360M-Instruct-Q8_0.gguf";
-
-if (existsSync(MODEL_PATH)) {
-  console.log(`Model already exists: ${MODEL_PATH}`);
-  process.exit(0);
-}
-
-mkdirSync(MODELS_DIR, { recursive: true });
-console.log(`Downloading ${MODEL_FILE} (~386MB)...`);
-console.log(`From: ${MODEL_URL}`);
-console.log(`To:   ${MODEL_PATH}`);
-
-// Download with progress reporting
-// (implementation: follow redirects, report MB downloaded)
-```
+node-llama-cpp provides built-in model downloading:
+- **CLI**: `npx node-llama-cpp pull --dir ./models hf:bartowski/SmolLM2-360M-Instruct-GGUF:Q8_0`
+- **Programmatic**: `resolveModelFile("hf:bartowski/SmolLM2-360M-Instruct-GGUF:Q8_0", modelsDir)` auto-downloads on first use
+- **Override**: `LOCAL_LLM_MODEL=/path/to/model.gguf` env var bypasses both
 
 ## Three Test Scenarios
 
@@ -691,7 +640,7 @@ test:scenario              — Run all 3 scenarios (~30-45s)
 test:scenario:maintain     — Just maintain-features (~10-15s)
 test:scenario:transform    — Just transform (~10-20s)
 test:scenario:loop         — Full loop (~20-30s)
-scenario:download-model    — Pre-download the GGUF model (~386MB)
+scenario:download-model    — Pre-download the GGUF model (~386MB) via node-llama-cpp pull
 ```
 
 ## Risks and Mitigations
@@ -706,8 +655,8 @@ scenario:download-model    — Pre-download the GGUF model (~386MB)
 **Mitigation:** Assertions are deliberately loose. We check "file was modified" and "file is valid JS", not "function works correctly". The point is proving mechanics, not code quality.
 
 ### Risk 3: node-llama-cpp API has changed or doesn't work as expected
-**Likelihood:** Low-medium — node-llama-cpp v3 is actively maintained
-**Mitigation:** Implementation should consult the actual node-llama-cpp docs. The code sketches in this plan are illustrative, not exact API usage. Pin the dependency version.
+**Likelihood:** Low — API verified against node-llama-cpp v3.17.1 docs (March 2026)
+**Mitigation:** Code sketches in this plan now use the correct API: standalone `defineChatSessionFunction()`, functions passed to `session.prompt()`, `systemPrompt` as plain string. Pin the dependency version. See PLAN_1_LOCAL_SCENARIO_TESTS_SPIKE.md for full API research.
 
 ### Risk 4: node-llama-cpp native addon doesn't build on all platforms
 **Likelihood:** Low on macOS (prebuilt binaries exist), medium on Linux CI
@@ -715,7 +664,7 @@ scenario:download-model    — Pre-download the GGUF model (~386MB)
 
 ### Risk 5: Model download is slow or URL changes
 **Likelihood:** Medium
-**Mitigation:** The download script is idempotent (skip if file exists). HuggingFace URLs are stable. CI can cache `models/`. A `LOCAL_LLM_MODEL` env var allows pointing to any model file.
+**Mitigation:** node-llama-cpp's `resolveModelFile()` caches locally (skip if file exists). HuggingFace URIs are stable. CI can cache `models/`. A `LOCAL_LLM_MODEL` env var allows pointing to any model file.
 
 ### Risk 6: 60s timeout is too short for slow machines
 **Likelihood:** Low — even at 10 tok/s, 60s = 600 tokens, enough for 2-3 simple tool calls
@@ -744,25 +693,30 @@ scenario:download-model    — Pre-download the GGUF model (~386MB)
 
 ## Implementation Order
 
+0. **Run the spike first** — see PLAN_1_LOCAL_SCENARIO_TESTS_SPIKE.md
 1. **Add `node-llama-cpp` devDependency** — `npm install --save-dev node-llama-cpp`
-2. **Create `scripts/download-model.js`** — model download script
-3. **Download model** — `npm run scenario:download-model`
-4. **Create `src/actions/agentic-step/local-llm.js`** — local LLM backend
-5. **Create `src/actions/agentic-step/local-tools.js`** — tool bridge
-6. **Modify `bin/agentic-lib.js`** — add `--local-llm` flag
-7. **Create `scripts/scenario-runner.js`** — scenario orchestrator
-8. **Run first scenario** — `npm run test:scenario:maintain`
-9. **Debug and iterate** — expect 2-3 rounds of adjusting prompts/timeouts
-10. **Add remaining scenarios** — transform, full-loop
-11. **Update `.gitignore`** — add `models/` and `*.gguf`
-12. **Update `package.json` scripts** — add all `test:scenario:*` entries
+2. **Update `.gitignore`** — add `models/` and `*.gguf`
+3. **Pre-download model** — `npx node-llama-cpp pull --dir ./models hf:bartowski/SmolLM2-360M-Instruct-GGUF:Q8_0`
+4. **Create `src/actions/agentic-step/local-llm.js`** — local LLM backend (tools defined inline, no separate local-tools.js needed)
+5. **Modify `bin/agentic-lib.js`** — add `--local-llm` flag
+6. **Create `scripts/scenario-runner.js`** — scenario orchestrator
+7. **Run first scenario** — `npm run test:scenario:maintain`
+8. **Debug and iterate** — expect 2-3 rounds of adjusting prompts/timeouts
+9. **Add remaining scenarios** — transform, full-loop
+10. **Update `package.json` scripts** — add all `test:scenario:*` entries
 
-## Open Questions for Implementation
+## Resolved Questions
 
-1. **Exact node-llama-cpp function calling API** — The `defineChatSessionFunction` API in the sketches above is approximate. The implementer should check the node-llama-cpp v3 docs for the exact method signatures and tool calling protocol.
+1. **node-llama-cpp function calling API** — Verified against v3.17.1 docs. `defineChatSessionFunction()` is a standalone import; functions are passed to `session.prompt({ functions })`. The library handles the tool call loop internally. System prompt is a plain string passed to `LlamaChatSession` constructor. See PLAN_1_LOCAL_SCENARIO_TESTS_SPIKE.md for full details.
 
-2. **HuggingFace model URL** — The exact download URL for SmolLM2-360M-Instruct Q8_0 should be verified. The bartowski GGUF collection on HuggingFace is the most likely source.
+2. **HuggingFace model URI** — Confirmed: `hf:bartowski/SmolLM2-360M-Instruct-GGUF:Q8_0` (386MB). Available via `resolveModelFile()` or `npx node-llama-cpp pull`.
 
-3. **CI integration** — Should scenario tests run in CI? If so, the model needs to be cached. This can be deferred to a follow-up.
+3. **No separate `local-tools.js` needed** — Tools are defined inline in `local-llm.js` using `defineChatSessionFunction()` and passed to `session.prompt()`. No bridge module required.
 
-4. **node-llama-cpp minimum version** — Pin to the exact version that's verified to work. The v3 API may have breaking changes between minor versions.
+## Open Questions
+
+1. **CI integration** — Should scenario tests run in CI? If so, the model needs to be cached. This can be deferred to a follow-up.
+
+2. **node-llama-cpp minimum version** — Pin to `^3.17.0` (current stable). Run the spike (PLAN_1_LOCAL_SCENARIO_TESTS_SPIKE.md) to confirm.
+
+3. **Module resolution across nested package.json** — `local-llm.js` in `src/actions/agentic-step/` (which has its own `package.json`) importing `node-llama-cpp` from root `devDependencies`. The spike should verify this works.
