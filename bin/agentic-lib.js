@@ -864,17 +864,31 @@ function initReseed() {
 
   // Write init epoch header to the activity log
   const pkg = JSON.parse(readFileSync(resolve(pkgRoot, "package.json"), "utf8"));
+  const mode = purge ? "purge" : "reseed";
+  // Reuse existing timestamp for idempotency if mode, mission, and version match
+  const logPath = resolve(target, "intentïon.md");
+  let initTimestamp = new Date().toISOString();
+  if (existsSync(logPath)) {
+    const existing = readFileSync(logPath, "utf8");
+    const m = existing.match(/\*\*init (\w+)\*\* at ([^\s]+) \(agentic-lib@([^)]+)\)/);
+    if (m && m[1] === mode && m[3] === pkg.version) {
+      const missionLine = existing.match(/\*\*mission:\*\* (.+)/);
+      if (missionLine && missionLine[1] === mission) {
+        initTimestamp = m[2];
+      }
+    }
+  }
   const initHeader = [
     `# intentïon activity log`,
     "",
-    `**init ${purge ? "purge" : "reseed"}** at ${new Date().toISOString()} (agentic-lib@${pkg.version})`,
+    `**init ${mode}** at ${initTimestamp} (agentic-lib@${pkg.version})`,
     `**mission:** ${mission}`,
     "",
     "---",
     "",
   ].join("\n");
   if (!dryRun) {
-    writeFileSync(resolve(target, "intentïon.md"), initHeader);
+    writeFileSync(logPath, initHeader);
   }
   console.log("  WRITE: intentïon.md (init epoch header)");
   initChanges++;
@@ -1005,10 +1019,16 @@ function initPurge(seedsDir, missionName) {
   if (existsSync(tomlTarget)) {
     let toml = readFileSync(tomlTarget, "utf8");
     const pkg = JSON.parse(readFileSync(resolve(pkgRoot, "package.json"), "utf8"));
+    // Reuse existing timestamp for idempotency if mode, mission, and version match
+    let tomlTimestamp = new Date().toISOString();
+    const existingTs = toml.match(/^\[init\]\s*\ntimestamp\s*=\s*"([^"]+)"\s*\nmode\s*=\s*"([^"]+)"\s*\nmission\s*=\s*"([^"]+)"\s*\nversion\s*=\s*"([^"]+)"/m);
+    if (existingTs && existingTs[2] === "purge" && existingTs[3] === missionName && existingTs[4] === pkg.version) {
+      tomlTimestamp = existingTs[1];
+    }
     const initSection = [
       "",
       "[init]",
-      `timestamp = "${new Date().toISOString()}"`,
+      `timestamp = "${tomlTimestamp}"`,
       `mode = "purge"`,
       `mission = "${missionName}"`,
       `version = "${pkg.version}"`,
