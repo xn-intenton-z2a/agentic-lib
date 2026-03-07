@@ -60,16 +60,28 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Check for behaviour test support
+        id: check
+        run: |
+          if node -e "const p=require('./package.json'); process.exit(p.scripts?.['test:behaviour'] ? 0 : 1)" 2>/dev/null; then
+            echo "supported=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "supported=false" >> "$GITHUB_OUTPUT"
+            echo "No test:behaviour script — skipping behaviour tests"
+          fi
+
       - name: Build website
+        if: steps.check.outputs.supported == 'true'
         run: npm run build:web
 
       - name: Run behaviour tests
+        if: steps.check.outputs.supported == 'true'
         run: npm run test:behaviour
         env:
           HOME: /root
 
       - name: Push screenshot on main
-        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        if: steps.check.outputs.supported == 'true' && github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
