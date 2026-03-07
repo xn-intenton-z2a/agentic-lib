@@ -53,7 +53,8 @@ if (mode === "compare" || mode === "all") {
   }
   const source = readFileSync("agentic-lib.toml", "utf8");
   const expected = applyDistTransform(source);
-  const actual = readFileSync(targetToml, "utf8");
+  // Strip [init] section — it's runtime metadata added by init --purge, not part of the template
+  const actual = readFileSync(targetToml, "utf8").replace(/\n*\[init\][^\[]*$/, "\n");
   if (expected !== actual) {
     console.error("ERROR: distributed agentic-lib.toml does not match source defaults");
     console.error("--- Expected (transformed source) ---");
