@@ -860,6 +860,25 @@ function initReseed() {
   console.log("\n--- Reseed: Clear Features + Activity Log ---");
   removeFile(resolve(target, "intentïon.md"), "intentïon.md");
   removeFile(resolve(target, "MISSION_COMPLETE.md"), "MISSION_COMPLETE.md");
+  removeFile(resolve(target, "MISSION_FAILED.md"), "MISSION_FAILED.md");
+
+  // Write init epoch header to the activity log
+  const pkg = JSON.parse(readFileSync(resolve(pkgRoot, "package.json"), "utf8"));
+  const initHeader = [
+    `# intentïon activity log`,
+    "",
+    `**init ${purge ? "purge" : "reseed"}** at ${new Date().toISOString()} (agentic-lib@${pkg.version})`,
+    `**mission:** ${mission}`,
+    "",
+    "---",
+    "",
+  ].join("\n");
+  if (!dryRun) {
+    writeFileSync(resolve(target, "intentïon.md"), initHeader);
+  }
+  console.log("  WRITE: intentïon.md (init epoch header)");
+  initChanges++;
+
   clearDirContents(resolve(target, "features"), "features");
 
   // Clear old features location if it exists
@@ -980,10 +999,46 @@ function initPurge(seedsDir, missionName) {
     }
     process.exit(1);
   }
+
+  // Write init metadata to agentic-lib.toml
+  const tomlTarget = resolve(target, "agentic-lib.toml");
+  if (existsSync(tomlTarget)) {
+    let toml = readFileSync(tomlTarget, "utf8");
+    const pkg = JSON.parse(readFileSync(resolve(pkgRoot, "package.json"), "utf8"));
+    const initSection = [
+      "",
+      "[init]",
+      `timestamp = "${new Date().toISOString()}"`,
+      `mode = "purge"`,
+      `mission = "${missionName}"`,
+      `version = "${pkg.version}"`,
+    ].join("\n");
+    // Replace existing [init] section or append
+    if (/^\[init\]/m.test(toml)) {
+      toml = toml.replace(/\n?\[init\][^\[]*/, initSection);
+    } else {
+      toml = toml.trimEnd() + "\n" + initSection + "\n";
+    }
+    if (!dryRun) {
+      writeFileSync(tomlTarget, toml);
+    }
+    console.log("  WRITE: [init] section in agentic-lib.toml");
+    initChanges++;
+  }
+}
+
+function ghExec(cmd, input) {
+  const opts = { cwd: target, encoding: "utf8", timeout: 30000, stdio: ["pipe", "pipe", "pipe"] };
+  if (input) opts.input = input;
+  return execSync(cmd, opts);
+}
+
+function ghGraphQL(query) {
+  return JSON.parse(ghExec("gh api graphql --input -", JSON.stringify({ query })));
 }
 
 function initPurgeGitHub() {
-  console.log("\n--- Purge: Close GitHub Issues + Lock Discussions ---");
+  console.log("\n--- Purge: Clean Slate (Issues, PRs, Runs, Branches, Labels, Discussions) ---");
 
   // Detect the GitHub repo from git remote
   let repoSlug = "";
@@ -993,7 +1048,6 @@ function initPurgeGitHub() {
       encoding: "utf8",
       timeout: 10000,
     }).trim();
-    // Parse owner/repo from git@github.com:owner/repo.git or https://github.com/owner/repo.git
     const match = remoteUrl.match(/github\.com[:/]([^/]+\/[^/.]+)/);
     if (match) repoSlug = match[1].replace(/\.git$/, "");
   } catch {
@@ -1005,7 +1059,6 @@ function initPurgeGitHub() {
     return;
   }
 
-  // Check gh CLI is available
   try {
     execSync("gh --version", { encoding: "utf8", timeout: 5000, stdio: "pipe" });
   } catch {
@@ -1013,29 +1066,205 @@ function initPurgeGitHub() {
     return;
   }
 
-  // Close all open issues
+  const [owner, repo] = repoSlug.split("/");
+
+  // ── A1: Close + lock ALL issues (open and closed) ──────────────────
+  console.log("\n  --- Issues: close open, lock all ---");
   try {
-    const issuesJson = execSync(`gh issue list --repo ${repoSlug} --state open --json number,title --limit 100`, {
+    // Close all open issues with not_planned reason
+    const openIssuesJson = ghExec(`gh api repos/${repoSlug}/issues?state=open&per_page=100`);
+    const openIssues = JSON.parse(openIssuesJson || "[]").filter((i) => !i.pull_request);
+    for (const issue of openIssues) {
+      console.log(`  CLOSE: issue #${issue.number} — ${issue.title}`);
+      if (!dryRun) {
+        try {
+          ghExec(
+            `gh api repos/${repoSlug}/issues/${issue.number} -X PATCH -f state=closed -f state_reason=not_planned`,
+          );
+          ghExec(
+            `gh api repos/${repoSlug}/issues/${issue.number}/comments -X POST -f body="Closed by init --purge (mission reset)"`,
+          );
+          initChanges++;
+        } catch (err) {
+          console.log(`  WARN: Failed to close issue #${issue.number}: ${err.message}`);
+        }
+      } else {
+        initChanges++;
+      }
+    }
+    if (openIssues.length === 0) console.log("  No open issues to close");
+
+    // Lock ALL issues (open and closed) to prevent bleed
+    const allIssuesJson = ghExec(`gh api repos/${repoSlug}/issues?state=all&per_page=100`);
+    const allIssues = JSON.parse(allIssuesJson || "[]").filter((i) => !i.pull_request && !i.locked);
+    for (const issue of allIssues) {
+      console.log(`  LOCK: issue #${issue.number} — ${issue.title}`);
+      if (!dryRun) {
+        try {
+          ghExec(
+            `gh api repos/${repoSlug}/issues/${issue.number}/lock -X PUT -f lock_reason=resolved`,
+          );
+          initChanges++;
+        } catch (err) {
+          console.log(`  WARN: Failed to lock issue #${issue.number}: ${err.message}`);
+        }
+      } else {
+        initChanges++;
+      }
+    }
+    if (allIssues.length === 0) console.log("  No unlocked issues to lock");
+  } catch (err) {
+    console.log(`  WARN: Issue cleanup failed: ${err.message}`);
+  }
+
+  // ── A2: Close all open PRs + delete branches ──────────────────────
+  console.log("\n  --- PRs: close all open ---");
+  try {
+    const prsJson = ghExec(`gh pr list --repo ${repoSlug} --state open --json number,title,headRefName --limit 100`);
+    const prs = JSON.parse(prsJson || "[]");
+    for (const pr of prs) {
+      console.log(`  CLOSE: PR #${pr.number} — ${pr.title} (${pr.headRefName})`);
+      if (!dryRun) {
+        try {
+          ghExec(`gh pr close ${pr.number} --repo ${repoSlug} --delete-branch`);
+          initChanges++;
+        } catch (err) {
+          console.log(`  WARN: Failed to close PR #${pr.number}: ${err.message}`);
+        }
+      } else {
+        initChanges++;
+      }
+    }
+    if (prs.length === 0) console.log("  No open PRs to close");
+  } catch (err) {
+    console.log(`  WARN: PR cleanup failed: ${err.message}`);
+  }
+
+  // ── A3: Delete old workflow runs ──────────────────────────────────
+  console.log("\n  --- Workflow runs: delete old ---");
+  try {
+    const runsJson = ghExec(`gh api repos/${repoSlug}/actions/runs?per_page=100`);
+    const runs = JSON.parse(runsJson || '{"workflow_runs":[]}').workflow_runs || [];
+    let deleted = 0;
+    for (const run of runs) {
+      // Skip currently running workflows (in_progress or queued)
+      if (run.status === "in_progress" || run.status === "queued") {
+        console.log(`  SKIP: run ${run.id} (${run.name}) — ${run.status}`);
+        continue;
+      }
+      if (!dryRun) {
+        try {
+          ghExec(`gh api repos/${repoSlug}/actions/runs/${run.id} -X DELETE`);
+          deleted++;
+        } catch (err) {
+          console.log(`  WARN: Failed to delete run ${run.id}: ${err.message}`);
+        }
+      } else {
+        deleted++;
+      }
+    }
+    console.log(`  ${deleted > 0 ? `DELETE: ${deleted} workflow run(s)` : "No workflow runs to delete"}`);
+    initChanges += deleted;
+  } catch (err) {
+    console.log(`  WARN: Workflow run cleanup failed: ${err.message}`);
+  }
+
+  // ── A4: Delete stale remote branches ──────────────────────────────
+  console.log("\n  --- Branches: delete stale remotes ---");
+  try {
+    const branchesJson = ghExec(`gh api repos/${repoSlug}/branches?per_page=100`);
+    const branches = JSON.parse(branchesJson || "[]");
+    const currentBranch = execSync("git rev-parse --abbrev-ref HEAD", {
       cwd: target,
       encoding: "utf8",
-      timeout: 30000,
-      stdio: ["pipe", "pipe", "pipe"],
-    });
-    const issues = JSON.parse(issuesJson || "[]");
-    if (issues.length === 0) {
-      console.log("  No open issues to close");
-    } else {
-      for (const issue of issues) {
-        console.log(`  CLOSE: issue #${issue.number} — ${issue.title}`);
+      timeout: 5000,
+    }).trim();
+    const keepBranches = new Set(["main", "master", "template", "gh-pages", currentBranch]);
+    let deletedBranches = 0;
+    for (const branch of branches) {
+      if (keepBranches.has(branch.name)) continue;
+      if (branch.protected) continue;
+      console.log(`  DELETE: branch ${branch.name}`);
+      if (!dryRun) {
+        try {
+          ghExec(`gh api repos/${repoSlug}/git/refs/heads/${branch.name} -X DELETE`);
+          deletedBranches++;
+        } catch (err) {
+          console.log(`  WARN: Failed to delete branch ${branch.name}: ${err.message}`);
+        }
+      } else {
+        deletedBranches++;
+      }
+    }
+    if (deletedBranches === 0) console.log("  No stale branches to delete");
+    initChanges += deletedBranches;
+  } catch (err) {
+    console.log(`  WARN: Branch cleanup failed: ${err.message}`);
+  }
+
+  // ── A5: Reset labels ──────────────────────────────────────────────
+  console.log("\n  --- Labels: reset to pipeline defaults ---");
+  const GITHUB_DEFAULT_LABELS = new Set([
+    "bug",
+    "documentation",
+    "duplicate",
+    "enhancement",
+    "good first issue",
+    "help wanted",
+    "invalid",
+    "question",
+    "wontfix",
+  ]);
+  const PIPELINE_LABELS = [
+    { name: "automated", color: "0e8a16", description: "Created by the autonomous pipeline" },
+    { name: "ready", color: "0075ca", description: "Issue is ready for transformation" },
+    { name: "in-progress", color: "e4e669", description: "Work in progress" },
+    { name: "merged", color: "6f42c1", description: "Associated PR has been merged" },
+    { name: "automerge", color: "1d76db", description: "PR should be auto-merged when checks pass" },
+  ];
+  try {
+    const labelsJson = ghExec(`gh api repos/${repoSlug}/labels?per_page=100`);
+    const labels = JSON.parse(labelsJson || "[]");
+    const pipelineNames = new Set(PIPELINE_LABELS.map((l) => l.name));
+    // Delete non-default, non-pipeline labels
+    for (const label of labels) {
+      if (GITHUB_DEFAULT_LABELS.has(label.name)) continue;
+      if (pipelineNames.has(label.name)) continue;
+      console.log(`  DELETE: label "${label.name}"`);
+      if (!dryRun) {
+        try {
+          ghExec(`gh api repos/${repoSlug}/labels/${encodeURIComponent(label.name)} -X DELETE`);
+          initChanges++;
+        } catch (err) {
+          console.log(`  WARN: Failed to delete label "${label.name}": ${err.message}`);
+        }
+      } else {
+        initChanges++;
+      }
+    }
+    // Ensure pipeline labels exist with correct config
+    const existingNames = new Set(labels.map((l) => l.name));
+    for (const pl of PIPELINE_LABELS) {
+      if (existingNames.has(pl.name)) {
+        // Update to ensure correct color/description
         if (!dryRun) {
           try {
-            execSync(
-              `gh issue close ${issue.number} --repo ${repoSlug} --comment "Closed by init --purge (mission reset)"`,
-              { cwd: target, encoding: "utf8", timeout: 15000, stdio: "pipe" },
+            ghExec(
+              `gh api repos/${repoSlug}/labels/${encodeURIComponent(pl.name)} -X PATCH -f color=${pl.color} -f description="${pl.description}"`,
+            );
+          } catch { /* ignore */ }
+        }
+        console.log(`  UPDATE: label "${pl.name}"`);
+      } else {
+        console.log(`  CREATE: label "${pl.name}"`);
+        if (!dryRun) {
+          try {
+            ghExec(
+              `gh api repos/${repoSlug}/labels -X POST -f name="${pl.name}" -f color=${pl.color} -f description="${pl.description}"`,
             );
             initChanges++;
           } catch (err) {
-            console.log(`  WARN: Failed to close issue #${issue.number}: ${err.message}`);
+            console.log(`  WARN: Failed to create label "${pl.name}": ${err.message}`);
           }
         } else {
           initChanges++;
@@ -1043,23 +1272,15 @@ function initPurgeGitHub() {
       }
     }
   } catch (err) {
-    console.log(`  WARN: Could not list issues: ${err.message}`);
+    console.log(`  WARN: Label cleanup failed: ${err.message}`);
   }
 
-  // Close open discussions
-  const [owner, repo] = repoSlug.split("/");
+  // ── Discussions: close all open, create fresh one ─────────────────
+  console.log("\n  --- Discussions: close open, create fresh ---");
   try {
-    const query = JSON.stringify({
-      query: `{ repository(owner:"${owner}", name:"${repo}") { discussions(first:50, states:OPEN) { nodes { id number title } } } }`,
-    });
-    const result = execSync(`gh api graphql --input -`, {
-      cwd: target,
-      encoding: "utf8",
-      timeout: 30000,
-      input: query,
-      stdio: ["pipe", "pipe", "pipe"],
-    });
-    const parsed = JSON.parse(result);
+    const parsed = ghGraphQL(
+      `{ repository(owner:"${owner}", name:"${repo}") { discussions(first:50, states:OPEN) { nodes { id number title } } } }`,
+    );
     const discussions = parsed?.data?.repository?.discussions?.nodes || [];
     if (discussions.length === 0) {
       console.log("  No open discussions to close");
@@ -1068,16 +1289,7 @@ function initPurgeGitHub() {
         console.log(`  CLOSE: discussion #${disc.number} — ${disc.title}`);
         if (!dryRun) {
           try {
-            const mutation = JSON.stringify({
-              query: `mutation { closeDiscussion(input: { discussionId: "${disc.id}" }) { discussion { number } } }`,
-            });
-            execSync(`gh api graphql --input -`, {
-              cwd: target,
-              encoding: "utf8",
-              timeout: 15000,
-              input: mutation,
-              stdio: ["pipe", "pipe", "pipe"],
-            });
+            ghGraphQL(`mutation { closeDiscussion(input: { discussionId: "${disc.id}" }) { discussion { number } } }`);
             initChanges++;
           } catch {
             console.log(`  SKIP: Could not close discussion #${disc.number} (may need admin permissions)`);
@@ -1093,18 +1305,9 @@ function initPurgeGitHub() {
 
   // Create a new "Talk to the repository" discussion
   try {
-    // Get the repository node ID and "General" category ID
-    const repoQuery = JSON.stringify({
-      query: `{ repository(owner:"${owner}", name:"${repo}") { id discussionCategories(first:20) { nodes { id name } } } }`,
-    });
-    const repoResult = execSync(`gh api graphql --input -`, {
-      cwd: target,
-      encoding: "utf8",
-      timeout: 30000,
-      input: repoQuery,
-      stdio: ["pipe", "pipe", "pipe"],
-    });
-    const repoParsed = JSON.parse(repoResult);
+    const repoParsed = ghGraphQL(
+      `{ repository(owner:"${owner}", name:"${repo}") { id discussionCategories(first:20) { nodes { id name } } } }`,
+    );
     const repoId = repoParsed?.data?.repository?.id;
     const categories = repoParsed?.data?.repository?.discussionCategories?.nodes || [];
     const generalCat = categories.find((c) => c.name === "General");
@@ -1113,17 +1316,9 @@ function initPurgeGitHub() {
     } else {
       console.log('  CREATE: discussion "Talk to the repository" in General category');
       if (!dryRun) {
-        const createMutation = JSON.stringify({
-          query: `mutation { createDiscussion(input: { repositoryId: "${repoId}", categoryId: "${generalCat.id}", title: "Talk to the repository", body: "This discussion is the main channel for interacting with the repository's autonomous agents.\\n\\nUse this thread to:\\n- Submit feature requests or ideas\\n- Ask questions about the project\\n- Chat with the discussions bot\\n\\n---\\n*Created by init --purge*" }) { discussion { number url } } }`,
-        });
-        const createResult = execSync(`gh api graphql --input -`, {
-          cwd: target,
-          encoding: "utf8",
-          timeout: 15000,
-          input: createMutation,
-          stdio: ["pipe", "pipe", "pipe"],
-        });
-        const createParsed = JSON.parse(createResult);
+        const createParsed = ghGraphQL(
+          `mutation { createDiscussion(input: { repositoryId: "${repoId}", categoryId: "${generalCat.id}", title: "Talk to the repository", body: "This discussion is the main channel for interacting with the repository's autonomous agents.\\n\\nUse this thread to:\\n- Submit feature requests or ideas\\n- Ask questions about the project\\n- Chat with the discussions bot\\n\\n---\\n*Created by init --purge*" }) { discussion { number url } } }`,
+        );
         const newDisc = createParsed?.data?.createDiscussion?.discussion;
         if (newDisc) {
           console.log(`  CREATED: discussion #${newDisc.number} — ${newDisc.url}`);
@@ -1137,7 +1332,7 @@ function initPurgeGitHub() {
     console.log(`  SKIP: Could not create discussion (${err.message})`);
   }
 
-  // Enable GitHub Pages (serve from docs/ on main branch)
+  // ── Enable GitHub Pages ───────────────────────────────────────────
   console.log("\n--- Enable GitHub Pages ---");
   try {
     if (!dryRun) {
