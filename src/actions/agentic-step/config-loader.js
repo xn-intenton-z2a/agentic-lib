@@ -64,7 +64,7 @@ const LIMIT_DEFAULTS = {
 const FALLBACK_TUNING = {
   reasoningEffort: "medium",
   infiniteSessions: true,
-  transformationBudget: 8,
+  transformationBudget: 32,
   featuresScan: 10,
   sourceScan: 10,
   sourceContent: 5000,
@@ -93,7 +93,7 @@ function parseTuningProfile(profileSection) {
   return {
     reasoningEffort: profileSection["reasoning-effort"] || "medium",
     infiniteSessions: profileSection["infinite-sessions"] ?? true,
-    transformationBudget: profileSection["transformation-budget"] || 8,
+    transformationBudget: profileSection["transformation-budget"] || 32,
     featuresScan: profileSection["max-feature-files"] || 10,
     sourceScan: profileSection["max-source-files"] || 10,
     sourceContent: profileSection["max-source-chars"] || 5000,

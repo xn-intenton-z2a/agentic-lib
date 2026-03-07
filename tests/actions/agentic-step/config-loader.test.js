@@ -12,7 +12,7 @@ const PROFILE_MIN = `
 [profiles.min]
 reasoning-effort = "low"
 infinite-sessions = false
-transformation-budget = 4
+transformation-budget = 16
 max-feature-files = 3
 max-source-files = 3
 max-source-chars = 1000
@@ -34,7 +34,7 @@ const PROFILE_RECOMMENDED = `
 [profiles.recommended]
 reasoning-effort = "medium"
 infinite-sessions = true
-transformation-budget = 8
+transformation-budget = 32
 max-feature-files = 10
 max-source-files = 10
 max-source-chars = 5000
@@ -56,7 +56,7 @@ const PROFILE_MAX = `
 [profiles.max]
 reasoning-effort = "high"
 infinite-sessions = true
-transformation-budget = 32
+transformation-budget = 128
 max-feature-files = 50
 max-source-files = 50
 max-source-chars = 20000
@@ -312,8 +312,8 @@ describe("config-loader", () => {
       writeFileSync(configPath, '[tuning]\nprofile = "min"\n' + PROFILE_MIN);
 
       const config = loadConfig(configPath);
-      expect(config.tuning.transformationBudget).toBe(4);
-      expect(config.transformationBudget).toBe(4);
+      expect(config.tuning.transformationBudget).toBe(16);
+      expect(config.transformationBudget).toBe(16);
     });
 
     it("allows transformation-budget override", () => {
