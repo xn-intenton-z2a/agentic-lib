@@ -58,16 +58,28 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
+      - name: Check for behaviour test script
+        id: check
+        run: |
+          if node -e "const p=JSON.parse(require('fs').readFileSync('package.json','utf8')); process.exit(p.scripts?.['test:behaviour'] ? 0 : 1)"; then
+            echo "has-behaviour=true" >> $GITHUB_OUTPUT
+          else
+            echo "::notice::No test:behaviour script in package.json — skipping behaviour tests"
+            echo "has-behaviour=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: Install dependencies
+        if: steps.check.outputs.has-behaviour == 'true'
         run: npm ci
 
       - name: Run behaviour tests
+        if: steps.check.outputs.has-behaviour == 'true'
         run: npm run test:behaviour
         env:
           HOME: /root
 
       - name: Upload screenshot
-        if: always()
+        if: always() && steps.check.outputs.has-behaviour == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: screenshot
@@ -75,7 +87,7 @@ jobs:
           if-no-files-found: ignore
 
       - name: Push screenshot on main
-        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        if: steps.check.outputs.has-behaviour == 'true' && github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
