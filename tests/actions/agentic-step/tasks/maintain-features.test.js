@@ -18,6 +18,8 @@ vi.mock("../../../../src/actions/agentic-step/copilot.js", () => ({
   scanDirectory: vi.fn().mockReturnValue([]),
   formatPathsSection: vi.fn().mockReturnValue("## File Paths\n- mock"),
   extractFeatureSummary: vi.fn().mockImplementation((content, name) => `Feature: ${name}`),
+  extractNarrative: vi.fn().mockImplementation((_content, fallback) => fallback || ""),
+  NARRATIVE_INSTRUCTION: "\n\nAfter completing your task, end your response with a line starting with [NARRATIVE]...",
 }));
 
 vi.mock("../../../../src/actions/agentic-step/safety.js", () => ({

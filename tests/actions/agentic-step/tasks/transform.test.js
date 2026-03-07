@@ -20,6 +20,8 @@ vi.mock("../../../../src/actions/agentic-step/copilot.js", () => ({
   filterIssues: vi.fn().mockImplementation((issues) => issues),
   summariseIssue: vi.fn().mockImplementation((i) => `#${i.number}: ${i.title}`),
   extractFeatureSummary: vi.fn().mockImplementation((content, name) => `Feature: ${name}`),
+  extractNarrative: vi.fn().mockImplementation((_content, fallback) => fallback || ""),
+  NARRATIVE_INSTRUCTION: "\n\nAfter completing your task, end your response with a line starting with [NARRATIVE]...",
 }));
 
 vi.mock("fs", async (importOriginal) => {
