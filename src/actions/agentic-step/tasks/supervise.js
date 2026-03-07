@@ -48,14 +48,16 @@ function getWebsiteUrl(repo) {
 }
 
 /**
- * Dispatch the discussions bot with a message and discussion URL.
+ * Dispatch the discussions bot with a discussion URL.
+ * The bot workflow only accepts discussion-url (not message) — the bot reads the
+ * discussion thread itself to determine what to respond to.
  */
-async function dispatchBot(octokit, repo, message, discussionUrl) {
+async function dispatchBot(octokit, repo, _message, discussionUrl) {
   if (process.env.GITHUB_REPOSITORY === "xn-intenton-z2a/agentic-lib") {
     core.info("Skipping bot dispatch — running in SDK repo");
     return;
   }
-  const inputs = { message };
+  const inputs = {};
   if (discussionUrl) inputs["discussion-url"] = discussionUrl;
   try {
     await octokit.rest.actions.createWorkflowDispatch({
@@ -64,7 +66,7 @@ async function dispatchBot(octokit, repo, message, discussionUrl) {
       ref: "main",
       inputs,
     });
-    core.info(`Dispatched bot: ${message.substring(0, 100)}`);
+    core.info(`Dispatched bot for discussion: ${discussionUrl || "(default)"}`);
   } catch (err) {
     core.warning(`Could not dispatch bot: ${err.message}`);
   }
@@ -234,6 +236,23 @@ async function gatherContext(octokit, repo, config, t) {
     core.warning(`Could not fetch workflow runs: ${err.message}`);
   }
 
+  // Scan source files for exported function/const names (Strategy E: source summary for supervisor)
+  let sourceExports = [];
+  try {
+    const sourcePath = config.paths.source?.path || "src/lib/";
+    if (existsSync(sourcePath)) {
+      const sourceFiles = scanDirectory(sourcePath, [".js", ".ts"], { limit: 5 });
+      for (const sf of sourceFiles) {
+        const content = readFileSync(sf.path, "utf8");
+        const exports = [...content.matchAll(/export\s+(?:async\s+)?(?:function|const|let|var|class)\s+(\w+)/g)]
+          .map((m) => m[1]);
+        if (exports.length > 0) {
+          sourceExports.push(`${sf.name}: ${exports.join(", ")}`);
+        }
+      }
+    }
+  } catch { /* ignore */ }
+
   return {
     mission,
     recentActivity,
@@ -260,6 +279,7 @@ async function gatherContext(octokit, repo, config, t) {
     transformationBudget,
     cumulativeTransformationCost,
     recentlyClosedSummary,
+    sourceExports,
   };
 }
 
@@ -287,6 +307,14 @@ function buildPrompt(ctx, agentInstructions) {
     `### Library Docs (${ctx.libraryNames.length}/${ctx.libraryLimit})`,
     ctx.libraryNames.join(", ") || "none",
     "",
+    ...(ctx.sourceExports?.length > 0
+      ? [
+          `### Source Exports`,
+          "Functions and constants exported from source files:",
+          ...ctx.sourceExports.map((e) => `- ${e}`),
+          "",
+        ]
+      : []),
     `### Recent Workflow Runs`,
     ctx.workflowsSummary.join("\n") || "none",
     "",
@@ -507,25 +535,17 @@ async function executeCloseIssue(octokit, repo, params) {
 }
 
 async function executeRespondDiscussions(octokit, repo, params, ctx) {
-  const message = params.message || "";
   const url = params["discussion-url"] || ctx?.activeDiscussionUrl || "";
-  if (message) {
+  if (url) {
     if (process.env.GITHUB_REPOSITORY === "xn-intenton-z2a/agentic-lib") {
       core.info("Skipping bot dispatch — running in SDK repo");
       return `skipped:sdk-repo:respond-discussions`;
     }
-    core.info(`Dispatching discussions bot with response: ${message.substring(0, 100)}`);
-    const inputs = { message };
-    if (url) inputs["discussion-url"] = url;
-    await octokit.rest.actions.createWorkflowDispatch({
-      ...repo,
-      workflow_id: "agentic-lib-bot.yml",
-      ref: "main",
-      inputs,
-    });
-    return `respond-discussions:${url || "no-url"}`;
+    core.info(`Dispatching discussions bot for: ${url}`);
+    await dispatchBot(octokit, repo, "", url);
+    return `respond-discussions:${url}`;
   }
-  return "skipped:respond-no-message";
+  return "skipped:respond-no-url";
 }
 
 async function executeMissionComplete(octokit, repo, params, ctx) {
@@ -648,9 +668,12 @@ export async function supervise(context) {
   // --- Deterministic lifecycle posts (before LLM) ---
 
   // Step 2: Auto-announce on first run after init
-  // Detect first supervisor run: initTimestamp exists but no supervisor entries in activity
+  // Detect first supervisor run: initTimestamp exists but no prior supervisor workflow runs since init
   if (ctx.initTimestamp && !ctx.missionComplete && !ctx.missionFailed) {
-    const hasPriorSupervisor = ctx.recentActivity.includes("supervisor");
+    const hasPriorSupervisor = ctx.actionsSinceInit.some(
+      (a) => a.name === "agentic-lib-workflow" && a.conclusion === "success" &&
+        a.commitMessage?.toLowerCase().includes("supervisor"),
+    ) || ctx.recentActivity.includes("supervised:");
     if (!hasPriorSupervisor && ctx.mission && ctx.activeDiscussionUrl) {
       core.info("First supervisor run after init — announcing mission");
       const announcement = `New mission started!\n\n**Mission:** ${ctx.mission.substring(0, 300)}\n\n**Website:** ${websiteUrl}`;
@@ -690,6 +713,28 @@ export async function supervise(context) {
   }
 
   // --- Deterministic lifecycle posts (after LLM) ---
+
+  // Strategy A: Deterministic mission-complete fallback
+  // If the LLM didn't choose mission-complete but conditions are clearly met, auto-execute it.
+  if (!ctx.missionComplete && !ctx.missionFailed) {
+    const llmChoseMissionComplete = results.some((r) => r.startsWith("mission-complete:"));
+    if (!llmChoseMissionComplete) {
+      const resolvedCount = ctx.recentlyClosedSummary.filter((s) => s.includes("closed by review as RESOLVED")).length;
+      const hasNoOpenIssues = ctx.issuesSummary.length === 0;
+      const hasNoOpenPRs = ctx.prsSummary.length === 0;
+      if (hasNoOpenIssues && hasNoOpenPRs && resolvedCount >= 2) {
+        core.info(`Deterministic mission-complete: 0 open issues, 0 open PRs, ${resolvedCount} recently resolved — LLM did not detect completion`);
+        try {
+          const autoResult = await executeMissionComplete(octokit, repo,
+            { reason: `All acceptance criteria satisfied (${resolvedCount} issues closed by review as RESOLVED, 0 open issues, 0 open PRs)` },
+            ctx);
+          results.push(autoResult);
+        } catch (err) {
+          core.warning(`Deterministic mission-complete failed: ${err.message}`);
+        }
+      }
+    }
+  }
 
   // Step 3: Auto-respond when a message referral is present
   // If the workflow was triggered with a message (from bot's request-supervisor),

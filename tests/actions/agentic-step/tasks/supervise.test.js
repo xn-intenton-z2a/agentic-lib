@@ -418,7 +418,6 @@ describe("tasks/supervise", () => {
         workflow_id: "agentic-lib-bot.yml",
         ref: "main",
         inputs: {
-          "message": "Working on it",
           "discussion-url": "https://github.com/org/repo/discussions/1",
         },
       }),
@@ -426,7 +425,7 @@ describe("tasks/supervise", () => {
     expect(result.details).toContain("respond-discussions");
   });
 
-  it("skips respond:discussions when message is empty", async () => {
+  it("skips respond:discussions when no discussion URL available", async () => {
     runCopilotTask.mockResolvedValue({
       content: "[ACTIONS]\nrespond:discussions\n[/ACTIONS]\n[REASONING]\nEmpty.\n[/REASONING]",
       tokensUsed: 30,
@@ -435,7 +434,7 @@ describe("tasks/supervise", () => {
 
     const result = await supervise(ctx);
 
-    expect(result.details).toContain("skipped:respond-no-message");
+    expect(result.details).toContain("skipped:respond-no-url");
   });
 
   it("handles workflow runs fetch failure gracefully", async () => {
