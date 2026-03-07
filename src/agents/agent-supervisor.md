@@ -38,7 +38,7 @@ When open issues with the `automated` label lack the `ready` label and are more 
 ### Mission Initialised (init completed)
 When recent workflow runs show an init completion, the repository has a fresh or updated mission.
 Dispatch the discussions bot to announce the new mission to the community.
-Include the website URL in the announcement — the site is at `https://<owner>.github.io/<repo>/`.
+Include the website URL in the announcement — the site is at `https://<owner>.github.io/<repo>/` and runs the library.
 
 ### Mission Accomplished (bounded missions)
 When ALL of the following conditions are met, the mission is accomplished:
@@ -48,7 +48,7 @@ When ALL of the following conditions are met, the mission is accomplished:
 4. Evidence artifacts exist under `docs/` (example outputs, test results, or walkthroughs)
 
 When all conditions are met:
-1. `dispatch:agentic-lib-bot` — announce mission accomplished in the discussions thread. Include the website URL (`https://<owner>.github.io/<repo>/`) so users can see the finished product.
+1. `dispatch:agentic-lib-bot` — announce mission accomplished in the discussions thread. Include the website URL (`https://<owner>.github.io/<repo>/`) where users can see the finished product.
 2. `set-schedule:off` — stop the workflow. The mission is done.
 3. Log `mission-accomplished` in the activity log.
 

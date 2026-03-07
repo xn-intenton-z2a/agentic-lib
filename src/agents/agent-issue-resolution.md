@@ -22,16 +22,29 @@ When implementing features, also produce evidence artifacts under `docs/`:
 Design the library API with hooks that make evidence capture easy: return structured result objects,
 support `outputFile` options where appropriate, and emit results that observers can record.
 
-## Website Showcase
+## Website
 
-Maintain a website in `src/web/` that visually demonstrates the library's capabilities. The website is
-published to GitHub Pages automatically (from `docs/` via `npm run build:web`).
+The repository has a website in `src/web/` that uses the JS library. It is published to GitHub Pages
+automatically (from `docs/` via `npm run build:web`).
 
-- `src/web/index.html` is the main page — evolve it to showcase the library interactively
+### How the library connects to the website
+
+- `src/lib/main.js` is the JS library — it exports functions, `name`, `version`, `description`, and `getIdentity()`
+- `npm run build:web` copies `src/web/*` to `docs/` and generates `docs/lib-meta.js` from `package.json`
+- `src/web/index.html` imports `lib-meta.js` via `<script type="module">` to display the library's identity
+- The website should import and call library functions — not just describe them
+
+### What to do with the website
+
+- **Use the library**: Import the library (or its browser-compatible parts) and call its functions on the page
+- **Show real results**: Display actual output from library functions, not placeholder text
+- When you add or change library functions, update the website to reflect them
+
+### Guidelines
+
+- `src/web/index.html` is the main page — update it as the library grows
 - You may add CSS, JS, images, or additional HTML pages in `src/web/`
-- The website should demonstrate what the library does in a way a visitor can see and interact with
 - Keep it self-contained (no external CDN dependencies unless essential)
 - Link back to the repository for source code and mission details
-- When the library produces visual output (plots, graphs, data), embed or render it on the website
-- When the library is computational (algorithms, utilities), create an interactive demo or show example results
-- The website tests in `tests/unit/web.test.js` verify the HTML exists and is structurally valid — you may extend them
+- The website tests in `tests/unit/web.test.js` verify structure and library wiring — extend them as needed
+- The website is not the mission — it supports the library. Don't over-invest in the website at the expense of the library

@@ -113,6 +113,7 @@ describe("config-loader", () => {
         "examples/",
         "README.md",
         "package.json",
+        "src/web/",
       ]);
       expect(config.readOnlyPaths).toEqual(["MISSION.md", "library/", "SOURCES.md", "CONTRIBUTING.md"]);
     });
