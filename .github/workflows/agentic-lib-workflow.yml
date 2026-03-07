@@ -438,6 +438,10 @@ jobs:
       - name: Install project dependencies
         run: npm ci
 
+      - name: Install Playwright (for behaviour tests)
+        if: hashFiles('playwright.config.js') != '' || hashFiles('playwright.config.ts') != ''
+        run: npx playwright install --with-deps chromium
+
       - name: Self-init (agentic-lib dev only)
         if: hashFiles('scripts/self-init.sh') != '' && hashFiles('.github/agentic-lib/actions/agentic-step/package.json') == ''
         run: bash scripts/self-init.sh
@@ -627,6 +631,14 @@ jobs:
           instructions: ".github/agentic-lib/agents/agent-apply-fix.md"
           model: ${{ needs.params.outputs.model }}
 
+      - name: Build website and run behaviour tests (fix)
+        if: |
+          steps.fix-mission-check.outputs.mission-complete != 'true' &&
+          (env.FIX_PR_NUMBER != '' || env.FIX_MAIN_BUILD == 'true')
+        run: |
+          npm run build:web 2>/dev/null || echo "No build:web script"
+          npm run --if-present test:behaviour || echo "Behaviour tests failed (non-blocking for fix)"
+
       - name: Commit and push fixes
         if: github.repository != 'xn-intenton-z2a/agentic-lib' && env.FIX_PR_NUMBER != '' && steps.fix-mission-check.outputs.mission-complete != 'true'
         uses: ./.github/agentic-lib/actions/commit-if-changed
@@ -715,6 +727,10 @@ jobs:
 
       - name: Install project dependencies
         run: npm ci
+
+      - name: Install Playwright (for behaviour tests)
+        if: hashFiles('playwright.config.js') != '' || hashFiles('playwright.config.ts') != ''
+        run: npx playwright install --with-deps chromium
 
       - name: Self-init (agentic-lib dev only)
         if: hashFiles('scripts/self-init.sh') != '' && hashFiles('.github/agentic-lib/actions/agentic-step/package.json') == ''
@@ -810,18 +826,26 @@ jobs:
           CONFIG="${{ needs.params.outputs.config-path }}"
           TEST_CMD=$(grep -E '^\s*test\s*=' "$CONFIG" 2>/dev/null | sed 's/.*=\s*"\(.*\)"/\1/' | head -1)
           TEST_CMD="${TEST_CMD:-npm ci && npm test}"
-          echo "Running: $TEST_CMD"
+          echo "Running unit tests: $TEST_CMD"
           set +e
           eval "$TEST_CMD" 2>&1 | tail -30
           EXIT_CODE=$?
           set -e
           if [ $EXIT_CODE -ne 0 ]; then
             echo "tests-passed=false" >> $GITHUB_OUTPUT
-            echo "WARNING: Tests failed (exit $EXIT_CODE) — skipping commit and PR"
-          else
-            echo "tests-passed=true" >> $GITHUB_OUTPUT
-            echo "Tests passed"
+            echo "WARNING: Unit tests failed (exit $EXIT_CODE) — skipping commit and PR"
+            exit 0
           fi
+          # Run behaviour tests if available
+          if npm run --if-present test:behaviour; then
+            echo "Behaviour tests passed"
+          else
+            echo "tests-passed=false" >> $GITHUB_OUTPUT
+            echo "WARNING: Behaviour tests failed — skipping commit and PR"
+            exit 0
+          fi
+          echo "tests-passed=true" >> $GITHUB_OUTPUT
+          echo "All tests passed"
 
       - name: Commit and push
         if: github.repository != 'xn-intenton-z2a/agentic-lib' && steps.issue.outputs.issue-number != '' && needs.params.outputs.dry-run != 'true' && steps.pre-commit-test.outputs.tests-passed == 'true'
