@@ -263,3 +263,28 @@ Still TODO: T1.3 (issue noise filtering), T1.4 (feature ordering), T2.1 (structu
 **Copilot's response via Issue #1849:** (pending — Copilot will open a PR with answers)
 
 **Inter-session coordination:** Left a message in `.claude/messages.md` for the other Claude session working on PLAN_CONTEXT_QUALITY, directing them to check this log for Copilot's feedback when it arrives.
+
+### 2026-03-07: Website Showcase Feature (commit 70b80d2a)
+
+**Claude implemented** the website showcase feature for the autonomous pipeline:
+
+**What was built:**
+- `src/web/index.html` seed — minimal HTML scaffold that the LLM evolves per-mission
+- `tests/unit/web.test.js` seed — vitest checks for HTML existence and structure
+- `build:web` / `start:web` npm scripts — copies src/web/ to docs/ for GitHub Pages
+- `paths.web` in agentic-lib.toml — configurable web source directory
+- Init logic: creates src/web/, bootstraps docs/ with .nojekyll, enables GitHub Pages via API
+- Workflow: build:web step after transform, clickable website URL in run summary
+- Agent prompts updated:
+  - Transform agent told to "maintain a website in src/web/ that visually demonstrates the library"
+  - Supervisor posts website URL to discussions on init and mission complete
+  - Discussions bot handles feature requests and re-seed requests from users
+
+**Website URL pattern:** `https://<owner>.github.io/<repo>/`
+
+**Discussions bot now supports:**
+- Feature requests ("add feature X") → creates GitHub issue via supervisor
+- Re-seed requests ("change mission to plot-code-lib") → explains init --purge --mission
+- Website feedback → creates issue for pipeline to address
+
+**Next:** Release agentic-lib, then `init --purge` on repository0 to deploy the website.
