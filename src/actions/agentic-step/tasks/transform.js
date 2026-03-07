@@ -183,6 +183,7 @@ export async function transform(context) {
     cost,
     model,
     details: resultContent.substring(0, 500),
+    narrative: (resultContent || "").substring(0, 2000),
     promptBudget,
     contextNotes: `Transformed with ${sourceFiles.length} source files (mtime-sorted, cleaned), ${features.length} features, ${openIssues.length} issues (${rawIssues.length - openIssues.length} stale filtered).`,
   };
