@@ -63,9 +63,9 @@ describe("src/seeds", () => {
       expect(content).toContain("@playwright/test");
     });
 
-    it("takes a screenshot to HOMEPAGE.png", () => {
+    it("takes a screenshot to SCREENSHOT_INDEX.png", () => {
       const content = readFileSync(join(SEEDS_DIR, "zero-behaviour.test.js"), "utf8");
-      expect(content).toContain("HOMEPAGE.png");
+      expect(content).toContain("SCREENSHOT_INDEX.png");
     });
   });
 

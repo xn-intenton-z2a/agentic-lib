@@ -45,7 +45,7 @@ Create `src/seeds/zero-behaviour.test.js` — a Playwright test that:
 - Navigates to the homepage
 - Asserts HTTP 200 response
 - Asserts the page renders (contains expected elements like `lib-name`, `lib-version`)
-- Takes a screenshot to `HOMEPAGE.png`
+- Takes a screenshot to `SCREENSHOT_INDEX.png`
 
 Use `@playwright/test` with its built-in `webServer` config or a simple `npx serve` in the test setup.
 
@@ -84,7 +84,7 @@ Add to the distributed test workflow:
 - A step that runs `npm run build:web` (needed for `docs/` to exist)
 - A step that installs Playwright browsers: `npx playwright install --with-deps chromium`
 - A step that runs `npm run test:behaviour`
-- On main branch: a step that commits and pushes `HOMEPAGE.png` to project root
+- On main branch: a step that commits and pushes `SCREENSHOT_INDEX.png` to project root
 
 The Playwright container approach: use `container: mcr.microsoft.com/playwright:v1.58.2-noble` on the job so browsers are pre-installed and no `playwright install` step is needed.
 
@@ -132,7 +132,7 @@ Using this container means no `npx playwright install` step is needed.
 ## Screenshot Push Strategy
 
 In `agentic-lib-test.yml`, on main branch only:
-1. Run behaviour tests (which produce `HOMEPAGE.png`)
+1. Run behaviour tests (which produce `SCREENSHOT_INDEX.png`)
 2. Copy screenshot to project root
 3. Commit and push with `[skip ci]` to avoid recursive triggers
 4. Use the same retry-with-rebase pattern from the init/schedule workflows
@@ -158,6 +158,6 @@ This gives a visual record of the website state after each main push.
 - Init a workspace with `--purge`, run `npm install`, verify:
   - `npm test` passes (unit + web tests via vitest)
   - `npm run test:behaviour` passes (Playwright homepage test)
-  - `HOMEPAGE.png` screenshot is created
+  - `SCREENSHOT_INDEX.png` screenshot is created
 - Push to agentic-lib, verify `test.yml` `test-seeded-behaviour` job passes
 - Release, run `init --purge` on repository0, verify `agentic-lib-test.yml` runs behaviour tests

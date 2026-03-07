@@ -467,7 +467,11 @@ jobs:
           HOME: /root
 
       - name: Verify screenshot was created
-        run: test -f /tmp/test-workspace/HOMEPAGE.png || { echo "ERROR: HOMEPAGE.png not created"; exit 1; }
+        run: |
+          if [ ! -f /tmp/test-workspace/SCREENSHOT_INDEX.png ]; then
+            echo "ERROR: SCREENSHOT_INDEX.png not created"
+            exit 1
+          fi
 
   test-dist-yaml-validity:
     runs-on: ubuntu-latest

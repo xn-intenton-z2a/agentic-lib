@@ -10,5 +10,5 @@ test("homepage returns 200 and renders", async ({ page }) => {
   await expect(page.locator("#lib-version")).toBeVisible();
   await expect(page.locator("#demo-output")).toBeVisible();
 
-  await page.screenshot({ path: "HOMEPAGE.png", fullPage: true });
+  await page.screenshot({ path: "SCREENSHOT_INDEX.png", fullPage: true });
 });

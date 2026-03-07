@@ -73,9 +73,9 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add HOMEPAGE.png
+          git add SCREENSHOT_INDEX.png
           git diff --cached --quiet && echo "No screenshot changes" && exit 0
-          git commit -m "test: update HOMEPAGE.png [skip ci]"
+          git commit -m "test: update SCREENSHOT_INDEX.png [skip ci]"
           for attempt in 1 2 3; do
             git push origin HEAD:main && break
             echo "Push failed (attempt $attempt) — pulling and retrying"
