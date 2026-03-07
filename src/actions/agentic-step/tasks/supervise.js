@@ -48,16 +48,15 @@ function getWebsiteUrl(repo) {
 }
 
 /**
- * Dispatch the discussions bot with a discussion URL.
- * The bot workflow only accepts discussion-url (not message) — the bot reads the
- * discussion thread itself to determine what to respond to.
+ * Dispatch the discussions bot with a message and discussion URL.
  */
-async function dispatchBot(octokit, repo, _message, discussionUrl) {
+async function dispatchBot(octokit, repo, message, discussionUrl) {
   if (process.env.GITHUB_REPOSITORY === "xn-intenton-z2a/agentic-lib") {
     core.info("Skipping bot dispatch — running in SDK repo");
     return;
   }
   const inputs = {};
+  if (message) inputs.message = message;
   if (discussionUrl) inputs["discussion-url"] = discussionUrl;
   try {
     await octokit.rest.actions.createWorkflowDispatch({
@@ -66,7 +65,7 @@ async function dispatchBot(octokit, repo, _message, discussionUrl) {
       ref: "main",
       inputs,
     });
-    core.info(`Dispatched bot for discussion: ${discussionUrl || "(default)"}`);
+    core.info(`Dispatched bot: ${(message || discussionUrl || "(default)").substring(0, 100)}`);
   } catch (err) {
     core.warning(`Could not dispatch bot: ${err.message}`);
   }
@@ -535,17 +534,18 @@ async function executeCloseIssue(octokit, repo, params) {
 }
 
 async function executeRespondDiscussions(octokit, repo, params, ctx) {
+  const message = params.message || "";
   const url = params["discussion-url"] || ctx?.activeDiscussionUrl || "";
-  if (url) {
+  if (message || url) {
     if (process.env.GITHUB_REPOSITORY === "xn-intenton-z2a/agentic-lib") {
       core.info("Skipping bot dispatch — running in SDK repo");
       return `skipped:sdk-repo:respond-discussions`;
     }
-    core.info(`Dispatching discussions bot for: ${url}`);
-    await dispatchBot(octokit, repo, "", url);
-    return `respond-discussions:${url}`;
+    core.info(`Dispatching discussions bot: ${(message || url).substring(0, 100)}`);
+    await dispatchBot(octokit, repo, message, url);
+    return `respond-discussions:${url || "no-url"}`;
   }
-  return "skipped:respond-no-url";
+  return "skipped:respond-no-message";
 }
 
 async function executeMissionComplete(octokit, repo, params, ctx) {
