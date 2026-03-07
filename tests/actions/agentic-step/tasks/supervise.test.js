@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 // Copyright (C) 2025-2026 Polycode Limited
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 
 // Mock @actions/core
 vi.mock("@actions/core", () => ({
@@ -105,14 +105,27 @@ function createMockContext(overrides = {}) {
 // --- Tests ---
 
 describe("tasks/supervise", () => {
+  let savedGithubRepository;
+
   beforeEach(() => {
     vi.clearAllMocks();
+    // Ensure the SDK-repo guard does not skip dispatches in tests
+    savedGithubRepository = process.env.GITHUB_REPOSITORY;
+    process.env.GITHUB_REPOSITORY = "test-owner/test-repo";
     runCopilotTask.mockResolvedValue({
       content: "[ACTIONS]\nnop\n[/ACTIONS]\n[REASONING]\nNothing to do.\n[/REASONING]",
       tokensUsed: 100,
     });
     readOptionalFile.mockReturnValue("mock content");
     existsSync.mockReturnValue(false);
+  });
+
+  afterEach(() => {
+    if (savedGithubRepository !== undefined) {
+      process.env.GITHUB_REPOSITORY = savedGithubRepository;
+    } else {
+      delete process.env.GITHUB_REPOSITORY;
+    }
   });
 
   it("returns nop when LLM chooses nop", async () => {
