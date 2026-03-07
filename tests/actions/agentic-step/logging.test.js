@@ -252,6 +252,33 @@ describe("logging", () => {
       expect(content).toContain("All limits within normal range.");
     });
 
+    it("includes narrative section when provided", () => {
+      const filepath = join(tmpDir, "intention.md");
+      logActivity({
+        filepath,
+        task: "transform",
+        outcome: "transformed",
+        narrative: "I added a new HTTP server feature by implementing an Express-based route handler. The change introduces a GET /status endpoint that returns the current server health.",
+      });
+
+      const content = readFileSync(filepath, "utf8");
+      expect(content).toContain("### Narrative");
+      expect(content).toContain("I added a new HTTP server feature");
+      expect(content).toContain("GET /status endpoint");
+    });
+
+    it("omits narrative section when not provided", () => {
+      const filepath = join(tmpDir, "intention.md");
+      logActivity({
+        filepath,
+        task: "transform",
+        outcome: "transformed",
+      });
+
+      const content = readFileSync(filepath, "utf8");
+      expect(content).not.toContain("### Narrative");
+    });
+
     it("includes transformation cost when provided", () => {
       const filepath = join(tmpDir, "intention.md");
       logActivity({

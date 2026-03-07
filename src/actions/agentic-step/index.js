@@ -151,6 +151,7 @@ async function run() {
         promptBudget: result.promptBudget,
         closingNotes,
         transformationCost,
+        narrative: result.narrative,
       });
     }
 
