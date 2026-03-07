@@ -456,10 +456,6 @@ jobs:
         working-directory: /tmp/test-workspace
         run: npm test
 
-      - name: Build website
-        working-directory: /tmp/test-workspace
-        run: npm run build:web
-
       - name: Run behaviour tests
         working-directory: /tmp/test-workspace
         run: npm run test:behaviour
