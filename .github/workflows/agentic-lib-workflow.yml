@@ -654,7 +654,8 @@ jobs:
           SOURCES=$(yq -r '.paths.librarySourcesFilepath.path // "SOURCES.md"' "$CONFIG")
           README=$(yq -r '.paths.readmeFilepath.path // "README.md"' "$CONFIG")
           DEPS=$(yq -r '.paths.dependenciesFilepath.path // "package.json"' "$CONFIG")
-          echo "writablePaths=${SOURCE};${TESTS};${FEATURES};${DOCS};${LIBRARY};${SOURCES};${README};${DEPS}" >> $GITHUB_OUTPUT
+          WEB=$(yq -r '.paths.web // "src/web/"' "$CONFIG" 2>/dev/null || echo "src/web/")
+          echo "writablePaths=${SOURCE};${TESTS};${FEATURES};${DOCS};${LIBRARY};${SOURCES};${README};${DEPS};${WEB}" >> $GITHUB_OUTPUT
 
       - name: Check mission-complete signal
         id: dev-mission-check
@@ -714,6 +715,11 @@ jobs:
           model: ${{ needs.params.outputs.model }}
           issue-number: ${{ steps.issue.outputs.issue-number }}
           writable-paths: ${{ steps.config.outputs.writablePaths }}
+
+      - name: Build website
+        if: steps.issue.outputs.issue-number != ''
+        run: |
+          npm run build:web 2>/dev/null || echo "No build:web script"
 
       - name: Commit and push
         if: github.repository != 'xn-intenton-z2a/agentic-lib' && steps.issue.outputs.issue-number != '' && needs.params.outputs.dry-run != 'true'
@@ -822,10 +828,15 @@ jobs:
 
       - name: Summary
         run: |
+          REPO="${{ github.repository }}"
+          OWNER="${REPO%%/*}"
+          REPO_NAME="${REPO##*/}"
+          SITE_URL="https://${OWNER}.github.io/${REPO_NAME}/"
           echo "## agentic-lib-workflow run summary" >> $GITHUB_STEP_SUMMARY
           echo "- Mode: ${{ needs.params.outputs.mode }}" >> $GITHUB_STEP_SUMMARY
           echo "- Model: ${{ needs.params.outputs.model }}" >> $GITHUB_STEP_SUMMARY
           echo "- Dry-run: ${{ needs.params.outputs.dry-run }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Website: [${SITE_URL}](${SITE_URL})" >> $GITHUB_STEP_SUMMARY
 
   # ─── Schedule change (if requested) ────────────────────────────────
   update-schedule:

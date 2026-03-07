@@ -886,6 +886,7 @@ function readTomlPaths() {
   let sourcePath = "src/lib/";
   let testsPath = "tests/unit/";
   let examplesPath = "examples/";
+  let webPath = "src/web/";
   const tomlTarget = resolve(target, "agentic-lib.toml");
   if (existsSync(tomlTarget)) {
     try {
@@ -893,14 +894,16 @@ function readTomlPaths() {
       const sourceMatch = tomlContent.match(/^source\s*=\s*"([^"]+)"/m);
       const testsMatch = tomlContent.match(/^tests\s*=\s*"([^"]+)"/m);
       const examplesMatch = tomlContent.match(/^examples\s*=\s*"([^"]+)"/m);
+      const webMatch = tomlContent.match(/^web\s*=\s*"([^"]+)"/m);
       if (sourceMatch) sourcePath = sourceMatch[1];
       if (testsMatch) testsPath = testsMatch[1];
       if (examplesMatch) examplesPath = examplesMatch[1];
+      if (webMatch) webPath = webMatch[1];
     } catch (err) {
       console.log(`  WARN: Could not read TOML for paths, using defaults: ${err.message}`);
     }
   }
-  return { sourcePath, testsPath, examplesPath };
+  return { sourcePath, testsPath, examplesPath, webPath };
 }
 
 function clearAndRecreateDir(dirPath, label) {
@@ -916,16 +919,19 @@ function clearAndRecreateDir(dirPath, label) {
 function initPurge(seedsDir, missionName) {
   console.log("\n--- Purge: Reset Source Files to Seed State ---");
 
-  const { sourcePath, testsPath, examplesPath } = readTomlPaths();
+  const { sourcePath, testsPath, examplesPath, webPath } = readTomlPaths();
   clearAndRecreateDir(sourcePath, sourcePath);
   clearAndRecreateDir(testsPath, testsPath);
   clearAndRecreateDir(examplesPath, examplesPath);
+  clearAndRecreateDir(webPath, webPath);
   clearAndRecreateDir("docs", "docs");
 
   // Copy seed files (including config TOML) — MISSION.md handled separately via mission seed
   const SEED_MAP = {
     "zero-main.js": "src/lib/main.js",
     "zero-main.test.js": "tests/unit/main.test.js",
+    "zero-index.html": "src/web/index.html",
+    "zero-web.test.js": "tests/unit/web.test.js",
     "zero-SOURCES.md": "SOURCES.md",
     "zero-package.json": "package.json",
     "zero-README.md": "README.md",
@@ -936,6 +942,18 @@ function initPurge(seedsDir, missionName) {
     if (existsSync(src)) {
       initCopyFile(src, resolve(target, targetRel), `SEED: ${seedFile} → ${targetRel}`);
     }
+  }
+
+  // Bootstrap docs/ for GitHub Pages — copy web seed so the site is available immediately
+  const webSeed = resolve(seedsDir, "zero-index.html");
+  if (existsSync(webSeed)) {
+    const docsDir = resolve(target, "docs");
+    if (!dryRun) {
+      mkdirSync(docsDir, { recursive: true });
+      writeFileSync(resolve(docsDir, ".nojekyll"), "");
+    }
+    initCopyFile(webSeed, resolve(docsDir, "index.html"), "SEED: zero-index.html → docs/index.html");
+    console.log("  CREATE: docs/.nojekyll");
   }
 
   // Force-overwrite agentic-lib.toml during purge (transformed from root)
@@ -1117,6 +1135,31 @@ function initPurgeGitHub() {
     }
   } catch (err) {
     console.log(`  SKIP: Could not create discussion (${err.message})`);
+  }
+
+  // Enable GitHub Pages (serve from docs/ on main branch)
+  console.log("\n--- Enable GitHub Pages ---");
+  try {
+    if (!dryRun) {
+      execSync(
+        `gh api repos/${repoSlug}/pages -X POST -f build_type=legacy -f "source[branch]=main" -f "source[path]=/docs"`,
+        { cwd: target, encoding: "utf8", timeout: 15000, stdio: ["pipe", "pipe", "pipe"] },
+      );
+      console.log(`  ENABLED: GitHub Pages from docs/ on main`);
+      console.log(`  URL: https://${owner}.github.io/${repo}/`);
+      initChanges++;
+    } else {
+      console.log(`  ENABLE: GitHub Pages from docs/ on main (dry run)`);
+      console.log(`  URL: https://${owner}.github.io/${repo}/`);
+      initChanges++;
+    }
+  } catch (err) {
+    if (err.message?.includes("409") || err.stderr?.includes("409")) {
+      console.log("  SKIP: GitHub Pages already enabled");
+    } else {
+      console.log(`  SKIP: Could not enable GitHub Pages (${err.message})`);
+      console.log(`  Manual: Settings → Pages → Source: Deploy from branch, Branch: main, Folder: /docs`);
+    }
   }
 }
 
