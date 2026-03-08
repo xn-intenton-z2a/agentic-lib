@@ -22,7 +22,7 @@
 #     test-dist-yaml-validity    — #@dist transform produces valid YAML
 #     test-init-update-mode      — update mode preserves user content
 #     test-stale-workflow-cleanup — stale workflows are removed
-#     test-all-missions-seed     — all 11 mission seeds work
+#     test-all-missions-seed     — all 14 mission seeds work
 #     test-mcp-server            — MCP server starts, lists tools, responds to calls
 #     test-spike-local-llm       — Local LLM function calling via node-llama-cpp
 #   Workflow dry-runs (7 jobs — call distributable workflows in inert mode):

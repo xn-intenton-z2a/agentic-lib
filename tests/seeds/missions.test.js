@@ -18,8 +18,10 @@ const EXPECTED_MISSIONS = [
   "fizz-buzz",
   "hamming-distance",
   "lunar-lander",
+  "markdown-compiler",
   "owl-ontology",
   "plot-code-lib",
+  "ray-tracer",
   "roman-numerals",
   "string-utils",
   "time-series-lab",
@@ -32,7 +34,9 @@ const BOUNDED_MISSIONS = [
   "fizz-buzz",
   "hamming-distance",
   "lunar-lander",
+  "markdown-compiler",
   "plot-code-lib",
+  "ray-tracer",
   "roman-numerals",
   "string-utils",
 ];
@@ -40,8 +44,8 @@ const BOUNDED_MISSIONS = [
 const ONGOING_MISSIONS = ["owl-ontology", "time-series-lab"];
 
 describe("src/seeds/missions", () => {
-  it("has 12 mission files", () => {
-    expect(allFiles).toHaveLength(12);
+  it("has 14 mission files", () => {
+    expect(allFiles).toHaveLength(14);
   });
 
   it("contains all expected missions", () => {
