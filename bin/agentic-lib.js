@@ -905,6 +905,7 @@ function initReseed(initTimestamp) {
 function readTomlPaths() {
   let sourcePath = "src/lib/";
   let testsPath = "tests/unit/";
+  let behaviourPath = "tests/behaviour/";
   let examplesPath = "examples/";
   let webPath = "src/web/";
   const tomlTarget = resolve(target, "agentic-lib.toml");
@@ -913,17 +914,19 @@ function readTomlPaths() {
       const tomlContent = readFileSync(tomlTarget, "utf8");
       const sourceMatch = tomlContent.match(/^source\s*=\s*"([^"]+)"/m);
       const testsMatch = tomlContent.match(/^tests\s*=\s*"([^"]+)"/m);
+      const behaviourMatch = tomlContent.match(/^behaviour\s*=\s*"([^"]+)"/m);
       const examplesMatch = tomlContent.match(/^examples\s*=\s*"([^"]+)"/m);
       const webMatch = tomlContent.match(/^web\s*=\s*"([^"]+)"/m);
       if (sourceMatch) sourcePath = sourceMatch[1];
       if (testsMatch) testsPath = testsMatch[1];
+      if (behaviourMatch) behaviourPath = behaviourMatch[1];
       if (examplesMatch) examplesPath = examplesMatch[1];
       if (webMatch) webPath = webMatch[1];
     } catch (err) {
       console.log(`  WARN: Could not read TOML for paths, using defaults: ${err.message}`);
     }
   }
-  return { sourcePath, testsPath, examplesPath, webPath };
+  return { sourcePath, testsPath, behaviourPath, examplesPath, webPath };
 }
 
 function clearAndRecreateDir(dirPath, label) {
@@ -939,9 +942,10 @@ function clearAndRecreateDir(dirPath, label) {
 function initPurge(seedsDir, missionName, initTimestamp) {
   console.log("\n--- Purge: Reset Source Files to Seed State ---");
 
-  const { sourcePath, testsPath, examplesPath, webPath } = readTomlPaths();
+  const { sourcePath, testsPath, behaviourPath, examplesPath, webPath } = readTomlPaths();
   clearAndRecreateDir(sourcePath, sourcePath);
   clearAndRecreateDir(testsPath, testsPath);
+  clearAndRecreateDir(behaviourPath, behaviourPath);
   clearAndRecreateDir(examplesPath, examplesPath);
   clearAndRecreateDir(webPath, webPath);
   clearAndRecreateDir("docs", "docs");
@@ -1097,25 +1101,53 @@ function initPurgeGitHub() {
     }
     if (openIssues.length === 0) console.log("  No open issues to close");
 
-    // Lock ALL issues (open and closed) to prevent bleed
+    // Blank + lock ALL issues (open and closed) to prevent bleed from old missions
     const allIssuesJson = ghExec(`gh api repos/${repoSlug}/issues?state=all&per_page=100`);
-    const allIssues = JSON.parse(allIssuesJson || "[]").filter((i) => !i.pull_request && !i.locked);
+    const allIssues = JSON.parse(allIssuesJson || "[]").filter((i) => !i.pull_request);
+    let blanked = 0;
     for (const issue of allIssues) {
-      console.log(`  LOCK: issue #${issue.number} — ${issue.title}`);
-      if (!dryRun) {
-        try {
-          ghExec(
-            `gh api repos/${repoSlug}/issues/${issue.number}/lock -X PUT -f lock_reason=resolved`,
-          );
+      const needsBlank = issue.title !== "unused github issue";
+      const needsLock = !issue.locked;
+      if (!needsBlank && !needsLock) continue;
+      if (needsBlank) {
+        console.log(`  BLANK: issue #${issue.number} — "${issue.title}" → "unused github issue"`);
+        if (!dryRun) {
+          try {
+            ghExec(
+              `gh api repos/${repoSlug}/issues/${issue.number} -X PATCH -f title="unused github issue" -f body="unused github issue"`,
+            );
+            // Remove all labels
+            try {
+              ghExec(`gh api repos/${repoSlug}/issues/${issue.number}/labels -X DELETE`);
+            } catch { /* no labels to remove */ }
+            blanked++;
+            initChanges++;
+          } catch (err) {
+            console.log(`  WARN: Failed to blank issue #${issue.number}: ${err.message}`);
+          }
+        } else {
+          blanked++;
           initChanges++;
-        } catch (err) {
-          console.log(`  WARN: Failed to lock issue #${issue.number}: ${err.message}`);
         }
-      } else {
-        initChanges++;
+      }
+      if (needsLock) {
+        console.log(`  LOCK: issue #${issue.number}`);
+        if (!dryRun) {
+          try {
+            ghExec(
+              `gh api repos/${repoSlug}/issues/${issue.number}/lock -X PUT -f lock_reason=resolved`,
+            );
+            initChanges++;
+          } catch (err) {
+            console.log(`  WARN: Failed to lock issue #${issue.number}: ${err.message}`);
+          }
+        } else {
+          initChanges++;
+        }
       }
     }
-    if (allIssues.length === 0) console.log("  No unlocked issues to lock");
+    if (blanked > 0) console.log(`  Blanked ${blanked} issue(s)`);
+    if (allIssues.length === 0) console.log("  No issues to process");
   } catch (err) {
     console.log(`  WARN: Issue cleanup failed: ${err.message}`);
   }

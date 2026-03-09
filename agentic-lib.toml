@@ -12,6 +12,7 @@ supervisor = "daily"              # off | weekly | daily | hourly | continuous
 mission = "test/MISSION.md"                     #@dist "MISSION.md"
 source = "test/src/lib/"                        #@dist "src/lib/"
 tests = "test/tests/unit/"                      #@dist "tests/unit/"
+behaviour = "test/tests/behaviour/"             #@dist "tests/behaviour/"
 features = "test/features/"                     #@dist "features/"
 library = "test/library/"                       #@dist "library/"
 web = "test/src/web/"                            #@dist "src/web/"

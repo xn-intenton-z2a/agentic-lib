@@ -108,6 +108,7 @@ describe("config-loader", () => {
       expect(config.writablePaths).toEqual([
         "src/lib/",
         "tests/unit/",
+        "tests/behaviour/",
         "features/",
         "docs/",
         "examples/",
