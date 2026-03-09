@@ -21,20 +21,20 @@ PLAN_SELF_HOSTED adds four bootstrap-specific scenarios to the same framework.
 
 ### Test 1: Clone Self — "Can I improve myself?"
 
-Clone agentic-lib's source tree into a temp workspace, write a mission that targets the SDK itself, run transform, and verify the system made a useful increment.
+Clone agentic-lib's source tree into a temp workspace, write an intentïon that targets the SDK itself, run transform, and verify the system made a useful increment.
 
 - Workspace: copy of agentic-lib source (minus `.git/`, `node_modules/`, `models/`)
-- MISSION.md: narrowly scoped so the tiny model can act (e.g., "Add JSDoc to exported functions in safety.js")
+- INTENTÏON.md: narrowly scoped so the tiny model can act (e.g., "Add JSDoc to exported functions in safety.js")
 - agentic-lib.toml: source paths point at `src/actions/agentic-step/` (the SDK itself)
 - `node_modules` symlinked from real repo for fast dependency resolution
 - Assertions: file modified, still valid JS, diff is substantive (not just whitespace)
 
 ### Test 2: Empty Bootstrap — "Can I recreate myself from a description?"
 
-Start from empty repo, `init --purge`, write MISSION.md describing the delta between version N and N+1 (which already exists as a known target), run maintain-features then transform, verify convergence toward the known target.
+Start from empty repo, `init --purge`, write INTENTÏON.md describing the delta between version N and N+1 (which already exists as a known target), run maintain-features then transform, verify convergence toward the known target.
 
 - Workspace: empty, then `init --purge` creates seed state
-- MISSION.md: derived from a real historical commit diff (e.g., v7.1.30 → v7.1.31)
+- INTENTÏON.md: derived from a real historical commit diff (e.g., v7.1.30 → v7.1.31)
 - Key insight: because the target already exists, convergence is objectively measurable
 - Assertions: seed files created, features generated, source modified, valid JS
 - Soft assertion: convergence score — keywords from the n+1 delta found in generated code
@@ -47,7 +47,7 @@ Start from empty repo, `init --purge`, write MISSION.md describing the delta bet
 1. copySourceTree(agenticLibRoot, workspace, ['.git', 'node_modules', 'models'])
 2. git init in workspace
 3. symlink node_modules from real repo
-4. Write MISSION.md targeting a specific single-file improvement
+4. Write INTENTÏON.md targeting a specific single-file improvement
 5. Write agentic-lib.toml with source = "src/actions/agentic-step/"
 6. node bin/agentic-lib.js transform --target <workspace> --local-llm
 7. Assert: file in src/actions/agentic-step/ modified, valid JS, diff substantive
@@ -58,7 +58,7 @@ Start from empty repo, `init --purge`, write MISSION.md describing the delta bet
 ```
 1. Create empty workspace, git init
 2. node bin/agentic-lib.js init --purge --target <workspace>
-3. Write MISSION.md describing known N→N+1 delta
+3. Write INTENTÏON.md describing known N→N+1 delta
 4. Write feature files matching the delta
 5. node bin/agentic-lib.js maintain-features --target <workspace> --local-llm
 6. node bin/agentic-lib.js transform --target <workspace> --local-llm
@@ -70,7 +70,7 @@ Start from empty repo, `init --purge`, write MISSION.md describing the delta bet
 
 ```
 1. copySourceTree into workspace, git init, commit all
-2. MISSION.md: "Update package.json version from X to Y, update seeds to match"
+2. INTENTÏON.md: "Update package.json version from X to Y, update seeds to match"
 3. agentic-lib.toml with package.json and src/seeds/ in writable paths
 4. node bin/agentic-lib.js transform --target <workspace> --local-llm
 5. Assert: package.json modified, still valid JSON
@@ -82,7 +82,7 @@ Start from empty repo, `init --purge`, write MISSION.md describing the delta bet
 ```
 1. copySourceTree into workspace
 2. Tamper: modify src/seeds/zero-main.js with an outdated function
-3. MISSION.md: "Review seeds, ensure zero-main.js is a minimal placeholder matching zero-main.test.js"
+3. INTENTÏON.md: "Review seeds, ensure zero-main.js is a minimal placeholder matching zero-main.test.js"
 4. node bin/agentic-lib.js transform --target <workspace> --local-llm
 5. Assert: tampered file modified, still valid JS
 ```
@@ -109,9 +109,9 @@ test:scenario:self-host     — All 4 bootstrap scenarios
 test:scenario:all           — All 7 scenarios (base + bootstrap)
 ```
 
-### Optional: n+1 mission generator (`scripts/generate-n-plus-1-mission.js`)
+### Optional: n+1 intentïon generator (`scripts/generate-n-plus-1-intention.js`)
 
-Utility that generates MISSION.md + feature files from `git diff <from>..<to>`. Deferred to Phase 3 — initially the empty-bootstrap scenario hardcodes a known delta.
+Utility that generates INTENTÏON.md + feature files from `git diff <from>..<to>`. Deferred to Phase 3 — initially the empty-bootstrap scenario hardcodes a known delta.
 
 ## Phased Implementation
 
@@ -130,7 +130,7 @@ Utility that generates MISSION.md + feature files from `git diff <from>..<to>`. 
 
 ### Phase 3: Tooling
 
-8. Build `scripts/generate-n-plus-1-mission.js` — parameterize empty-bootstrap across versions
+8. Build `scripts/generate-n-plus-1-intention.js` — parameterize empty-bootstrap across versions
 9. Build `scripts/self-host-system-test.sh` — full-cycle test with real Copilot SDK (not local LLM)
 10. Add canary self-host check to release.yml (informational, not blocking)
 
@@ -138,7 +138,7 @@ Utility that generates MISSION.md + feature files from `git diff <from>..<to>`. 
 
 ### A. Regression test from known fixes
 
-Take historical bug fix commits, check out pre-fix state, write mission from the commit message, run transform, compare to actual fix. Has a known correct answer — stronger evidence than open-ended improvement.
+Take historical bug fix commits, check out pre-fix state, write intentïon from the commit message, run transform, compare to actual fix. Has a known correct answer — stronger evidence than open-ended improvement.
 
 ### B. Canary self-host on every release
 
@@ -180,7 +180,7 @@ The ultimate test: same scenarios but with `--model claude-sonnet-4` instead of 
 
 | Scenario | Hard (must pass) | Soft (informational) |
 |---|---|---|
-| clone-self | File modified, valid JS, diff substantive | Tests pass, change related to mission |
+| clone-self | File modified, valid JS, diff substantive | Tests pass, change related to intentïon |
 | empty-bootstrap | Seeds created, feature created, source modified, valid JS | Convergence > 0, n+1 keywords found |
 | version-increment | package.json modified, valid JSON | Version matches target, seeds updated |
 | seed-sync | Tampered file modified | Modification toward correctness |
@@ -189,7 +189,7 @@ The ultimate test: same scenarios but with `--model claude-sonnet-4` instead of 
 
 | Risk | Likelihood | Mitigation |
 |---|---|---|
-| Tiny model can't handle SDK complexity | High | Narrow mission to single file; fall back to Qwen2.5-0.5B |
+| Tiny model can't handle SDK complexity | High | Narrow intentïon to single file; fall back to Qwen2.5-0.5B |
 | clone-self workspace missing node_modules | High | Symlink from real repo |
 | n+1 delta too complex for tiny model | Medium | Choose JS-only delta, not YAML workflow changes |
 | Tests are slow/flaky | Low-medium | Separate npm scripts; not in `npm test`; model loaded once |

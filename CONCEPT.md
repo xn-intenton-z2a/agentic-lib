@@ -14,41 +14,9 @@ The system works with GitHub's grain: branches for parallel work, PRs for qualit
 
 ---
 
-## The Repository (Manufacturing)
+## The Repository
 
-Inside each repository, four kinds of thing are made. This borrows from manufacturing because a repository is a factory — it takes in an intentïon and produces the thing you wanted:
-
-| Kind          | What it is                                                                          | Manufacturing analog                             | Examples                                                |
-| ------------- | ----------------------------------------------------------------------------------- | ------------------------------------------------ | ------------------------------------------------------- |
-| **Product**   | Code that when run IS the thing you want                                            | Finished goods                                   | `src/`, runtime code, the deployable artifact           |
-| **Machinery** | Code, prompts, and config that build, run, deploy, and manage                       | The factory floor — jigs, tools, conveyors       | Workflows, actions, perspectives, config                |
-| **Record**    | Digests of what happened and what's true                                            | Quality reports, batch records, audit trail      | Docs, test reports, `intentïon.md`, README              |
-| **Materials** | Gathered or generated stuff that enables transformations — a cache, not the product | Raw materials, stock, work-in-progress inventory | Crawled library docs, cached context, intermediate data |
-
-**The loop: machinery transforms materials into product, and leaves a record.**
-
-- **Product** is what ships. It's what the intentïon asked for.
-- **Machinery** is the factory. You don't ship it, but without it nothing gets made. It comes with the template.
-- **Record** is quality control. Evidence that the product is what was intended. Traceability.
-- **Materials** are consumed by transformations. They're concrete and countable (files on disk) but disposable — you can regenerate them. They exist to make transformations cheaper and more reliable than going to source every time.
-
----
-
-## Perspectives (How Agents See)
-
-Agents are the actors in the system. Each has a **perspective** — not a fixed job, but a way of seeing. The same code looks different to a builder than to a critic.
-
-**Three kinds of agent exist today:**
-
-| Agent                             | Perspective   | Role                                                                                                                                                                                                        |
-| --------------------------------- | ------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **The intender (human)**          | The intender  | Expresses the intentïon. Judges realization. The only one who can say "that's what I meant" or "that's not it."                                                                                             |
-| **The architect (Claude Code)**   | The architect | Works with the intender directly — exploring, planning, designing, refactoring across repos. Sees the whole workspace.                                                                                      |
-| **The makers (machinery agents)** | The makers    | Copilot SDK agents run by workflows. Narrow perspectives — one sees an issue and writes code, another sees failing tests and repairs, another sees a discussion and responds. One transformation at a time. |
-
-Perspectives are not hardcoded task types. Each perspective is defined by how it sees, not what it does. Perspectives include: **builder** (make the thing), **critic** (challenge the thing), **witness** (assess realization), **steward** (maintain after realization), **harvester** (gather materials), **narrator** (maintain the record).
-
-Perspectives are documented as text files in the repository. Any agent can read them, and any agent can modify another's perspective file (but not its own). This creates a social protocol: perspectives refine each other.
+**Product** is the code that IS the thing you want — `src/`, the deployable artifact. Everything else — workflows, actions, config, agent prompts, docs, cached library content — exists to build and maintain the product.
 
 ---
 
@@ -68,7 +36,7 @@ Capability files live in `.github/agentic-lib/capabilities/`. Each describes one
 
 Each capability file has YAML front matter (name, tools provided) and a markdown body describing the protocol — what the service expects, what it returns, what can go wrong.
 
-Capabilities are not agents. They don't have perspectives. They're inert descriptions of what's possible. An agent references which capabilities it needs. A novel agent can be composed on-the-fly from the available capabilities.
+Capabilities are not agents. They're inert descriptions of what's possible. An agent references which capabilities it needs. A novel agent can be composed on-the-fly from the available capabilities.
 
 Branches can create new capabilities that persist after merge. A builder working on a feature that needs database access could create a `database-query` capability file — and from that point on, any agent can use it.
 
@@ -76,22 +44,22 @@ Branches can create new capabilities that persist after merge. A builder working
 
 ## Agents (Assembled Transformations)
 
-An **agent** is a transformation with a perspective. Agent definitions live in `.github/agentic-lib/agents/` as text files. Each defines:
+An **agent** is a transformation defined by what it changes and what capabilities it needs. Agent definitions live in `.github/agentic-lib/agents/` as text files. Each defines:
 
 - A **transformation**: from state → to state (what the agent changes)
 - Required **capabilities**: which capabilities the agent needs to operate
 - **Constraints**: what must be true before the agent can run, and what must not be violated
 
-The default agents correspond to the perspectives:
+The default agents:
 
-| Agent         | Perspective    | Transform                         | Key capabilities                       |
-| ------------- | -------------- | --------------------------------- | -------------------------------------- |
-| **builder**   | The maker      | Open issue → resolved code        | file-io, command-execution, github-api |
-| **fixer**     | The repairer   | Failing tests → passing tests     | file-io, command-execution             |
-| **critic**    | The challenger | Draft issue → enriched issue      | github-api                             |
-| **witness**   | The assessor   | Current state → realization score | file-io, github-api                    |
-| **harvester** | The gatherer   | Stale materials → fresh materials | file-io, web-retrieval                 |
-| **steward**   | The maintainer | Drift → alignment                 | file-io, command-execution, github-api |
+| Agent         | Role           | Transform                             | Key capabilities                       |
+| ------------- | -------------- | ------------------------------------- | -------------------------------------- |
+| **builder**   | The maker      | Open issue → resolved code            | file-io, command-execution, github-api |
+| **fixer**     | The repairer   | Failing tests → passing tests         | file-io, command-execution             |
+| **critic**    | The challenger | Draft issue → enriched issue          | github-api                             |
+| **witness**   | The assessor   | Current state → realization score     | file-io, github-api                    |
+| **harvester** | The gatherer   | Stale cached context → fresh context  | file-io, web-retrieval                 |
+| **steward**   | The maintainer | Drift → alignment                     | file-io, command-execution, github-api |
 
 Novel agents can be assembled on-the-fly. When the plan calls for a transformation that no existing agent matches, the system composes one from available capabilities and an action description. This is constraint satisfaction: find a combination of capabilities that satisfies the action's preconditions and can produce its effects.
 
@@ -108,7 +76,7 @@ This draws on classical AI planning theory — particularly partial-order planni
 - **Least commitment** — don't order steps until you have to. Leave the plan flexible. If two features are independent, the plan doesn't impose an ordering.
 - **Open conditions** — the plan explicitly represents what it doesn't know yet. "We need a CLI argument parser but haven't decided how" is a valid plan entry.
 - **Causal links** — each step in the plan tracks why it's there — what it achieves toward the intentïon.
-- **Threats** — a step might undo something another step achieved. The plan tracks this so perspectives can avoid conflicts.
+- **Threats** — a step might undo something another step achieved. The plan tracks this so agents can avoid conflicts.
 - **Plan refinement, not replanning** — each cycle refines the existing plan rather than creating a new one from scratch. The plan grows smarter over time.
 - **Planning vs execution trade-off** — following Steel & Ho, the system can reason about whether further planning or immediate execution is more valuable, given the cost of each and the uncertainty of outcomes.
 
@@ -169,7 +137,7 @@ budget: { iterations: 5, tokens: 50000 }
 - Cycle 6: Critic noted missing error handling in base64. Issue created. (event: initiates base64-error-handling-needed)
 ```
 
-This is a living document. Every cycle, a perspective reads it, refines it (adds what was achieved, identifies new open conditions, resolves threats, records observations), and then executes the actionable items. The YAML front matter tracks the current cycle, realization score, and remaining budget.
+This is a living document. Every cycle, an agent reads it, refines it (adds what was achieved, identifies new open conditions, resolves threats, records observations), and then executes the actionable items. The YAML front matter tracks the current cycle, realization score, and remaining budget.
 
 ---
 
@@ -181,7 +149,7 @@ A **transformation** is a single reliable state change. One GitHub Actions workf
 
 Within one workflow run:
 
-1. **Assess** — Read the current state: the plan, the product, the record, the materials. Map the state into a representation efficient for reasoning. What conditions hold? What has changed since last cycle?
+1. **Assess** — Read the current state: the plan, the source code, the logs, the cached context. Map the state into a representation efficient for reasoning. What conditions hold? What has changed since last cycle?
 
 2. **Plan** — Refine the planning artifact via a Copilot call. Add new actions, resolve threats, retract contradicted assumptions, record observations. The plan grows smarter. This is decision tree search: which refinements move us closest to realization?
 
@@ -208,7 +176,7 @@ Within one workflow run, multiple agents can execute in parallel. The constraint
     ┌─────────────────────────────────┐
     │                                 │
     │   intentïon expressed           │
-    │   (INTENTION.md — committed)    │
+    │   (INTENTÏON.md — committed)    │
     │                                 │
     └──────────────┬──────────────────┘
                    │
@@ -234,8 +202,8 @@ Within one workflow run, multiple agents can execute in parallel. The constraint
     │   STATE CHANGED                 │
     │                                 │
     │   Plan updated. Product grown.  │
-    │   Record kept. Realization      │
-    │   score recorded.               │
+    │   Logged in intentïon.log.      │
+    │   Realization score recorded.   │
     │                                 │
     │   Realized? ── Yes → STEWARD   │
     │   Not yet?  ── Next cron       │
@@ -258,18 +226,18 @@ When either budget is exhausted, the engine lands what it has. A partially-execu
 
 - **Maximal** — do as much as you can land perfectly
 - **Reliable** — if it can't land clean, it doesn't land at all
-- **Observable** — it leaves a record of what changed and why
+- **Observable** — it logs what changed and why
 - **Parallelizable** — independent transformations can run concurrently (multiple cron triggers, multiple workflow runs)
 
-**Stewardship** is not a separate mode with different machinery. It's what happens when the witness consistently scores high: the plan has no open conditions, no active issues, the product matches the intentïon. The next transformation reads this state and naturally shifts to maintenance — responding to drift, fixing regressions, refining quality. The behavior change is emergent from the state, not imposed by a mode switch.
+**Stewardship** is not a separate mode with different workflows. It's what happens when the witness consistently scores high: the plan has no open conditions, no active issues, the product matches the intentïon. The next transformation reads this state and naturally shifts to maintenance — responding to drift, fixing regressions, refining quality. The behavior change is emergent from the state, not imposed by a mode switch.
 
 ---
 
 ## Agents and the Control Plane
 
-Agents can modify the machinery. A builder can update the harvester's perspective file. The navigator can create a new perspective. The narrator can restructure materials.
+Agents can modify workflows, config, and each other's agent prompt files. A builder can update the harvester's agent definition. The navigator can create a new agent definition. The narrator can restructure cached context.
 
-The social protocol: **no agent modifies its own perspective file in the same run.** But it can ask another to. This creates natural checks — perspectives refine each other across cycles.
+The social protocol: **no agent modifies its own agent definition file in the same run.** But it can ask another to. This creates natural checks — agent definitions refine each other across cycles.
 
 This is more fluid than a forbidden list. Capabilities are documented in repo files (like skills). Any agent reads them. Any agent can propose changes to another's capabilities through the normal PR process.
 
@@ -279,9 +247,9 @@ This is more fluid than a forbidden list. Capabilities are documented in repo fi
 
 **Homepage (intentïon.com):** "What is your intentïon?" → You describe what you want to exist → The system begins navigating toward it using your GitHub account and Copilot subscription.
 
-**Template (repository0):** You clone it, you write your intentïon, the machinery begins transforming materials into product. You watch the plan refine and the product grow in `intentïon.md`. It tells you when it witnesses realization. Then it stewards.
+**Template (repository0):** You clone it, you write your intentïon, and the workflows begin building the product. You watch the plan refine and the product grow in `intentïon.log`. It tells you when it witnesses realization. Then it stewards.
 
-**The SDK (agentic-lib):** Provides the machinery — the workflows, the action, the perspectives. It's the factory-in-a-box you install on any repository.
+**The SDK (agentic-lib):** Provides the workflows, the action, the agent prompts, and the config. It's the toolkit you install on any repository.
 
 **Live feature requests from the CLI:**
 
@@ -291,7 +259,7 @@ Once the product is realized and stewardship begins, users can request new featu
 devkit --add "please add a TOML parser"
 ```
 
-This translates to a GitHub issue in the repository, labeled for the builder perspective. The machinery picks it up, the plan is refined to include it, the builder writes the code, the witness assesses it, and the feature lands. The user gets it via:
+This translates to a GitHub issue in the repository, labeled for the builder. The workflows pick it up, the plan is refined to include it, the builder writes the code, the witness assesses it, and the feature lands. The user gets it via:
 
 ```
 npm update @intentïon/devkit
@@ -355,19 +323,15 @@ Three assembly problems are solved by constraint satisfaction:
 
 | Term                  | Definition                                                                                                                                                                                    |
 | --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **intentïon**         | The stated desire — what you want to exist. The seed. Immutable by agents. The fixed point.                                                                                                   |
+| **intentïon**         | The stated desire — what you want to exist. The seed. Immutable by agents. The fixed point. Expressed in `INTENTÏON.md`.                                                                      |
 | **product**           | Code that when run IS the thing. The intentïon made real.                                                                                                                                     |
-| **machinery**         | Code, prompts, config that build, run, deploy, and manage. The factory.                                                                                                                       |
-| **record**            | Digests of what happened and what's true. Evidence and traceability.                                                                                                                          |
-| **materials**         | Gathered or generated stuff that enables transformations. A cache. Concrete, countable, disposable.                                                                                           |
 | **plan**              | A committed partial-order document tracking actions, causal links, threats, assumptions, and observations. YAML front matter tracks cycle, realization score, and budget. Refined each cycle. |
 | **transformation**    | A single workflow run. A budget of compute that runs the 7-step engine loop: assess, plan, solve, assemble, execute, witness, iterate.                                                        |
-| **perspective**       | An agent's way of seeing. Documented as text files. Agents refine each other's.                                                                                                               |
 | **capability**        | A text file describing how to interact with a service. The building blocks that agents are assembled from. Lives in `.github/agentic-lib/capabilities/`.                                      |
 | **agent definition**  | A text file defining a transformation (from state → to state), required capabilities, and constraints. Lives in `.github/agentic-lib/agents/`.                                                |
 | **constraint solver** | The engine step that finds proceedable actions — those with met preconditions, no unresolved threats, and no resource conflicts. Also assembles agents from capabilities.                     |
 | **assessment**        | The engine step that reads repository state into a representation efficient for reasoning. Maps conditions, assumptions, and observations.                                                    |
 | **belief state**      | The set of assumptions currently held, each with a justification, strength, and dependents. Subject to revision when evidence contradicts.                                                    |
-| **witness**           | Assessment of realization. Happens at the end of every engine cycle. Recorded in the record.                                                                                                  |
-| **realization**       | The condition where the intentïon is manifest in the state. Degrees, not binary.                                                                                                              |
+| **witness**           | Assessment of realization. Happens at the end of every engine cycle. Recorded in `intentïon.log`.                                                                                             |
+| **realization**       | The condition where the intentïon is manifest in the state. Degrees, not binary. Signalled by `INTENTÏON_REALISED.md`.                                                                        |
 | **stewardship**       | What happens when the plan has no open conditions and the witness scores high. Emergent, not imposed.                                                                                         |

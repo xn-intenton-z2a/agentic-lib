@@ -19,7 +19,7 @@ Transform the current 8-task cron-driven system into the model described in CONC
 
 ### 8 Task Handlers (`src/actions/agentic-step/tasks/`)
 
-| File                   | Lines   | Concept perspective             |
+| File                   | Lines   | Concept role                    |
 | ---------------------- | ------- | ------------------------------- |
 | `resolve-issue.js`     | 93      | Builder                         |
 | `fix-code.js`          | 70      | Fixer                           |
@@ -43,7 +43,7 @@ The current system hardcodes 8 task types in JavaScript, runs them on fixed cron
 
 Each workflow run is a **transformation** — a budget of compute that runs the 7-step engine loop. Within that budget:
 
-1. **Assess** — Read current state (plan + product + record + materials + capabilities + agent definitions)
+1. **Assess** — Read current state (plan + source code + logs + cached context + capabilities + agent definitions)
 2. **Plan** — Refine the planning artifact via a Copilot call, commit the update
 3. **Solve** — Find proceedable actions via constraint satisfaction (met preconditions, no threats, no resource conflicts)
 4. **Assemble** — Match or compose agents from capabilities for each proceedable action
@@ -79,7 +79,7 @@ The engine draws on three interconnected disciplines (see CONCEPT.md, "Knowledge
 
 ```javascript
 export async function getIntention(config) {
-  /* read INTENTION.md */
+  /* read INTENTÏON.md */
 }
 export async function getOpenIssues(octokit, repo, label, limit) {
   /* list open issues */
@@ -93,11 +93,11 @@ export async function getSourceFiles(config) {
 export async function getTestFiles(config) {
   /* scan product tests */
 }
-export async function getFeatureMaterials(config) {
-  /* scan materials/features/ */
+export async function getFeatures(config) {
+  /* scan features/ */
 }
-export async function getLibraryMaterials(config) {
-  /* scan materials/library/ */
+export async function getLibrary(config) {
+  /* scan library/ */
 }
 export async function getIssueDetail(octokit, repo, issueNumber) {
   /* issue + comments */
@@ -114,7 +114,7 @@ export async function getContributing(config) {
 export async function getActivityRecord(config, limit) {
   /* recent intentïon.md */
 }
-export async function getMaterialSources(config) {
+export async function getSources(config) {
   /* read SOURCES.md */
 }
 export async function getPlan(config) {
@@ -134,7 +134,7 @@ export async function getPlan(config) {
 
 ### PLAN.md (the committed planning artifact)
 
-This file lives in the repo root (alongside INTENTION.md and intentïon.md). It's writable by all perspectives. It uses YAML front matter and partial-order structure:
+This file lives in the repo root (alongside INTENTÏON.md and intentïon.md). It's writable by all agents. It uses YAML front matter and partial-order structure:
 
 ```markdown
 ---
@@ -283,7 +283,7 @@ Agent definitions live in `.github/agentic-lib/agents/`. Each is a markdown file
 ```markdown
 ---
 name: builder
-perspective: builder
+role: builder
 capabilities: [file-io, command-execution, github-api]
 transform:
   from: "Open condition or issue requiring implementation"
@@ -318,14 +318,14 @@ You are a builder. You see open conditions as opportunities to create working co
 
 ### Default agent definitions
 
-| File           | Agent     | Perspective | Transform                         | Capabilities                           |
-| -------------- | --------- | ----------- | --------------------------------- | -------------------------------------- |
-| `builder.md`   | builder   | builder     | Open issue → resolved code        | file-io, command-execution, github-api |
-| `fixer.md`     | fixer     | fixer       | Failing tests → passing tests     | file-io, command-execution             |
-| `critic.md`    | critic    | critic      | Draft issue → enriched issue      | github-api                             |
-| `witness.md`   | witness   | witness     | Current state → realization score | file-io, github-api                    |
-| `harvester.md` | harvester | harvester   | Stale materials → fresh materials | file-io, web-retrieval                 |
-| `steward.md`   | steward   | steward     | Drift → alignment                 | file-io, command-execution, github-api |
+| File           | Agent     | Role      | Transform                         | Capabilities                           |
+| -------------- | --------- | --------- | --------------------------------- | -------------------------------------- |
+| `builder.md`   | builder   | builder   | Open issue → resolved code        | file-io, command-execution, github-api |
+| `fixer.md`     | fixer     | fixer     | Failing tests → passing tests     | file-io, command-execution             |
+| `critic.md`    | critic    | critic    | Draft issue → enriched issue      | github-api                             |
+| `witness.md`   | witness   | witness   | Current state → realization score | file-io, github-api                    |
+| `harvester.md` | harvester | harvester | Stale context → fresh context     | file-io, web-retrieval                 |
+| `steward.md`   | steward   | steward   | Drift → alignment                 | file-io, command-execution, github-api |
 
 ### New modules
 
@@ -349,8 +349,8 @@ export function resolveTools(capabilityNames, allCapabilities, toolRegistry) {
 
 ```javascript
 export async function loadAgentDefinitions(agentsPath) {
-  // Scan agentsPath for *.md files with perspective: in front matter
-  // Parse YAML front matter: name, perspective, capabilities, transform, constraints
+  // Scan agentsPath for *.md files with role: in front matter
+  // Parse YAML front matter: name, role, capabilities, transform, constraints
   // Return Map<name, AgentDefinition>
 }
 ```
@@ -359,7 +359,7 @@ export async function loadAgentDefinitions(agentsPath) {
 
 ```javascript
 export function matchAgent(action, agentDefinitions) {
-  // Find an agent definition whose perspective matches the action's agent field
+  // Find an agent definition whose role matches the action's agent field
   // Verify the agent's capabilities cover the action's resource needs
   // Return matched AgentDefinition or null
 }
@@ -459,7 +459,7 @@ export async function runEngine(config, octokit) {
 
 ```javascript
 export async function assess(config, plan) {
-  // Read intention, source files, test files, materials
+  // Read intention, source files, test files, cached context
   // Map current conditions: what's initiated, what's terminated (event calculus)
   // Identify what's changed since last cycle
   // Return StateSnapshot for the planner
@@ -538,9 +538,9 @@ This enables:
 - The critic can add constraints to the builder's agent definition
 - Any agent can create a new capability file (expanding the system's repertoire)
 - Any agent can create a new agent definition (the system grows its own workforce)
-- The harvester can refine what materials other agents read
+- The harvester can refine what cached context other agents read
 
-INTENTION.md remains read-only (hardcoded). The plan and record are writable by all. Capability and agent definition files are writable by all (subject to the self-modification restriction).
+INTENTÏON.md remains read-only (hardcoded). The plan and logs are writable by all. Capability and agent definition files are writable by all (subject to the self-modification restriction).
 
 **Scope:** Small. Safety check (~20 lines), make capabilities/ and agents/ writable in config.
 
@@ -560,8 +560,8 @@ transform-navigate.yml    — Cron daily. Creates a feature branch with a goal.
                             The engine runs the 7-step loop on the branch.
                             Merges when budget spent or goal met.
 transform-repair.yml      — Event: check_suite failure. Creates a fix branch.
-                            Calls agentic-step with task=navigate (fixer perspective).
-transform-narrate.yml     — Event: discussion activity. Narrator perspective.
+                            Calls agentic-step with task=navigate (fixer role).
+transform-narrate.yml     — Event: discussion activity. Narrator role.
 ci-automerge.yml          — UNCHANGED
 ci-test.yml               — UNCHANGED
 ```
@@ -621,9 +621,9 @@ Both documents must be rewritten as part of the narrative alignment (see PLAN_NA
 - **FEATURES.md**: new title, new vocabulary, all 29 features renamed, architecture section reframed
 - **FEATURES_ROADMAP.md**: same vocabulary treatment, all 12 post-MVP features renamed
 - The planning artifact (PLAN.md) becomes part of the template system (Feature #14)
-- The witness scoring becomes part of witness machinery (Feature #12)
+- The witness scoring becomes part of witness workflows (Feature #12)
 - The MVP demo (#28) uses the devkit scenario
-- The devkit CLI includes `--add "description"` which creates a GitHub issue from the command line, enabling users to request features that the machinery delivers via `npm update`
+- The devkit CLI includes `--add "description"` which creates a GitHub issue from the command line, enabling users to request features that the workflows deliver via `npm update`
 
 ---
 
@@ -639,7 +639,7 @@ Both documents must be rewritten as part of the narrative alignment (see PLAN_NA
 | 6    | Create capability-loader, agent-loader, assembler                                       | Unit tests (load, match, compose)                              |
 | 7    | Create engine modules (runner, assessor, planner, constraint-solver, executor, witness) | Integration tests                                              |
 | 8    | Create navigate task handler wiring engine to TASKS map                                 | End-to-end test                                                |
-| 9    | Rename files (MISSION→INTENTION, agents directory, agent-flow workflows)                | All tests pass                                                 |
+| 9    | Rename files (MISSION→INTENTÏON, agents directory, agent-flow workflows)                | All tests pass                                                 |
 | 10   | Update config schema (new key names: capabilitiesPath, planFilepath, etc.)              | Config-loader tests                                            |
 | 11   | Rewrite FEATURES.md with new vocabulary                                                 | Human review                                                   |
 | 12   | Rewrite FEATURES_ROADMAP.md with new vocabulary                                         | Human review                                                   |
