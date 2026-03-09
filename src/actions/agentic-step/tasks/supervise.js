@@ -716,7 +716,7 @@ export async function supervise(context) {
   if (ctx.initTimestamp && !ctx.missionComplete && !ctx.missionFailed) {
     // Check for any prior agentic-lib-workflow runs since init (count > 1 because current run is included)
     const supervisorRunCount = ctx.actionsSinceInit.filter(
-      (a) => a.name === "agentic-lib-workflow",
+      (a) => a.name.startsWith("agentic-lib-workflow"),
     ).length;
     const hasPriorSupervisor = supervisorRunCount > 1 || ctx.recentActivity.includes("supervised:");
     if (!hasPriorSupervisor && ctx.mission && ctx.activeDiscussionUrl) {
