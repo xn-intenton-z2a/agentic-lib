@@ -1,9 +1,9 @@
 import { defineConfig } from "vitest/config";
 import { resolve } from "path";
 
-// Alias @actions/core so vi.mock("@actions/core") intercepts the sub-project
+// Alias @actions/core so vi.mock("@actions/core") intercepts the root node_modules
 // resolution. Without this, the real @actions/core outputs ::warning:: annotations.
-const actionsCorePath = resolve("src/actions/agentic-step/node_modules/@actions/core/lib/core.js");
+const actionsCorePath = resolve("node_modules/@actions/core/lib/core.js");
 
 export default defineConfig({
   resolve: {
