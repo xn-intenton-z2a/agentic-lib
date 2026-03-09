@@ -16,8 +16,20 @@ on:
     - cron: "10 * * * *"
   #@dist push:
   #@dist   branches: [main]
+  #@dist   paths:
+  #@dist     - "**/*.js"
+  #@dist     - "**/*.json"
+  #@dist     - "**/*.html"
+  #@dist     - "**/*.yml"
+  #@dist     - "**/*.sh"
   #@dist pull_request:
   #@dist   branches: [main]
+  #@dist   paths:
+  #@dist     - "**/*.js"
+  #@dist     - "**/*.json"
+  #@dist     - "**/*.html"
+  #@dist     - "**/*.yml"
+  #@dist     - "**/*.sh"
   workflow_call:
   workflow_dispatch:
 
