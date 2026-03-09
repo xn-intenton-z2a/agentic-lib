@@ -11,9 +11,9 @@
 
 name: agentic-lib-workflow
 run-name: "agentic-lib-workflow [${{ github.ref_name }}]"
-#concurrency:
-#  group: agentic-lib-workflow
-#  cancel-in-progress: false
+concurrency:
+  group: agentic-lib-workflow
+  cancel-in-progress: false
 
 on:
   #@dist schedule:
