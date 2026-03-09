@@ -51,9 +51,8 @@ on:
       - "**/*.html"
       - "**/*.js"
       - "**/*.json"
-      - "**/*.md"
-      - "**/*.sh"
       - "**/*.yml"
+      - "src/agents/*.md"
       - "!_developers/**"
   pull_request:
     branches:
@@ -63,8 +62,7 @@ on:
       - "**/*.json"
       - "**/*.html"
       - "**/*.yml"
-      - "**/*.sh"
-      - "**/*.md"
+      - "src/agents/*.md"
       - "!_developers/**"
   workflow_dispatch:
     inputs:
