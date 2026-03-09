@@ -2,7 +2,15 @@
 
 **Source**: [BENCHMARK_REPORT_003.md](BENCHMARK_REPORT_003.md), GitHub Issues [#1878](https://github.com/xn-intenton-z2a/agentic-lib/issues/1878), [#1879](https://github.com/xn-intenton-z2a/agentic-lib/issues/1879), [#1880](https://github.com/xn-intenton-z2a/agentic-lib/issues/1880), [#1881](https://github.com/xn-intenton-z2a/agentic-lib/issues/1881)
 **Created**: 2026-03-08
-**Status**: implemented
+**Status**: implemented — PR [#1882](https://github.com/xn-intenton-z2a/agentic-lib/pull/1882) open, awaiting CI + merge
+
+## Current State (2026-03-09)
+
+All 10 work items implemented in PR #1882 (`claude/benchmark-003-fixes`). 429 tests passing, 0 workflow lint errors.
+
+**Additional fix pushed to main**: Double-dispatch bug in `discussions.js` — the bot's `request-supervisor` action dispatched `agentic-lib-workflow.yml` from both `discussions.js` (line 346) AND the bot workflow's `dispatch-supervisor` job. Removed the dispatch from `discussions.js` (commit a851c817). This fix is live on main; repository0 needs `init --purge` after CI passes to pick it up.
+
+**Deployment sequence**: Merge PR #1882 → release → `npx @xn-intenton-z2a/agentic-lib init --purge` on repository0 → run benchmark 004
 
 ---
 
