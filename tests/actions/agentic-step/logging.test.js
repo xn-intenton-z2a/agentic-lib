@@ -5,15 +5,15 @@ import { join } from "path";
 import { mkdirSync, rmSync, readFileSync, writeFileSync } from "fs";
 import { tmpdir } from "os";
 
-// logging.js imports @actions/core which resolves to the sub-project node_modules.
+// logging.js imports @actions/core which resolves to the root node_modules.
 // This path must be mocked at the exact resolution path.
-// If this fails with "Cannot find module", run: cd src/actions/agentic-step && npm ci
-vi.mock("../../../src/actions/agentic-step/node_modules/@actions/core/lib/core.js", () => ({
+// If this fails with "Cannot find module", run: npm install
+vi.mock("../../../node_modules/@actions/core/lib/core.js", () => ({
   info: vi.fn(),
   warning: vi.fn(),
 }));
 
-const core = await import("../../../src/actions/agentic-step/node_modules/@actions/core/lib/core.js");
+const core = await import("../../../node_modules/@actions/core/lib/core.js");
 const { logActivity, logSafetyCheck, generateClosingNotes } = await import("../../../src/actions/agentic-step/logging.js");
 
 describe("logging", () => {
