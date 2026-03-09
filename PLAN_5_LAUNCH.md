@@ -16,7 +16,7 @@ No existing product combines all three: a continuous autonomous development loop
 
 | Capability | intentïon | [Copilot Coding Agent](https://docs.github.com/en/copilot/concepts/agents/coding-agent/about-coding-agent) | [Devin 2.0](https://venturebeat.com/programming-development/devin-2-0-is-here-cognition-slashes-price-of-ai-software-engineer-to-20-per-month-from-500) | [Cursor](https://www.cursor.com/) / Claude Code |
 |---|---|---|---|---|
-| Continuous autonomous loop | Yes — mission → features → issues → code → merge → repeat | No — single task per assignment | No — single session | No — human in loop |
+| Continuous autonomous loop | Yes — intentïon → features → issues → code → merge → repeat | No — single task per assignment | No — single session | No — human in loop |
 | Persistent planning artifact | Yes — partial-order plan committed to repo, refined each cycle | No | No — ephemeral scratchpad | No |
 | Self-hosting (manages own codebase) | Planned — PLAN_SELF_HOSTED.md | No | No | No |
 | Supervisor orchestrating multiple agents | Yes — LLM-driven supervisor dispatches 5+ workflows | No | No | No |
@@ -27,17 +27,17 @@ No existing product combines all three: a continuous autonomous development loop
 
 ### Three tiers of differentiation
 
-**Tier 1 — What works today (MVP):** A continuous autonomous loop running on GitHub infrastructure. 27 features, all implemented. Nine task handlers, supervisor orchestration, TDD mode, discussions bot, TOML configuration, mission-driven development. This alone is distinctive — no competitor has the continuous loop.
+**Tier 1 — What works today (MVP):** A continuous autonomous loop running on GitHub infrastructure. 27 features, all implemented. Nine task handlers, supervisor orchestration, TDD mode, discussions bot, TOML configuration, intentïon-driven development. This alone is distinctive — no competitor has the continuous loop.
 
 **Tier 2 — Self-hosting (PLAN_SELF_HOSTED.md):** The system can manage its own codebase. Bootstrap tests prove the SDK can clone itself and make useful increments, and an empty repo can converge toward a known target version. This is a practical demonstration of recursive self-improvement — a topic the [ICLR 2026 RSI workshop](https://iclr.cc/virtual/2026/workshop/10000796) and [Manifold prediction markets](https://manifold.markets/MaxHarms/will-ai-be-recursively-self-improvi) are actively debating.
 
-**Tier 3 — The conceptual model (CONCEPT.md):** Partial-order planning with causal links, threat detection, truth maintenance, event calculus, and belief revision. Perspectives (how agents see) and capabilities (composable building blocks for agent assembly). The 7-step transformation engine: assess, plan, solve, assemble, execute, witness, iterate. This draws on classical AI planning theory (Tate's NONLIN, Penberthy & Weld's UCPOP, Steel & Ho's planning-execution integration) applied to software engineering for the first time.
+**Tier 3 — The conceptual model (CONCEPT.md):** Partial-order planning with causal links, threat detection, truth maintenance, event calculus, and belief revision. Agents and capabilities — composable building blocks for agent assembly. The 7-step transformation engine: assess, plan, solve, assemble, execute, witness, iterate. This draws on classical AI planning theory (Tate's NONLIN, Penberthy & Weld's UCPOP, Steel & Ho's planning-execution integration) applied to software engineering for the first time.
 
 ---
 
 ## What We've Built
 
-An autonomous coding system that lives entirely inside a GitHub repository. Install it, write a MISSION.md, and the repository evolves itself — generating issues, writing code, running tests, opening PRs, maintaining documentation, and engaging with users through GitHub Discussions.
+An autonomous coding system that lives entirely inside a GitHub repository. Install it, write an INTENTÏON.md, and the repository evolves itself — generating issues, writing code, running tests, opening PRs, maintaining documentation, and engaging with users through GitHub Discussions.
 
 The system has no external dependencies beyond GitHub. It runs as GitHub Actions workflows on configurable schedules, uses the GitHub Copilot SDK for decision-making, and is distributed as a single npm package.
 
@@ -47,11 +47,11 @@ The system has no external dependencies beyond GitHub. It runs as GitHub Actions
 
 ### For developers (the loop)
 
-> `npx @xn-intenton-z2a/agentic-lib init` — then write your mission. Nine agentic task handlers run as GitHub Actions workflows. No external services. No API keys beyond GitHub. TOML-configurable. MIT-licensed distributed code.
+> `npx @xn-intenton-z2a/agentic-lib init` — then write your intentïon. Nine task handlers run as GitHub Actions workflows. No external services. No API keys beyond GitHub. TOML-configurable. MIT-licensed distributed code.
 
 **What they care about:** Does it work? Can I try it in 10 minutes? What happens when it breaks?
 
-**Launch asset:** The demo. A 3-minute screencast showing mission → autonomous evolution → working code. The "walk away, come back to merged PRs" proof.
+**Launch asset:** The demo. A 3-minute screencast showing intentïon → autonomous evolution → working code. The "walk away, come back to merged PRs" proof.
 
 ### For researchers (the theory)
 
@@ -77,8 +77,8 @@ The system has no external dependencies beyond GitHub. It runs as GitHub Actions
 
 **Goal:** Create an irrefutable demo and the self-hosting proof.
 
-- [ ] Record a 3-minute screencast: create repo from template → write MISSION.md → time-lapse the autonomous cycle → show resulting PRs and working code
-- [ ] Create 3 demo repositories showing different missions:
+- [ ] Record a 3-minute screencast: create repo from template → write INTENTÏON.md → time-lapse the autonomous cycle → show resulting PRs and working code
+- [ ] Create 3 demo repositories showing different intentïons:
   - CLI tool (CSV to JSON converter)
   - Library (string utilities package)
   - Web component (markdown renderer)
@@ -121,12 +121,12 @@ Research channel:
 
 **Goal:** Respond to feedback, advance the conceptual model, build the research case.
 
-- [ ] Track which missions succeed and which fail — build a mission difficulty taxonomy
+- [ ] Track which intentïons succeed and which fail — build an intentïon difficulty taxonomy
 - [ ] Implement CONCEPT.md Phase 1: persistent planning artifact (committed partial-order plan)
 - [ ] Implement convergence scoring across versions (Extension C from PLAN_SELF_HOSTED.md)
 - [ ] Add canary self-host check to release.yml (Extension B from PLAN_SELF_HOSTED.md)
 - [ ] Add seed templates for more ecosystems (Python, Rust, etc.)
-- [ ] Consider a web UI for mission editing and real-time dashboard
+- [ ] Consider a web UI for intentïon editing and real-time dashboard
 - [ ] Develop the full 7-step engine loop from CONCEPT.md
 
 ---
@@ -134,10 +134,10 @@ Research channel:
 ## Messaging
 
 ### One-liner
-> Write a mission. Watch it build itself. Let it improve itself.
+> Write an intentïon. Watch it build itself. Let it improve itself.
 
 ### Elevator pitch
-> intentïon is an open-source system that turns any GitHub repository into an autonomous, self-evolving codebase. You write a mission statement, and the system generates features, creates issues, writes code, runs tests, merges PRs, and maintains documentation — continuously, on a configurable schedule, using the GitHub Copilot SDK. A supervisor agent orchestrates the pipeline. Users interact through GitHub Discussions. And the system is heading toward self-hosting — managing its own codebase with its own workflows.
+> intentïon is an open-source system that turns any GitHub repository into an autonomous, self-evolving codebase. You write an intentïon, and the system generates features, creates issues, writes code, runs tests, merges PRs, and maintains documentation — continuously, on a configurable schedule, using the GitHub Copilot SDK. A supervisor agent orchestrates the pipeline. Users interact through GitHub Discussions. And the system is heading toward self-hosting — managing its own codebase with its own workflows.
 
 ### For the research community
 > intentïon applies classical AI partial-order planning theory — causal links, threat detection, open conditions, truth maintenance, event calculus — to autonomous software development. Planning artifacts are committed to the repository and refined across cycles, not ephemeral. Self-hosting bootstrap tests provide measurable convergence metrics for recursive self-improvement in a practical engineering context. Built entirely on GitHub Actions and the Copilot SDK, the system is reproducible and inspectable.
@@ -151,9 +151,9 @@ Research channel:
 
 | Risk | Likelihood | Mitigation |
 |---|---|---|
-| GitHub builds a supervisor layer into [Agentic Workflows](https://github.blog/ai-and-ml/github-copilot/whats-new-with-github-copilot-coding-agent/) | Medium | Our planning theory, self-hosting, and MISSION.md-driven approach remain distinctive. GitHub validates the architecture; we differentiate on depth. |
+| GitHub builds a supervisor layer into [Agentic Workflows](https://github.blog/ai-and-ml/github-copilot/whats-new-with-github-copilot-coding-agent/) | Medium | Our planning theory, self-hosting, and INTENTÏON.md-driven approach remain distinctive. GitHub validates the architecture; we differentiate on depth. |
 | Copilot SDK changes or access restrictions | Low-medium | Architecture is model-agnostic. The copilot.js adapter can be swapped. Local LLM backend (PLAN_LOCAL_SCENARIO_TESTS.md) provides a fallback. |
-| Early users hit mission failures | High | Curate demo repos showing successful missions. Provide troubleshooting guides. Track mission success/failure rates to improve prompts. |
+| Early users hit intentïon failures | High | Curate demo repos showing successful intentïons. Provide troubleshooting guides. Track intentïon success/failure rates to improve prompts. |
 | Self-hosting tests don't pass reliably with tiny models | High | Local LLM tests prove mechanics, not capability. Add Copilot SDK variant (Extension D) for genuine self-hosting proof. Be transparent about what local tests demonstrate vs what they don't. |
 | Research community dismisses it as "just engineering" | Medium | Ground the paper in established planning theory (NONLIN, UCPOP, Steel & Ho). The self-hosting bootstrap test is a concrete, reproducible, novel result. Frame as applied AI planning, not just DevOps tooling. |
 | [Devin 2.0](https://devin.ai/pricing/) at $20/mo undercuts on polish | Medium | intentïon is free, open-source, GitHub-native, and heading toward self-hosting. Different value proposition: own your infrastructure vs rent a service. |
@@ -175,7 +175,7 @@ intentïon costs almost nothing to run or distribute:
 | Infrastructure | User's GitHub account | $0 |
 | Distribution | `npm install` / `npx init` | $0 |
 
-The user brings their own compute (Actions), their own AI (Copilot), and their own hosting (GitHub). intentïon is pure machinery — it costs nothing to stamp out another copy.
+The user brings their own compute (Actions), their own AI (Copilot), and their own hosting (GitHub). intentïon is pure tooling — it costs nothing to stamp out another copy.
 
 This is a structural advantage over every funded competitor: Devin needs to run inference servers. Cursor needs to host cloud agents. intentïon runs on infrastructure the user already has.
 
@@ -183,7 +183,7 @@ This is a structural advantage over every funded competitor: Devin needs to run 
 
 An earlier idea was backend services (persistent "memories", analytics, curated knowledge) offered through the Marketplace action. This doesn't work because:
 
-1. **The LLM handles it locally.** All state lives as committed files in the repo — `intentïon.md`, `features/`, `library/`, the planning artifact. There's nothing a backend service adds that a committed file doesn't.
+1. **The LLM handles it locally.** All state lives as committed files in the repo — `intentïon.log`, `features/`, `library/`, the planning artifact. There's nothing a backend service adds that a committed file doesn't.
 2. **It kills the differentiator.** "Just GitHub — no external services, your data never leaves" is the strongest competitive claim. A backend service turns intentïon into another vendor.
 3. **Costs are zero without it.** There's no infrastructure to pay for, so there's no cost pressure to monetize.
 
@@ -227,7 +227,7 @@ The pivot is natural: the same enterprise clients (financial services, telecom, 
 
 Consulting engagements could include:
 - Autonomous development setup for enterprise repositories
-- Mission engineering workshops (writing effective MISSION.md for real codebases)
+- Intentïon workshops (writing effective INTENTÏON.md for real codebases)
 - AI-heavy rollout strategy (how to introduce autonomous development into existing CI/CD)
 - Training: "From CI/CD to autonomous development" for engineering teams
 
@@ -297,7 +297,7 @@ The Essex connection is genuine academic lineage, not a marketing story. If inte
 ## Related Documents
 
 - **[FEATURES.md](FEATURES.md)** — All 27 features with status and architecture
-- **[CONCEPT.md](CONCEPT.md)** — The conceptual model: manufacturing metaphor, perspectives, capabilities, 7-step engine, planning theory
+- **[CONCEPT.md](CONCEPT.md)** — The conceptual model: agents, capabilities, 7-step engine, planning theory
 - **[PLAN_SELF_HOSTED.md](PLAN_4_SELF_HOSTED.md)** — Bootstrap test strategy for self-hosting
 - **[PLAN_LOCAL_SCENARIO_TESTS.md](PLAN_1_LOCAL_SCENARIO_TESTS.md)** — Local scenario tests with tiny LLM
 - **[FEATURES_ROADMAP.md](FEATURES_ROADMAP.md)** — Post-MVP features (#28+)
