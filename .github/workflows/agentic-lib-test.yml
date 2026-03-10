@@ -194,7 +194,7 @@ jobs:
 
       - name: Install dependencies (non-blocking)
         id: install-deps
-        run:
+        run: |
           set +e
           INSTALL_CMD="npm ci"
           OUTPUT=$(eval "$INSTALL_CMD" 2>&1)
