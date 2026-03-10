@@ -51,6 +51,8 @@ function formatToolArgs(toolName, args) {
  * @param {string} [options.githubToken] - COPILOT_GITHUB_TOKEN
  * @param {Object} [options.tuning] - Tuning config (reasoningEffort, infiniteSessions)
  * @param {number} [options.timeoutMs=600000] - Session timeout
+ * @param {string} [options.agentPrompt] - Agent system prompt (loaded from agent .md file)
+ * @param {string} [options.userPrompt] - Override user prompt (instead of default mission prompt)
  * @param {Object} [options.logger]
  * @returns {Promise<HybridResult>}
  */
@@ -60,6 +62,8 @@ export async function runHybridSession({
   githubToken,
   tuning = {},
   timeoutMs = 600000,
+  agentPrompt,
+  userPrompt,
   logger = defaultLogger,
 }) {
   const { CopilotClient, approveAll, defineTool } = await getSDK();
@@ -115,29 +119,13 @@ export async function runHybridSession({
     env: { ...process.env, GITHUB_TOKEN: copilotToken, GH_TOKEN: copilotToken },
   });
 
-  const systemPrompt = [
+  // Use provided agent prompt, or fall back to a minimal default
+  const systemPrompt = agentPrompt || [
     "You are an autonomous code transformation agent.",
-    "Your workspace is a Node.js project with source code in src/lib/ and tests in tests/.",
-    "",
-    "Your goal: implement the MISSION described below. This means:",
-    "1. Write the implementation code in src/lib/main.js (keep existing exports, add new ones)",
-    "2. Write comprehensive unit tests in tests/unit/ that cover all acceptance criteria",
-    "3. Make ALL tests pass (both existing seed tests and your new tests)",
-    "",
-    "Strategy:",
-    "1. Read MISSION.md to understand what needs to be built",
-    "2. Read the current source code and tests",
-    "3. Write the implementation in src/lib/main.js",
-    "4. Write dedicated tests in a new test file (e.g. tests/unit/hamming.test.js) covering all acceptance criteria",
-    "5. Run run_tests to verify everything passes",
-    "6. If tests fail, read the error output carefully, fix the code, and repeat",
-    "",
-    "Important:",
-    "- Keep existing exports in src/lib/main.js (main, getIdentity, name, version, description)",
-    "- Add new named exports as specified in the mission",
-    "- Write tests that import from src/lib/main.js",
-    "- Do NOT modify existing test files — create new test files for mission-specific tests",
-    "- Keep going until all tests pass or you've exhausted your options",
+    "Your workspace is the current working directory.",
+    "Implement the MISSION described in the user prompt.",
+    "Read existing code, write implementations and tests, then run run_tests to verify.",
+    "Keep going until all tests pass or you've exhausted your options.",
   ].join("\n");
 
   const sessionConfig = {
@@ -239,16 +227,12 @@ export async function runHybridSession({
   // ── Send mission prompt ─────────────────────────────────────────────
   logger.info("[hybrid] Sending mission...\n");
 
-  const prompt = [
+  const prompt = userPrompt || [
     `# Mission\n\n${missionText}`,
-    `# Current test state (seed tests)\n\n\`\`\`\n${initialTestOutput.substring(0, 4000)}\n\`\`\``,
+    `# Current test state\n\n\`\`\`\n${initialTestOutput.substring(0, 4000)}\n\`\`\``,
     "",
-    "Implement this mission. You need to:",
-    "1. Read the existing source code (src/lib/main.js) and tests",
-    "2. Add the required functions to src/lib/main.js as named exports",
-    "3. Create dedicated test files in tests/unit/ covering ALL acceptance criteria",
-    "4. Run run_tests to verify everything passes",
-    "5. Fix any failures and iterate until all tests pass",
+    "Implement this mission. Read the existing source code and tests,",
+    "make the required changes, run run_tests to verify, and iterate until all tests pass.",
     "",
     "Start by reading the existing files, then implement the solution.",
   ].join("\n\n");

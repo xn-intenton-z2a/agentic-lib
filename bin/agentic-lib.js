@@ -52,6 +52,7 @@ Tasks (run Copilot SDK transformations):
 
 Iterator:
   iterate              Single Copilot SDK session — reads, writes, tests, iterates autonomously
+  iterate --here       Discover the project and generate a MISSION.md, then iterate
   iterate --list-missions  List available built-in mission seeds
 
 MCP Server:
@@ -65,6 +66,8 @@ Options:
   --mission <name>     Mission seed name (default: hamming-distance) [purge only]
   --mission-file <path>  Use a custom mission file instead of a built-in seed
   --list-missions      List available built-in mission seeds
+  --here               Discover the project and generate a MISSION.md, then iterate
+  --agent <name>       Use a specific agent prompt (e.g. agent-iterate, agent-discovery)
   --model <name>       Copilot SDK model (default: claude-sonnet-4)
   --timeout <ms>       Session timeout in milliseconds (default: 600000)
 
@@ -75,6 +78,7 @@ Examples:
   npx @xn-intenton-z2a/agentic-lib reset --dry-run
   npx @xn-intenton-z2a/agentic-lib iterate --mission fizz-buzz
   npx @xn-intenton-z2a/agentic-lib iterate --mission-file ~/my-mission.md
+  npx @xn-intenton-z2a/agentic-lib iterate --here
   npx @xn-intenton-z2a/agentic-lib iterate --list-missions
   npx @xn-intenton-z2a/agentic-lib iterate --model gpt-5-mini --timeout 300000
 `.trim();
@@ -108,6 +112,9 @@ const timeoutMs = timeoutIdx >= 0 ? parseInt(flags[timeoutIdx + 1], 10) : 600000
 const listMissions = flags.includes("--list-missions");
 const missionFileIdx = flags.indexOf("--mission-file");
 const missionFile = missionFileIdx >= 0 ? resolve(flags[missionFileIdx + 1]) : "";
+const hereMode = flags.includes("--here");
+const agentIdx = flags.indexOf("--agent");
+const agentFlag = agentIdx >= 0 ? flags[agentIdx + 1] : "";
 
 // ─── Task Commands ───────────────────────────────────────────────────
 
@@ -162,8 +169,79 @@ async function runIterate() {
     return 0;
   }
 
+  const { loadAgentPrompt } = await import("../src/copilot/agents.js");
+
+  // Resolve mission file path from config if available
+  let config;
+  try {
+    const { loadConfig } = await import("../src/copilot/config.js");
+    config = loadConfig(resolve(target, "agentic-lib.toml"));
+  } catch {
+    config = { tuning: {}, model: "gpt-5-mini", paths: {} };
+  }
+
+  // --here mode: run discovery agent to generate MISSION.md, then iterate
+  if (hereMode) {
+    // Determine mission output path: --mission-file > config paths.mission > default
+    const missionOutPath = missionFile
+      || (config.paths?.mission?.path ? resolve(target, config.paths.mission.path) : "")
+      || resolve(target, "MISSION.md");
+
+    const targetMission = resolve(target, "MISSION.md");
+    if (existsSync(targetMission)) {
+      console.log(`Using existing MISSION.md in ${target}`);
+    } else {
+      console.log("");
+      console.log("=== Discovery Phase ===");
+      console.log(`Target:  ${target}`);
+      console.log(`Output:  ${missionOutPath}`);
+      console.log("");
+
+      const discoveryPrompt = loadAgentPrompt("agent-discovery");
+      const { runHybridSession } = await import("../src/copilot/hybrid-session.js");
+      const effectiveModel = model || config.model || "gpt-5-mini";
+
+      const discoveryResult = await runHybridSession({
+        workspacePath: target,
+        model: effectiveModel,
+        tuning: config.tuning || {},
+        timeoutMs,
+        agentPrompt: discoveryPrompt,
+        userPrompt: [
+          "Explore this project directory and generate a MISSION.md file.",
+          `Write the mission file to: ${missionOutPath}`,
+          "",
+          "Examine the project structure, source code, tests, and documentation.",
+          "Then write a focused, achievable MISSION.md based on what you find.",
+        ].join("\n"),
+      });
+
+      console.log("");
+      console.log(`Discovery: ${discoveryResult.success ? "completed" : "finished"} (${discoveryResult.toolCalls} tool calls, ${discoveryResult.sessionTime}s)`);
+
+      if (!existsSync(missionOutPath)) {
+        console.error("Discovery did not produce a mission file. Cannot proceed.");
+        return 1;
+      }
+      console.log("");
+
+      // --here + --mission-file: stop after generating the mission file
+      if (missionFile) {
+        console.log(`Mission file written to: ${missionOutPath}`);
+        return 0;
+      }
+
+      // Copy to MISSION.md in target if discovery wrote elsewhere
+      if (missionOutPath !== targetMission && !existsSync(targetMission)) {
+        copyFileSync(missionOutPath, targetMission);
+      }
+    }
+
+    // Fall through to normal iterate with the generated mission
+  }
+
   // Guard: require a mission source or existing MISSION.md in the target
-  if (!missionFile && missionIdx < 0) {
+  if (!hereMode && !missionFile && missionIdx < 0) {
     const targetMission = resolve(target, "MISSION.md");
     if (!existsSync(targetMission)) {
       console.error("No mission specified and no MISSION.md found in target directory.");
@@ -171,6 +249,7 @@ async function runIterate() {
       console.error("Usage:");
       console.error("  iterate --mission <name>          Use a built-in mission seed");
       console.error("  iterate --mission-file <path>     Use a custom mission file");
+      console.error("  iterate --here                    Discover and generate a mission");
       console.error("  iterate --list-missions           List available built-in missions");
       console.error("");
       console.error("Or run from a directory that already has a MISSION.md.");
@@ -180,7 +259,7 @@ async function runIterate() {
   }
 
   // --mission-file: copy custom file as MISSION.md, run init --purge with empty mission
-  if (missionFile) {
+  if (!hereMode && missionFile) {
     if (!existsSync(missionFile)) {
       console.error(`Mission file not found: ${missionFile}`);
       return 1;
@@ -193,7 +272,7 @@ async function runIterate() {
     // Overwrite MISSION.md with the custom file
     copyFileSync(missionFile, resolve(target, "MISSION.md"));
     console.log(`  COPY: ${missionFile} → MISSION.md\n`);
-  } else if (missionIdx >= 0) {
+  } else if (!hereMode && missionIdx >= 0) {
     // --mission: use a built-in seed
     console.log(`\n=== Init with mission: ${mission} ===\n`);
     execSync(
@@ -203,12 +282,16 @@ async function runIterate() {
   }
 
   const { runHybridSession } = await import("../src/copilot/hybrid-session.js");
-  let config;
+
+  // Load agent prompt: --agent flag > default agent-iterate
+  const agentName = agentFlag || "agent-iterate";
+  let agentPrompt;
   try {
-    const { loadConfig } = await import("../src/copilot/config.js");
-    config = loadConfig(resolve(target, "agentic-lib.toml"));
-  } catch {
-    config = { tuning: {}, model: "gpt-5-mini" };
+    agentPrompt = loadAgentPrompt(agentName);
+    console.log(`Agent:   ${agentName}`);
+  } catch (err) {
+    console.error(`Failed to load agent: ${err.message}`);
+    return 1;
   }
 
   const effectiveModel = model || config.model || "gpt-5-mini";
@@ -223,6 +306,7 @@ async function runIterate() {
     model: effectiveModel,
     tuning: config.tuning || {},
     timeoutMs,
+    agentPrompt,
   });
 
   console.log("");
