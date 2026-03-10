@@ -505,7 +505,7 @@ jobs:
         shell: bash
         run: |
           echo "Telemetry data:"
-          echo "${{ steps.gather.outputs.telemetry }}"
+          echo '${{ steps.gather.outputs.telemetry }}'
 
     outputs:
       telemetry: ${{ steps.gather.outputs.telemetry }}
