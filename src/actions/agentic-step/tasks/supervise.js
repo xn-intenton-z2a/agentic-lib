@@ -6,7 +6,7 @@
 // asks the Copilot SDK to choose multiple concurrent actions, then dispatches them.
 
 import * as core from "@actions/core";
-import { existsSync, readFileSync, writeFileSync } from "fs";
+import { existsSync, readFileSync, writeFileSync, readdirSync, statSync } from "fs";
 import { runCopilotTask, readOptionalFile, scanDirectory, filterIssues } from "../copilot.js";
 
 /**
@@ -328,6 +328,38 @@ async function gatherContext(octokit, repo, config, t) {
     }
   } catch { /* ignore */ }
 
+  // W9: Count TODO comments in source directory
+  let sourceTodoCount = 0;
+  try {
+    const sourcePath = config.paths.source?.path || "src/lib/";
+    const sourceDir = sourcePath.endsWith("/") ? sourcePath.slice(0, -1) : sourcePath;
+    const srcRoot = sourceDir.includes("/") ? sourceDir.split("/").slice(0, -1).join("/") || "src" : "src";
+    // Inline recursive TODO counter (avoids circular import with index.js)
+    const countTodos = (dir) => {
+      let n = 0;
+      if (!existsSync(dir)) return 0;
+      try {
+        const entries = readdirSync(dir);
+        for (const entry of entries) {
+          if (entry === "node_modules" || entry.startsWith(".")) continue;
+          const fp = `${dir}/${entry}`;
+          try {
+            const stat = statSync(fp);
+            if (stat.isDirectory()) {
+              n += countTodos(fp);
+            } else if (/\.(js|ts|mjs)$/.test(entry)) {
+              const content = readFileSync(fp, "utf8");
+              const m = content.match(/\bTODO\b/gi);
+              if (m) n += m.length;
+            }
+          } catch { /* skip */ }
+        }
+      } catch { /* skip */ }
+      return n;
+    };
+    sourceTodoCount = countTodos(srcRoot);
+  } catch { /* ignore */ }
+
   return {
     mission,
     recentActivity,
@@ -358,10 +390,11 @@ async function gatherContext(octokit, repo, config, t) {
     sourceExports,
     hasDedicatedTests,
     dedicatedTestFiles,
+    sourceTodoCount,
   };
 }
 
-function buildPrompt(ctx, agentInstructions) {
+function buildPrompt(ctx, agentInstructions, config) {
   return [
     "## Instructions",
     agentInstructions,
@@ -398,6 +431,34 @@ function buildPrompt(ctx, agentInstructions) {
       ? `Dedicated test files: ${ctx.dedicatedTestFiles.join(", ")}`
       : "**No dedicated test files found.** Only seed tests (main.test.js, web.test.js) exist. Mission-complete requires dedicated tests that import from src/lib/.",
     "",
+    `### Source TODO Count: ${ctx.sourceTodoCount}`,
+    ctx.sourceTodoCount > 0
+      ? `**${ctx.sourceTodoCount} TODO(s) found in source.** All TODOs must be resolved before mission-complete can be declared.`
+      : "No TODOs found in source — this criterion is met.",
+    "",
+    ...(() => {
+      // W10: Build mission-complete metrics inline for the LLM
+      const thresholds = config?.missionCompleteThresholds || {};
+      const minResolved = thresholds.minResolvedIssues ?? 3;
+      const requireTests = thresholds.requireDedicatedTests ?? true;
+      const maxTodos = thresholds.maxSourceTodos ?? 0;
+      const resolvedCount = ctx.recentlyClosedSummary.filter((s) => s.includes("RESOLVED")).length;
+      const rows = [
+        `### Mission-Complete Metrics`,
+        "| Metric | Value | Target | Status |",
+        "|--------|-------|--------|--------|",
+        `| Open issues | ${ctx.issuesSummary.length} | 0 | ${ctx.issuesSummary.length === 0 ? "MET" : "NOT MET"} |`,
+        `| Open PRs | ${ctx.prsSummary.length} | 0 | ${ctx.prsSummary.length === 0 ? "MET" : "NOT MET"} |`,
+        `| Issues resolved (RESOLVED) | ${resolvedCount} | >= ${minResolved} | ${resolvedCount >= minResolved ? "MET" : "NOT MET"} |`,
+        `| Dedicated test files | ${ctx.hasDedicatedTests ? "YES" : "NO"} | ${requireTests ? "YES" : "—"} | ${!requireTests || ctx.hasDedicatedTests ? "MET" : "NOT MET"} |`,
+        `| Source TODO count | ${ctx.sourceTodoCount} | <= ${maxTodos} | ${ctx.sourceTodoCount <= maxTodos ? "MET" : "NOT MET"} |`,
+        `| Budget used | ${ctx.cumulativeTransformationCost}/${ctx.transformationBudget} | < ${ctx.transformationBudget || "unlimited"} | ${ctx.transformationBudget > 0 && ctx.cumulativeTransformationCost >= ctx.transformationBudget ? "EXHAUSTED" : "OK"} |`,
+        "",
+        "**All metrics must show MET/OK for mission-complete to be declared.**",
+        "",
+      ];
+      return rows;
+    })(),
     `### Recent Workflow Runs`,
     ctx.workflowsSummary.join("\n") || "none",
     "",
@@ -844,7 +905,7 @@ export async function supervise(context) {
 
   // --- LLM decision ---
   const agentInstructions = instructions || "You are the supervisor. Decide what actions to take.";
-  const prompt = buildPrompt(ctx, agentInstructions);
+  const prompt = buildPrompt(ctx, agentInstructions, config);
 
   const { content, tokensUsed, inputTokens, outputTokens, cost } = await runCopilotTask({
     model,
@@ -881,27 +942,45 @@ export async function supervise(context) {
   if (!ctx.missionComplete && !ctx.missionFailed && config.supervisor !== "maintenance") {
     const llmChoseMissionComplete = results.some((r) => r.startsWith("mission-complete:"));
     if (!llmChoseMissionComplete) {
+      // W11: All thresholds from config
+      const thresholds = config.missionCompleteThresholds || {};
+      const minResolved = thresholds.minResolvedIssues ?? 3;
+      const requireTests = thresholds.requireDedicatedTests ?? true;
+      const maxTodos = thresholds.maxSourceTodos ?? 0;
+
       const resolvedCount = ctx.recentlyClosedSummary.filter((s) => s.includes("RESOLVED")).length;
       const hasNoOpenIssues = ctx.issuesSummary.length === 0;
       const hasNoOpenPRs = ctx.prsSummary.length === 0;
-      if (hasNoOpenIssues && hasNoOpenPRs && resolvedCount >= 1) {
-        // W3: Require dedicated test files before declaring mission-complete
-        if (!ctx.hasDedicatedTests) {
-          core.info(`Deterministic mission-complete blocked: no dedicated test files found — creating test coverage issue`);
+
+      if (hasNoOpenIssues && hasNoOpenPRs && resolvedCount >= minResolved) {
+        // Check all mission-complete blockers
+        const blockers = [];
+        if (requireTests && !ctx.hasDedicatedTests) {
+          blockers.push("no dedicated test files");
+        }
+        if (ctx.sourceTodoCount > maxTodos) {
+          blockers.push(`${ctx.sourceTodoCount} TODO(s) in source (max: ${maxTodos})`);
+        }
+
+        if (blockers.length > 0) {
+          core.info(`Deterministic mission-complete blocked: ${blockers.join(", ")} — creating issue`);
           try {
+            const blockerTitle = blockers.length === 1 && blockers[0].includes("test")
+              ? "feat: add dedicated test coverage for mission functions"
+              : `feat: resolve mission-complete blockers (${blockers.join(", ")})`;
             await executeCreateIssue(octokit, repo, {
-              title: "feat: add dedicated test coverage for mission functions",
+              title: blockerTitle,
               labels: "automated,ready",
             }, ctx);
-            results.push("created-issue:test-coverage-request");
+            results.push("created-issue:mission-complete-blocker");
           } catch (err) {
-            core.warning(`Could not create test coverage issue: ${err.message}`);
+            core.warning(`Could not create blocker issue: ${err.message}`);
           }
         } else {
-          core.info(`Deterministic mission-complete: 0 open issues, 0 open PRs, ${resolvedCount} recently resolved, dedicated tests exist — LLM did not detect completion`);
+          core.info(`Deterministic mission-complete: 0 open issues, 0 open PRs, ${resolvedCount} recently resolved, dedicated tests exist, 0 TODOs — LLM did not detect completion`);
           try {
             const autoResult = await executeMissionComplete(octokit, repo,
-              { reason: `All acceptance criteria satisfied (${resolvedCount} issues resolved, 0 open issues, 0 open PRs, dedicated tests: ${ctx.dedicatedTestFiles.join(", ")})` },
+              { reason: `All acceptance criteria satisfied (${resolvedCount} issues resolved, 0 open issues, 0 open PRs, dedicated tests: ${ctx.dedicatedTestFiles.join(", ")}, TODOs: ${ctx.sourceTodoCount})` },
               ctx);
             results.push(autoResult);
           } catch (err) {

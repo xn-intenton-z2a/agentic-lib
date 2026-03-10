@@ -2,7 +2,7 @@
 
 **Source**: [BENCHMARK_REPORT_007.md](BENCHMARK_REPORT_007.md)
 **Created**: 2026-03-10
-**Status**: implemented — all 6 work items done
+**Status**: implemented — all 11 work items done (W1-W6 + W7-W11)
 
 ---
 
@@ -186,3 +186,86 @@ Only `mission-transforms` count against the `transformation-budget`. This means 
 6. All existing tests pass (429+ unit tests in agentic-lib)
 7. Workflow lint passes (`npm run lint:workflows`)
 8. Re-run roman-numerals or cron-engine benchmark and verify fewer instability iterations (target: 0-1 instability transforms per scenario)
+9. Resolved issues threshold is 3 (not 1) — pipeline must resolve 3 issues before declaring mission-complete
+10. Init purge creates "Initial unit tests" and "Initial web layout" issues with MISSION.md content
+11. Mission-complete metrics include Source TODO count (must be 0)
+12. Supervisor LLM prompt includes full Mission-Complete Metrics table (same data as intentïon.md)
+13. All mission-complete thresholds are externalised in `[mission-complete]` section of agentic-lib.toml
+
+---
+
+## Work Items (W7-W11)
+
+### W7: Raise resolved issues threshold from 1 to 3 (HIGH — Recommendation)
+
+**Problem**: Deterministic mission-complete declared with only 1 resolved issue. A single-issue mission might declare victory too early.
+
+**Fix**: Changed threshold from `resolvedCount >= 1` to `resolvedCount >= minResolved` (default 3, configurable via `[mission-complete].min-resolved-issues` in agentic-lib.toml).
+
+**Files**: `supervise.js`, `index.js`, `agentic-lib.toml`, `config-loader.js`
+
+### W8: Init creates seed issues (HIGH — NEW)
+
+**Problem**: After `init --purge`, there are no issues for the pipeline to work on. The supervisor has to create issues from scratch, wasting an iteration.
+
+**Fix**: Added a step to `agentic-lib-init.yml` that creates two seed issues after purge:
+- W8a: "Initial unit tests" — requests test stubs with TODOs for each mission feature
+- W8b: "Initial web layout" — requests homepage layout showcasing mission features
+Both issues include the full MISSION.md content in the body and are labelled `automated,ready`.
+
+**Files**: `.github/workflows/agentic-lib-init.yml`
+
+### W9: TODO count in mission-complete metrics (HIGH — NEW)
+
+**Problem**: The pipeline could declare mission-complete while source code still has TODO placeholders.
+
+**Fix**: Added `countSourceTodos()` that recursively scans `./src` for `TODO` comments in .js/.ts/.mjs files. Count is:
+1. Included in `buildMissionMetrics` (logged to intentïon.md)
+2. Included in `gatherContext` (sent to supervisor LLM)
+3. Checked in deterministic mission-complete (blocks if count > `max-source-todos`)
+
+**Files**: `index.js`, `supervise.js`
+
+### W10: Full metrics in LLM prompt (MEDIUM — Consistency)
+
+**Problem**: The supervisor LLM saw partial mission status (open issues, PRs, budget) but not the structured metrics table that gets logged to intentïon.md.
+
+**Fix**: Added `### Mission-Complete Metrics` table to `buildPrompt()` in supervise.js. The LLM now sees the exact same metrics (with MET/NOT MET status) that are logged. Also updated `agent-supervisor.md` to reference the metrics table.
+
+Additionally, `buildMissionMetrics` in index.js now includes dedicated test files and TODO count, and `buildMissionReadiness` uses all NOT MET conditions to build its narrative.
+
+**Files**: `supervise.js`, `index.js`, `agent-supervisor.md`
+
+### W11: Externalise mission-complete thresholds (HIGH — Architecture)
+
+**Problem**: Mission-complete thresholds were hardcoded in JS. Changing them required code changes.
+
+**Fix**: Added `[mission-complete]` section to `agentic-lib.toml`:
+```toml
+[mission-complete]
+min-resolved-issues = 3
+require-dedicated-tests = true
+max-source-todos = 0
+```
+Updated `config-loader.js` to parse this section and expose `missionCompleteThresholds` on the config object. All consumers (supervise.js deterministic check, index.js metrics, buildPrompt) now read from config.
+
+**Files**: `agentic-lib.toml`, `config-loader.js`, `supervise.js`, `index.js`
+
+---
+
+## Implementation Notes (W7-W11)
+
+### W7: Resolved issues threshold — DONE
+Changed deterministic mission-complete in supervise.js from `resolvedCount >= 1` to `resolvedCount >= minResolved` where `minResolved` comes from `config.missionCompleteThresholds.minResolvedIssues` (default 3). Same in `buildMissionMetrics` target column.
+
+### W8: Init seed issues — DONE
+Added `actions/github-script@v8` step to `agentic-lib-init.yml` after commit-and-push. Only runs on purge mode (not update/reseed). Creates two issues with `automated,ready` labels, each with MISSION.md content appended. Ensures labels exist before creating issues.
+
+### W9: TODO count — DONE
+Added `countSourceTodos()` in `index.js` (exported for reuse). Scans recursively from `./src`, skipping `node_modules` and dotfiles. Counts case-insensitive `TODO` matches. Added inline equivalent in supervise.js `gatherContext()` (avoids circular import). Added to `buildMissionMetrics` with configurable threshold. Added to deterministic mission-complete blockers check.
+
+### W10: Full metrics in LLM prompt — DONE
+`buildPrompt()` now accepts `config` parameter. Builds a Mission-Complete Metrics table inline using the same thresholds as the deterministic check. Includes all 6 metrics: open issues, open PRs, resolved count, dedicated tests, TODO count, budget. Updated `agent-supervisor.md` to reference the metrics table in mandatory first check, mission accomplished criteria, and stability detection.
+
+### W11: Externalised thresholds — DONE
+Added `[mission-complete]` section to `agentic-lib.toml`. Updated `config-loader.js` to parse it into `missionCompleteThresholds` with safe defaults. All 3 thresholds (min-resolved-issues, require-dedicated-tests, max-source-todos) are consumed by: supervise.js deterministic check, buildPrompt metrics table, buildMissionMetrics in index.js. Centrally computed `hasDedicatedTests` in index.js (not just supervise task).
