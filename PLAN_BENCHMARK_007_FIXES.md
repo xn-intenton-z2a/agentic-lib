@@ -2,7 +2,7 @@
 
 **Source**: [BENCHMARK_REPORT_007.md](BENCHMARK_REPORT_007.md)
 **Created**: 2026-03-10
-**Status**: implemented — all 11 work items done (W1-W6 + W7-W11)
+**Status**: implemented — all 12 work items done (W1-W12)
 
 ---
 
@@ -272,9 +272,9 @@ Added `[mission-complete]` section to `agentic-lib.toml`. Updated `config-loader
 
 ---
 
-## W12: Director Job (APPROVED — IMPLEMENTING)
+## W12: Director Job (DONE)
 
-**Status**: approved — proceeding with implementation
+**Status**: implemented — all steps complete
 
 ### Concept
 
