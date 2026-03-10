@@ -47,24 +47,12 @@ export async function runHybridSession({
   const missionPath = resolve(wsPath, "MISSION.md");
   const missionText = existsSync(missionPath) ? readFileSync(missionPath, "utf8") : "No MISSION.md found";
 
-  // Run initial tests
+  // Run initial tests to capture baseline
   let initialTestOutput;
-  let initialTestsPassed = false;
   try {
     initialTestOutput = execSync("npm test 2>&1", { cwd: wsPath, encoding: "utf8", timeout: 120000 });
-    initialTestsPassed = true;
   } catch (err) {
     initialTestOutput = `STDOUT:\n${err.stdout || ""}\nSTDERR:\n${err.stderr || ""}`;
-  }
-
-  if (initialTestsPassed) {
-    logger.info("Tests already pass — nothing to do");
-    return {
-      success: true, testsPassed: true, sessionTime: 0, totalTime: 0,
-      toolCalls: 0, testRuns: 0, filesWritten: 0,
-      tokensIn: 0, tokensOut: 0, errors: [],
-      endReason: "already-passing", model,
-    };
   }
 
   // ── Metrics ─────────────────────────────────────────────────────────
@@ -102,18 +90,26 @@ export async function runHybridSession({
   const systemPrompt = [
     "You are an autonomous code transformation agent.",
     "Your workspace is a Node.js project with source code in src/lib/ and tests in tests/.",
-    "Your goal: make ALL tests pass. Read the failing tests, understand what they expect, write the implementation.",
+    "",
+    "Your goal: implement the MISSION described below. This means:",
+    "1. Write the implementation code in src/lib/main.js (keep existing exports, add new ones)",
+    "2. Write comprehensive unit tests in tests/unit/ that cover all acceptance criteria",
+    "3. Make ALL tests pass (both existing seed tests and your new tests)",
     "",
     "Strategy:",
-    "1. Run the run_tests tool to see what's failing",
-    "2. Read the test files to understand expected behaviour",
-    "3. Read the current source code",
-    "4. Write the implementation that makes the tests pass",
-    "5. Run run_tests again to verify",
-    "6. If tests still fail, read the error output carefully, fix the code, and repeat",
+    "1. Read MISSION.md to understand what needs to be built",
+    "2. Read the current source code and tests",
+    "3. Write the implementation in src/lib/main.js",
+    "4. Write dedicated tests in a new test file (e.g. tests/unit/hamming.test.js) covering all acceptance criteria",
+    "5. Run run_tests to verify everything passes",
+    "6. If tests fail, read the error output carefully, fix the code, and repeat",
     "",
-    "Do NOT modify test files. Only modify source files in src/lib/.",
-    "Keep going until all tests pass or you've exhausted your options.",
+    "Important:",
+    "- Keep existing exports in src/lib/main.js (main, getIdentity, name, version, description)",
+    "- Add new named exports as specified in the mission",
+    "- Write tests that import from src/lib/main.js",
+    "- Do NOT modify existing test files — create new test files for mission-specific tests",
+    "- Keep going until all tests pass or you've exhausted your options",
   ].join("\n");
 
   const sessionConfig = {
@@ -191,10 +187,16 @@ export async function runHybridSession({
 
   const prompt = [
     `# Mission\n\n${missionText}`,
-    `# Current test state\n\n\`\`\`\n${initialTestOutput.substring(0, 4000)}\n\`\`\``,
+    `# Current test state (seed tests)\n\n\`\`\`\n${initialTestOutput.substring(0, 4000)}\n\`\`\``,
     "",
-    "Make all the tests pass. Work autonomously — read files, write code, run tests, iterate.",
-    "Use the run_tests tool to verify your changes after each modification.",
+    "Implement this mission. You need to:",
+    "1. Read the existing source code (src/lib/main.js) and tests",
+    "2. Add the required functions to src/lib/main.js as named exports",
+    "3. Create dedicated test files in tests/unit/ covering ALL acceptance criteria",
+    "4. Run run_tests to verify everything passes",
+    "5. Fix any failures and iterate until all tests pass",
+    "",
+    "Start by reading the existing files, then implement the solution.",
   ].join("\n\n");
 
   const t0 = Date.now();
