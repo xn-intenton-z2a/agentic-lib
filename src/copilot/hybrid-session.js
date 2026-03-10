@@ -15,6 +15,34 @@ import { isPathWritable } from "./tools.js";
 import { readOptionalFile } from "./session.js";
 
 /**
+ * Format tool arguments for human-readable logging.
+ */
+function formatToolArgs(toolName, args) {
+  if (!args) return "";
+  switch (toolName) {
+    case "view":
+      return args.filePath ? ` → ${args.filePath}` : (args.path ? ` → ${args.path}` : "");
+    case "bash":
+      return args.command ? ` → ${args.command.substring(0, 120)}` : "";
+    case "write_file":
+    case "create_file":
+    case "edit_file":
+      return args.file_path ? ` → ${args.file_path}` : (args.path ? ` → ${args.path}` : "");
+    case "read_file":
+      return args.file_path ? ` → ${args.file_path}` : (args.path ? ` → ${args.path}` : "");
+    case "run_tests":
+      return "";
+    case "report_intent":
+      return args.intent ? ` → "${args.intent.substring(0, 80)}"` : "";
+    default: {
+      // Generic: show first string-valued arg
+      const firstVal = Object.values(args).find((v) => typeof v === "string");
+      return firstVal ? ` → ${firstVal.substring(0, 100)}` : "";
+    }
+  }
+}
+
+/**
  * Run a hybrid iteration: single Copilot SDK session drives mission to completion.
  *
  * @param {Object} options
@@ -120,13 +148,29 @@ export async function runHybridSession({
     workingDirectory: wsPath,
     hooks: {
       onPreToolUse: (input) => {
-        metrics.toolCalls.push({ tool: input.toolName, time: Date.now() });
-        logger.info(`  [tool] ${input.toolName}`);
+        const n = metrics.toolCalls.length + 1;
+        const elapsed = ((Date.now() - metrics.startTime) / 1000).toFixed(0);
+        metrics.toolCalls.push({ tool: input.toolName, time: Date.now(), args: input.toolArgs });
+        const detail = formatToolArgs(input.toolName, input.toolArgs);
+        logger.info(`  [tool #${n} +${elapsed}s] ${input.toolName}${detail}`);
       },
       onPostToolUse: (input) => {
-        if (/write|edit/i.test(input.toolName)) {
+        if (/write|edit|create/i.test(input.toolName)) {
           const path = input.toolArgs?.file_path || input.toolArgs?.path || "unknown";
           metrics.filesWritten.add(path);
+          logger.info(`    → wrote ${path}`);
+        }
+        if (input.toolName === "run_tests" || input.toolName === "bash") {
+          const result = input.toolResult?.textResultForLlm || input.toolResult || "";
+          const resultStr = typeof result === "string" ? result : JSON.stringify(result);
+          const passed = /TESTS PASSED|passed|✓|0 fail/i.test(resultStr);
+          const failed = /TESTS FAILED|failed|✗|FAIL/i.test(resultStr);
+          if (passed && !failed) {
+            logger.info(`    → tests PASSED`);
+          } else if (failed) {
+            const failMatch = resultStr.match(/(\d+)\s*(failed|fail)/i);
+            logger.info(`    → tests FAILED${failMatch ? ` (${failMatch[1]} failures)` : ""}`);
+          }
         }
       },
       onErrorOccurred: (input) => {
@@ -166,12 +210,22 @@ export async function runHybridSession({
   let tokensOut = 0;
 
   session.on("assistant.usage", (event) => {
-    tokensIn += event.data?.inputTokens || 0;
-    tokensOut += event.data?.outputTokens || 0;
+    const inTok = event.data?.inputTokens || 0;
+    const outTok = event.data?.outputTokens || 0;
+    tokensIn += inTok;
+    tokensOut += outTok;
+    if (inTok || outTok) {
+      logger.info(`  [tokens] +${inTok} in / +${outTok} out (cumulative: ${tokensIn} in / ${tokensOut} out)`);
+    }
   });
   session.on("assistant.message", (event) => {
-    const preview = (event.data?.content || "").substring(0, 200);
-    logger.info(`  [assistant] ${preview}...`);
+    const content = (event.data?.content || "").trim();
+    if (content) {
+      // Show first line or first 200 chars, whichever is shorter
+      const firstLine = content.split("\n")[0];
+      const preview = firstLine.length > 200 ? firstLine.substring(0, 200) + "..." : firstLine;
+      logger.info(`  [assistant] ${preview}`);
+    }
   });
 
   // ── Try autopilot mode ──────────────────────────────────────────────
