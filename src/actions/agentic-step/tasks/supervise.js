@@ -184,7 +184,8 @@ async function gatherContext(octokit, repo, config, t) {
     const { data: closedIssuesRaw } = await octokit.rest.issues.listForRepo({
       ...repo,
       state: "closed",
-      per_page: 5,
+      labels: "automated",
+      per_page: 10,
       sort: "updated",
       direction: "desc",
     });
