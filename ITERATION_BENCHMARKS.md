@@ -66,32 +66,6 @@ Each mission is a self-contained MISSION.md in `src/seeds/missions/`. Missions a
 | `dense-encoding` | encode/decode, createEncoding, listEncodings | 6 criteria | Multiple encoding schemes, round-trip correctness. |
 | `cron-engine` | parseCron, nextRun, matches, etc. | 8 criteria | DST handling, special strings, validation. |
 
-### Tier 4 — Hard (8+ transforms expected, may not complete)
-
-| Mission | Functions | Acceptance Criteria | Notes |
-|---------|-----------|-------------------|-------|
-| `lunar-lander` | createLander, step, simulate, autopilot, score | 7 criteria | Physics simulation, autopilot algorithm. |
-| `plot-code-lib` | Expression parsing, SVG/PNG generation, CLI | 7 criteria | External dependencies, multi-format output. |
-
-### Tier 5 — Ambitious (likely won't complete in one budget cycle)
-
-| Mission | Functions | Acceptance Criteria | Notes |
-|---------|-----------|-------------------|-------|
-| `c64-emulator` | Full 6502 CPU, VIC-II, SID, CIA, browser UI | 16 criteria | Multi-file architecture, 10+ source modules. |
-
-### Ongoing Missions (never complete — schedule stays on)
-
-| Mission | Notes |
-|---------|-------|
-| `owl-ontology` | Populates data/ over successive cycles. MISSION.md says "do not set schedule to off". |
-| `time-series-lab` | Discovers and refreshes datasets. MISSION.md says "do not set schedule to off". |
-
-### Special
-
-| Mission | Notes |
-|---------|-------|
-| `empty` | Placeholder. No acceptance criteria. For testing pipeline behaviour with no mission. |
-
 ---
 
 ## Profiles
@@ -118,17 +92,15 @@ Profiles control context quality, budget, and limits. Set in `agentic-lib.toml` 
 
 Standard scenarios for benchmarking. Pick one or more per report.
 
-| ID | Mission | Model | Profile | Budget | Purpose |
-|----|---------|-------|---------|--------|---------|
-| S1 | fizz-buzz | gpt-5-mini | min | 16 | Baseline. Cheapest config on simplest mission. |
-| S2 | fizz-buzz | gpt-5-mini | recommended | 32 | Profile comparison (min vs recommended). |
-| S3 | hamming-distance | gpt-5-mini | recommended | 32 | Medium complexity baseline. |
-| S4 | hamming-distance | claude-sonnet-4 | recommended | 32 | Model comparison (gpt-5-mini vs claude-sonnet-4). |
-| S5 | roman-numerals | gpt-5-mini | recommended | 32 | New Tier 2 mission. |
-| S6 | string-utils | gpt-5-mini | recommended | 32 | Tier 3 — tests multi-function missions. |
-| S7 | cron-engine | gpt-5-mini | recommended | 32 | Tier 3 — tests algorithmic complexity. |
-| S8 | lunar-lander | gpt-5-mini | max | 128 | Tier 4 — stress test. |
-| S9 | fizz-buzz | gpt-5-mini | recommended | 32 | Regression — re-run after pipeline changes. |
+| ID | Mission | Model | Profile     | Budget | Purpose                                          |
+|----|---------|-------|-------------|--------|--------------------------------------------------|
+| S1 | fizz-buzz | gpt-5-mini | recommended | 32 | Baseline. Default config on simplest mission.    |
+| S2 | fizz-buzz | gpt-5-mini | max         | 128 | Profile comparison (max vs recommended).         |
+| S3 | hamming-distance | gpt-5-mini | recommended | 32 | Medium complexity baseline.                      |
+| S4 | hamming-distance | claude-sonnet-4 | recommended | 128 | Model comparison (gpt-5-mini vs claude-sonnet-4). |
+| S5 | roman-numerals | gpt-5-mini | recommended | 32 | New Tier 2 mission.                              |
+| S6 | string-utils | claude-sonnet-4 | max | 128 | Tier 3 — tests multi-function missions.          |
+| S7 | cron-engine | claude-sonnet-4 | max | 128 | Tier 3 — tests algorithmic complexity.           |
 
 ---
 
