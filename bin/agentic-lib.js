@@ -162,6 +162,23 @@ async function runIterate() {
     return 0;
   }
 
+  // Guard: require a mission source or existing MISSION.md in the target
+  if (!missionFile && missionIdx < 0) {
+    const targetMission = resolve(target, "MISSION.md");
+    if (!existsSync(targetMission)) {
+      console.error("No mission specified and no MISSION.md found in target directory.");
+      console.error("");
+      console.error("Usage:");
+      console.error("  iterate --mission <name>          Use a built-in mission seed");
+      console.error("  iterate --mission-file <path>     Use a custom mission file");
+      console.error("  iterate --list-missions           List available built-in missions");
+      console.error("");
+      console.error("Or run from a directory that already has a MISSION.md.");
+      return 1;
+    }
+    console.log(`Using existing MISSION.md in ${target}`);
+  }
+
   // --mission-file: copy custom file as MISSION.md, run init --purge with empty mission
   if (missionFile) {
     if (!existsSync(missionFile)) {
