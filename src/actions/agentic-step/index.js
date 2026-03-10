@@ -22,6 +22,7 @@ import { enhanceIssue } from "./tasks/enhance-issue.js";
 import { reviewIssue } from "./tasks/review-issue.js";
 import { discussions } from "./tasks/discussions.js";
 import { supervise } from "./tasks/supervise.js";
+import { direct } from "./tasks/direct.js";
 
 const TASKS = {
   "resolve-issue": resolveIssue,
@@ -33,6 +34,7 @@ const TASKS = {
   "review-issue": reviewIssue,
   "discussions": discussions,
   "supervise": supervise,
+  "direct": direct,
 };
 
 /**

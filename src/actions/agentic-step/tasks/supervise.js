@@ -6,7 +6,7 @@
 // asks the Copilot SDK to choose multiple concurrent actions, then dispatches them.
 
 import * as core from "@actions/core";
-import { existsSync, readFileSync, writeFileSync, readdirSync, statSync } from "fs";
+import { existsSync, readFileSync, readdirSync, statSync } from "fs";
 import { runCopilotTask, readOptionalFile, scanDirectory, filterIssues } from "../copilot.js";
 
 /**
@@ -535,10 +535,6 @@ function buildPrompt(ctx, agentInstructions, config) {
     "### Communication",
     "- `respond:discussions | message: <text> | discussion-url: <url>` — Reply via discussions bot",
     "",
-    "### Mission Lifecycle",
-    "- `mission-complete | reason: <text>` — Declare mission accomplished. Writes MISSION_COMPLETE.md and sets schedule to off. Use when: all acceptance criteria in MISSION.md are satisfied, tests pass, and recently-closed issues confirm resolution.",
-    "- `mission-failed | reason: <text>` — Declare mission failed. Writes MISSION_FAILED.md and sets schedule to off. Use when: transformation budget is exhausted with no progress, pipeline is stuck in a loop, or the mission is unachievable.",
-    "",
     "### Schedule Control",
     "- `set-schedule:<frequency>` — Change supervisor schedule (off, weekly, daily, hourly, continuous). Use `set-schedule:weekly` when mission is substantially complete, `set-schedule:continuous` to ramp up.",
     "",
@@ -696,152 +692,11 @@ async function executeRespondDiscussions(octokit, repo, params, ctx) {
   return "skipped:respond-no-message";
 }
 
-async function executeMissionComplete(octokit, repo, params, ctx) {
-  const reason = params.reason || "All acceptance criteria satisfied";
-  const signal = [
-    "# Mission Complete",
-    "",
-    `- **Timestamp:** ${new Date().toISOString()}`,
-    `- **Detected by:** supervisor`,
-    `- **Reason:** ${reason}`,
-    "",
-    "This file was created automatically. To restart transformations, delete this file or run `npx @xn-intenton-z2a/agentic-lib init --reseed`.",
-  ].join("\n");
-  writeFileSync("MISSION_COMPLETE.md", signal);
-  core.info(`Mission complete signal written: ${reason}`);
-
-  // Persist MISSION_COMPLETE.md to the repository via Contents API so it survives across runs
-  try {
-    const contentBase64 = Buffer.from(signal).toString("base64");
-    // Check if file already exists (to get its SHA for updates)
-    let existingSha;
-    try {
-      const { data } = await octokit.rest.repos.getContent({ ...repo, path: "MISSION_COMPLETE.md", ref: "main" });
-      existingSha = data.sha;
-    } catch {
-      // File doesn't exist yet — that's fine
-    }
-    await octokit.rest.repos.createOrUpdateFileContents({
-      ...repo,
-      path: "MISSION_COMPLETE.md",
-      message: "mission-complete: " + reason.substring(0, 72),
-      content: contentBase64,
-      branch: "main",
-      ...(existingSha ? { sha: existingSha } : {}),
-    });
-    core.info("MISSION_COMPLETE.md committed to main via Contents API");
-  } catch (err) {
-    core.warning(`Could not commit MISSION_COMPLETE.md to repo: ${err.message}`);
-  }
-
-  if (process.env.GITHUB_REPOSITORY !== "xn-intenton-z2a/agentic-lib") {
-    // Only turn off schedule if it's not already off or in maintenance mode
-    let currentSupervisor = "";
-    try {
-      const tomlContent = readFileSync("agentic-lib.toml", "utf8");
-      const match = tomlContent.match(/^\s*supervisor\s*=\s*"([^"]*)"/m);
-      if (match) currentSupervisor = match[1];
-    } catch { /* ignore */ }
-
-    if (currentSupervisor === "off" || currentSupervisor === "maintenance") {
-      core.info(`Schedule already "${currentSupervisor}" — not changing on mission-complete`);
-    } else {
-      try {
-        await octokit.rest.actions.createWorkflowDispatch({
-          ...repo,
-          workflow_id: "agentic-lib-schedule.yml",
-          ref: "main",
-          inputs: { frequency: "off" },
-        });
-      } catch (err) {
-        core.warning(`Could not set schedule to off: ${err.message}`);
-      }
-    }
-
-    // Announce mission complete via bot
-    const websiteUrl = getWebsiteUrl(repo);
-    const discussionUrl = ctx?.activeDiscussionUrl || "";
-    await dispatchBot(octokit, repo, `Mission complete! ${reason}\n\nWebsite: ${websiteUrl}`, discussionUrl);
-  }
-  return `mission-complete:${reason.substring(0, 100)}`;
-}
-
-async function executeMissionFailed(octokit, repo, params, ctx) {
-  const reason = params.reason || "Mission could not be completed";
-  const signal = [
-    "# Mission Failed",
-    "",
-    `- **Timestamp:** ${new Date().toISOString()}`,
-    `- **Detected by:** supervisor`,
-    `- **Reason:** ${reason}`,
-    "",
-    "This file was created automatically. To restart, delete this file and run `npx @xn-intenton-z2a/agentic-lib init --reseed`.",
-  ].join("\n");
-  writeFileSync("MISSION_FAILED.md", signal);
-  core.info(`Mission failed signal written: ${reason}`);
-
-  // Persist MISSION_FAILED.md to the repository via Contents API so it survives across runs
-  try {
-    const contentBase64 = Buffer.from(signal).toString("base64");
-    let existingSha;
-    try {
-      const { data } = await octokit.rest.repos.getContent({ ...repo, path: "MISSION_FAILED.md", ref: "main" });
-      existingSha = data.sha;
-    } catch {
-      // File doesn't exist yet — that's fine
-    }
-    await octokit.rest.repos.createOrUpdateFileContents({
-      ...repo,
-      path: "MISSION_FAILED.md",
-      message: "mission-failed: " + reason.substring(0, 72),
-      content: contentBase64,
-      branch: "main",
-      ...(existingSha ? { sha: existingSha } : {}),
-    });
-    core.info("MISSION_FAILED.md committed to main via Contents API");
-  } catch (err) {
-    core.warning(`Could not commit MISSION_FAILED.md to repo: ${err.message}`);
-  }
-
-  if (process.env.GITHUB_REPOSITORY !== "xn-intenton-z2a/agentic-lib") {
-    // Only turn off schedule if it's not already off or in maintenance mode
-    let currentSupervisor = "";
-    try {
-      const tomlContent = readFileSync("agentic-lib.toml", "utf8");
-      const match = tomlContent.match(/^\s*supervisor\s*=\s*"([^"]*)"/m);
-      if (match) currentSupervisor = match[1];
-    } catch { /* ignore */ }
-
-    if (currentSupervisor === "off" || currentSupervisor === "maintenance") {
-      core.info(`Schedule already "${currentSupervisor}" — not changing on mission-failed`);
-    } else {
-      try {
-        await octokit.rest.actions.createWorkflowDispatch({
-          ...repo,
-          workflow_id: "agentic-lib-schedule.yml",
-          ref: "main",
-          inputs: { frequency: "off" },
-        });
-      } catch (err) {
-        core.warning(`Could not set schedule to off: ${err.message}`);
-      }
-    }
-
-    // Announce mission failed via bot
-    const websiteUrl = getWebsiteUrl(repo);
-    const discussionUrl = ctx?.activeDiscussionUrl || "";
-    await dispatchBot(octokit, repo, `Mission failed. ${reason}\n\nWebsite: ${websiteUrl}`, discussionUrl);
-  }
-  return `mission-failed:${reason.substring(0, 100)}`;
-}
-
 const ACTION_HANDLERS = {
   "github:create-issue": executeCreateIssue,
   "github:label-issue": executeLabelIssue,
   "github:close-issue": executeCloseIssue,
   "respond:discussions": executeRespondDiscussions,
-  "mission-complete": executeMissionComplete,
-  "mission-failed": executeMissionFailed,
 };
 
 async function executeSetSchedule(octokit, repo, frequency) {
@@ -936,60 +791,8 @@ export async function supervise(context) {
 
   // --- Deterministic lifecycle posts (after LLM) ---
 
-  // Strategy A: Deterministic mission-complete fallback
-  // If the LLM didn't choose mission-complete but conditions are clearly met, auto-execute it.
-  // Skip in maintenance mode — maintenance keeps running regardless of mission status.
-  if (!ctx.missionComplete && !ctx.missionFailed && config.supervisor !== "maintenance") {
-    const llmChoseMissionComplete = results.some((r) => r.startsWith("mission-complete:"));
-    if (!llmChoseMissionComplete) {
-      // W11: All thresholds from config
-      const thresholds = config.missionCompleteThresholds || {};
-      const minResolved = thresholds.minResolvedIssues ?? 3;
-      const requireTests = thresholds.requireDedicatedTests ?? true;
-      const maxTodos = thresholds.maxSourceTodos ?? 0;
-
-      const resolvedCount = ctx.recentlyClosedSummary.filter((s) => s.includes("RESOLVED")).length;
-      const hasNoOpenIssues = ctx.issuesSummary.length === 0;
-      const hasNoOpenPRs = ctx.prsSummary.length === 0;
-
-      if (hasNoOpenIssues && hasNoOpenPRs && resolvedCount >= minResolved) {
-        // Check all mission-complete blockers
-        const blockers = [];
-        if (requireTests && !ctx.hasDedicatedTests) {
-          blockers.push("no dedicated test files");
-        }
-        if (ctx.sourceTodoCount > maxTodos) {
-          blockers.push(`${ctx.sourceTodoCount} TODO(s) in source (max: ${maxTodos})`);
-        }
-
-        if (blockers.length > 0) {
-          core.info(`Deterministic mission-complete blocked: ${blockers.join(", ")} — creating issue`);
-          try {
-            const blockerTitle = blockers.length === 1 && blockers[0].includes("test")
-              ? "feat: add dedicated test coverage for mission functions"
-              : `feat: resolve mission-complete blockers (${blockers.join(", ")})`;
-            await executeCreateIssue(octokit, repo, {
-              title: blockerTitle,
-              labels: "automated,ready",
-            }, ctx);
-            results.push("created-issue:mission-complete-blocker");
-          } catch (err) {
-            core.warning(`Could not create blocker issue: ${err.message}`);
-          }
-        } else {
-          core.info(`Deterministic mission-complete: 0 open issues, 0 open PRs, ${resolvedCount} recently resolved, dedicated tests exist, 0 TODOs — LLM did not detect completion`);
-          try {
-            const autoResult = await executeMissionComplete(octokit, repo,
-              { reason: `All acceptance criteria satisfied (${resolvedCount} issues resolved, 0 open issues, 0 open PRs, dedicated tests: ${ctx.dedicatedTestFiles.join(", ")}, TODOs: ${ctx.sourceTodoCount})` },
-              ctx);
-            results.push(autoResult);
-          } catch (err) {
-            core.warning(`Deterministic mission-complete failed: ${err.message}`);
-          }
-        }
-      }
-    }
-  }
+  // W12: Mission-complete/failed evaluation moved to the director task.
+  // The supervisor no longer declares mission-complete or mission-failed.
 
   // Step 3: Auto-respond when a message referral is present
   // If the workflow was triggered with a message (from bot's request-supervisor),
@@ -1011,14 +814,8 @@ export async function supervise(context) {
 
   // Build changes list from executed actions
   const changes = results
-    .filter((r) => r.startsWith("created-issue:") || r.startsWith("mission-complete:") || r.startsWith("mission-failed:"))
-    .map((r) => {
-      if (r.startsWith("created-issue:")) return { action: "created-issue", file: r.replace("created-issue:", ""), sizeInfo: "" };
-      if (r.startsWith("mission-complete:")) return { action: "mission-complete", file: "MISSION_COMPLETE.md", sizeInfo: r.replace("mission-complete:", "") };
-      if (r.startsWith("mission-failed:")) return { action: "mission-failed", file: "MISSION_FAILED.md", sizeInfo: r.replace("mission-failed:", "") };
-      return null;
-    })
-    .filter(Boolean);
+    .filter((r) => r.startsWith("created-issue:"))
+    .map((r) => ({ action: "created-issue", file: r.replace("created-issue:", ""), sizeInfo: "" }));
 
   return {
     outcome: actions.length === 0 ? "nop" : `supervised:${actions.length}-actions`,

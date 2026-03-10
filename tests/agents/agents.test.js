@@ -12,8 +12,8 @@ const mdFiles = allFiles.filter((f) => f.endsWith(".md"));
 const ymlFiles = allFiles.filter((f) => f.endsWith(".yml"));
 
 describe("src/agents", () => {
-  it("has 9 files total (8 prompts + 1 config)", () => {
-    expect(allFiles).toHaveLength(9);
+  it("has 10 files total (9 prompts + 1 config)", () => {
+    expect(allFiles).toHaveLength(10);
   });
 
   it("has exactly 1 YAML config file (agentic-lib.yml)", () => {

@@ -272,9 +272,9 @@ Added `[mission-complete]` section to `agentic-lib.toml`. Updated `config-loader
 
 ---
 
-## W12: Director Job (PROPOSAL — NOT YET IMPLEMENTED)
+## W12: Director Job (APPROVED — IMPLEMENTING)
 
-**Status**: discussion — needs design review before implementation
+**Status**: approved — proceeding with implementation
 
 ### Concept
 
@@ -319,10 +319,25 @@ agentic-lib-workflow.yml
 - `src/agents/agent-director.md` — director prompt
 - `src/actions/agentic-step/tasks/direct.js` — director task handler
 
-### Key Design Questions
+### Design Decisions (approved)
 
-1. **Should the director use an LLM or be purely mechanical?** The director could be entirely rule-based (check metrics table, no LLM call) which would be faster and cheaper. The gap-analysis narrative is the only part that benefits from an LLM.
-2. **Budget impact** — adding a director LLM call adds cost per cycle. Could use a cheaper model (gpt-5-mini at low reasoning) since it's evaluative not generative.
-3. **Ordering** — director must run before supervisor. If director declares mission-complete, supervisor should be skipped entirely (saves an LLM call).
-4. **Overlap with W7-W11** — the deterministic mission-complete check we just built (W7/W9/W11) is essentially a "mechanical director". The LLM director would replace this with richer gap analysis but at the cost of an extra LLM call per cycle.
-5. **Who writes to intentïon.md?** — currently index.js logs for all tasks. The director's gap-analysis statement would be a new entry type in the activity log.
+1. **LLM-based director** — accepted extra cost. Director uses LLM for gap analysis.
+2. **Mechanical check becomes advisory** — the deterministic mission-complete check (W7/W9/W11) stays as a metric-based assessment, captured in telemetry and passed to the director as "Metric based mission complete assessment: ...". Also written to intentïon.md. Director makes the actual decision.
+3. **Remove mission-complete from supervisor** — `agent-supervisor.md` no longer mentions mission-complete/failed. Supervisor becomes pure strategist. Remove `mission-complete` and `mission-failed` from supervisor's available actions. Remove the deterministic mission-complete fallback from supervise.js.
+4. **Director writes to intentïon.md** — director's gap-analysis statement is a new entry type in the activity log.
+5. **Ordering** — director runs before supervisor. If director declares mission-complete/failed, supervisor and all downstream jobs are skipped.
+
+### Implementation Steps
+
+1. Create `src/agents/agent-director.md` — director prompt
+2. Create `src/actions/agentic-step/tasks/direct.js` — director task handler
+3. Register `direct` task in `index.js` TASKS map
+4. Add `director` job to `agentic-lib-workflow.yml` before supervisor
+5. Convert deterministic mission-complete check to advisory metric string
+6. Pass advisory metric string to director via telemetry
+7. Write advisory metric string to intentïon.md
+8. Remove mission-complete/failed from supervisor prompt and actions
+9. Remove deterministic mission-complete fallback from supervise.js
+10. Director outputs: `mission-complete`, `mission-failed`, or gap-analysis statement
+11. If mission-complete/failed → skip supervisor + downstream jobs
+12. If gap-analysis → pass to supervisor as context
