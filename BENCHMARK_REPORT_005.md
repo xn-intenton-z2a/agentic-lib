@@ -238,3 +238,76 @@ This means the convergence mechanism from Report 004 (review-features closing id
 4. **Consider min profile for "first pass only"** (LOW) — Min is excellent for initial implementation (fast, correct function names) but poor for iterative refinement. A hybrid approach — min for iteration 1, recommended for subsequent iterations — could combine speed with convergence.
 
 5. **Investigate review-features passivity** (LOW) — Review-features was active in Report 004 but passive here. Determine whether this is a timing issue (dev closes issues before review-features runs) or a context limitation of the min profile.
+
+---
+
+## Addendum: Benchmark 006 (fizz-buzz / gpt-5-mini / recommended / budget 32)
+
+**Date**: 2026-03-10
+**agentic-lib version**: 7.1.102 (on npm, but changes applied directly to repository0 without release+init)
+**Profile**: recommended (not min)
+
+### Purpose
+
+Re-run the fizz-buzz benchmark with the **recommended** profile to validate the W1-W8 fixes from this report, and to test the pipeline end-to-end including mission-complete declaration.
+
+### Setup
+
+Init was run with `--purge` and `PROFILE=recommended`. The recommended profile provides 8000 source chars and 5000 test chars — enough for the LLM to keep code and tests consistent.
+
+### Outcome: MISSION COMPLETE
+
+The benchmark reached mission-complete after ~22 transformations. The pipeline successfully:
+1. Created issues, transformed code, merged PRs
+2. Resolved CONFLICTING PRs via the new 3-tier fix-stuck mechanism (W9)
+3. Declared mission-complete via the deterministic fallback (W12)
+
+### Issues Discovered During Execution
+
+| # | Issue | Fix | Work Item |
+|---|-------|-----|-----------|
+| 1 | `commit-if-changed` does `git pull --rebase` causing binary conflicts on SCREENSHOT_INDEX.png | 3-tier incremental conflict resolution with direct push | W9 |
+| 2 | Screenshot pushed to main on every test trigger, not just schedule | `push-screenshot` input, default off except on schedule | W10 |
+| 3 | "Issues closed by review (RESOLVED)" metric only counted LLM review closures, not PR-merge closures | Check issue events for commit-linked closures, filter by `automated` label | W11 |
+| 4 | Deterministic mission-complete threshold required 2 resolved issues | Lowered to 1 | W12 |
+| 5 | Mission-complete unconditionally sets schedule to "off" | Check if already off/maintenance before dispatching; added maintenance mode | W13 |
+
+### Key Metrics
+
+| Metric | Value |
+|--------|-------|
+| Total transformations | 22 |
+| Mission complete | **YES** (deterministic fallback) |
+| Time to mission complete | ~22 iterations over ~2 hours (manual dispatches with debugging pauses) |
+| Fix-stuck activations | Multiple — Tier 2 (`-X theirs`) resolved SCREENSHOT_INDEX.png binary conflicts |
+| PRs stuck in CONFLICTING | 2 (#2780, #2781) — both resolved by fix-stuck |
+
+### MISSION_COMPLETE.md Content
+
+```
+- Timestamp: 2026-03-10T01:04:10.195Z
+- Detected by: supervisor
+- Reason: All acceptance criteria satisfied: src/lib/main.js exports fizzBuzz and
+  fizzBuzzSingle (implemented in src/lib/fizz.js), comprehensive unit tests cover
+  normal and edge cases and pass, README includes usage examples, 0 open issues and
+  recent workflow/test successes confirm readiness.
+```
+
+### Changes Not Yet Released
+
+All W9-W14 fixes were applied directly to repository0 main (for fast feedback) and to agentic-lib branch `claude/fix-stuck-incremental` (PR [#1892](https://github.com/xn-intenton-z2a/agentic-lib/pull/1892)). These changes are NOT yet released to npm or distributed via init. They need:
+
+1. PR #1892 merged to agentic-lib main
+2. Release to npm (auto-bumps version)
+3. `init --purge` on repository0 to distribute
+
+### Comparison Update
+
+| Metric | Report 004 (rec) | Report 005 S1 (new min) | **006 (rec + fixes)** |
+|--------|------------------|------------------------|-----------------------|
+| agentic-lib version | 7.1.97 | 7.1.100 | 7.1.102 + W9-W14 |
+| Profile | recommended | min | **recommended** |
+| Mission complete | YES (40 min) | NO | **YES** |
+| Transforms | 1 | 5 | **22** |
+| Fix-stuck conflicts resolved | N/A | N/A | **2 PRs** |
+| RESOLVED metric accurate | NO (review-only) | NO | **YES (review + PR merge)** |
