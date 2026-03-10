@@ -269,3 +269,60 @@ Added `countSourceTodos()` in `index.js` (exported for reuse). Scans recursively
 
 ### W11: Externalised thresholds — DONE
 Added `[mission-complete]` section to `agentic-lib.toml`. Updated `config-loader.js` to parse it into `missionCompleteThresholds` with safe defaults. All 3 thresholds (min-resolved-issues, require-dedicated-tests, max-source-todos) are consumed by: supervise.js deterministic check, buildPrompt metrics table, buildMissionMetrics in index.js. Centrally computed `hasDedicatedTests` in index.js (not just supervise task).
+
+---
+
+## W12: Director Job (PROPOSAL — NOT YET IMPLEMENTED)
+
+**Status**: discussion — needs design review before implementation
+
+### Concept
+
+Add a **director** job to `agentic-lib-workflow.yml` that runs immediately **before** the supervisor. The director has a single responsibility: evaluate mission readiness and produce a structured statement.
+
+### Responsibilities
+
+1. **Mission complete** — if all metrics are MET, declare it
+2. **Mission failed** — if budget is exhausted or pipeline is stuck
+3. **Gap analysis** — "Where we are now and the remaining gaps between now and what would need to be in place for mission-complete"
+
+### What Changes
+
+| Current | Proposed |
+|---------|----------|
+| Supervisor does LLM-based mission-complete detection | Director does this exclusively |
+| Deterministic fallback in supervise.js fires after LLM | Removed — director replaces it |
+| Supervisor prompt includes mission-complete metrics | Director consumes all metrics instead |
+| Mission-complete/failed written by supervisor | Director writes these signals |
+| Supervisor is both strategist and evaluator | Supervisor is pure strategist (dispatch/issues/schedule) |
+
+### Architecture
+
+```
+agentic-lib-workflow.yml
+│
+├── params (normalise inputs)
+├── telemetry (gather metrics, instability check)
+├── director (NEW — runs src/agents/agent-director.md via agentic-step task "direct")
+│     Input: all telemetry, mission metrics, TODO count, test coverage, activity log
+│     Output: mission-complete | mission-failed | gap-analysis statement
+│     Writes to intentïon.md
+│     If mission-complete → skip supervisor + all downstream
+│     If mission-failed → skip supervisor + all downstream
+│     If gap-analysis → pass statement to supervisor as context
+├── supervisor (existing — now pure strategist, receives director's gap analysis)
+├── maintain / review / dev / pr-cleanup (existing)
+```
+
+### New Files
+
+- `src/agents/agent-director.md` — director prompt
+- `src/actions/agentic-step/tasks/direct.js` — director task handler
+
+### Key Design Questions
+
+1. **Should the director use an LLM or be purely mechanical?** The director could be entirely rule-based (check metrics table, no LLM call) which would be faster and cheaper. The gap-analysis narrative is the only part that benefits from an LLM.
+2. **Budget impact** — adding a director LLM call adds cost per cycle. Could use a cheaper model (gpt-5-mini at low reasoning) since it's evaluative not generative.
+3. **Ordering** — director must run before supervisor. If director declares mission-complete, supervisor should be skipped entirely (saves an LLM call).
+4. **Overlap with W7-W11** — the deterministic mission-complete check we just built (W7/W9/W11) is essentially a "mechanical director". The LLM director would replace this with richer gap analysis but at the cost of an extra LLM call per cycle.
+5. **Who writes to intentïon.md?** — currently index.js logs for all tasks. The director's gap-analysis statement would be a new entry type in the activity log.
