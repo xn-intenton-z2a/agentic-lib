@@ -184,7 +184,8 @@ async function gatherContext(octokit, repo, config, t) {
     const { data: closedIssuesRaw } = await octokit.rest.issues.listForRepo({
       ...repo,
       state: "closed",
-      per_page: 5,
+      labels: "automated",
+      per_page: 10,
       sort: "updated",
       direction: "desc",
     });
@@ -195,15 +196,27 @@ async function gatherContext(octokit, repo, config, t) {
     for (const ci of closedIssuesFiltered) {
       let closeReason = "closed";
       try {
+        // Check for review-closed (Automated Review Result comment)
         const { data: comments } = await octokit.rest.issues.listComments({
           ...repo,
           issue_number: ci.number,
-          per_page: 1,
+          per_page: 5,
           sort: "created",
           direction: "desc",
         });
-        if (comments.length > 0 && comments[0].body?.includes("Automated Review Result")) {
-          closeReason = "closed by review as RESOLVED";
+        if (comments.some((c) => c.body?.includes("Automated Review Result"))) {
+          closeReason = "RESOLVED";
+        } else {
+          // Check for PR-linked closure (GitHub auto-closes via "Closes #N")
+          const { data: events } = await octokit.rest.issues.listEvents({
+            ...repo,
+            issue_number: ci.number,
+            per_page: 10,
+          });
+          const closedByPR = events.some((e) => e.event === "closed" && e.commit_id);
+          if (closedByPR) {
+            closeReason = "RESOLVED";
+          }
         }
       } catch (_) { /* ignore */ }
       recentlyClosedSummary.push(`#${ci.number}: ${ci.title} — ${closeReason}`);
@@ -631,15 +644,27 @@ async function executeMissionComplete(octokit, repo, params, ctx) {
   }
 
   if (process.env.GITHUB_REPOSITORY !== "xn-intenton-z2a/agentic-lib") {
+    // Only turn off schedule if it's not already off or in maintenance mode
+    let currentSupervisor = "";
     try {
-      await octokit.rest.actions.createWorkflowDispatch({
-        ...repo,
-        workflow_id: "agentic-lib-schedule.yml",
-        ref: "main",
-        inputs: { frequency: "off" },
-      });
-    } catch (err) {
-      core.warning(`Could not set schedule to off: ${err.message}`);
+      const tomlContent = readFileSync("agentic-lib.toml", "utf8");
+      const match = tomlContent.match(/^\s*supervisor\s*=\s*"([^"]*)"/m);
+      if (match) currentSupervisor = match[1];
+    } catch { /* ignore */ }
+
+    if (currentSupervisor === "off" || currentSupervisor === "maintenance") {
+      core.info(`Schedule already "${currentSupervisor}" — not changing on mission-complete`);
+    } else {
+      try {
+        await octokit.rest.actions.createWorkflowDispatch({
+          ...repo,
+          workflow_id: "agentic-lib-schedule.yml",
+          ref: "main",
+          inputs: { frequency: "off" },
+        });
+      } catch (err) {
+        core.warning(`Could not set schedule to off: ${err.message}`);
+      }
     }
 
     // Announce mission complete via bot
@@ -688,15 +713,27 @@ async function executeMissionFailed(octokit, repo, params, ctx) {
   }
 
   if (process.env.GITHUB_REPOSITORY !== "xn-intenton-z2a/agentic-lib") {
+    // Only turn off schedule if it's not already off or in maintenance mode
+    let currentSupervisor = "";
     try {
-      await octokit.rest.actions.createWorkflowDispatch({
-        ...repo,
-        workflow_id: "agentic-lib-schedule.yml",
-        ref: "main",
-        inputs: { frequency: "off" },
-      });
-    } catch (err) {
-      core.warning(`Could not set schedule to off: ${err.message}`);
+      const tomlContent = readFileSync("agentic-lib.toml", "utf8");
+      const match = tomlContent.match(/^\s*supervisor\s*=\s*"([^"]*)"/m);
+      if (match) currentSupervisor = match[1];
+    } catch { /* ignore */ }
+
+    if (currentSupervisor === "off" || currentSupervisor === "maintenance") {
+      core.info(`Schedule already "${currentSupervisor}" — not changing on mission-failed`);
+    } else {
+      try {
+        await octokit.rest.actions.createWorkflowDispatch({
+          ...repo,
+          workflow_id: "agentic-lib-schedule.yml",
+          ref: "main",
+          inputs: { frequency: "off" },
+        });
+      } catch (err) {
+        core.warning(`Could not set schedule to off: ${err.message}`);
+      }
     }
 
     // Announce mission failed via bot
@@ -810,17 +847,18 @@ export async function supervise(context) {
 
   // Strategy A: Deterministic mission-complete fallback
   // If the LLM didn't choose mission-complete but conditions are clearly met, auto-execute it.
-  if (!ctx.missionComplete && !ctx.missionFailed) {
+  // Skip in maintenance mode — maintenance keeps running regardless of mission status.
+  if (!ctx.missionComplete && !ctx.missionFailed && config.supervisor !== "maintenance") {
     const llmChoseMissionComplete = results.some((r) => r.startsWith("mission-complete:"));
     if (!llmChoseMissionComplete) {
-      const resolvedCount = ctx.recentlyClosedSummary.filter((s) => s.includes("closed by review as RESOLVED")).length;
+      const resolvedCount = ctx.recentlyClosedSummary.filter((s) => s.includes("RESOLVED")).length;
       const hasNoOpenIssues = ctx.issuesSummary.length === 0;
       const hasNoOpenPRs = ctx.prsSummary.length === 0;
-      if (hasNoOpenIssues && hasNoOpenPRs && resolvedCount >= 2) {
+      if (hasNoOpenIssues && hasNoOpenPRs && resolvedCount >= 1) {
         core.info(`Deterministic mission-complete: 0 open issues, 0 open PRs, ${resolvedCount} recently resolved — LLM did not detect completion`);
         try {
           const autoResult = await executeMissionComplete(octokit, repo,
-            { reason: `All acceptance criteria satisfied (${resolvedCount} issues closed by review as RESOLVED, 0 open issues, 0 open PRs)` },
+            { reason: `All acceptance criteria satisfied (${resolvedCount} issues resolved, 0 open issues, 0 open PRs)` },
             ctx);
           results.push(autoResult);
         } catch (err) {

@@ -2,7 +2,7 @@
 
 **Source**: [BENCHMARK_REPORT_005.md](BENCHMARK_REPORT_005.md)
 **Created**: 2026-03-09
-**Status**: implemented — all 8 work items done, 429 tests passing, 0 workflow lint errors
+**Status**: implemented — all 8 work items done + 5 additional fixes from benchmark 006 testing
 
 ---
 
@@ -348,6 +348,74 @@ Dev job's "Find target issue" step now queries `instability`-labelled issues fir
 ### W8: Review-features passivity — INVESTIGATED
 Timing issue: dev PRs close issues (via `Closes #N`) before review-features can evaluate them. No code change — the instability mechanism (W6+W7) provides an alternative convergence path.
 
+---
+
+## Additional Fixes (from Benchmark 006 testing, 2026-03-10)
+
+These fixes were discovered during benchmark 006 (fizz-buzz / gpt-5-mini / recommended / budget 32) when PRs #2780 and #2781 became permanently CONFLICTING.
+
+### W9: Fix-stuck incremental 3-tier conflict resolution — DONE
+
+**Problem**: The fix-stuck job used `git merge -X theirs` followed by `commit-if-changed`, which did `git pull --rebase` before pushing. This caused binary file conflicts (SCREENSHOT_INDEX.png) when main moved during the same workflow run (maintain job pushes to main).
+
+**Fix**: Replaced with 3 escalating tiers, each pushing directly (no `commit-if-changed`, no `git pull --rebase`):
+1. **Tier 1**: Simple `git merge origin/main` → push → check PR mergeability
+2. **Tier 2**: `git merge -X theirs origin/main` → push/force-push → check
+3. **Tier 3**: Save src/tests to /tmp, `git reset --hard origin/main`, copy back → force-push → check
+4. **Hard fail** if PR still CONFLICTING after all 3 tiers
+
+Also replaced `commit-if-changed` for PR fix pushes with direct `git push`.
+
+**Files**: `agentic-lib-workflow.yml` (both repos)
+
+### W10: Screenshot push only on schedule — DONE
+
+**Problem**: `agentic-lib-test.yml` pushed SCREENSHOT_INDEX.png to main on every trigger (push, workflow_call, dispatch), causing binary conflicts in PR branches.
+
+**Fix**: Added `push-screenshot` input parameter (default false). Screenshot push now only happens on `schedule` or when `push-screenshot=true` is explicitly set.
+
+**Files**: `agentic-lib-test.yml` (both repos)
+
+### W11: Count PR-merge-closed issues as RESOLVED — DONE
+
+**Problem**: Mission-complete metric "Issues closed by review (RESOLVED)" only counted issues with an "Automated Review Result" comment from the review-issue LLM. Issues closed by PR merge (GitHub's `Closes #N` linking) were not counted, so mission-complete could never trigger even when all work was done.
+
+**Fix**: Now checks issue events for commit-linked closures (PR merges) in addition to review comments. Only counts issues with the `automated` label (excludes purged issues). Updated metric label to "Issues resolved (review or PR merge)".
+
+**Files**: `supervise.js`, `index.js` (both repos)
+
+### W12: Deterministic mission-complete threshold lowered to 1 — DONE
+
+**Problem**: Deterministic mission-complete fallback required `resolvedCount >= 2`. A single-issue mission could never trigger it.
+
+**Fix**: Changed threshold to `resolvedCount >= 1`.
+
+**Files**: `supervise.js` (both repos)
+
+### W13: Maintenance mode for schedule workflow — DONE
+
+**Problem**: After mission-complete, the schedule was unconditionally set to "off". No way to transition to a maintenance mode for ongoing discussions-bot-triggered changes.
+
+**Fix**: Added `maintenance` frequency option to `agentic-lib-schedule.yml` that:
+1. Removes MISSION_COMPLETE.md and MISSION_FAILED.md
+2. Sets transformation-budget = 0 (unlimited)
+3. Sets schedule to weekly
+4. Stores supervisor = "maintenance" in toml
+
+Also: `executeMissionComplete` and `executeMissionFailed` now check if schedule is already "off" or "maintenance" before dispatching — won't override maintenance mode.
+
+**Files**: `agentic-lib-schedule.yml`, `supervise.js` (both repos)
+
+### W14: skipMaintain workflow input — DONE
+
+**Problem**: Needed to test fix-stuck in isolation without the maintain job pushing to main mid-run.
+
+**Fix**: Added `skipMaintain` input to `agentic-lib-workflow.yml` (default false). When true, the maintain job is skipped.
+
+**Files**: `agentic-lib-workflow.yml` (both repos)
+
+---
+
 ## Success Criteria
 
 1. A failing `agentic-lib-test.yml` run creates an `instability` issue with logs and correct label
@@ -356,3 +424,6 @@ Timing issue: dev PRs close issues (via `Closes #N`) before review-features can 
 4. `init --purge` with `PROFILE=min` writes `profile = "min"` to consumer's `agentic-lib.toml`
 5. All existing tests pass (429 unit tests in agentic-lib) — **VERIFIED**
 6. Workflow lint passes (`npm run lint:workflows`) — **VERIFIED (0 errors)**
+7. Fix-stuck resolves CONFLICTING PRs via 3-tier approach — **VERIFIED** (PRs #2780, #2781 resolved)
+8. Mission-complete triggers with PR-merge-closed issues — **VERIFIED** (benchmark 006 completed)
+9. Schedule not overridden when already off/maintenance — **IMPLEMENTED** (not yet live-tested)
