@@ -52,6 +52,7 @@ Tasks (run Copilot SDK transformations):
 
 Iterator:
   iterate              Single Copilot SDK session — reads, writes, tests, iterates autonomously
+  iterate --list-missions  List available built-in mission seeds
 
 MCP Server:
   mcp                  Start MCP server (for Claude Code, Cursor, etc.)
@@ -62,6 +63,8 @@ Options:
   --dry-run            Show what would be done without making changes
   --target <path>      Target repository (default: current directory)
   --mission <name>     Mission seed name (default: hamming-distance) [purge only]
+  --mission-file <path>  Use a custom mission file instead of a built-in seed
+  --list-missions      List available built-in mission seeds
   --model <name>       Copilot SDK model (default: claude-sonnet-4)
   --timeout <ms>       Session timeout in milliseconds (default: 600000)
 
@@ -71,6 +74,8 @@ Examples:
   npx @xn-intenton-z2a/agentic-lib maintain-features --model gpt-5-mini
   npx @xn-intenton-z2a/agentic-lib reset --dry-run
   npx @xn-intenton-z2a/agentic-lib iterate --mission fizz-buzz
+  npx @xn-intenton-z2a/agentic-lib iterate --mission-file ~/my-mission.md
+  npx @xn-intenton-z2a/agentic-lib iterate --list-missions
   npx @xn-intenton-z2a/agentic-lib iterate --model gpt-5-mini --timeout 300000
 `.trim();
 
@@ -100,6 +105,9 @@ const stepsIdx = flags.indexOf("--steps");
 const stepsFlag = stepsIdx >= 0 ? flags[stepsIdx + 1] : "";
 const timeoutIdx = flags.indexOf("--timeout");
 const timeoutMs = timeoutIdx >= 0 ? parseInt(flags[timeoutIdx + 1], 10) : 600000;
+const listMissions = flags.includes("--list-missions");
+const missionFileIdx = flags.indexOf("--mission-file");
+const missionFile = missionFileIdx >= 0 ? resolve(flags[missionFileIdx + 1]) : "";
 
 // ─── Task Commands ───────────────────────────────────────────────────
 
@@ -138,8 +146,38 @@ runInit();
 // ─── Iterator ────────────────────────────────────────────────────────
 
 async function runIterate() {
-  // If --mission is specified, run init --purge first
-  if (missionIdx >= 0) {
+  // --list-missions: show available seeds and exit
+  if (listMissions) {
+    const missionsDir = resolve(srcDir, "seeds/missions");
+    const files = readdirSync(missionsDir).filter((f) => f.endsWith(".md")).sort();
+    console.log("\nAvailable missions:\n");
+    for (const f of files) {
+      const name = f.replace(".md", "");
+      const content = readFileSync(resolve(missionsDir, f), "utf8");
+      const firstLine = content.split("\n").find((l) => l.trim() && !l.startsWith("#")) || "";
+      console.log(`  ${name.padEnd(22)} ${firstLine.trim()}`);
+    }
+    console.log(`\nUsage: npx @xn-intenton-z2a/agentic-lib iterate --mission <name>`);
+    console.log(`       npx @xn-intenton-z2a/agentic-lib iterate --mission-file <path>\n`);
+    return 0;
+  }
+
+  // --mission-file: copy custom file as MISSION.md, run init --purge with empty mission
+  if (missionFile) {
+    if (!existsSync(missionFile)) {
+      console.error(`Mission file not found: ${missionFile}`);
+      return 1;
+    }
+    console.log(`\n=== Init with custom mission: ${missionFile} ===\n`);
+    execSync(
+      `node ${resolve(pkgRoot, "bin/agentic-lib.js")} init --purge --mission empty --target ${target}`,
+      { encoding: "utf8", timeout: 60000, stdio: "inherit" },
+    );
+    // Overwrite MISSION.md with the custom file
+    copyFileSync(missionFile, resolve(target, "MISSION.md"));
+    console.log(`  COPY: ${missionFile} → MISSION.md\n`);
+  } else if (missionIdx >= 0) {
+    // --mission: use a built-in seed
     console.log(`\n=== Init with mission: ${mission} ===\n`);
     execSync(
       `node ${resolve(pkgRoot, "bin/agentic-lib.js")} init --purge --mission ${mission} --target ${target}`,
