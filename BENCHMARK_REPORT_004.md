@@ -9,7 +9,7 @@
 
 ## Context: v7.1.97 Fixes (PR #1882)
 
-This benchmark validates the 10 fixes from [PLAN_BENCHMARK_003_FIXES.md](PLAN_BENCHMARK_003_FIXES.md), implemented in PR [#1882](https://github.com/xn-intenton-z2a/agentic-lib/pull/1882) (merged 2026-03-09 01:13 UTC). Key changes:
+This benchmark validates the 10 fixes from [PLAN_BENCHMARK_003_FIXES.md](_developers/archive/PLAN_BENCHMARK_003_FIXES.md), implemented in PR [#1882](https://github.com/xn-intenton-z2a/agentic-lib/pull/1882) (merged 2026-03-09 01:13 UTC). Key changes:
 
 | Fix | Title | Status in This Benchmark |
 |-----|-------|--------------------------|
