@@ -1,314 +1,440 @@
-# Spike: Hybrid Scenario Tests — Local Copilot SDK Iterations
+# Spike: Hybrid Scenario Tests — Copilot SDK Autopilot
 
 ## Purpose
 
-Validate that the **full iteration loop** (maintain-features → transform → test → fix-code) can run locally on a workstation using the Copilot SDK, the user's authentication, and Claude Code supervision — without any GitHub Actions overhead. The spike proves that a single command can take a mission seed from init to passing tests (or to a well-understood failure), producing benchmark-quality results in minutes instead of hours.
+Replace the current multi-session iteration loop (`runIterationLoop` → per-step `runTask` → disposable `CopilotClient` sessions) with a **single persistent Copilot SDK session in autopilot mode** that takes a mission from init to passing tests autonomously. One command, one session, full agent loop.
 
-This replaces the local LLM approach (PLAN_0_LOCAL_SCENARIO_TESTS_SPIKE.md) which proved that small local models cannot reliably perform code transformations. Instead of replacing the LLM, this spike keeps the same LLM (Copilot SDK models) but removes the GitHub Actions wrapper.
+The current iterator is low-level: our code manages the step sequence (maintain-features → transform → fix-code), creates a new SDK session per step, discards context between steps, and manually checks convergence. The Copilot SDK v0.1.31 has much higher-level abstractions that we're not using.
 
-## What Already Exists
+## SDK Features We're Not Using
 
-The `iterate` CLI command (`bin/agentic-lib.js`) already does much of this:
+The Copilot SDK (`@github/copilot-sdk@0.1.31-unstable.0`) exposes these capabilities that agentic-lib currently ignores:
 
-```bash
-npx @xn-intenton-z2a/agentic-lib iterate \
-  --mission hamming-distance \
-  --model gpt-5-mini \
-  --cycles 5
-```
+| Feature | SDK API | What it replaces |
+|---------|---------|-----------------|
+| **Autopilot mode** | `session.rpc.mode.set({ mode: "autopilot" })` | Our maintain→transform→fix step loop |
+| **Session resume** | `client.resumeSession(sessionId)` | Creating new sessions per step (losing all context) |
+| **Built-in workspace files** | `session.rpc.workspace.readFile/createFile/listFiles` | Our custom `defineTool` for read_file/write_file/list_files |
+| **Plan management** | `session.rpc.plan.read/update/delete` | Our external PLAN files and prompt-based instructions |
+| **Lifecycle hooks** | `onPreToolUse`, `onPostToolUse`, `onSessionEnd`, `onErrorOccurred` | Our manual budget tracking and convergence detection |
+| **Infinite sessions** | `infiniteSessions` with auto-compaction | Our context-discarding per-step approach |
+| **Custom agents** | `customAgents: [{ name, prompt, tools }]` | Our `buildTaskPrompt` per-step prompt construction |
+| **Streaming** | `streaming: true` + `assistant.message_delta` | Our wait-for-complete `sendAndWait` |
+| **Attachments** | `send({ attachments: [{ type: "directory", path }] })` | Our tool-based `list_files` + `read_file` scanning |
+| **Model switching** | `session.setModel(model)` mid-session | Fixed model per session |
+| **Sub-agents** | `session.rpc.fleet.start()` + subagent events | Running steps sequentially |
+| **Manual compaction** | `session.rpc.compaction.compact()` | Hoping context doesn't overflow |
+| **Error handling hooks** | `onErrorOccurred` with retry/skip/abort | Our try/catch around `sendAndWait` |
 
-This command:
-1. Runs `init --purge` with the named mission seed
-2. Executes N cycles of `maintain-features → transform → fix-code`
-3. Each cycle calls the Copilot SDK directly (via `runTask` → `CopilotClient.createSession` → `session.sendAndWait`)
-4. Tools are defined locally: `read_file`, `write_file`, `list_files`, `run_command`
-5. Budget tracking, convergence detection, early stopping all work
-6. Requires `COPILOT_GITHUB_TOKEN` in the environment
+## Architecture: Old vs New
 
-**What's missing** for the hybrid scenario test vision:
-
-| Gap | Description |
-|-----|-------------|
-| **Acceptance criteria** | No programmatic check that the final state satisfies the mission |
-| **Structured results** | Output is console logs, not a machine-readable report |
-| **Multi-scenario runner** | Can only run one mission at a time, manually |
-| **Comparison mode** | No built-in way to compare profiles/models side-by-side |
-| **Claude supervision** | No MCP integration for Claude to watch and intervene mid-iteration |
-| **Cost tracking** | Token usage is logged per-event but not aggregated in the report |
-| **Timing data** | Wall-clock time per step exists but isn't captured in structured output |
-
-## Questions to Answer
-
-1. **Can the full iterate loop run to test-pass on hamming-distance within budget (8)?** — Proves end-to-end viability.
-2. **What is the wall-clock time for a full run?** — Establishes the speedup vs GitHub Actions (BENCHMARK_REPORT_005 took hours per scenario).
-3. **Does the `runIterationLoop` from `src/iterate.js` produce enough data** for structured results, or do we need to extend it?
-4. **Can Claude Code supervise via MCP tools** (`prepare_iteration`, `workspace_status`, `iterate`) while the Copilot SDK does the actual work?
-5. **What fails when running locally vs in Actions?** — Missing env vars, path assumptions, GitHub API calls that need repo context?
-
-## Architecture: How GitHub Actions vs Local Compare
-
-### GitHub Actions Path (current — BENCHMARK_REPORT_005.md)
+### Old: Our Code Runs the Loop
 
 ```
-User dispatches workflow
-  → GitHub queues runner (~30s)
-    → Checkout, npm ci (~60s)
-      → agentic-step action runs Copilot SDK session
-        → Tools: read_file, write_file, list_files, run_command
-        → Agent transforms code
-      → commit-if-changed pushes branch
-    → test.yml runs on push
-      → checkout, npm ci, npm test
-    → supervisor dispatches next step
-  → Repeat (each cycle = 5-10 minutes of wall clock, ~2 min of compute)
+runIterationLoop (src/iterate.js)
+  for each cycle:
+    runCli("maintain-features --target ... --model ...")
+      → new CopilotClient()            ← NEW process
+      → client.createSession()          ← NEW session, no history
+      → defineTool(read_file, ...)      ← same tools redefined
+      → session.sendAndWait(prompt)     ← prompt has to re-explain everything
+      → client.stop()                   ← context discarded
+    runCli("transform --target ... --model ...")
+      → new CopilotClient()            ← ANOTHER new process
+      → client.createSession()          ← ANOTHER new session
+      → ... same pattern ...
+    runCli("fix-code --target ... --model ...")
+      → ... same pattern ...
+    runTests()                           ← our code checks pass/fail
+    checkConvergence()                   ← our code decides to continue/stop
 ```
 
-**Total for 5 iterations**: ~30-60 minutes, dominated by GitHub Actions overhead (queuing, checkout, npm ci, inter-workflow dispatch latency).
+**Problems**: 3 SDK processes per cycle. Zero context carried between steps. Every prompt must re-explain the mission, features, source code, test state. The agent can't learn from previous attempts. Budget tracking is external.
 
-### Hybrid Local Path (this spike)
-
-```
-User runs: npx @xn-intenton-z2a/agentic-lib iterate --mission hamming-distance --cycles 5
-  → init --purge creates workspace locally (~5s)
-  → For each cycle:
-    → Copilot SDK session created locally (~2s)
-    → Same tools, same prompts, same model
-    → Agent transforms code in local filesystem
-    → npm test runs locally (~3s)
-    → Next cycle starts immediately
-  → Report printed (~0s)
-```
-
-**Total for 5 iterations**: ~5-10 minutes, dominated by Copilot SDK response time (no queueing, no checkout, no inter-workflow gaps).
-
-### Hybrid Supervised Path (goal)
+### New: SDK Runs the Loop
 
 ```
-Claude Code session:
-  → MCP: workspace_create(mission: "hamming-distance", profile: "min")
-  → MCP: iterate(workspace: "...", cycles: 5)
-    → Copilot SDK runs autonomously through 5 cycles
-    → Claude receives structured results
-  → Claude reviews: "Cycle 3 failed because X — let me adjust the prompt"
-  → MCP: config_set(workspace: "...", overrides: { ... })
-  → MCP: iterate(workspace: "...", cycles: 3)
-    → Copilot continues from where it left off
-  → Claude: "Tests pass. Here's the comparison..."
+scripts/hybrid-iterate.js
+  → init --purge (set up workspace)
+  → new CopilotClient({ env: { GITHUB_TOKEN: copilotToken } })
+  → client.createSession({
+      model,
+      systemMessage: { mode: "replace", content: missionPrompt },
+      tools: [run_tests],               ← only tools the agent can't do itself
+      onPermissionRequest: approveAll,
+      workingDirectory: workspace,
+      infiniteSessions: { enabled: true },
+      hooks: {
+        onPreToolUse: budgetGuard,       ← track cost, block on budget exhaustion
+        onPostToolUse: progressTracker,  ← record what changed, check convergence
+        onErrorOccurred: retryHandler,   ← handle 429s, tool failures
+        onSessionEnd: reportGenerator,   ← produce structured results
+      },
+    })
+  → session.rpc.mode.set({ mode: "autopilot" })
+  → session.sendAndWait({
+      prompt: "Run tests. If they fail, read the source, fix the code, run tests again. Repeat until all tests pass.",
+      attachments: [{ type: "directory", path: workspace }],
+    }, 600000)
+  → collect results from hooks
+  → client.stop()
 ```
 
-**Total**: Same 5-10 minutes of compute, but with Claude supervision between iterations. Claude can diagnose failures, adjust tuning, retry — without restarting.
+**One session. One prompt. Agent drives its own loop.** The SDK's built-in tool loop handles read/write/run. Hooks give us visibility and control. Infinite sessions handle context management. The agent carries full history of what it tried and what failed.
+
+## What the Agent Gets for Free (Built-In Tools)
+
+The Copilot SDK CLI agent has built-in tools that we currently reimplement:
+
+- **File read/write/list** — via `session.rpc.workspace.*` or built-in agent tools
+- **Shell command execution** — built-in `run_command` or similar
+- **Code search/grep** — built-in agent capabilities
+- **Git operations** — built-in (we may want to restrict via `hooks.onPreToolUse`)
+
+We only need to define custom tools for things the agent **can't** do:
+
+1. **`run_tests`** — `npm test` with structured pass/fail output and formatted results
+2. **`check_acceptance`** — mission-specific acceptance criteria (optional)
+
+Everything else, the agent can do natively.
 
 ## Spike Script
 
-A single test script: `scripts/spike-hybrid-iterate.sh`
+`scripts/spike-hybrid-iterate.js` — a single Node.js script that proves the concept:
 
-This is a shell wrapper that validates the existing `iterate` CLI works end-to-end for scenario testing. No new code needed for the spike — just exercising what exists.
+```js
+#!/usr/bin/env node
+// scripts/spike-hybrid-iterate.js — Spike: Copilot SDK autopilot iteration
+//
+// Usage:
+//   COPILOT_GITHUB_TOKEN=<token> node scripts/spike-hybrid-iterate.js [mission] [model]
+//
+// Example:
+//   COPILOT_GITHUB_TOKEN=ghp_xxx node scripts/spike-hybrid-iterate.js hamming-distance gpt-5-mini
 
-```bash
-#!/usr/bin/env bash
-# scripts/spike-hybrid-iterate.sh — Spike: validate local Copilot SDK iteration
-#
-# Prereqs:
-#   export COPILOT_GITHUB_TOKEN=<your-token>
-#   npm ci (in agentic-lib root, to get @github/copilot-sdk)
-#
-# Usage:
-#   bash scripts/spike-hybrid-iterate.sh [mission] [model] [cycles]
+import { existsSync, readFileSync, mkdirSync } from "fs";
+import { resolve, dirname } from "path";
+import { execSync } from "child_process";
+import { fileURLToPath } from "url";
 
-set -euo pipefail
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const pkgRoot = resolve(__dirname, "..");
 
-MISSION="${1:-hamming-distance}"
-MODEL="${2:-gpt-5-mini}"
-CYCLES="${3:-5}"
+// ── Args ──────────────────────────────────────────────────────────────
 
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-ROOT_DIR="$(dirname "$SCRIPT_DIR")"
-WORKSPACE=$(mktemp -d)
-RESULTS_FILE="${ROOT_DIR}/SPIKE_HYBRID_RESULTS_$(date +%Y%m%dT%H%M%S).md"
+const mission = process.argv[2] || "hamming-distance";
+const model = process.argv[3] || "gpt-5-mini";
+const copilotToken = process.env.COPILOT_GITHUB_TOKEN;
 
-echo "=== Hybrid Scenario Test Spike ==="
-echo "Mission:   $MISSION"
-echo "Model:     $MODEL"
-echo "Cycles:    $CYCLES"
-echo "Workspace: $WORKSPACE"
-echo "Results:   $RESULTS_FILE"
-echo ""
+if (!copilotToken) {
+  console.error("ERROR: COPILOT_GITHUB_TOKEN not set");
+  process.exit(1);
+}
 
-# Check prereqs
-if [ -z "${COPILOT_GITHUB_TOKEN:-}" ]; then
-  echo "ERROR: COPILOT_GITHUB_TOKEN not set"
-  exit 1
-fi
+// ── Find SDK ──────────────────────────────────────────────────────────
 
-if ! node -e "require('@github/copilot-sdk')" 2>/dev/null; then
-  echo "ERROR: @github/copilot-sdk not found. Run: npm ci"
-  exit 1
-fi
+const sdkLocations = [
+  resolve(pkgRoot, "node_modules/@github/copilot-sdk/dist/index.js"),
+  resolve(pkgRoot, "src/actions/agentic-step/node_modules/@github/copilot-sdk/dist/index.js"),
+];
+const sdkPath = sdkLocations.find((p) => existsSync(p));
+if (!sdkPath) {
+  console.error("ERROR: @github/copilot-sdk not found. Run: npm ci");
+  process.exit(1);
+}
+const { CopilotClient, approveAll, defineTool } = await import(sdkPath);
 
-# Record start
-START_TIME=$(date +%s)
+// ── Init workspace ────────────────────────────────────────────────────
 
-# Write results header
-cat > "$RESULTS_FILE" << EOF
-# Hybrid Scenario Test — Spike Results
+const workspace = resolve(pkgRoot, `.spike-workspace-${Date.now()}`);
+console.log(`=== Hybrid Scenario Spike ===`);
+console.log(`Mission:   ${mission}`);
+console.log(`Model:     ${model}`);
+console.log(`Workspace: ${workspace}`);
+console.log("");
 
-**Date**: $(date -u +%Y-%m-%dT%H:%M:%SZ)
-**Mission**: $MISSION
-**Model**: $MODEL
-**Cycles**: $CYCLES
-**Workspace**: $WORKSPACE
+console.log("Initialising workspace...");
+execSync(
+  `node ${resolve(pkgRoot, "bin/agentic-lib.js")} init --purge --mission ${mission} --target ${workspace}`,
+  { stdio: "inherit", timeout: 60000 },
+);
 
----
+// Install dependencies in workspace
+console.log("Installing dependencies...");
+execSync("npm install 2>&1", { cwd: workspace, stdio: "inherit", timeout: 120000 });
 
-## Run Output
+// ── Read mission context ──────────────────────────────────────────────
 
-\`\`\`
-EOF
+const missionText = existsSync(resolve(workspace, "MISSION.md"))
+  ? readFileSync(resolve(workspace, "MISSION.md"), "utf8")
+  : "No MISSION.md found";
 
-# Run the iterate command, capturing output
-node "$ROOT_DIR/bin/agentic-lib.js" iterate \
-  --mission "$MISSION" \
-  --model "$MODEL" \
-  --cycles "$CYCLES" \
-  --target "$WORKSPACE" \
-  2>&1 | tee -a "$RESULTS_FILE"
+// Run initial tests to give agent the starting state
+let initialTestOutput;
+try {
+  initialTestOutput = execSync("npm test 2>&1", {
+    cwd: workspace, encoding: "utf8", timeout: 60000,
+  });
+} catch (err) {
+  initialTestOutput = `STDOUT:\n${err.stdout || ""}\nSTDERR:\n${err.stderr || ""}`;
+}
 
-EXIT_CODE=${PIPESTATUS[0]}
+// ── Metrics collection via hooks ──────────────────────────────────────
 
-END_TIME=$(date +%s)
-ELAPSED=$((END_TIME - START_TIME))
+const metrics = {
+  toolCalls: [],
+  testRuns: 0,
+  filesWritten: new Set(),
+  errors: [],
+  startTime: Date.now(),
+};
 
-# Close code block, add verdict
-cat >> "$RESULTS_FILE" << EOF
-\`\`\`
+// ── Define only the tools the agent can't do itself ───────────────────
 
----
+const tools = [
+  defineTool("run_tests", {
+    description: "Run the test suite (npm test) and return pass/fail with output. Call this after making changes to verify correctness.",
+    parameters: {},
+    handler: async () => {
+      metrics.testRuns++;
+      try {
+        const stdout = execSync("npm test 2>&1", {
+          cwd: workspace, encoding: "utf8", timeout: 120000,
+        });
+        return { textResultForLlm: `TESTS PASSED:\n${stdout}`, resultType: "success" };
+      } catch (err) {
+        const output = `STDOUT:\n${err.stdout || ""}\nSTDERR:\n${err.stderr || ""}`;
+        return { textResultForLlm: `TESTS FAILED:\n${output}`, resultType: "success" };
+      }
+    },
+  }),
+];
 
-## Verdict
+// ── Create Copilot session ────────────────────────────────────────────
 
-| Metric | Value |
-|--------|-------|
-| Exit code | $EXIT_CODE |
-| Wall clock | ${ELAPSED}s |
-| Mission | $MISSION |
-| Model | $MODEL |
-| Cycles requested | $CYCLES |
+console.log("\nCreating Copilot session...");
+const client = new CopilotClient({
+  env: { ...process.env, GITHUB_TOKEN: copilotToken, GH_TOKEN: copilotToken },
+});
 
-$(if [ $EXIT_CODE -eq 0 ]; then echo "**SPIKE PASSED** — tests pass after local iteration"; else echo "**SPIKE FAILED** — exit code $EXIT_CODE"; fi)
+const systemPrompt = [
+  "You are an autonomous code transformation agent.",
+  "Your workspace is a Node.js project with source code in src/lib/ and tests in tests/.",
+  "Your goal: make ALL tests pass. Read the failing tests, understand what they expect, write the implementation.",
+  "",
+  "Strategy:",
+  "1. Run the tests to see what's failing",
+  "2. Read the test files to understand expected behaviour",
+  "3. Read the current source code",
+  "4. Write the implementation that makes the tests pass",
+  "5. Run the tests again to verify",
+  "6. If tests still fail, read the error output carefully, fix the code, and repeat",
+  "",
+  "Do NOT modify test files. Only modify source files in src/lib/.",
+  "Keep going until all tests pass or you've exhausted your options.",
+].join("\n");
 
----
+const session = await client.createSession({
+  model,
+  systemMessage: { mode: "replace", content: systemPrompt },
+  tools,
+  onPermissionRequest: approveAll,
+  workingDirectory: workspace,
+  infiniteSessions: { enabled: true },
+  hooks: {
+    onPreToolUse: (input) => {
+      metrics.toolCalls.push({ tool: input.toolName, time: Date.now() });
+      console.log(`  [tool] ${input.toolName}`);
+    },
+    onPostToolUse: (input) => {
+      if (input.toolName === "write" || input.toolName === "Write" ||
+          input.toolName === "write_file" || input.toolName === "EditFile") {
+        const path = input.toolArgs?.file_path || input.toolArgs?.path || "unknown";
+        metrics.filesWritten.add(path);
+      }
+    },
+    onErrorOccurred: (input) => {
+      metrics.errors.push({ error: input.error, context: input.errorContext, time: Date.now() });
+      console.error(`  [error] ${input.errorContext}: ${input.error}`);
+      if (input.recoverable) return { errorHandling: "retry", retryCount: 2 };
+      return { errorHandling: "abort" };
+    },
+  },
+});
 
-## Workspace State
+console.log(`Session: ${session.sessionId}`);
 
-\`\`\`
-$(ls -la "$WORKSPACE/src/lib/" 2>/dev/null || echo "(no src/lib)")
-\`\`\`
+// ── Subscribe to events ───────────────────────────────────────────────
 
-### Final source
+let tokenUsage = { input: 0, output: 0 };
+session.on("assistant.usage", (event) => {
+  tokenUsage.input += event.data?.inputTokens || 0;
+  tokenUsage.output += event.data?.outputTokens || 0;
+});
+session.on("assistant.message", (event) => {
+  const preview = (event.data?.content || "").substring(0, 200);
+  console.log(`  [assistant] ${preview}...`);
+});
 
-\`\`\`js
-$(cat "$WORKSPACE/src/lib/main.js" 2>/dev/null || echo "(not found)")
-\`\`\`
+// ── Try autopilot mode ────────────────────────────────────────────────
 
-### Final test output
+try {
+  console.log("Setting autopilot mode...");
+  await session.rpc.mode.set({ mode: "autopilot" });
+  console.log("Autopilot mode: active");
+} catch (err) {
+  console.log(`Autopilot mode not available (${err.message}) — using default mode`);
+}
 
-\`\`\`
-$(cd "$WORKSPACE" && npm test 2>&1 || true)
-\`\`\`
-EOF
+// ── Send the mission ──────────────────────────────────────────────────
 
-echo ""
-echo "=== Spike Complete ==="
-echo "Exit code: $EXIT_CODE"
-echo "Wall clock: ${ELAPSED}s"
-echo "Results: $RESULTS_FILE"
+console.log("\nSending mission...\n");
+const prompt = [
+  `# Mission\n\n${missionText}`,
+  `# Current test state\n\n\`\`\`\n${initialTestOutput}\n\`\`\``,
+  "",
+  "Make all the tests pass. Work autonomously — read files, write code, run tests, iterate.",
+].join("\n\n");
 
-# Cleanup workspace
-rm -rf "$WORKSPACE"
+const t0 = Date.now();
+let response;
+try {
+  response = await session.sendAndWait({ prompt }, 600000); // 10 min timeout
+} catch (err) {
+  console.error(`\nSession error: ${err.message}`);
+  response = null;
+}
+const elapsed = ((Date.now() - t0) / 1000).toFixed(1);
 
-exit $EXIT_CODE
+// ── Final test run ────────────────────────────────────────────────────
+
+let finalTestPass = false;
+let finalTestOutput;
+try {
+  finalTestOutput = execSync("npm test 2>&1", {
+    cwd: workspace, encoding: "utf8", timeout: 60000,
+  });
+  finalTestPass = true;
+} catch (err) {
+  finalTestOutput = `STDOUT:\n${err.stdout || ""}\nSTDERR:\n${err.stderr || ""}`;
+}
+
+// ── Report ────────────────────────────────────────────────────────────
+
+const totalElapsed = ((Date.now() - metrics.startTime) / 1000).toFixed(1);
+
+console.log("\n=== Results ===");
+console.log(`Mission:        ${mission}`);
+console.log(`Model:          ${model}`);
+console.log(`Session time:   ${elapsed}s`);
+console.log(`Total time:     ${totalElapsed}s`);
+console.log(`Tool calls:     ${metrics.toolCalls.length}`);
+console.log(`Test runs:      ${metrics.testRuns}`);
+console.log(`Files written:  ${metrics.filesWritten.size}`);
+console.log(`Tokens:         ${tokenUsage.input} in / ${tokenUsage.output} out`);
+console.log(`Errors:         ${metrics.errors.length}`);
+console.log(`Tests pass:     ${finalTestPass ? "YES" : "NO"}`);
+console.log("");
+
+if (response?.data?.content) {
+  console.log("Agent final message:");
+  console.log(response.data.content.substring(0, 500));
+  console.log("");
+}
+
+// ── Cleanup ───────────────────────────────────────────────────────────
+
+await client.stop();
+execSync(`rm -rf ${workspace}`);
+
+console.log(finalTestPass
+  ? "SPIKE PASSED — single session drove mission to passing tests"
+  : "SPIKE FAILED — tests did not pass within session timeout"
+);
+
+process.exit(finalTestPass ? 0 : 1);
 ```
 
-## Implementation Steps
+## Questions to Answer
 
-1. **Run the spike** — `bash scripts/spike-hybrid-iterate.sh hamming-distance gpt-5-mini 5` with COPILOT_GITHUB_TOKEN set
-2. **Record wall-clock time** — compare to BENCHMARK_REPORT_005 (Actions-based)
-3. **Check acceptance** — did hamming-distance reach passing tests within 5 cycles?
-4. **If it works**: extend `runIterationLoop` to return structured JSON (token counts, timing, acceptance criteria)
-5. **If it fails**: diagnose — is it auth? missing context? prompt quality? — and fix
+1. **Does autopilot mode work?** — `session.rpc.mode.set({ mode: "autopilot" })` may not be available in CLI mode. If it isn't, the agent's default tool loop may still be sufficient — `sendAndWait` already loops through tool calls internally.
+
+2. **Does the agent use its built-in file tools?** — The Copilot agent should have built-in `Read`, `Write`, `Edit`, `Bash` tools. If `workingDirectory` is set correctly, the agent should be able to read/write workspace files without us defining custom tools. We only need `run_tests` as a custom tool.
+
+3. **Does `infiniteSessions` help?** — For a simple mission like hamming-distance, context shouldn't overflow. But for larger missions, auto-compaction could prevent the "forgot what I tried" problem that plagues the step-per-session approach.
+
+4. **Do hooks fire correctly?** — `onPreToolUse` and `onPostToolUse` should give us full visibility into what the agent does. `onErrorOccurred` should let us handle 429s gracefully.
+
+5. **Does one session outperform three sessions per cycle?** — The agent carrying context should mean fewer wasted tokens re-explaining state. Measure total token usage vs the old approach.
+
+6. **What's the wall clock for hamming-distance end-to-end?** — Old approach: ~5-10 min (3 SDK sessions × 5 cycles). New approach: should be ~2-5 min (1 session, agent-driven loop).
 
 ## Success Criteria
 
 | Criterion | Required | Notes |
 |-----------|----------|-------|
-| `iterate` command runs without errors | Yes | Auth, SDK, tools all work |
-| Copilot SDK session creates successfully | Yes | COPILOT_GITHUB_TOKEN works locally |
-| At least one tool call per cycle | Yes | Agent engages with the workspace |
-| Tests pass within budget | Nice to have | hamming-distance is simple enough |
-| Wall clock < 10 min for 5 cycles | Yes | Must beat GitHub Actions by 3x+ |
-| Structured results file produced | Yes | For comparison across runs |
+| Single session completes without crash | Yes | No manual multi-session management |
+| Agent reads source and test files | Yes | Using built-in tools, not our custom ones |
+| Agent writes source files | Yes | Proves tool loop works |
+| Agent calls `run_tests` at least twice | Yes | Initial failure + at least one retry |
+| Tests pass | Nice to have | hamming-distance is simple |
+| Total tokens < 3× old approach | Nice to have | Context reuse should reduce redundancy |
+| Wall clock < old approach | Nice to have | Fewer sessions = less overhead |
+| Hooks fire and collect metrics | Yes | Proves observability |
 
 ## What Happens After the Spike
 
-### If the spike passes
+### If it works: Replace the Old Iterator
 
-Extend the existing `iterate` CLI and MCP server to support hybrid scenario testing:
+1. **Delete `runIterationLoop`** in `src/iterate.js` — replace with single-session autopilot
+2. **Delete per-step `runTask`** in `bin/agentic-lib.js` — no more maintain/transform/fix dispatch
+3. **Delete `buildTaskPrompt`** — one mission-level prompt replaces per-step prompts
+4. **Keep hooks for budget/metrics** — `onPreToolUse` for cost tracking, `onPostToolUse` for change detection, `onSessionEnd` for reports
+5. **Use `session.rpc.plan.*`** — let the agent maintain its own plan.md for multi-turn reasoning
+6. **Use `resumeSession`** — if a session is interrupted, pick up where it left off
+7. **MCP server switches to single-session `iterate`** — simpler, more powerful
 
-1. **Structured JSON output** — `runIterationLoop` returns per-cycle data: tokens, timing, files changed, test results, acceptance check
-2. **Acceptance criteria per mission** — each seed defines a `verify.js` or acceptance function (e.g., "all tests pass", "exports hammingDistance function")
-3. **Multi-scenario runner** — `scripts/run-scenarios.sh` that runs multiple missions/models/profiles and produces a comparison table
-4. **MCP supervision** — Claude watches iteration progress via `workspace_status`, intervenes with `config_set` or `workspace_write_file`, then resumes with `iterate`
-5. **Benchmark generation** — auto-generate BENCHMARK_REPORT_NNN.md from structured results
+### If autopilot doesn't work but tool loop does
 
-### If the spike fails
+Fall back to the default mode (which still runs the tool loop via `sendAndWait`). The agent won't have "autopilot" mode awareness but the fundamental architecture is the same — one session, one prompt, agent drives.
 
-Diagnose the failure mode:
+### If the agent can't use built-in file tools
 
-| Failure | Likely cause | Mitigation |
-|---------|-------------|------------|
-| Auth error | Token scope or expiry | Check `gh auth status`, regenerate token |
-| SDK not found | Module resolution across nested package.json | Install in agentic-lib root |
-| Tools not called | Prompt doesn't trigger tool use | Compare to working Actions prompt |
-| Tests don't pass | Model quality at min profile | Try recommended profile, compare |
-| Too slow | Rate limiting, model latency | Check 429 retry logs, try different model |
-| Missing context | Prompt lacks mission/features | Compare `buildTaskPrompt` output to Actions equivalent |
+Add back `read_file`, `write_file`, `list_files` as custom `defineTool`. The architecture stays the same (one session) — we just provide more tools.
 
-## Comparison: Three Approaches
+### If single-session fails entirely
 
-| Aspect | Local LLM (PLAN_0 spike) | GitHub Actions (current) | Hybrid (this spike) |
-|--------|--------------------------|--------------------------|---------------------|
-| LLM | Llama-3.2-3B local | Copilot SDK via Actions | Copilot SDK local |
-| Quality | Low (garbled output) | High | High (same SDK) |
-| Speed | ~30s/cycle | ~5-10 min/cycle | ~1-2 min/cycle |
-| Cost | Free (local compute) | GitHub Actions minutes + Copilot tokens | Copilot tokens only |
-| Overhead | node-llama-cpp + 2GB model | Runner queue + checkout + npm ci | Just SDK call |
-| Auth | None | GITHUB_TOKEN (Actions) | COPILOT_GITHUB_TOKEN (user) |
-| Git integration | None | Full (branches, PRs, commits) | None (local filesystem) |
-| Supervision | None | Supervisor workflow | Claude Code via MCP |
-| Tuning feedback | Instant | Minutes to hours | Seconds to minutes |
-| Use case | Offline experimentation | Production pipeline | Prompt tuning, scenario validation |
+The old multi-session approach still works. But we should understand *why* single-session fails before falling back — it might be a simple fix (wrong workingDirectory, missing tool, prompt issue).
+
+## Implementation Steps
+
+1. **Create `scripts/spike-hybrid-iterate.js`** — the script above
+2. **Run it** — `COPILOT_GITHUB_TOKEN=<token> node scripts/spike-hybrid-iterate.js hamming-distance gpt-5-mini`
+3. **Record**: did autopilot mode activate? did built-in tools work? what hooks fired?
+4. **Compare** to BENCHMARK_REPORT_005: wall clock, tokens, outcome
+5. **Update this plan** with results
+6. **If pass**: plan the replacement of `runIterationLoop`
 
 ## Risks
 
-1. **COPILOT_GITHUB_TOKEN expiry** — Classic PATs have ≤90 day expiration in Polycode enterprise. The user must keep their token fresh. The spike should fail clearly on auth errors.
+1. **SDK v0.1.31 is `unstable.0`** — Features like autopilot, fleet, custom agents may be incomplete or change. The type definitions exist but runtime support may differ. The spike will discover this.
 
-2. **Rate limiting** — Running 5 cycles in quick succession may hit Copilot API rate limits. The existing retry logic in `copilot.js` handles 429s with exponential backoff, but the spike should log when retries happen.
+2. **Built-in agent tools may be more restrictive** — The Copilot agent's built-in file tools may have safety checks (permission prompts, path restrictions) that `approveAll` doesn't fully bypass. If so, we fall back to custom tools.
 
-3. **Prompt drift** — The CLI's `buildTaskPrompt` in `bin/agentic-lib.js` may diverge from the Action's task handlers in `src/actions/agentic-step/tasks/*.js`. Long-term, these should share code. For the spike, the CLI's prompts are sufficient.
+3. **Autopilot mode may not exist in CLI mode** — The `rpc.mode.set` method may only work when the SDK runs as a TUI or IDE extension, not as an API client. The spike tests this directly.
 
-4. **Missing GitHub context** — The Action's transform task reads open issues via octokit. The CLI version skips this (no repo context). This is fine for scenario tests but means the local experience is slightly different from production.
+4. **Token budget** — A single long session may use more tokens than 3 short sessions if the agent explores broadly. Hooks should track this so we can compare.
 
-5. **Module resolution** — `@github/copilot-sdk` lives in `src/actions/agentic-step/node_modules/` (nested). The CLI already handles this by searching multiple locations. Verify it works on a clean install.
+5. **Rate limiting accumulation** — One long session making many tool calls might hit rate limits more than 3 separate sessions with pauses between them. The `onErrorOccurred` hook should handle retries.
 
-## Relationship to MCP Server
+## What This Replaces
 
-The MCP server's **Copilot mode** (`iterate` tool) is architecturally identical to this spike — it calls `runIterationLoop` which calls the CLI's task runner which creates Copilot SDK sessions locally. The difference is:
+This spike, if successful, obsoletes:
 
-- **MCP `iterate`**: Claude Code calls it as a tool, gets structured results back, can intervene between cycles
-- **CLI `iterate`**: User runs it from shell, gets console output, no mid-run intervention
+- `src/iterate.js` — `runIterationLoop`, `runCli`, `runTests`, `snapshotDir`, `countChanges`
+- `bin/agentic-lib.js` — `runTask`, `buildTaskPrompt`, `createCliTools`, per-step dispatch
+- The concept of "steps" (maintain-features, transform, fix-code) as distinct SDK calls
+- The concept of "cycles" as externally-managed iterations
+- Manual convergence detection (consecutive passes, no-progress checks)
 
-The spike validates that the underlying path works. Once validated, the MCP server becomes the preferred interface for Claude-supervised iteration — which is the full hybrid vision.
-
-## Timeline
-
-This is a spike — it should take one session to run and evaluate. The script is mostly a wrapper around existing code. The real value is the results data and the comparison to Actions-based benchmarks.
+The agent does all of this internally. Our code's job becomes: set up the workspace, create one session, give it the mission, collect the results.
