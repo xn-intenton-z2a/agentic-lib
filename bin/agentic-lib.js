@@ -51,8 +51,7 @@ Tasks (run Copilot SDK transformations):
   fix-code             Fix failing tests
 
 Iterator:
-  iterate              Run N cycles of maintain → transform → fix with budget tracking
-  iterate --hybrid     Single Copilot SDK session with tool loop (experimental)
+  iterate              Single Copilot SDK session — reads, writes, tests, iterates autonomously
 
 MCP Server:
   mcp                  Start MCP server (for Claude Code, Cursor, etc.)
@@ -64,18 +63,15 @@ Options:
   --target <path>      Target repository (default: current directory)
   --mission <name>     Mission seed name (default: hamming-distance) [purge only]
   --model <name>       Copilot SDK model (default: claude-sonnet-4)
-  --cycles <N>         Max iteration cycles (default: from transformation-budget)
-  --steps <list>       Steps per cycle: maintain-features,transform,fix-code
-  --hybrid             Use single-session hybrid iterator (experimental)
+  --timeout <ms>       Session timeout in milliseconds (default: 600000)
 
 Examples:
   npx @xn-intenton-z2a/agentic-lib init
   npx @xn-intenton-z2a/agentic-lib transform
   npx @xn-intenton-z2a/agentic-lib maintain-features --model gpt-5-mini
   npx @xn-intenton-z2a/agentic-lib reset --dry-run
-  npx @xn-intenton-z2a/agentic-lib iterate --mission fizz-buzz --cycles 4
-  npx @xn-intenton-z2a/agentic-lib iterate --steps transform,fix-code --cycles 2
-  npx @xn-intenton-z2a/agentic-lib iterate --hybrid --mission fizz-buzz
+  npx @xn-intenton-z2a/agentic-lib iterate --mission fizz-buzz
+  npx @xn-intenton-z2a/agentic-lib iterate --model gpt-5-mini --timeout 300000
 `.trim();
 
 if (!command || command === "--help" || command === "-h" || command === "help") {
@@ -102,6 +98,8 @@ const cyclesIdx = flags.indexOf("--cycles");
 const cycles = cyclesIdx >= 0 ? parseInt(flags[cyclesIdx + 1], 10) : 0;
 const stepsIdx = flags.indexOf("--steps");
 const stepsFlag = stepsIdx >= 0 ? flags[stepsIdx + 1] : "";
+const timeoutIdx = flags.indexOf("--timeout");
+const timeoutMs = timeoutIdx >= 0 ? parseInt(flags[timeoutIdx + 1], 10) : 600000;
 
 // ─── Task Commands ───────────────────────────────────────────────────
 
@@ -149,86 +147,45 @@ async function runIterate() {
     );
   }
 
-  // ── Hybrid mode: single Copilot SDK session with tool loop ──
-  if (flags.includes("--hybrid")) {
-    const { runHybridSession } = await import("../src/copilot/hybrid-session.js");
-    let config;
-    try {
-      const { loadConfig } = await import("../src/copilot/config.js");
-      config = loadConfig(resolve(target, "agentic-lib.toml"));
-    } catch {
-      config = { tuning: {}, model: "gpt-5-mini" };
-    }
-
-    const effectiveModel = model || config.model || "gpt-5-mini";
-    console.log("");
-    console.log("=== agentic-lib iterate (hybrid) ===");
-    console.log(`Target:  ${target}`);
-    console.log(`Model:   ${effectiveModel}`);
-    console.log("");
-
-    const result = await runHybridSession({
-      workspacePath: target,
-      model: effectiveModel,
-      tuning: config.tuning || {},
-      timeoutMs: 600000,
-    });
-
-    console.log("");
-    console.log("=== Hybrid Session Results ===");
-    console.log(`Success:       ${result.success}`);
-    console.log(`Tests passed:  ${result.testsPassed}`);
-    console.log(`Session time:  ${result.sessionTime}s`);
-    console.log(`Total time:    ${result.totalTime}s`);
-    console.log(`Tool calls:    ${result.toolCalls}`);
-    console.log(`Test runs:     ${result.testRuns}`);
-    console.log(`Files written: ${result.filesWritten}`);
-    console.log(`Tokens:        ${result.tokensIn + result.tokensOut} (in=${result.tokensIn} out=${result.tokensOut})`);
-    console.log(`End reason:    ${result.endReason}`);
-    if (result.agentMessage) console.log(`Agent: ${result.agentMessage}`);
-    if (result.errors.length > 0) console.log(`Errors: ${result.errors.length}`);
-    console.log("");
-
-    return result.success ? 0 : 1;
+  const { runHybridSession } = await import("../src/copilot/hybrid-session.js");
+  let config;
+  try {
+    const { loadConfig } = await import("../src/copilot/config.js");
+    config = loadConfig(resolve(target, "agentic-lib.toml"));
+  } catch {
+    config = { tuning: {}, model: "gpt-5-mini" };
   }
 
-  // ── Classic mode: multi-process loop ──
-  const { runIterationLoop, formatIterationResults } = await import("../src/iterate.js");
-
-  const iterSteps = stepsFlag
-    ? stepsFlag.split(",").map((s) => s.trim())
-    : ["maintain-features", "transform", "fix-code"];
-
+  const effectiveModel = model || config.model || "gpt-5-mini";
   console.log("");
   console.log("=== agentic-lib iterate ===");
   console.log(`Target:  ${target}`);
-  console.log(`Model:   ${model}`);
-  console.log(`Cycles:  ${cycles || "(from budget)"}`);
-  console.log(`Steps:   ${iterSteps.join(", ")}`);
-  console.log(`Dry-run: ${dryRun}`);
+  console.log(`Model:   ${effectiveModel}`);
   console.log("");
 
-  const { results, totalCost, budget } = await runIterationLoop({
-    targetPath: target,
-    model,
-    maxCycles: cycles,
-    steps: iterSteps,
-    dryRun,
-    onCycleComplete: (record) => {
-      if (record.stopped) return;
-      const status = record.testsPassed ? "PASS" : "FAIL";
-      console.log(
-        `  Cycle ${record.cycle}: ${record.filesChanged} files changed, tests ${status}, cost ${record.totalCost}/${record.budget} (${record.elapsed}s)`,
-      );
-    },
+  const result = await runHybridSession({
+    workspacePath: target,
+    model: effectiveModel,
+    tuning: config.tuning || {},
+    timeoutMs,
   });
 
   console.log("");
-  console.log(formatIterationResults(results, totalCost, budget));
+  console.log("=== Results ===");
+  console.log(`Success:       ${result.success}`);
+  console.log(`Tests passed:  ${result.testsPassed}`);
+  console.log(`Session time:  ${result.sessionTime}s`);
+  console.log(`Total time:    ${result.totalTime}s`);
+  console.log(`Tool calls:    ${result.toolCalls}`);
+  console.log(`Test runs:     ${result.testRuns}`);
+  console.log(`Files written: ${result.filesWritten}`);
+  console.log(`Tokens:        ${result.tokensIn + result.tokensOut} (in=${result.tokensIn} out=${result.tokensOut})`);
+  console.log(`End reason:    ${result.endReason}`);
+  if (result.agentMessage) console.log(`Agent: ${result.agentMessage}`);
+  if (result.errors.length > 0) console.log(`Errors: ${result.errors.length}`);
   console.log("");
 
-  const lastCycle = results.filter((r) => !r.stopped).slice(-1)[0];
-  return lastCycle?.testsPassed ? 0 : 1;
+  return result.success ? 0 : 1;
 }
 
 // ─── Task Runner ─────────────────────────────────────────────────────
