@@ -305,6 +305,29 @@ async function gatherContext(octokit, repo, config, t) {
     }
   } catch { /* ignore */ }
 
+  // Check for dedicated test files (not just seed tests)
+  // A dedicated test imports from the source directory (src/lib/) rather than being a seed test
+  let hasDedicatedTests = false;
+  let dedicatedTestFiles = [];
+  try {
+    const testDirs = ["tests", "__tests__"];
+    for (const dir of testDirs) {
+      if (existsSync(dir)) {
+        const testFiles = scanDirectory(dir, [".js", ".ts", ".mjs"], { limit: 20 });
+        for (const tf of testFiles) {
+          // Skip seed test files (main.test.js, web.test.js, behaviour.test.js)
+          if (/^(main|web|behaviour)\.test\.[jt]s$/.test(tf.name)) continue;
+          const content = readFileSync(tf.path, "utf8");
+          // Check if it imports from src/lib/ (mission-specific code)
+          if (/from\s+['"].*src\/lib\//.test(content) || /require\s*\(\s*['"].*src\/lib\//.test(content)) {
+            hasDedicatedTests = true;
+            dedicatedTestFiles.push(tf.name);
+          }
+        }
+      }
+    }
+  } catch { /* ignore */ }
+
   return {
     mission,
     recentActivity,
@@ -333,6 +356,8 @@ async function gatherContext(octokit, repo, config, t) {
     cumulativeTransformationCost,
     recentlyClosedSummary,
     sourceExports,
+    hasDedicatedTests,
+    dedicatedTestFiles,
   };
 }
 
@@ -368,6 +393,11 @@ function buildPrompt(ctx, agentInstructions) {
           "",
         ]
       : []),
+    `### Test Coverage`,
+    ctx.hasDedicatedTests
+      ? `Dedicated test files: ${ctx.dedicatedTestFiles.join(", ")}`
+      : "**No dedicated test files found.** Only seed tests (main.test.js, web.test.js) exist. Mission-complete requires dedicated tests that import from src/lib/.",
+    "",
     `### Recent Workflow Runs`,
     ctx.workflowsSummary.join("\n") || "none",
     "",
@@ -419,7 +449,7 @@ function buildPrompt(ctx, agentInstructions) {
         ]
       : []),
     ...(ctx.transformationBudget > 0
-      ? [`### Transformation Budget: ${ctx.cumulativeTransformationCost}/${ctx.transformationBudget} used (${Math.max(0, ctx.transformationBudget - ctx.cumulativeTransformationCost)} remaining)`, ""]
+      ? [`### Transformation Budget: ${ctx.cumulativeTransformationCost}/${ctx.transformationBudget} used (${Math.max(0, ctx.transformationBudget - ctx.cumulativeTransformationCost)} remaining)`, "Note: instability transforms (infrastructure fixes) do not count against this budget.", ""]
       : []),
     `### Issue Limits`,
     `Feature development WIP limit: ${ctx.featureIssuesWipLimit}`,
@@ -778,7 +808,7 @@ async function executeAction(octokit, repo, action, params, ctx) {
   if (action === "nop") return "nop";
   const handler = ACTION_HANDLERS[action];
   if (handler) return handler(octokit, repo, params, ctx);
-  core.warning(`Unknown action: ${action}`);
+  core.debug(`Ignoring unrecognised action: ${action}`);
   return `unknown:${action}`;
 }
 
@@ -855,14 +885,28 @@ export async function supervise(context) {
       const hasNoOpenIssues = ctx.issuesSummary.length === 0;
       const hasNoOpenPRs = ctx.prsSummary.length === 0;
       if (hasNoOpenIssues && hasNoOpenPRs && resolvedCount >= 1) {
-        core.info(`Deterministic mission-complete: 0 open issues, 0 open PRs, ${resolvedCount} recently resolved — LLM did not detect completion`);
-        try {
-          const autoResult = await executeMissionComplete(octokit, repo,
-            { reason: `All acceptance criteria satisfied (${resolvedCount} issues resolved, 0 open issues, 0 open PRs)` },
-            ctx);
-          results.push(autoResult);
-        } catch (err) {
-          core.warning(`Deterministic mission-complete failed: ${err.message}`);
+        // W3: Require dedicated test files before declaring mission-complete
+        if (!ctx.hasDedicatedTests) {
+          core.info(`Deterministic mission-complete blocked: no dedicated test files found — creating test coverage issue`);
+          try {
+            await executeCreateIssue(octokit, repo, {
+              title: "feat: add dedicated test coverage for mission functions",
+              labels: "automated,ready",
+            }, ctx);
+            results.push("created-issue:test-coverage-request");
+          } catch (err) {
+            core.warning(`Could not create test coverage issue: ${err.message}`);
+          }
+        } else {
+          core.info(`Deterministic mission-complete: 0 open issues, 0 open PRs, ${resolvedCount} recently resolved, dedicated tests exist — LLM did not detect completion`);
+          try {
+            const autoResult = await executeMissionComplete(octokit, repo,
+              { reason: `All acceptance criteria satisfied (${resolvedCount} issues resolved, 0 open issues, 0 open PRs, dedicated tests: ${ctx.dedicatedTestFiles.join(", ")})` },
+              ctx);
+            results.push(autoResult);
+          } catch (err) {
+            core.warning(`Deterministic mission-complete failed: ${err.message}`);
+          }
         }
       }
     }

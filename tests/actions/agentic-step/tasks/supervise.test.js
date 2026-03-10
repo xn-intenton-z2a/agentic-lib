@@ -5,6 +5,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 // Mock @actions/core
 vi.mock("@actions/core", () => ({
   info: vi.fn(),
+  debug: vi.fn(),
   warning: vi.fn(),
   setOutput: vi.fn(),
   getInput: vi.fn(),

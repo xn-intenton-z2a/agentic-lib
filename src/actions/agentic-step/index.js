@@ -166,9 +166,23 @@ async function run() {
     const profileName = config.tuning?.profileName || "unknown";
 
     // Transformation cost: 1 for code-changing tasks, 0 otherwise
+    // W4: Instability transforms (infrastructure fixes) don't count against mission budget
     const COST_TASKS = ["transform", "fix-code", "maintain-features", "maintain-library"];
     const isNop = result.outcome === "nop" || result.outcome === "error";
-    const transformationCost = COST_TASKS.includes(task) && !isNop ? 1 : 0;
+    let isInstabilityTransform = false;
+    if (issueNumber && COST_TASKS.includes(task) && !isNop) {
+      try {
+        const { data: issueData } = await context.octokit.rest.issues.get({
+          ...context.repo,
+          issue_number: Number(issueNumber),
+        });
+        isInstabilityTransform = issueData.labels.some((l) => l.name === "instability");
+        if (isInstabilityTransform) {
+          core.info(`Issue #${issueNumber} has instability label — transform does not count against mission budget`);
+        }
+      } catch { /* ignore — conservative: count as mission transform */ }
+    }
+    const transformationCost = COST_TASKS.includes(task) && !isNop && !isInstabilityTransform ? 1 : 0;
 
     // Read cumulative transformation cost from the activity log
     const intentionFilepath = config.intentionBot?.intentionFilepath;
