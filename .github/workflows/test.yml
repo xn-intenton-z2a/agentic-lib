@@ -459,8 +459,8 @@ jobs:
       - name: Run behaviour tests
         working-directory: /tmp/test-workspace
         run: npm run test:behaviour
-        env:
-          HOME: /root
+        #env:
+        #  HOME: /root
 
       - name: Verify screenshot was created
         run: |
@@ -471,7 +471,7 @@ jobs:
 
       - name: Upload screenshot
         if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: seeded-screenshot
           path: /tmp/test-workspace/SCREENSHOT_INDEX.png
