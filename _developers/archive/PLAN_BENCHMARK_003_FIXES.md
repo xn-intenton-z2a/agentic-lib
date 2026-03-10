@@ -1,6 +1,6 @@
 # Plan: Benchmark Report 003 Fixes + GitHub Issues
 
-**Source**: [BENCHMARK_REPORT_003.md](BENCHMARK_REPORT_003.md), GitHub Issues [#1878](https://github.com/xn-intenton-z2a/agentic-lib/issues/1878), [#1879](https://github.com/xn-intenton-z2a/agentic-lib/issues/1879), [#1880](https://github.com/xn-intenton-z2a/agentic-lib/issues/1880), [#1881](https://github.com/xn-intenton-z2a/agentic-lib/issues/1881)
+**Source**: [BENCHMARK_REPORT_003.md](../../BENCHMARK_REPORT_003.md), GitHub Issues [#1878](https://github.com/xn-intenton-z2a/agentic-lib/issues/1878), [#1879](https://github.com/xn-intenton-z2a/agentic-lib/issues/1879), [#1880](https://github.com/xn-intenton-z2a/agentic-lib/issues/1880), [#1881](https://github.com/xn-intenton-z2a/agentic-lib/issues/1881)
 **Created**: 2026-03-08
 **Status**: implemented — PR [#1882](https://github.com/xn-intenton-z2a/agentic-lib/pull/1882) open, awaiting CI + merge
 
