@@ -15,6 +15,8 @@ import { maintainLibrary } from "../../../src/actions/agentic-step/tasks/maintai
 import { enhanceIssue } from "../../../src/actions/agentic-step/tasks/enhance-issue.js";
 import { reviewIssue } from "../../../src/actions/agentic-step/tasks/review-issue.js";
 import { discussions } from "../../../src/actions/agentic-step/tasks/discussions.js";
+import { supervise } from "../../../src/actions/agentic-step/tasks/supervise.js";
+import { direct } from "../../../src/actions/agentic-step/tasks/direct.js";
 
 const TASKS = {
   "resolve-issue": resolveIssue,
@@ -25,11 +27,13 @@ const TASKS = {
   "enhance-issue": enhanceIssue,
   "review-issue": reviewIssue,
   "discussions": discussions,
+  "supervise": supervise,
+  "direct": direct,
 };
 
 describe("index — TASKS map", () => {
-  it("has exactly 8 task entries", () => {
-    expect(Object.keys(TASKS)).toHaveLength(8);
+  it("has exactly 10 task entries", () => {
+    expect(Object.keys(TASKS)).toHaveLength(10);
   });
 
   it("contains all expected task names", () => {
@@ -42,6 +46,8 @@ describe("index — TASKS map", () => {
       "enhance-issue",
       "review-issue",
       "discussions",
+      "supervise",
+      "direct",
     ];
     expect(Object.keys(TASKS).sort()).toEqual(expected.sort());
   });
