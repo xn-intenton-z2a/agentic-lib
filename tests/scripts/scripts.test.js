@@ -12,16 +12,16 @@ const jsFiles = allFiles.filter((f) => f.endsWith(".js") || f.endsWith(".cjs"));
 const shFiles = allFiles.filter((f) => f.endsWith(".sh"));
 
 describe("src/scripts", () => {
-  it("has 8 script files", () => {
-    expect(allFiles).toHaveLength(8);
+  it("has 9 script files", () => {
+    expect(allFiles).toHaveLength(9);
   });
 
   it("has 3 JS scripts", () => {
     expect(jsFiles).toEqual(["build-web.cjs", "generate-library-index.js", "md-to-html.js"]);
   });
 
-  it("has 5 shell scripts", () => {
-    expect(shFiles).toHaveLength(5);
+  it("has 6 shell scripts", () => {
+    expect(shFiles).toHaveLength(6);
   });
 
   describe.each(jsFiles)("%s parses without syntax errors", (filename) => {

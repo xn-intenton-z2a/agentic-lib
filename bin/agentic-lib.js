@@ -562,6 +562,7 @@ function initScripts(agenticDir) {
     "clean.sh",
     "initialise.sh",
     "md-to-html.js",
+    "push-to-logs.sh",
     "update.sh",
   ];
   if (!existsSync(scriptsDir)) return;
@@ -1134,6 +1135,32 @@ function initPurgeGitHub() {
     }
   } catch (err) {
     console.log(`  SKIP: Could not create discussion (${err.message})`);
+  }
+
+  // ── Create/reset .logs orphan branch ─────────────────────────────
+  console.log("\n--- .logs branch (activity log + screenshot) ---");
+  try {
+    if (!dryRun) {
+      // Delete existing .logs branch if present
+      try {
+        ghExec(`gh api repos/${repoSlug}/git/refs/heads/.logs -X DELETE`);
+        console.log("  DELETE: existing .logs branch");
+      } catch { /* branch may not exist */ }
+      // Create orphan .logs branch with an empty commit via the API
+      // First get the empty tree SHA
+      const emptyTree = JSON.parse(ghExec(`gh api repos/${repoSlug}/git/trees -X POST -f "tree[0][path]=.gitkeep" -f "tree[0][mode]=100644" -f "tree[0][type]=blob" -f "tree[0][content]="`));
+      const commitData = JSON.parse(ghExec(
+        `gh api repos/${repoSlug}/git/commits -X POST -f "message=init .logs branch" -f "tree=${emptyTree.sha}"`,
+      ));
+      ghExec(`gh api repos/${repoSlug}/git/refs -X POST -f "ref=refs/heads/.logs" -f "sha=${commitData.sha}"`);
+      console.log("  CREATE: .logs orphan branch");
+      initChanges++;
+    } else {
+      console.log("  CREATE: .logs orphan branch (dry run)");
+      initChanges++;
+    }
+  } catch (err) {
+    console.log(`  SKIP: Could not create .logs branch (${err.message})`);
   }
 
   // ── Enable GitHub Pages ───────────────────────────────────────────
