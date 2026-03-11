@@ -7,10 +7,10 @@ export default defineConfig({
   timeout: 30000,
   retries: 2,
   use: {
-    baseURL: "http://localhost:3000",
+    baseURL: "http://localhost:3000/src/web/",
   },
   webServer: {
-    command: "npx serve docs -l 3000",
+    command: "npx serve . -l 3000",
     port: 3000,
     reuseExistingServer: true,
   },

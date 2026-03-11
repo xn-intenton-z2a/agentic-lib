@@ -720,6 +720,7 @@ function initPurge(seedsDir, missionName, initTimestamp) {
     "zero-main.js": "src/lib/main.js",
     "zero-main.test.js": "tests/unit/main.test.js",
     "zero-index.html": "src/web/index.html",
+    "zero-lib.js": "src/web/lib.js",
     "zero-web.test.js": "tests/unit/web.test.js",
     "zero-behaviour.test.js": "tests/behaviour/homepage.test.js",
     "zero-playwright.config.js": "playwright.config.js",
