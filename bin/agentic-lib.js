@@ -70,6 +70,9 @@ Options:
   --agent <name>       Use a specific agent prompt (e.g. agent-iterate, agent-discovery)
   --model <name>       Copilot SDK model (default: claude-sonnet-4)
   --timeout <ms>       Session timeout in milliseconds (default: 600000)
+  --issue <N>          GitHub issue number (fetched via gh CLI for context)
+  --pr <N>             GitHub PR number (fetched via gh CLI for context)
+  --discussion <url>   GitHub Discussion URL (fetched via gh CLI for context)
 
 Examples:
   npx @xn-intenton-z2a/agentic-lib init
@@ -81,6 +84,8 @@ Examples:
   npx @xn-intenton-z2a/agentic-lib iterate --here
   npx @xn-intenton-z2a/agentic-lib iterate --list-missions
   npx @xn-intenton-z2a/agentic-lib iterate --model gpt-5-mini --timeout 300000
+  npx @xn-intenton-z2a/agentic-lib iterate --agent agent-issue-resolution --issue 42
+  npx @xn-intenton-z2a/agentic-lib iterate --agent agent-apply-fix --pr 123
 `.trim();
 
 if (!command || command === "--help" || command === "-h" || command === "help") {
@@ -115,6 +120,12 @@ const missionFile = missionFileIdx >= 0 ? resolve(flags[missionFileIdx + 1]) : "
 const hereMode = flags.includes("--here");
 const agentIdx = flags.indexOf("--agent");
 const agentFlag = agentIdx >= 0 ? flags[agentIdx + 1] : "";
+const issueIdx = flags.indexOf("--issue");
+const issueNumber = issueIdx >= 0 ? parseInt(flags[issueIdx + 1], 10) : 0;
+const prIdx = flags.indexOf("--pr");
+const prNumber = prIdx >= 0 ? parseInt(flags[prIdx + 1], 10) : 0;
+const discussionIdx = flags.indexOf("--discussion");
+const discussionUrl = discussionIdx >= 0 ? flags[discussionIdx + 1] : "";
 
 // ─── Task Commands ───────────────────────────────────────────────────
 
@@ -282,6 +293,7 @@ async function runIterate() {
   }
 
   const { runHybridSession } = await import("../src/copilot/hybrid-session.js");
+  const { gatherLocalContext, gatherGitHubContext, buildUserPrompt } = await import("../src/copilot/context.js");
 
   // Load agent prompt: --agent flag > default agent-iterate
   const agentName = agentFlag || "agent-iterate";
@@ -299,7 +311,28 @@ async function runIterate() {
   console.log("=== agentic-lib iterate ===");
   console.log(`Target:  ${target}`);
   console.log(`Model:   ${effectiveModel}`);
+  if (issueNumber) console.log(`Issue:   #${issueNumber}`);
+  if (prNumber) console.log(`PR:      #${prNumber}`);
+  if (discussionUrl) console.log(`Discussion: ${discussionUrl}`);
   console.log("");
+
+  // Gather context for the agent
+  const localContext = gatherLocalContext(target, config);
+
+  // Optionally gather GitHub context
+  let githubContext;
+  if (issueNumber || prNumber || discussionUrl) {
+    console.log("Fetching GitHub context...");
+    githubContext = gatherGitHubContext({
+      issueNumber: issueNumber || undefined,
+      prNumber: prNumber || undefined,
+      discussionUrl: discussionUrl || undefined,
+      workspacePath: target,
+    });
+  }
+
+  // Build context-aware user prompt
+  const userPrompt = buildUserPrompt(agentName, localContext, githubContext, { tuning: config.tuning });
 
   const result = await runHybridSession({
     workspacePath: target,
@@ -307,6 +340,8 @@ async function runIterate() {
     tuning: config.tuning || {},
     timeoutMs,
     agentPrompt,
+    userPrompt,
+    writablePaths: config.writablePaths?.length > 0 ? config.writablePaths : undefined,
   });
 
   console.log("");
@@ -320,6 +355,7 @@ async function runIterate() {
   console.log(`Files written: ${result.filesWritten}`);
   console.log(`Tokens:        ${result.tokensIn + result.tokensOut} (in=${result.tokensIn} out=${result.tokensOut})`);
   console.log(`End reason:    ${result.endReason}`);
+  if (result.narrative) console.log(`Narrative: ${result.narrative}`);
   if (result.agentMessage) console.log(`Agent: ${result.agentMessage}`);
   if (result.errors.length > 0) console.log(`Errors: ${result.errors.length}`);
   console.log("");

@@ -121,6 +121,85 @@ await transform({ config, model, writablePaths, logger });
 
 ---
 
+## Phase 1b: Close CLI Feature Gaps for Actions Parity
+
+**Goal**: Bring the CLI `iterate` command up to feature parity with the Action's per-task invocations. After this phase, `iterate --agent <agent-name>` provides the same tools, context gathering, safety, and output structure as the Action.
+
+### Gap 1: Tools — give CLI the full 4-tool set
+
+**Current**: `runHybridSession()` defines only a `run_tests` tool. The agent uses the SDK's built-in shell/edit tools with no writable-path enforcement.
+
+**Target**: Use `createAgentTools()` from `src/copilot/tools.js` (already shared) to provide `read_file`, `write_file`, `list_files`, `run_command` with writable-path safety + blocked git commands. Keep `run_tests` as a 5th tool.
+
+**Files**: `src/copilot/hybrid-session.js`
+
+### Gap 2: Context builder — `buildUserPrompt()`
+
+**Current**: The user prompt is just mission text + initial test output. Each Action task builds a rich prompt with scanned source files, features, issues, etc.
+
+**Target**: Create `src/copilot/context.js` with a `buildUserPrompt(agentName, context)` function. It assembles context-dependent sections (mission, source files, features, issues, paths) based on what's available. Each agent name maps to a set of context requirements. Works with or without GitHub data.
+
+**Files**: `src/copilot/context.js` (new), `src/copilot/hybrid-session.js`, `bin/agentic-lib.js`
+
+### Gap 3: Source scanning in CLI
+
+**Current**: The CLI doesn't scan the workspace. The agent must explore via tools.
+
+**Target**: Use `scanDirectory()` from `src/copilot/session.js` to scan source, test, and feature files based on config paths. Include scanned content in the user prompt via `buildUserPrompt()`.
+
+**Files**: `src/copilot/context.js`, `bin/agentic-lib.js`
+
+### Gap 4: Config-driven paths and writable-path enforcement
+
+**Current**: The CLI loads `agentic-lib.toml` for mission path and tuning but ignores `paths.*` for scanning and writable enforcement.
+
+**Target**: Read `config.writablePaths` and `config.readOnlyPaths` from config. Pass `writablePaths` to `createAgentTools()`. Include `formatPathsSection()` in the user prompt.
+
+**Files**: `src/copilot/hybrid-session.js`, `bin/agentic-lib.js`
+
+### Gap 5: Safety — blocked git commands and writable paths
+
+**Current**: No safety enforcement in CLI mode.
+
+**Target**: Already handled by Gap 1 — `createAgentTools()` enforces writable paths and blocks git write commands in `run_command`.
+
+### Gap 6: Narrative extraction and structured output
+
+**Current**: `runHybridSession()` returns raw metrics. No narrative extraction from agent response.
+
+**Target**: Append `NARRATIVE_INSTRUCTION` to the system prompt. Extract `[NARRATIVE]` from agent response using `extractNarrative()`. Include in result object.
+
+**Files**: `src/copilot/hybrid-session.js`
+
+### Gap 7: GitHub context flags (optional enrichment)
+
+**Current**: No `--issue-number`, `--pr-number`, or `--discussion-url` flags.
+
+**Target**: Add CLI flags. When provided, use `gh` CLI to fetch context (lighter than octokit). Pass as optional context to `buildUserPrompt()`. When absent, prompts work with local-only context.
+
+**Files**: `bin/agentic-lib.js`, `src/copilot/context.js`
+
+### Gap 8: Rate limit retry in hybrid session
+
+**Current**: `runHybridSession()` has no rate-limit retry. `runCopilotTask()` in session.js has 3 retries.
+
+**Target**: Wrap the `client.createSession()` + `session.sendAndWait()` flow with the same `isRateLimitError()` / `retryDelayMs()` pattern from session.js.
+
+**Files**: `src/copilot/hybrid-session.js`
+
+### Success criteria
+
+- [ ] `npm test` passes (all ~435 tests + new tests for context.js)
+- [ ] `runHybridSession()` provides 5 tools (read_file, write_file, list_files, run_command, run_tests)
+- [ ] Writable paths enforced — `write_file` outside configured paths returns error
+- [ ] Git write commands blocked in `run_command`
+- [ ] User prompt includes scanned source files, features, paths section when available
+- [ ] `--issue-number` flag fetches issue context via `gh` and includes in prompt
+- [ ] Agent response narrative extracted and included in result
+- [ ] Rate limit retry works in hybrid session
+
+---
+
 ## Phase 2: Uplift to High-Level SDK Abstractions
 
 **Goal**: Replace our manual orchestration with SDK-native features. The shared module from Phase 1 gives us one place to make these changes.
@@ -634,11 +713,13 @@ For each cell: run hamming-distance + fizz-buzz, record tokens, time, pass/fail,
 ```
 Phase 1 (Port to shared module)            ← DONE (partial)
   ↓
+Phase 1b (Close CLI feature gaps)          ← CURRENT — tools, context, safety, GitHub flags
+  ↓
 Phase 2 (Uplift SDK abstractions)          ← DONE
   ↓
 Phase 3 (Validate locally)                 ← DONE (iterate works, --here works)
   ↓
-Phase 4 (CLI as first-class product)       ← CURRENT — converge Actions + CLI
+Phase 4 (CLI as first-class product)       ← converge Actions + CLI
   ↓
 Phase 5 (Validate both paths)
   ↓

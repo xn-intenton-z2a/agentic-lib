@@ -5,14 +5,17 @@
 // Replaces the old multi-session runIterationLoop with a single persistent
 // Copilot SDK session that drives its own tool loop. Hooks provide
 // observability and budget control.
+//
+// Phase 1b: Full tool set, writable-path safety, narrative extraction,
+// rate-limit retry, config-driven context.
 
 import { existsSync, readFileSync } from "fs";
 import { resolve } from "path";
 import { execSync } from "child_process";
 import { defaultLogger } from "./logger.js";
 import { getSDK } from "./sdk.js";
-import { isPathWritable } from "./tools.js";
-import { readOptionalFile } from "./session.js";
+import { createAgentTools, isPathWritable } from "./tools.js";
+import { readOptionalFile, extractNarrative, NARRATIVE_INSTRUCTION, isRateLimitError, retryDelayMs } from "./session.js";
 
 /**
  * Format tool arguments for human-readable logging.
@@ -32,6 +35,10 @@ function formatToolArgs(toolName, args) {
       return args.file_path ? ` → ${args.file_path}` : (args.path ? ` → ${args.path}` : "");
     case "run_tests":
       return "";
+    case "run_command":
+      return args.command ? ` → ${args.command.substring(0, 120)}` : "";
+    case "list_files":
+      return args.path ? ` → ${args.path}` : "";
     case "report_intent":
       return args.intent ? ` → "${args.intent.substring(0, 80)}"` : "";
     default: {
@@ -53,6 +60,8 @@ function formatToolArgs(toolName, args) {
  * @param {number} [options.timeoutMs=600000] - Session timeout
  * @param {string} [options.agentPrompt] - Agent system prompt (loaded from agent .md file)
  * @param {string} [options.userPrompt] - Override user prompt (instead of default mission prompt)
+ * @param {string[]} [options.writablePaths] - Writable paths for tool safety (default: workspace)
+ * @param {number} [options.maxRetries=2] - Max retries on rate-limit errors
  * @param {Object} [options.logger]
  * @returns {Promise<HybridResult>}
  */
@@ -64,6 +73,8 @@ export async function runHybridSession({
   timeoutMs = 600000,
   agentPrompt,
   userPrompt,
+  writablePaths,
+  maxRetries = 2,
   logger = defaultLogger,
 }) {
   const { CopilotClient, approveAll, defineTool } = await getSDK();
@@ -75,16 +86,22 @@ export async function runHybridSession({
 
   const wsPath = resolve(workspacePath);
 
-  // ── Read mission context ────────────────────────────────────────────
-  const missionPath = resolve(wsPath, "MISSION.md");
-  const missionText = existsSync(missionPath) ? readFileSync(missionPath, "utf8") : "No MISSION.md found";
+  // ── Writable paths ──────────────────────────────────────────────────
+  // Default: entire workspace is writable (local CLI mode)
+  const effectiveWritablePaths = writablePaths || [wsPath + "/"];
 
-  // Run initial tests to capture baseline
+  // ── Read mission context (only if no userPrompt override) ─────────
+  let missionText;
   let initialTestOutput;
-  try {
-    initialTestOutput = execSync("npm test 2>&1", { cwd: wsPath, encoding: "utf8", timeout: 120000 });
-  } catch (err) {
-    initialTestOutput = `STDOUT:\n${err.stdout || ""}\nSTDERR:\n${err.stderr || ""}`;
+  if (!userPrompt) {
+    const missionPath = resolve(wsPath, "MISSION.md");
+    missionText = existsSync(missionPath) ? readFileSync(missionPath, "utf8") : "No MISSION.md found";
+
+    try {
+      initialTestOutput = execSync("npm test 2>&1", { cwd: wsPath, encoding: "utf8", timeout: 120000 });
+    } catch (err) {
+      initialTestOutput = `STDOUT:\n${err.stdout || ""}\nSTDERR:\n${err.stderr || ""}`;
+    }
   }
 
   // ── Metrics ─────────────────────────────────────────────────────────
@@ -112,26 +129,32 @@ export async function runHybridSession({
     },
   });
 
-  // ── Create session ──────────────────────────────────────────────────
-  logger.info(`[hybrid] Creating session (model=${model}, workspace=${wsPath})`);
+  // ── Build full tool set ─────────────────────────────────────────────
+  // 4 standard tools (read_file, write_file, list_files, run_command) + run_tests
+  const agentTools = createAgentTools(effectiveWritablePaths, logger, defineTool);
+  const allTools = [...agentTools, runTestsTool];
 
-  const client = new CopilotClient({
-    env: { ...process.env, GITHUB_TOKEN: copilotToken, GH_TOKEN: copilotToken },
-  });
-
-  // Use provided agent prompt, or fall back to a minimal default
-  const systemPrompt = agentPrompt || [
+  // ── Build system prompt with narrative instruction ─────────────────
+  const basePrompt = agentPrompt || [
     "You are an autonomous code transformation agent.",
     "Your workspace is the current working directory.",
     "Implement the MISSION described in the user prompt.",
     "Read existing code, write implementations and tests, then run run_tests to verify.",
     "Keep going until all tests pass or you've exhausted your options.",
   ].join("\n");
+  const systemPrompt = basePrompt + NARRATIVE_INSTRUCTION;
+
+  // ── Session config ─────────────────────────────────────────────────
+  logger.info(`[hybrid] Creating session (model=${model}, workspace=${wsPath})`);
+
+  const client = new CopilotClient({
+    env: { ...process.env, GITHUB_TOKEN: copilotToken, GH_TOKEN: copilotToken },
+  });
 
   const sessionConfig = {
     model,
     systemMessage: { mode: "replace", content: systemPrompt },
-    tools: [runTestsTool],
+    tools: allTools,
     onPermissionRequest: approveAll,
     workingDirectory: wsPath,
     hooks: {
@@ -148,7 +171,7 @@ export async function runHybridSession({
           metrics.filesWritten.add(path);
           logger.info(`    → wrote ${path}`);
         }
-        if (input.toolName === "run_tests" || input.toolName === "bash") {
+        if (input.toolName === "run_tests" || input.toolName === "run_command" || input.toolName === "bash") {
           const result = input.toolResult?.textResultForLlm || input.toolResult || "";
           const resultStr = typeof result === "string" ? result : JSON.stringify(result);
           const passed = /TESTS PASSED|passed|✓|0 fail/i.test(resultStr);
@@ -183,14 +206,24 @@ export async function runHybridSession({
     }
   }
 
+  // ── Create session with rate-limit retry ───────────────────────────
   let session;
-  try {
-    session = await client.createSession(sessionConfig);
-    logger.info(`[hybrid] Session: ${session.sessionId}`);
-  } catch (err) {
-    logger.error(`[hybrid] Failed to create session: ${err.message}`);
-    await client.stop();
-    throw err;
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      session = await client.createSession(sessionConfig);
+      logger.info(`[hybrid] Session: ${session.sessionId}`);
+      break;
+    } catch (err) {
+      if (isRateLimitError(err) && attempt < maxRetries) {
+        const delayMs = retryDelayMs(err, attempt);
+        logger.warning(`[hybrid] Rate limit on session creation — waiting ${Math.round(delayMs / 1000)}s (retry ${attempt + 1}/${maxRetries})`);
+        await new Promise((r) => setTimeout(r, delayMs));
+      } else {
+        logger.error(`[hybrid] Failed to create session: ${err.message}`);
+        await client.stop();
+        throw err;
+      }
+    }
   }
 
   // ── Token tracking ──────────────────────────────────────────────────
@@ -209,7 +242,6 @@ export async function runHybridSession({
   session.on("assistant.message", (event) => {
     const content = (event.data?.content || "").trim();
     if (content) {
-      // Show first line or first 200 chars, whichever is shorter
       const firstLine = content.split("\n")[0];
       const preview = firstLine.length > 200 ? firstLine.substring(0, 200) + "..." : firstLine;
       logger.info(`  [assistant] ${preview}`);
@@ -240,14 +272,30 @@ export async function runHybridSession({
   const t0 = Date.now();
   let response;
   let endReason = "complete";
-  try {
-    response = await session.sendAndWait({ prompt }, timeoutMs);
-  } catch (err) {
-    logger.error(`[hybrid] Session error: ${err.message}`);
-    response = null;
-    endReason = "error";
+
+  // Send with rate-limit retry
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      response = await session.sendAndWait({ prompt }, timeoutMs);
+      break;
+    } catch (err) {
+      if (isRateLimitError(err) && attempt < maxRetries) {
+        const delayMs = retryDelayMs(err, attempt);
+        logger.warning(`[hybrid] Rate limit on sendAndWait — waiting ${Math.round(delayMs / 1000)}s (retry ${attempt + 1}/${maxRetries})`);
+        await new Promise((r) => setTimeout(r, delayMs));
+      } else {
+        logger.error(`[hybrid] Session error: ${err.message}`);
+        response = null;
+        endReason = "error";
+        break;
+      }
+    }
   }
   const sessionTime = (Date.now() - t0) / 1000;
+
+  // ── Extract narrative from response ────────────────────────────────
+  const agentContent = response?.data?.content || "";
+  const narrative = extractNarrative(agentContent, null);
 
   // ── Final test run ──────────────────────────────────────────────────
   let finalTestsPassed = false;
@@ -276,6 +324,7 @@ export async function runHybridSession({
     errors: metrics.errors,
     endReason,
     model,
-    agentMessage: response?.data?.content?.substring(0, 500) || null,
+    narrative,
+    agentMessage: agentContent.substring(0, 500) || null,
   };
 }
