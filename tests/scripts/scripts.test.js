@@ -8,16 +8,16 @@ import { execSync } from "child_process";
 const SCRIPTS_DIR = join(import.meta.dirname, "../../src/scripts");
 
 const allFiles = readdirSync(SCRIPTS_DIR).sort();
-const jsFiles = allFiles.filter((f) => f.endsWith(".js"));
+const jsFiles = allFiles.filter((f) => f.endsWith(".js") || f.endsWith(".cjs"));
 const shFiles = allFiles.filter((f) => f.endsWith(".sh"));
 
 describe("src/scripts", () => {
-  it("has 7 script files", () => {
-    expect(allFiles).toHaveLength(7);
+  it("has 8 script files", () => {
+    expect(allFiles).toHaveLength(8);
   });
 
-  it("has 2 JS scripts", () => {
-    expect(jsFiles).toEqual(["generate-library-index.js", "md-to-html.js"]);
+  it("has 3 JS scripts", () => {
+    expect(jsFiles).toEqual(["build-web.cjs", "generate-library-index.js", "md-to-html.js"]);
   });
 
   it("has 5 shell scripts", () => {

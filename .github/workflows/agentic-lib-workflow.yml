@@ -23,7 +23,7 @@ on:
       model:
         type: string
         required: false
-        default: "gpt-5-mini"
+        default: ""
       profile:
         type: string
         required: false
@@ -47,11 +47,12 @@ on:
   workflow_dispatch:
     inputs:
       model:
-        description: "Copilot SDK model to use"
+        description: "Copilot SDK model to use (empty = read from agentic-lib.toml)"
         type: choice
         required: false
-        default: "gpt-5-mini"
+        default: ""
         options:
+          - ""
           - gpt-5-mini
           - claude-sonnet-4
           - gpt-4.1
@@ -553,17 +554,17 @@ jobs:
         run: npm ci
 
       - name: Apply profile and model to config
-        if: needs.params.outputs.profile != '' || needs.params.outputs.model != 'gpt-5-mini'
+        if: inputs.profile != '' || inputs.model != ''
         run: |
           CONFIG="${{ needs.params.outputs.config-path }}"
-          PROFILE="${{ needs.params.outputs.profile }}"
-          MODEL="${{ needs.params.outputs.model }}"
+          PROFILE="${{ inputs.profile }}"
+          MODEL="${{ inputs.model }}"
           if [ -f "$CONFIG" ]; then
             if [ -n "$PROFILE" ]; then
               sed -i "s/^profile = \"[^\"]*\"/profile = \"${PROFILE}\"/" "$CONFIG"
               echo "Updated [tuning].profile to: ${PROFILE}"
             fi
-            if [ -n "$MODEL" ] && [ "$MODEL" != "gpt-5-mini" ]; then
+            if [ -n "$MODEL" ]; then
               sed -i "s/^model = \"[^\"]*\"/model = \"${MODEL}\"/" "$CONFIG"
               echo "Updated [tuning].model to: ${MODEL}"
             fi
