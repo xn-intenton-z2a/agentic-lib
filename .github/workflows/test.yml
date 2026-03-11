@@ -73,11 +73,12 @@ on:
         required: false
         default: true
       model:
-        description: "Copilot SDK model for action smoke tests"
+        description: "Copilot SDK model for action smoke tests (empty = read from agentic-lib.toml)"
         type: choice
         required: false
-        default: "gpt-5-mini"
+        default: ""
         options:
+          - ""
           - gpt-5-mini
           - claude-sonnet-4
           - gpt-4.1
@@ -96,6 +97,10 @@ jobs:
   params:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v6
+        with:
+          sparse-checkout: agentic-lib.toml
+          sparse-checkout-cone-mode: false
       - name: Normalise params
         id: normalise
         shell: bash
@@ -103,6 +108,10 @@ jobs:
           SKIP_LINTER='${{ inputs.skipLinter }}'
           echo "skipLinter=${SKIP_LINTER:-true}" >> $GITHUB_OUTPUT
           MODEL='${{ inputs.model }}'
+          if [ -z "$MODEL" ] && [ -f "agentic-lib.toml" ]; then
+            TOML_MODEL=$(grep '^\s*model' "agentic-lib.toml" | head -1 | sed 's/.*= *"\([^"]*\)".*/\1/')
+            MODEL="${TOML_MODEL}"
+          fi
           echo "model=${MODEL:-gpt-5-mini}" >> $GITHUB_OUTPUT
       - name: Check COPILOT_GITHUB_TOKEN availability
         id: secrets
@@ -687,7 +696,6 @@ jobs:
     uses: ./.github/workflows/agentic-lib-schedule.yml
     with:
       frequency: "daily"
-      model: "gpt-5-mini"
       dry-run: "true"
     secrets: inherit
 
