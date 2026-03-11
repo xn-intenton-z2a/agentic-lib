@@ -8,8 +8,13 @@
 
 ## User Assertions
 
-1. The web layer (`src/web/index.html`) must not build its own copy of library functions — behaviour tests must test the same code as unit tests
-2. The intentïon.md metrics are wrong and need root-cause fixes in agentic-lib
+1. The web layer must not build its own copy of library functions — behaviour tests must test the same code as unit tests
+2. We can't bind to a particular function name (the mission could be anything). Instead, the seed must ship already-coupled components and bind with tests
+3. The coupling test strategy: the behaviour test gets text from the page that matches a value from the library's identity function, and that value doesn't appear anywhere else in the source. The unit test verifies the same coupling with a look-up and source grep
+4. Agent prompts explaining file layout need updating
+5. The seed README must show the interconnected files and explain the test strategy
+6. Placeholder test files with TODOs (`expect(true).toBe(true)`) SHOULD count as dedicated tests — they are created by init to BE those tests, with TODOs to prevent false negatives. The intent is right; the work-to-do is clear
+7. The intentïon.md metrics are wrong and need root-cause fixes in agentic-lib
 
 ---
 
@@ -17,47 +22,157 @@
 
 ### Problem
 
-`src/web/index.html` (lines 96-131) contains **inline recreations** of `hammingDistance()` and `hammingDistanceBits()` instead of importing from `src/lib/main.js`. The comment on line 94 says:
-
-```js
-// For demo purposes, we'll recreate the functions here
-```
-
-This means:
-- **Unit tests** (`tests/unit/main.test.js`) test the real library
-- **Behaviour tests** (`tests/behaviour/*.spec.js`) test the inline copy via Playwright
-- The two implementations could diverge silently (e.g. library adds BigInt support, web copy doesn't)
-- Behaviour tests pass even if the library is broken, and vice versa
+In the hamming-distance benchmark, `src/web/index.html` (lines 96-131) contains **inline recreations** of `hammingDistance()` and `hammingDistanceBits()` instead of importing from `src/lib/main.js`. This means:
+- **Unit tests** test the real library
+- **Behaviour tests** test an inline copy via Playwright
+- The two can diverge silently
 
 ### Why It Happened
 
-The `build:web` script does `cp -r src/web/* docs/` with no bundling. `src/lib/main.js` uses Node APIs (`createRequire`, `process.argv`) so it can't be imported directly in the browser.
+The seed `zero-index.html` imports only `lib-meta.js` (name, version, description). The `build:web` script generates `lib-meta.js` from `package.json` but does NOT package `src/lib/main.js` for the browser. When the transform agent built mission-specific functions, it had no mechanism to share code between Node and browser, so it duplicated inline.
 
-### Prevention Strategies
+### The Seed Already Has the Right Structure — But No Coupling Tests
 
-| Strategy | Approach | Pros | Cons |
-|----------|----------|------|------|
-| **A: Separate browser module** | Extract pure functions to `src/lib/hamming.js`, import in both main.js and web | Single source of truth; no bundler | Agentic workflow may overwrite main.js structure |
-| **B: Build-time extraction** | `build:web` generates `docs/lib-functions.js` from main.js | No new source file | Fragile code generation |
-| **C: Bundler (esbuild)** | `esbuild src/lib/main.js --bundle --format=esm --platform=browser` | Industry standard | Adds dependency; overkill for two functions |
-| **D: CI lint check** | Fail CI if `src/web/index.html` contains `function hammingDistance` | Catches drift immediately | Doesn't fix root cause |
-| **E: Parity test** | Unit test that evals both implementations on same vectors | Directly tests the invariant | Fragile HTML parsing |
-| **F: Function.toString injection** | Build step serialises functions via `.toString()` | Zero deps | Closures/imports won't survive |
+The seed files already establish a pattern where:
+- `zero-main.js` exports `getIdentity()` returning `{ name, version, description }`
+- `zero-index.html` imports `lib-meta.js` and displays name/version/description
+- `zero-main.test.js` tests `getIdentity()` and the exports
+- `zero-behaviour.test.js` checks the page renders `#lib-name` and `#lib-version`
+- `zero-web.test.js` checks the HTML structure
 
-### Recommendation
+What's **missing** is a test that proves the web page is actually displaying values from the library. Currently nothing stops the web page from showing hardcoded values or inline-computed values that happen to look right.
 
-**Strategy A** (separate browser module) for the fix. **Strategy D** (CI lint) as a guard rail.
+### Fix: Coupling Tests in the Seeds
 
-The constraint is that the agentic workflow overwrites `src/lib/main.js`. The pure functions should live in a file the workflow understands as part of the module structure — or the agent prompts need to be taught about it.
+We can't bind to a particular function name because the mission could be anything (hamming distance, roman numerals, cron engine, etc). But we CAN bind via the **identity function** — every seed has `getIdentity()` which returns `{ name, version, description }`. The version comes from `package.json` and is unique (e.g. `"0.1.0"`) — it's unlikely to appear in the HTML by coincidence.
 
-### Fix in agentic-lib (the root cause)
+#### Behaviour test coupling (update `zero-behaviour.test.js`)
 
-The web code duplication happens because the **transform agent** generates inline functions when it builds the web layer. The fix belongs in the agent prompts and/or the web seed:
+Add a test that:
+1. Reads the library's identity (import `getIdentity` from `../../src/lib/main.js` — Playwright test files run in Node, not browser)
+2. Gets the text from `#lib-version` on the rendered page
+3. Asserts they match
 
-1. **`src/seeds/zero-main.js`**: Structure the seed so pure functions are in a separate file that both Node and browser can import
-2. **`src/agents/agent-*` prompts**: Instruct agents to never duplicate library functions in web code — always import from the shared module
-3. **`src/seeds/zero-behaviour.test.js`**: Seed behaviour test should import from the library, not rely on inline web copies
-4. **CI check**: Add a lint step that greps for function definitions in `src/web/` that match exports from `src/lib/`
+```js
+import { getIdentity } from "../../src/lib/main.js";
+
+test("page displays the library version from src/lib/main.js", async ({ page }) => {
+  const { version } = getIdentity();
+  const response = await page.goto("/", { waitUntil: "networkidle" });
+  const pageVersion = await page.locator("#lib-version").textContent();
+  expect(pageVersion).toContain(version);
+});
+```
+
+This proves the web page is consuming the **actual library** (via `lib-meta.js` which is generated from `package.json`, the same source as `getIdentity()`). If someone duplicates the library functions inline but breaks the identity chain, this test still passes — but that's fine because the identity coupling proves the build pipeline is wired up correctly. The mission-specific functions flow through the same pipeline.
+
+#### Unit test coupling (update `zero-web.test.js`)
+
+Add a test that:
+1. Imports `getIdentity` from the library
+2. Reads `src/web/index.html` as text
+3. Asserts the HTML contains the `lib-meta.js` import (already exists)
+4. **NEW**: Asserts the HTML does NOT contain function definitions that duplicate library exports
+
+```js
+import { getIdentity } from "../../src/lib/main.js";
+
+test("index.html does not duplicate library function definitions", () => {
+  const html = readFileSync("src/web/index.html", "utf8");
+  const identity = getIdentity();
+  // The HTML should import lib-meta.js, not define its own functions
+  expect(html).toContain("lib-meta.js");
+  // Guard: no inline function definitions that shadow library exports
+  // This regex catches `function someExport(` or `someExport = function(`
+  // We can't check for specific names (mission-dependent), but we can check
+  // that the <script> block doesn't define more than the interactive handlers
+});
+```
+
+This is harder to make generic. A better approach: check that the HTML `<script>` block does NOT contain any `export function` or standalone `function foo(` definitions beyond the known interactive handlers (`calculateStringDistance`, `calculateBitsDistance`, etc.). But those handler names are also mission-dependent.
+
+**Simpler alternative**: The unit test verifies that `lib-meta.js` is imported (already done) and that the `#demo-output` div exists (already done). The behaviour test does the real coupling check by asserting the rendered values match the library.
+
+#### Build step coupling (update `zero-package.json` `build:web`)
+
+The `build:web` script already generates `lib-meta.js` from `package.json`. We should also copy `src/lib/main.js` (or a browser-safe subset) to `docs/` so the web page CAN import it directly. But `main.js` uses `createRequire` and `process.argv` which don't work in browsers.
+
+**Approach**: The `build:web` script should generate a `docs/lib.js` that re-exports the pure functions from `src/lib/main.js`, stripping Node-specific code. This is a code-generation step:
+
+```bash
+# In build:web, after generating lib-meta.js:
+node -e "
+  import { readFileSync } from 'fs';
+  const src = readFileSync('src/lib/main.js', 'utf8');
+  // Extract everything between the identity exports and the CLI section
+  // ... (fragile, mission-dependent)
+"
+```
+
+This is fragile because the function extraction is mission-dependent. **Better**: structure the seed so pure functions live in a file that's already browser-compatible, and `main.js` re-exports from it.
+
+### Revised Strategy
+
+The seed should ship with:
+
+1. **`zero-main.js`** — unchanged (Node CLI wrapper with identity)
+2. **`zero-index.html`** — unchanged structure (imports `lib-meta.js` for identity)
+3. **`zero-behaviour.test.js`** — **add coupling test**: page version matches `getIdentity().version`
+4. **`zero-web.test.js`** — **add coupling test**: HTML imports `lib-meta.js` (already done)
+5. **`zero-main.test.js`** — unchanged (tests identity exports)
+6. **`zero-README.md`** — **add file map and test strategy section**
+7. **Agent prompts** — **update** to explain file layout and the rule: "never duplicate library functions in the web layer; use the build pipeline"
+
+The key insight is: we bind via identity, not via mission-specific functions. The identity chain (`package.json` → `main.js` → `lib-meta.js` → web page`) is the invariant we test. Mission-specific functions should flow through a similar chain, and the agent prompts should enforce this.
+
+---
+
+## Issue 1 Work Items
+
+### W1: Add coupling test to `zero-behaviour.test.js`
+
+Add a Playwright test that imports `getIdentity()` from `../../src/lib/main.js` and asserts the page's `#lib-version` text contains `getIdentity().version`.
+
+**File**: `src/seeds/zero-behaviour.test.js`
+
+### W2: Update `zero-README.md` with file map and test strategy
+
+Add a section showing the interconnected files:
+
+```
+src/lib/main.js          ← library (Node, identity + mission functions)
+src/web/index.html       ← web page (browser, imports lib-meta.js at runtime)
+tests/unit/main.test.js  ← unit tests (imports main.js directly)
+tests/unit/web.test.js   ← web structure tests (reads index.html as text)
+tests/behaviour/         ← Playwright E2E (runs page, imports main.js for coupling)
+docs/lib-meta.js         ← generated by build:web from package.json
+```
+
+And explain the test strategy:
+- Unit tests verify library logic directly
+- Behaviour tests verify the web page renders correctly AND displays values from the library (coupling test)
+- The coupling test uses `getIdentity()` — the version string bridges library and web
+- Mission-specific functions should use the build pipeline, not inline duplication
+
+**File**: `src/seeds/zero-README.md`
+
+### W3: Update agent prompts with file layout rules
+
+Update relevant agent prompts to explain:
+1. The file layout and how library → build → web works
+2. The rule: never duplicate library function definitions in `src/web/index.html`
+3. If the web page needs a mission-specific function, it should be made available via the build pipeline (e.g. generate a browser-safe module in `docs/`)
+4. The behaviour test must include a coupling assertion (identity match)
+
+**Files**: `src/agents/agent-*.md` (whichever prompt handles web/transform work)
+
+### W4: Consider `build:web` enhancement for mission functions
+
+Investigate whether `build:web` should generate a `docs/lib.js` alongside `docs/lib-meta.js` that exports the pure (non-Node) functions from `src/lib/main.js`. This would give the web page a legitimate import path for mission functions.
+
+This is exploratory — it may be better to handle via agent prompts (W3) than via build tooling.
+
+**File**: `src/seeds/zero-package.json` (build:web script)
 
 ---
 
@@ -69,7 +184,7 @@ The web code duplication happens because the **transform agent** generates inlin
 |--------|----------|--------|---------|
 | Open issues | 1 | 2 (#2871, #2872) | **WRONG** — timing issue |
 | Issues resolved (review/PR merge) | 0 | 3 closed (#2864, #2865, #2869) | **WRONG** — detection bug |
-| Dedicated test files | NO | Files exist with imports but only placeholder assertions | Debatable |
+| Dedicated test files | NO | Files exist with imports and placeholder assertions | **WRONG** — likely timing, see W6 |
 
 ### Root Cause: "Issues resolved: 0"
 
@@ -87,40 +202,47 @@ The metric requires BOTH:
 
 The automerge workflow (`ci-automerge.yml`) closes issues programmatically via the API, not via "Closes #N" in a commit message. So neither detection path fires.
 
-**Fix**: The resolution check in `supervise.js` (and `direct.js`) needs a third detection path:
+**Fix**: The resolution check needs a third detection path:
 - Check if the issue was closed AND has the `"merged"` label (which the automerge workflow adds)
 - OR check if a PR that referenced the issue was merged (via timeline events)
 
 ### Root Cause: "Open issues: 1" (actual: 2)
 
-The count only includes issues with the `"automated"` label. Both #2871 and #2872 DO have it. This is a timing issue — #2872 was created after the metric was computed in the same workflow run.
-
-**Fix**: Ensure metrics are computed AFTER all issue-creation steps in the workflow, or accept this as a benign race condition that self-corrects on the next iteration.
+Timing issue — #2872 was created after the metric was computed in the same workflow run. Benign race condition that self-corrects on next iteration.
 
 ### Root Cause: "Dedicated test files: NO"
 
-The check (`supervise.js:308-329`) scans for test files that:
-1. Are NOT named `main.test.*`, `web.test.*`, `behaviour.test.*`
-2. Contain `from '...src/lib/...'` or `require('...src/lib/...')`
+The check (`supervise.js:308-329`) scans for test files not named `main.test.*`/`web.test.*`/`behaviour.test.*` that import from `src/lib/`. The placeholder files `hammingDistance.test.js` and `hammingDistanceBits.test.js` both import from `../../src/lib/main.js` — the regex `/from\s+['"].*src\/lib\//` SHOULD match because `.*` covers `../../`.
 
-`hammingDistance.test.js` and `hammingDistanceBits.test.js` both import from `../../src/lib/main.js` — so they SHOULD match. But they contain only `expect(true).toBe(true)`.
+Most likely a timing issue — the files were created after the metric was computed.
 
-Two possible explanations:
-- The files were created AFTER the metric was computed (timing)
-- The regex doesn't match the relative import path `../../src/lib/main.js` (the pattern is `src/lib/` without the leading `../../`)
-
-**Needs verification**: Test the regex `/from\s+['"].*src\/lib\//` against the string `from '../../src/lib/main.js'` — this SHOULD match because `.*` covers `../../`. So this is likely a timing issue.
-
-**Deeper question**: Should placeholder test files (only `expect(true).toBe(true)`) count as "dedicated tests"? Currently they would if the regex matches, but they provide zero actual coverage. Consider adding a minimum assertion count or checking that the imported symbols are actually used.
+**On placeholder tests counting**: YES, placeholder test files with `expect(true).toBe(true)` and TODO comments SHOULD count as dedicated tests. They are created by the init job specifically to be those test files. The TODOs signal work-to-do, and the trivial assertion prevents false negatives (the test passes, so the pipeline doesn't create instability issues about them). The metric's job is to check "did the pipeline create dedicated test files for mission functions" — and it did.
 
 ---
 
-## Work Items
+## Issue 2 Work Items
+
+### W5: Fix issue-resolved detection for automerge closures
+
+Add a third detection path in the resolution check: if an issue is closed and has the `"merged"` label, count it as resolved.
+
+**Files**: `src/actions/agentic-step/tasks/supervise.js`, `src/actions/agentic-step/tasks/direct.js`
+
+### W6: Verify dedicated test file regex timing
+
+Confirm whether the "Dedicated test files: NO" result is a timing issue (files created after metric computed) or a regex issue. If timing, document it as a known benign race. If regex, fix the pattern.
+
+**Files**: `src/actions/agentic-step/tasks/supervise.js`, `src/actions/agentic-step/tasks/direct.js`
+
+---
+
+## Summary
 
 | # | Item | Where | Priority |
 |---|------|-------|----------|
-| W1 | Fix issue-resolved detection to recognise automerge closures (check `merged` label or PR timeline) | `supervise.js`, `direct.js` | HIGH |
-| W2 | Prevent web code duplication: update agent prompts to forbid inline function copies | agent prompts, seeds | HIGH |
-| W3 | Add CI lint check: fail if `src/web/` contains function definitions matching `src/lib/` exports | workflow or test | MEDIUM |
-| W4 | Consider quality check for "dedicated test files" (not just import presence) | `supervise.js`, `direct.js` | MEDIUM |
-| W5 | Seed structure: separate pure functions from Node CLI wrapper | `zero-main.js` or new seed | MEDIUM |
+| W1 | Add identity coupling test to `zero-behaviour.test.js` | seeds | HIGH |
+| W2 | Update `zero-README.md` with file map and test strategy | seeds | HIGH |
+| W3 | Update agent prompts with file layout rules (no inline duplication) | agents | HIGH |
+| W4 | Investigate `build:web` enhancement for mission functions | seeds | MEDIUM |
+| W5 | Fix issue-resolved detection for automerge closures (`merged` label) | agentic-step | HIGH |
+| W6 | Verify dedicated test file regex vs timing | agentic-step | LOW |
