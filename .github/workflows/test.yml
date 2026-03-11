@@ -31,7 +31,8 @@
 #     test-workflow-dev      — agentic-lib-workflow dev-only
 #     test-workflow-bot      — agentic-lib-bot (test discussion)
 #     test-workflow-schedule — agentic-lib-schedule (dry-run)
-#     test-workflow-init     — agentic-lib-init (dry-run)
+#     test-workflow-update   — agentic-lib-update (dry-run)
+#     test-workflow-init     — agentic-lib-init reseed (dry-run)
 #     test-workflow-test     — agentic-lib-test (npm test)
 #
 # COPILOT_GITHUB_TOKEN is required for all transform jobs.
@@ -690,10 +691,16 @@ jobs:
       dry-run: "true"
     secrets: inherit
 
+  test-workflow-update:
+    uses: ./.github/workflows/agentic-lib-update.yml
+    with:
+      dry-run: "true"
+    secrets: inherit
+
   test-workflow-init:
     uses: ./.github/workflows/agentic-lib-init.yml
     with:
-      mode: "update"
+      mode: "reseed"
       dry-run: "true"
     secrets: inherit
 
