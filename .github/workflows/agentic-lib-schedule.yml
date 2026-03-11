@@ -92,6 +92,8 @@ jobs:
           script: |
             const fs = require('fs');
             const frequency = '${{ inputs.frequency }}';
+            const workflowPath = '.github/workflows/agentic-lib-workflow.yml';
+            const tomlPath = 'agentic-lib.toml';
             let model = '${{ inputs.model }}';
             if (!model && fs.existsSync(tomlPath)) {
               const toml = fs.readFileSync(tomlPath, 'utf8');
@@ -100,8 +102,6 @@ jobs:
             }
             if (!model) model = 'gpt-5-mini';
             const profile = '${{ inputs.profile }}';
-            const workflowPath = '.github/workflows/agentic-lib-workflow.yml';
-            const tomlPath = 'agentic-lib.toml';
 
             const isMaintenance = frequency === 'maintenance';
             const effectiveFrequency = isMaintenance ? 'weekly' : frequency;
