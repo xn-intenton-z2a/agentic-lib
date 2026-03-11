@@ -432,28 +432,32 @@ Phase 4 converges these by:
 - Making agent selection explicit via `--agent` (already done)
 - Making `runHybridSession()` the single execution path (instead of `runCopilotTask()`)
 
-### Current State
+### Current State (after Phase 4 convergence)
 
 ```
-src/actions/agentic-step/           ← 4,717 lines, self-contained
+src/actions/agentic-step/           ← Task handlers + thin re-exports
   index.js          (372 lines)     ← Orchestration + telemetry + metrics
-  copilot.js        (545 lines)     ← SDK wrapper, scanning, rate limiting
-  tools.js          (142 lines)     ← Tool definitions (read/write/list/run)
-  safety.js         (106 lines)     ← WIP limits, path validation
-  config-loader.js  (308 lines)     ← TOML config (duplicate of src/copilot/config.js)
-  logging.js        (211 lines)     ← intentïon.md activity log
-  tasks/             (10 handlers)  ← 3,033 lines of prompt builders + SDK calls
+  copilot.js        (60 lines)      ← Re-export from src/copilot/session.js (was 545)
+  tools.js          (25 lines)      ← Re-export from src/copilot/tools.js (was 142)
+  safety.js         (106 lines)     ← WIP limits, path validation (octokit-dependent)
+  config-loader.js  (8 lines)       ← Re-export from src/copilot/config.js (was 308)
+  logging.js        (211 lines)     ← intentïon.md activity log (Actions-specific)
+  tasks/             (10 handlers)  ← Prompt builders + post-processing (unchanged)
 
-src/copilot/                        ← 1,540 lines, new shared module
+src/copilot/                        ← Single source of truth for SDK integration
   hybrid-session.js (281 lines)     ← Single-session runner (hooks, metrics, events)
-  session.js        (372 lines)     ← SDK wrapper (used by iterate)
+  session.js        (372 lines)     ← SDK wrapper, scanning, rate limiting
   config.js         (308 lines)     ← TOML config
-  tools.js          (141 lines)     ← Tool definitions (used by iterate)
+  tools.js          (141 lines)     ← Tool definitions (read/write/list/run)
   agents.js         (39 lines)      ← Agent prompt loader (--agent support)
+  context.js        (319 lines)     ← Context gathering + buildUserPrompt()
   logger.js         (43 lines)      ← Console/actions adapter
-  sdk.js            (36 lines)      ← SDK locator
-  tasks/            (4 handlers)    ← 320 lines (thin wrappers, soon replaced)
+  sdk.js            (36 lines)      ← SDK locator (works in npm + consumer repos)
+  tasks/            DELETED          ← Replaced by iterate --agent + agent .md files
 ```
+
+**Lines removed**: ~1,211 (copilot.js: -485, config-loader.js: -300, tools.js: -117, tasks/: -320)
+**Init**: Now distributes `src/copilot/` to `.github/agentic-lib/copilot/` in consumer repos.
 
 ### Target Architecture
 
@@ -637,14 +641,14 @@ The Action's `index.js` becomes a thin adapter that:
 
 ### Success Criteria
 
-- [ ] Every Action task is expressible as `npx @xn-intenton-z2a/agentic-lib iterate --agent <agent-name>`
-- [ ] `src/copilot/` is the single source of truth for all SDK integration
-- [ ] `src/actions/agentic-step/index.js` is < 150 lines (I/O adapter only)
-- [ ] Agent .md files are the system prompts for both CLI and Actions
-- [ ] No per-task handler files — context gathering + `--agent` replaces them
-- [ ] `npm test` passes (all ~435 tests)
-- [ ] Actions `agentic-step` still works on repository0
-- [ ] CLI `iterate --agent` works for all agent types
+- [x] Every Action task is expressible as `npx @xn-intenton-z2a/agentic-lib iterate --agent <agent-name>`
+- [x] `src/copilot/` is the single source of truth for all SDK integration
+- [ ] `src/actions/agentic-step/index.js` is < 150 lines (I/O adapter only) — currently 372 lines, task handlers still exist as thin post-processors
+- [x] Agent .md files are the system prompts for both CLI and Actions
+- [x] No per-task handler files for CLI — `src/copilot/tasks/` deleted, task commands delegate to `iterate --agent`
+- [x] `npm test` passes (540 tests across 32 files)
+- [ ] Actions `agentic-step` still works on repository0 — pending deployment
+- [x] CLI `iterate --agent` works for all agent types
 
 ---
 
@@ -778,7 +782,7 @@ Phase 2 (Uplift SDK abstractions)          ← DONE
   ↓
 Phase 3 (Validate CLI — unit + scenario)   ← DONE (3a-3d all complete, 540 tests + 4 live scenarios)
   ↓
-Phase 4 (CLI as first-class product)       ← NEXT — converge Actions + CLI
+Phase 4 (CLI as first-class product)       ← IN PROGRESS — Steps 1-5,8 done; Steps 6-7,9 pending
   ↓
 Phase 5 (Validate both paths)
   ↓
