@@ -555,6 +555,7 @@ function initScripts(agenticDir) {
   const DISTRIBUTED_SCRIPTS = [
     "accept-release.sh",
     "activate-schedule.sh",
+    "build-web.cjs",
     "clean.sh",
     "initialise.sh",
     "md-to-html.js",
