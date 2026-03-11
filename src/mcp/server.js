@@ -482,40 +482,58 @@ async function handleIterate({ workspace, cycles = 3, steps }) {
     return text(`Workspace "${workspace}" not found.`);
   }
 
-  const { runIterationLoop, formatIterationResults } = await import("../iterate.js");
-  const stepsToRun = steps || ["maintain-features", "transform", "fix-code"];
-  const startIterNum = (meta.iterations?.length || 0) + 1;
+  const { runHybridSession } = await import("../copilot/hybrid-session.js");
+
+  let config;
+  try {
+    const { loadConfig } = await import("../copilot/config.js");
+    config = loadConfig(join(wsPath, "agentic-lib.toml"));
+  } catch {
+    config = { tuning: {}, model: meta.model || "gpt-5-mini" };
+  }
 
   meta.status = "iterating";
   writeMetadata(wsPath, meta);
 
-  const { results, totalCost, budget } = await runIterationLoop({
-    targetPath: wsPath,
-    model: meta.model,
-    maxCycles: cycles,
-    steps: stepsToRun,
-    onCycleComplete: (record) => {
-      if (record.stopped) return;
-      // Persist each iteration to workspace metadata
-      meta.iterations.push({
-        number: startIterNum + record.cycle - 1,
-        profile: meta.profile,
-        model: meta.model,
-        steps: record.steps,
-        testsPassed: record.testsPassed,
-        filesChanged: record.filesChanged,
-        elapsed: record.elapsed,
-      });
-      writeMetadata(wsPath, meta);
-    },
+  const result = await runHybridSession({
+    workspacePath: wsPath,
+    model: meta.model || config.model || "gpt-5-mini",
+    tuning: config.tuning || {},
+    timeoutMs: 600000,
   });
 
+  const iterNum = (meta.iterations?.length || 0) + 1;
+  meta.iterations.push({
+    number: iterNum,
+    profile: meta.profile,
+    model: meta.model,
+    testsPassed: result.testsPassed,
+    toolCalls: result.toolCalls,
+    testRuns: result.testRuns,
+    filesWritten: result.filesWritten,
+    elapsed: `${result.totalTime}`,
+    endReason: result.endReason,
+  });
   meta.status = "ready";
   writeMetadata(wsPath, meta);
 
-  const output = formatIterationResults(results, totalCost, budget, `Iterate: ${workspace}`);
-  const extra = `\n- Total iterations for this workspace: ${meta.iterations.length}\n- Profile: ${meta.profile} | Model: ${meta.model}`;
-  return text(output + extra);
+  const lines = [
+    `# Iterate: ${workspace}`,
+    "",
+    `- Success: ${result.success}`,
+    `- Tests passed: ${result.testsPassed}`,
+    `- Session time: ${result.sessionTime}s`,
+    `- Total time: ${result.totalTime}s`,
+    `- Tool calls: ${result.toolCalls}`,
+    `- Test runs: ${result.testRuns}`,
+    `- Files written: ${result.filesWritten}`,
+    `- Tokens: ${result.tokensIn + result.tokensOut} (in=${result.tokensIn} out=${result.tokensOut})`,
+    `- End reason: ${result.endReason}`,
+    "",
+    `- Total iterations for this workspace: ${meta.iterations.length}`,
+    `- Profile: ${meta.profile} | Model: ${meta.model}`,
+  ];
+  return text(lines.join("\n"));
 }
 
 async function handleRunTests({ workspace }) {

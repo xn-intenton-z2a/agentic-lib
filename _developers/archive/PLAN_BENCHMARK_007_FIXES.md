@@ -1,6 +1,6 @@
 # Plan: Benchmark Report 007 Fixes
 
-**Source**: [BENCHMARK_REPORT_007.md](BENCHMARK_REPORT_007.md)
+**Source**: [BENCHMARK_REPORT_007.md](../../BENCHMARK_REPORT_007.md)
 **Created**: 2026-03-10
 **Status**: implemented — all 12 work items done (W1-W12)
 

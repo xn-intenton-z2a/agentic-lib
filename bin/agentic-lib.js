@@ -51,7 +51,9 @@ Tasks (run Copilot SDK transformations):
   fix-code             Fix failing tests
 
 Iterator:
-  iterate              Run N cycles of maintain → transform → fix with budget tracking
+  iterate              Single Copilot SDK session — reads, writes, tests, iterates autonomously
+  iterate --here       Discover the project and generate a MISSION.md, then iterate
+  iterate --list-missions  List available built-in mission seeds
 
 MCP Server:
   mcp                  Start MCP server (for Claude Code, Cursor, etc.)
@@ -62,17 +64,28 @@ Options:
   --dry-run            Show what would be done without making changes
   --target <path>      Target repository (default: current directory)
   --mission <name>     Mission seed name (default: hamming-distance) [purge only]
+  --mission-file <path>  Use a custom mission file instead of a built-in seed
+  --list-missions      List available built-in mission seeds
+  --here               Discover the project and generate a MISSION.md, then iterate
+  --agent <name>       Use a specific agent prompt (e.g. agent-iterate, agent-discovery)
   --model <name>       Copilot SDK model (default: claude-sonnet-4)
-  --cycles <N>         Max iteration cycles (default: from transformation-budget)
-  --steps <list>       Steps per cycle: maintain-features,transform,fix-code
+  --timeout <ms>       Session timeout in milliseconds (default: 600000)
+  --issue <N>          GitHub issue number (fetched via gh CLI for context)
+  --pr <N>             GitHub PR number (fetched via gh CLI for context)
+  --discussion <url>   GitHub Discussion URL (fetched via gh CLI for context)
 
 Examples:
   npx @xn-intenton-z2a/agentic-lib init
   npx @xn-intenton-z2a/agentic-lib transform
   npx @xn-intenton-z2a/agentic-lib maintain-features --model gpt-5-mini
   npx @xn-intenton-z2a/agentic-lib reset --dry-run
-  npx @xn-intenton-z2a/agentic-lib iterate --mission fizz-buzz --cycles 4
-  npx @xn-intenton-z2a/agentic-lib iterate --steps transform,fix-code --cycles 2
+  npx @xn-intenton-z2a/agentic-lib iterate --mission fizz-buzz
+  npx @xn-intenton-z2a/agentic-lib iterate --mission-file ~/my-mission.md
+  npx @xn-intenton-z2a/agentic-lib iterate --here
+  npx @xn-intenton-z2a/agentic-lib iterate --list-missions
+  npx @xn-intenton-z2a/agentic-lib iterate --model gpt-5-mini --timeout 300000
+  npx @xn-intenton-z2a/agentic-lib iterate --agent agent-issue-resolution --issue 42
+  npx @xn-intenton-z2a/agentic-lib iterate --agent agent-apply-fix --pr 123
 `.trim();
 
 if (!command || command === "--help" || command === "-h" || command === "help") {
@@ -99,6 +112,20 @@ const cyclesIdx = flags.indexOf("--cycles");
 const cycles = cyclesIdx >= 0 ? parseInt(flags[cyclesIdx + 1], 10) : 0;
 const stepsIdx = flags.indexOf("--steps");
 const stepsFlag = stepsIdx >= 0 ? flags[stepsIdx + 1] : "";
+const timeoutIdx = flags.indexOf("--timeout");
+const timeoutMs = timeoutIdx >= 0 ? parseInt(flags[timeoutIdx + 1], 10) : 600000;
+const listMissions = flags.includes("--list-missions");
+const missionFileIdx = flags.indexOf("--mission-file");
+const missionFile = missionFileIdx >= 0 ? resolve(flags[missionFileIdx + 1]) : "";
+const hereMode = flags.includes("--here");
+const agentIdx = flags.indexOf("--agent");
+const agentFlag = agentIdx >= 0 ? flags[agentIdx + 1] : "";
+const issueIdx = flags.indexOf("--issue");
+const issueNumber = issueIdx >= 0 ? parseInt(flags[issueIdx + 1], 10) : 0;
+const prIdx = flags.indexOf("--pr");
+const prNumber = prIdx >= 0 ? parseInt(flags[prIdx + 1], 10) : 0;
+const discussionIdx = flags.indexOf("--discussion");
+const discussionUrl = discussionIdx >= 0 ? flags[discussionIdx + 1] : "";
 
 // ─── Task Commands ───────────────────────────────────────────────────
 
@@ -137,51 +164,203 @@ runInit();
 // ─── Iterator ────────────────────────────────────────────────────────
 
 async function runIterate() {
-  const { runIterationLoop, formatIterationResults } = await import("../src/iterate.js");
+  // --list-missions: show available seeds and exit
+  if (listMissions) {
+    const missionsDir = resolve(srcDir, "seeds/missions");
+    const files = readdirSync(missionsDir).filter((f) => f.endsWith(".md")).sort();
+    console.log("\nAvailable missions:\n");
+    for (const f of files) {
+      const name = f.replace(".md", "");
+      const content = readFileSync(resolve(missionsDir, f), "utf8");
+      const firstLine = content.split("\n").find((l) => l.trim() && !l.startsWith("#")) || "";
+      console.log(`  ${name.padEnd(22)} ${firstLine.trim()}`);
+    }
+    console.log(`\nUsage: npx @xn-intenton-z2a/agentic-lib iterate --mission <name>`);
+    console.log(`       npx @xn-intenton-z2a/agentic-lib iterate --mission-file <path>\n`);
+    return 0;
+  }
 
-  // If --mission is specified, run init --purge first
-  if (missionIdx >= 0) {
+  const { loadAgentPrompt } = await import("../src/copilot/agents.js");
+
+  // Resolve mission file path from config if available
+  let config;
+  try {
+    const { loadConfig } = await import("../src/copilot/config.js");
+    config = loadConfig(resolve(target, "agentic-lib.toml"));
+  } catch {
+    config = { tuning: {}, model: "gpt-5-mini", paths: {} };
+  }
+
+  // --here mode: run discovery agent to generate MISSION.md, then iterate
+  if (hereMode) {
+    // Determine mission output path: --mission-file > config paths.mission > default
+    const missionOutPath = missionFile
+      || (config.paths?.mission?.path ? resolve(target, config.paths.mission.path) : "")
+      || resolve(target, "MISSION.md");
+
+    const targetMission = resolve(target, "MISSION.md");
+    if (existsSync(targetMission)) {
+      console.log(`Using existing MISSION.md in ${target}`);
+    } else {
+      console.log("");
+      console.log("=== Discovery Phase ===");
+      console.log(`Target:  ${target}`);
+      console.log(`Output:  ${missionOutPath}`);
+      console.log("");
+
+      const discoveryPrompt = loadAgentPrompt("agent-discovery");
+      const { runHybridSession } = await import("../src/copilot/hybrid-session.js");
+      const effectiveModel = model || config.model || "gpt-5-mini";
+
+      const discoveryResult = await runHybridSession({
+        workspacePath: target,
+        model: effectiveModel,
+        tuning: config.tuning || {},
+        timeoutMs,
+        agentPrompt: discoveryPrompt,
+        userPrompt: [
+          "Explore this project directory and generate a MISSION.md file.",
+          `Write the mission file to: ${missionOutPath}`,
+          "",
+          "Examine the project structure, source code, tests, and documentation.",
+          "Then write a focused, achievable MISSION.md based on what you find.",
+        ].join("\n"),
+      });
+
+      console.log("");
+      console.log(`Discovery: ${discoveryResult.success ? "completed" : "finished"} (${discoveryResult.toolCalls} tool calls, ${discoveryResult.sessionTime}s)`);
+
+      if (!existsSync(missionOutPath)) {
+        console.error("Discovery did not produce a mission file. Cannot proceed.");
+        return 1;
+      }
+      console.log("");
+
+      // --here + --mission-file: stop after generating the mission file
+      if (missionFile) {
+        console.log(`Mission file written to: ${missionOutPath}`);
+        return 0;
+      }
+
+      // Copy to MISSION.md in target if discovery wrote elsewhere
+      if (missionOutPath !== targetMission && !existsSync(targetMission)) {
+        copyFileSync(missionOutPath, targetMission);
+      }
+    }
+
+    // Fall through to normal iterate with the generated mission
+  }
+
+  // Guard: require a mission source or existing MISSION.md in the target
+  if (!hereMode && !missionFile && missionIdx < 0) {
+    const targetMission = resolve(target, "MISSION.md");
+    if (!existsSync(targetMission)) {
+      console.error("No mission specified and no MISSION.md found in target directory.");
+      console.error("");
+      console.error("Usage:");
+      console.error("  iterate --mission <name>          Use a built-in mission seed");
+      console.error("  iterate --mission-file <path>     Use a custom mission file");
+      console.error("  iterate --here                    Discover and generate a mission");
+      console.error("  iterate --list-missions           List available built-in missions");
+      console.error("");
+      console.error("Or run from a directory that already has a MISSION.md.");
+      return 1;
+    }
+    console.log(`Using existing MISSION.md in ${target}`);
+  }
+
+  // --mission-file: copy custom file as MISSION.md, run init --purge with empty mission
+  if (!hereMode && missionFile) {
+    if (!existsSync(missionFile)) {
+      console.error(`Mission file not found: ${missionFile}`);
+      return 1;
+    }
+    console.log(`\n=== Init with custom mission: ${missionFile} ===\n`);
+    execSync(
+      `node ${resolve(pkgRoot, "bin/agentic-lib.js")} init --purge --mission empty --target ${target}`,
+      { encoding: "utf8", timeout: 60000, stdio: "inherit" },
+    );
+    // Overwrite MISSION.md with the custom file
+    copyFileSync(missionFile, resolve(target, "MISSION.md"));
+    console.log(`  COPY: ${missionFile} → MISSION.md\n`);
+  } else if (!hereMode && missionIdx >= 0) {
+    // --mission: use a built-in seed
     console.log(`\n=== Init with mission: ${mission} ===\n`);
-    const initResult = execSync(
+    execSync(
       `node ${resolve(pkgRoot, "bin/agentic-lib.js")} init --purge --mission ${mission} --target ${target}`,
       { encoding: "utf8", timeout: 60000, stdio: "inherit" },
     );
   }
 
-  const iterSteps = stepsFlag
-    ? stepsFlag.split(",").map((s) => s.trim())
-    : ["maintain-features", "transform", "fix-code"];
+  const { runHybridSession } = await import("../src/copilot/hybrid-session.js");
+  const { gatherLocalContext, gatherGitHubContext, buildUserPrompt } = await import("../src/copilot/context.js");
 
+  // Load agent prompt: --agent flag > default agent-iterate
+  const agentName = agentFlag || "agent-iterate";
+  let agentPrompt;
+  try {
+    agentPrompt = loadAgentPrompt(agentName);
+    console.log(`Agent:   ${agentName}`);
+  } catch (err) {
+    console.error(`Failed to load agent: ${err.message}`);
+    return 1;
+  }
+
+  const effectiveModel = model || config.model || "gpt-5-mini";
   console.log("");
   console.log("=== agentic-lib iterate ===");
   console.log(`Target:  ${target}`);
-  console.log(`Model:   ${model}`);
-  console.log(`Cycles:  ${cycles || "(from budget)"}`);
-  console.log(`Steps:   ${iterSteps.join(", ")}`);
-  console.log(`Dry-run: ${dryRun}`);
+  console.log(`Model:   ${effectiveModel}`);
+  if (issueNumber) console.log(`Issue:   #${issueNumber}`);
+  if (prNumber) console.log(`PR:      #${prNumber}`);
+  if (discussionUrl) console.log(`Discussion: ${discussionUrl}`);
   console.log("");
 
-  const { results, totalCost, budget } = await runIterationLoop({
-    targetPath: target,
-    model,
-    maxCycles: cycles,
-    steps: iterSteps,
-    dryRun,
-    onCycleComplete: (record) => {
-      if (record.stopped) return;
-      const status = record.testsPassed ? "PASS" : "FAIL";
-      console.log(
-        `  Cycle ${record.cycle}: ${record.filesChanged} files changed, tests ${status}, cost ${record.totalCost}/${record.budget} (${record.elapsed}s)`,
-      );
-    },
+  // Gather context for the agent
+  const localContext = gatherLocalContext(target, config);
+
+  // Optionally gather GitHub context
+  let githubContext;
+  if (issueNumber || prNumber || discussionUrl) {
+    console.log("Fetching GitHub context...");
+    githubContext = gatherGitHubContext({
+      issueNumber: issueNumber || undefined,
+      prNumber: prNumber || undefined,
+      discussionUrl: discussionUrl || undefined,
+      workspacePath: target,
+    });
+  }
+
+  // Build context-aware user prompt
+  const userPrompt = buildUserPrompt(agentName, localContext, githubContext, { tuning: config.tuning });
+
+  const result = await runHybridSession({
+    workspacePath: target,
+    model: effectiveModel,
+    tuning: config.tuning || {},
+    timeoutMs,
+    agentPrompt,
+    userPrompt,
+    writablePaths: config.writablePaths?.length > 0 ? config.writablePaths : undefined,
   });
 
   console.log("");
-  console.log(formatIterationResults(results, totalCost, budget));
+  console.log("=== Results ===");
+  console.log(`Success:       ${result.success}`);
+  console.log(`Tests passed:  ${result.testsPassed}`);
+  console.log(`Session time:  ${result.sessionTime}s`);
+  console.log(`Total time:    ${result.totalTime}s`);
+  console.log(`Tool calls:    ${result.toolCalls}`);
+  console.log(`Test runs:     ${result.testRuns}`);
+  console.log(`Files written: ${result.filesWritten}`);
+  console.log(`Tokens:        ${result.tokensIn + result.tokensOut} (in=${result.tokensIn} out=${result.tokensOut})`);
+  console.log(`End reason:    ${result.endReason}`);
+  if (result.narrative) console.log(`Narrative: ${result.narrative}`);
+  if (result.agentMessage) console.log(`Agent: ${result.agentMessage}`);
+  if (result.errors.length > 0) console.log(`Errors: ${result.errors.length}`);
   console.log("");
 
-  const lastCycle = results.filter((r) => !r.stopped).slice(-1)[0];
-  return lastCycle?.testsPassed ? 0 : 1;
+  return result.success ? 0 : 1;
 }
 
 // ─── Task Runner ─────────────────────────────────────────────────────
@@ -194,107 +373,68 @@ async function runTask(taskName) {
   console.log(`Dry-run: ${dryRun}`);
   console.log("");
 
-  // Find the Copilot SDK
-  const sdkLocations = [
-    resolve(pkgRoot, "node_modules/@github/copilot-sdk/dist/index.js"),
-    resolve(pkgRoot, "src/actions/agentic-step/node_modules/@github/copilot-sdk/dist/index.js"),
-    resolve(target, ".github/agentic-lib/actions/agentic-step/node_modules/@github/copilot-sdk/dist/index.js"),
-  ];
-  const sdkPath = sdkLocations.find((p) => existsSync(p));
-  if (!sdkPath) {
-    console.error("ERROR: @github/copilot-sdk not found.");
-    console.error("Run: cd .github/agentic-lib/actions/agentic-step && npm ci");
-    return 1;
-  }
-  const { CopilotClient, approveAll, defineTool } = await import(sdkPath);
+  // Load config from shared module
+  const { loadConfig } = await import("../src/copilot/config.js");
+  const config = loadConfig(resolve(target, "agentic-lib.toml"));
+  const effectiveModel = model || config.model;
 
-  // Load config
-  const config = await loadTaskConfig();
-  const writablePaths = getWritablePathsFromConfig(config);
-  const readOnlyPaths = getReadOnlyPathsFromConfig(config);
-
-  console.log(`[config] supervisor=${config.supervisor || "daily"}`);
-  console.log(`[config] writable=${writablePaths.join(", ")}`);
+  console.log(`[config] supervisor=${config.supervisor}`);
+  console.log(`[config] writable=${config.writablePaths.join(", ")}`);
   console.log(`[config] test=${config.testScript}`);
   console.log("");
 
-  // Build task-specific prompt
-  const { systemMessage, prompt } = buildTaskPrompt(taskName, config, writablePaths, readOnlyPaths);
-
-  if (!prompt) {
-    return 0; // buildTaskPrompt already logged why
-  }
-
-  console.log(`[prompt] ${prompt.length} chars`);
-  console.log("");
-
   if (dryRun) {
-    console.log("=== DRY RUN — prompt constructed but not sent ===");
-    console.log("");
-    console.log(prompt);
+    console.log("=== DRY RUN — task would run but not sending to Copilot ===");
     return 0;
   }
 
-  // Create tools
-  const tools = createCliTools(writablePaths, defineTool);
-
-  // Set up auth
-  const copilotToken = process.env.COPILOT_GITHUB_TOKEN;
-  if (!copilotToken) {
-    console.error("ERROR: COPILOT_GITHUB_TOKEN is required. Set it in your environment.");
-    return 1;
-  }
-  console.log("[auth] Using COPILOT_GITHUB_TOKEN");
-  const clientOptions = {};
-  const env = { ...process.env };
-  env.GITHUB_TOKEN = copilotToken;
-  env.GH_TOKEN = copilotToken;
-  clientOptions.env = env;
-
-  const client = new CopilotClient(clientOptions);
+  // Change to target directory so relative paths in config work
+  const originalCwd = process.cwd();
+  process.chdir(target);
 
   try {
-    console.log("[copilot] Creating session...");
-    const session = await client.createSession({
-      model,
-      systemMessage: { content: systemMessage },
-      tools,
-      onPermissionRequest: approveAll,
-      workingDirectory: target,
-    });
-    console.log(`[copilot] Session: ${session.sessionId}`);
+    const context = {
+      config,
+      writablePaths: config.writablePaths,
+      model: effectiveModel,
+      testCommand: config.testScript,
+      logger: { info: console.log, warning: console.warn, error: console.error, debug: () => {} },
+    };
 
-    // Verbose event logging
-    session.on((event) => {
-      const type = event?.type || "unknown";
-      if (type === "assistant.message") {
-        const preview = event?.data?.content?.substring(0, 120) || "";
-        console.log(`[event] ${type}: ${preview}...`);
-      } else if (type === "tool.call") {
-        const name = event?.data?.name || "?";
-        const args = JSON.stringify(event?.data?.arguments || {}).substring(0, 200);
-        console.log(`[event] tool.call: ${name}(${args})`);
-      } else if (type === "session.error") {
-        console.error(`[event] ERROR: ${JSON.stringify(event?.data || event)}`);
-      } else if (type !== "session.idle") {
-        console.log(`[event] ${type}`);
+    let result;
+    switch (taskName) {
+      case "transform": {
+        const { transform } = await import("../src/copilot/tasks/transform.js");
+        result = await transform(context);
+        break;
       }
-    });
-
-    const startTime = Date.now();
-    console.log("[copilot] Sending prompt...");
-    const response = await session.sendAndWait({ prompt }, 300000);
-    const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
-
-    const content = response?.data?.content || "(no content)";
-    const tokens = response?.data?.usage?.totalTokens || 0;
+      case "maintain-features": {
+        const { maintainFeatures } = await import("../src/copilot/tasks/maintain-features.js");
+        result = await maintainFeatures(context);
+        break;
+      }
+      case "maintain-library": {
+        const { maintainLibrary } = await import("../src/copilot/tasks/maintain-library.js");
+        result = await maintainLibrary(context);
+        break;
+      }
+      case "fix-code": {
+        const { fixCode } = await import("../src/copilot/tasks/fix-code.js");
+        result = await fixCode(context);
+        break;
+      }
+      default:
+        console.error(`Unknown task: ${taskName}`);
+        return 1;
+    }
 
     console.log("");
-    console.log(`=== ${taskName} completed in ${elapsed}s (${tokens} tokens) ===`);
+    console.log(`=== ${taskName} completed ===`);
+    console.log(`Outcome: ${result.outcome}`);
+    if (result.details) console.log(`Details: ${result.details}`);
+    if (result.tokensUsed) console.log(`Tokens: ${result.tokensUsed} (in=${result.inputTokens} out=${result.outputTokens})`);
+    if (result.narrative) console.log(`Narrative: ${result.narrative}`);
     console.log("");
-    console.log(content);
-    console.log("");
-
     return 0;
   } catch (err) {
     console.error("");
@@ -303,384 +443,8 @@ async function runTask(taskName) {
     if (err.stack) console.error(err.stack);
     return 1;
   } finally {
-    await client.stop();
+    process.chdir(originalCwd);
   }
-}
-
-// ─── Task Config + Prompts ───────────────────────────────────────────
-
-async function loadTaskConfig() {
-  const tomlPath = resolve(target, "agentic-lib.toml");
-
-  if (!existsSync(tomlPath)) {
-    throw new Error(`Config file not found: ${tomlPath}. Create agentic-lib.toml in the project root.`);
-  }
-
-  console.log(`[config] Loading ${tomlPath}`);
-  const { parse } = await import("smol-toml");
-  const toml = parse(readFileSync(tomlPath, "utf8"));
-  return {
-    missionPath: toml.paths?.mission || "MISSION.md",
-    sourcePath: toml.paths?.source || "src/lib/",
-    testsPath: toml.paths?.tests || "tests/unit/",
-    featuresPath: toml.paths?.features || "features/",
-    libraryPath: toml.paths?.docs || "library/",
-    sourcesPath: toml.paths?.["library-sources"] || "SOURCES.md",
-    examplesPath: toml.paths?.examples || "examples/",
-    readmePath: toml.paths?.readme || "README.md",
-    depsPath: toml.paths?.dependencies || "package.json",
-    testScript: toml.execution?.test || "npm ci && npm test",
-    featureLimit: toml.limits?.["max-feature-issues"] || 2,
-    intentionPath: toml.bot?.["log-file"] || "intentïon.md",
-  };
-}
-
-function getWritablePathsFromConfig(config) {
-  return [
-    config.sourcePath,
-    config.testsPath,
-    config.featuresPath,
-    config.libraryPath,
-    config.examplesPath,
-    config.readmePath,
-    config.depsPath,
-  ].filter(Boolean);
-}
-
-function getReadOnlyPathsFromConfig(config) {
-  return [config.missionPath, config.sourcesPath].filter(Boolean);
-}
-
-function readOptional(relPath) {
-  try {
-    return readFileSync(resolve(target, relPath), "utf8");
-  } catch (err) {
-    console.debug(`[readOptional] ${relPath}: ${err.message}`);
-    return "";
-  }
-}
-
-function scanDir(relPath, extensions, opts = {}) {
-  const { fileLimit = 10, contentLimit } = opts;
-  const dir = resolve(target, relPath);
-  const exts = Array.isArray(extensions) ? extensions : [extensions];
-  if (!existsSync(dir)) return [];
-  try {
-    return readdirSync(dir, { recursive: true })
-      .filter((f) => exts.some((ext) => String(f).endsWith(ext)))
-      .slice(0, fileLimit)
-      .map((f) => {
-        try {
-          const content = readFileSync(resolve(dir, String(f)), "utf8");
-          return { name: String(f), content: contentLimit ? content.substring(0, contentLimit) : content };
-        } catch (err) {
-          console.debug(`[scanDir] ${dir}/${f}: ${err.message}`);
-          return { name: String(f), content: "" };
-        }
-      });
-  } catch (err) {
-    console.debug(`[scanDir] ${dir}: ${err.message}`);
-    return [];
-  }
-}
-
-function formatPaths(writable, readOnly) {
-  return [
-    "## File Paths",
-    "### Writable (you may modify these)",
-    writable.length > 0 ? writable.map((p) => `- ${p}`).join("\n") : "- (none)",
-    "",
-    "### Read-Only (for context only, do NOT modify)",
-    readOnly.length > 0 ? readOnly.map((p) => `- ${p}`).join("\n") : "- (none)",
-  ].join("\n");
-}
-
-function buildTaskPrompt(taskName, config, writablePaths, readOnlyPaths) {
-  const pathsSection = formatPaths(writablePaths, readOnlyPaths);
-
-  switch (taskName) {
-    case "transform":
-      return buildTransformPrompt(config, pathsSection);
-    case "maintain-features":
-      return buildMaintainFeaturesPrompt(config, pathsSection);
-    case "maintain-library":
-      return buildMaintainLibraryPrompt(config, pathsSection);
-    case "fix-code":
-      return buildFixCodePrompt(config, pathsSection);
-    default:
-      console.error(`Unknown task: ${taskName}`);
-      return { systemMessage: "", prompt: null };
-  }
-}
-
-function buildTransformPrompt(config, pathsSection) {
-  const mission = readOptional(config.missionPath);
-  if (!mission) {
-    console.error(`No mission file found at ${config.missionPath}`);
-    return { systemMessage: "", prompt: null };
-  }
-  console.log(`[context] Mission: ${mission.substring(0, 80).trim()}...`);
-
-  const features = scanDir(config.featuresPath, ".md");
-  const sourceFiles = scanDir(config.sourcePath, [".js", ".ts"], { contentLimit: 2000 });
-  console.log(`[context] Features: ${features.length}, Source files: ${sourceFiles.length}`);
-
-  return {
-    systemMessage:
-      "You are an autonomous code transformation agent. Your goal is to advance the repository toward its mission by making the most impactful change possible in a single step.",
-    prompt: [
-      "## Instructions",
-      "Transform the repository toward its mission by identifying the next best action.",
-      "",
-      "## Mission",
-      mission,
-      "",
-      `## Current Features (${features.length})`,
-      ...features.map((f) => `### ${f.name}\n${f.content.substring(0, 500)}`),
-      "",
-      `## Current Source Files (${sourceFiles.length})`,
-      ...sourceFiles.map((f) => `### ${f.name}\n\`\`\`\n${f.content}\n\`\`\``),
-      "",
-      "## Output Artifacts",
-      "If your changes produce output artifacts (plots, visualizations, data files, usage examples),",
-      `save them to the \`${config.examplesPath || "examples/"}\` directory.`,
-      "This directory is for demonstrating what the code can do.",
-      "",
-      "## Your Task",
-      "Analyze the mission, features, and source code.",
-      "Determine the single most impactful next step.",
-      "Then implement that step by writing files.",
-      "",
-      pathsSection,
-      "",
-      "## Constraints",
-      `- Run \`${config.testScript}\` to validate your changes`,
-    ].join("\n"),
-  };
-}
-
-function buildMaintainFeaturesPrompt(config, pathsSection) {
-  const mission = readOptional(config.missionPath);
-  if (!mission) {
-    console.error(`No mission file found at ${config.missionPath}`);
-    return { systemMessage: "", prompt: null };
-  }
-
-  const features = scanDir(config.featuresPath, ".md");
-  const libraryDocs = scanDir(config.libraryPath, ".md", { contentLimit: 1000 });
-  console.log(`[context] Mission loaded, features: ${features.length}, library: ${libraryDocs.length}`);
-
-  return {
-    systemMessage:
-      "You are a feature lifecycle manager. Create, update, and prune feature specification files to keep the project focused on its mission.",
-    prompt: [
-      "## Instructions",
-      "Maintain the feature set by creating, updating, or pruning features.",
-      "",
-      "## Mission",
-      mission,
-      "",
-      `## Current Features (${features.length}/${config.featureLimit} max)`,
-      ...features.map((f) => `### ${f.name}\n${f.content}`),
-      "",
-      libraryDocs.length > 0 ? `## Library Documents (${libraryDocs.length})` : "",
-      ...libraryDocs.map((d) => `### ${d.name}\n${d.content}`),
-      "",
-      "## Your Task",
-      `1. Review each existing feature — if it is already implemented or irrelevant, delete it.`,
-      `2. If there are fewer than ${config.featureLimit} features, create new features aligned with the mission.`,
-      "3. Ensure each feature has clear, testable acceptance criteria.",
-      "",
-      pathsSection,
-      "",
-      "## Constraints",
-      `- Maximum ${config.featureLimit} feature files`,
-      "- Feature files must be markdown with a descriptive filename",
-    ].join("\n"),
-  };
-}
-
-function buildMaintainLibraryPrompt(config, pathsSection) {
-  const sources = readOptional(config.sourcesPath);
-  if (!sources.trim()) {
-    console.log("No SOURCES.md or empty — nothing to maintain.");
-    return { systemMessage: "", prompt: null };
-  }
-
-  const libraryDocs = scanDir(config.libraryPath, ".md", { contentLimit: 500 });
-  console.log(`[context] Sources loaded, library: ${libraryDocs.length}`);
-
-  return {
-    systemMessage:
-      "You are a knowledge librarian. Maintain a library of technical documents extracted from web sources.",
-    prompt: [
-      "## Instructions",
-      "Maintain the library by updating documents from sources.",
-      "",
-      "## Sources",
-      sources,
-      "",
-      `## Current Library Documents (${libraryDocs.length})`,
-      ...libraryDocs.map((d) => `### ${d.name}\n${d.content}`),
-      "",
-      "## Your Task",
-      "1. Read each URL in SOURCES.md and extract technical content.",
-      "2. Create or update library documents based on the source content.",
-      "3. Remove library documents that no longer have corresponding sources.",
-      "",
-      pathsSection,
-    ].join("\n"),
-  };
-}
-
-function buildFixCodePrompt(config, pathsSection) {
-  // Run tests and capture output
-  console.log(`[fix-code] Running: ${config.testScript}`);
-  let testOutput;
-  try {
-    testOutput = execSync(config.testScript, { cwd: target, encoding: "utf8", timeout: 120000 });
-    console.log("[fix-code] Tests pass — nothing to fix.");
-    return { systemMessage: "", prompt: null };
-  } catch (err) {
-    testOutput = `STDOUT:\n${err.stdout || ""}\nSTDERR:\n${err.stderr || ""}`;
-    console.log(`[fix-code] Tests failing — ${testOutput.length} chars of output`);
-  }
-
-  const sourceFiles = scanDir(config.sourcePath, [".js", ".ts"], { contentLimit: 2000 });
-  const testFiles = scanDir(config.testsPath, [".js", ".ts", ".test.js"], { contentLimit: 2000 });
-
-  return {
-    systemMessage:
-      "You are an autonomous coding agent fixing failing tests. Make minimal, targeted changes to fix the test failures.",
-    prompt: [
-      "## Instructions",
-      "Fix the failing tests by modifying the source code.",
-      "",
-      "## Test Output (failing)",
-      "```",
-      testOutput.substring(0, 5000),
-      "```",
-      "",
-      `## Source Files (${sourceFiles.length})`,
-      ...sourceFiles.map((f) => `### ${f.name}\n\`\`\`\n${f.content}\n\`\`\``),
-      "",
-      `## Test Files (${testFiles.length})`,
-      ...testFiles.map((f) => `### ${f.name}\n\`\`\`\n${f.content}\n\`\`\``),
-      "",
-      pathsSection,
-      "",
-      "## Constraints",
-      `- Run \`${config.testScript}\` to validate your fixes`,
-      "- Make minimal changes to fix the failing tests",
-    ].join("\n"),
-  };
-}
-
-// ─── CLI Tools for Copilot SDK ───────────────────────────────────────
-
-function createCliTools(writablePaths, defineTool) {
-  const readFile = defineTool("read_file", {
-    description: "Read the contents of a file.",
-    parameters: {
-      type: "object",
-      properties: { path: { type: "string", description: "File path to read" } },
-      required: ["path"],
-    },
-    handler: ({ path }) => {
-      const resolved = resolve(target, path);
-      console.log(`  [tool] read_file: ${resolved}`);
-      if (!existsSync(resolved)) return { error: `File not found: ${resolved}` };
-      try {
-        return { content: readFileSync(resolved, "utf8") };
-      } catch (err) {
-        return { error: err.message };
-      }
-    },
-  });
-
-  const writeFile = defineTool("write_file", {
-    description: "Write content to a file. Parent directories are created automatically.",
-    parameters: {
-      type: "object",
-      properties: {
-        path: { type: "string", description: "File path to write" },
-        content: { type: "string", description: "Content to write" },
-      },
-      required: ["path", "content"],
-    },
-    handler: ({ path, content }) => {
-      const resolved = resolve(target, path);
-      const isWritable = writablePaths.some((wp) => path.startsWith(wp) || resolved.startsWith(resolve(target, wp)));
-      console.log(`  [tool] write_file: ${resolved} (${content.length} chars, writable=${isWritable})`);
-      if (!isWritable && !dryRun) {
-        return { error: `Path not writable: ${path}. Writable: ${writablePaths.join(", ")}` };
-      }
-      if (dryRun) {
-        console.log(`  [tool] DRY RUN — would write ${content.length} chars to ${resolved}`);
-        return { success: true, dryRun: true };
-      }
-      try {
-        const dir = dirname(resolved);
-        if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
-        writeFileSync(resolved, content, "utf8");
-        return { success: true, path: resolved };
-      } catch (err) {
-        return { error: err.message };
-      }
-    },
-  });
-
-  const listFiles = defineTool("list_files", {
-    description: "List files and directories at the given path.",
-    parameters: {
-      type: "object",
-      properties: {
-        path: { type: "string", description: "Directory path to list" },
-        recursive: { type: "boolean", description: "List recursively" },
-      },
-      required: ["path"],
-    },
-    handler: ({ path, recursive }) => {
-      const resolved = resolve(target, path);
-      console.log(`  [tool] list_files: ${resolved}`);
-      if (!existsSync(resolved)) return { error: `Not found: ${resolved}` };
-      try {
-        const entries = readdirSync(resolved, { withFileTypes: true, recursive: !!recursive });
-        return { files: entries.map((e) => (e.isDirectory() ? `${e.name}/` : e.name)) };
-      } catch (err) {
-        return { error: err.message };
-      }
-    },
-  });
-
-  const runCommand = defineTool("run_command", {
-    description: "Run a shell command and return stdout/stderr.",
-    parameters: {
-      type: "object",
-      properties: {
-        command: { type: "string", description: "Shell command to execute" },
-        cwd: { type: "string", description: "Working directory" },
-      },
-      required: ["command"],
-    },
-    handler: ({ command: cmd, cwd }) => {
-      const workDir = cwd ? resolve(target, cwd) : target;
-      console.log(`  [tool] run_command: ${cmd} (cwd=${workDir})`);
-      const blocked = /\bgit\s+(commit|push|add|reset|checkout|rebase|merge|stash)\b/;
-      if (blocked.test(cmd)) {
-        console.log(`  [tool] BLOCKED git write command: ${cmd}`);
-        return { error: "Git write commands are not allowed. Use read_file/write_file tools instead." };
-      }
-      try {
-        const stdout = execSync(cmd, { cwd: workDir, encoding: "utf8", timeout: 120000 });
-        return { stdout, exitCode: 0 };
-      } catch (err) {
-        return { stdout: err.stdout || "", stderr: err.stderr || "", exitCode: err.status || 1 };
-      }
-    },
-  });
-
-  return [readFile, writeFile, listFiles, runCommand];
 }
 
 // ─── Init Runner ─────────────────────────────────────────────────────

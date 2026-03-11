@@ -73,7 +73,7 @@ your-repo/
 │   │
 │   └── agentic-lib/                          # [INIT] Internal infrastructure (always overwritten)
 │       ├── actions/
-│       │   ├── agentic-step/                 #   The Copilot SDK action (9 task handlers)
+│       │   ├── agentic-step/                 #   The Copilot SDK action (10 task handlers)
 │       │   ├── commit-if-changed/            #   Composite: conditional git commit
 │       │   └── setup-npmrc/                  #   Composite: npm registry auth
 │       ├── agents/                           #   8 prompt files + config YAML
@@ -212,6 +212,7 @@ The core of the system is a single GitHub Action that handles all autonomous tas
 | Task | Purpose |
 |------|---------|
 | `supervise` | Gather repo context, choose and dispatch actions strategically |
+| `direct` | Evaluate mission status: complete, failed, or gap analysis |
 | `transform` | Transform the codebase toward the mission |
 | `resolve-issue` | Read an issue and generate code to resolve it |
 | `fix-code` | Fix failing tests or lint errors |
@@ -242,9 +243,8 @@ All task commands accept these flags:
 | `--dry-run` | off | Show the prompt without calling the Copilot SDK |
 | `--target <path>` | current directory | Target repository to transform |
 | `--model <name>` | `claude-sonnet-4` | Copilot SDK model |
-| `--cycles <N>` | from budget | Max iteration cycles (iterate only) |
-| `--steps <list>` | all three | Comma-separated steps per cycle (iterate only) |
 | `--mission <name>` | hamming-distance | Init with --purge before iterating (iterate only) |
+| `--timeout <ms>` | 600000 | Session timeout in milliseconds (iterate only) |
 
 ### Example: Full Walkthrough
 
@@ -299,25 +299,96 @@ npx @xn-intenton-z2a/agentic-lib transform --dry-run
 
 ### Iterator
 
-The `iterate` command runs multiple cycles of maintain → transform → fix with automatic stop conditions and budget tracking:
+The `iterate` command runs a single persistent Copilot SDK session that autonomously implements your mission — reading code, writing implementations and tests, running tests, and iterating until everything passes.
 
 ```bash
-# Init a mission and iterate with default budget
-npx @xn-intenton-z2a/agentic-lib iterate --mission fizz-buzz --model gpt-5-mini
+# Init a mission and iterate
+npx @xn-intenton-z2a/agentic-lib iterate --mission hamming-distance --model gpt-5-mini
 
-# Run 4 cycles on an existing workspace
-npx @xn-intenton-z2a/agentic-lib iterate --cycles 4
+# Iterate on an existing workspace
+npx @xn-intenton-z2a/agentic-lib iterate --target /path/to/workspace
 
-# Transform-only cycles (skip maintain)
-npx @xn-intenton-z2a/agentic-lib iterate --steps transform,fix-code --cycles 3
+# With a longer timeout (10 minutes)
+npx @xn-intenton-z2a/agentic-lib iterate --mission fizz-buzz --timeout 600000
 ```
 
-**Stop conditions:**
-- Tests pass for 2 consecutive cycles
-- No files change for 2 consecutive cycles
-- Transformation budget exhausted (configurable via `transformation-budget` in `agentic-lib.toml`)
+The session uses SDK hooks for observability (tool call tracking, error recovery) and infinite sessions for context management. The agent drives its own read-write-test loop until the mission is complete or the timeout is reached.
 
-Each cycle logs `**agentic-lib transformation cost:** 1` to `intentïon.md` when source files change. The iterator reads these to track cumulative cost against the budget.
+**Available missions:** hamming-distance, fizz-buzz, roman-numerals, string-utils, cron-engine, dense-encoding, markdown-compiler, and more (see `src/seeds/missions/`).
+
+### Running Local Benchmarks
+
+You can benchmark mission completion locally without GitHub Actions. This is useful for comparing models, tuning profiles, and measuring iteration speed.
+
+**Prerequisites:**
+
+1. A `COPILOT_GITHUB_TOKEN` (fine-grained PAT with Copilot read permission)
+2. Node.js 24+
+
+**Setup:**
+
+```bash
+# Set your token
+export COPILOT_GITHUB_TOKEN=github_pat_...
+
+# Or source from .env
+source .env
+```
+
+**Run a benchmark:**
+
+```bash
+# Quick: hamming-distance with gpt-5-mini (simplest mission, ~1-2 min)
+npx @xn-intenton-z2a/agentic-lib iterate \
+  --mission hamming-distance --model gpt-5-mini --timeout 300000
+
+# Medium: roman-numerals with claude-sonnet-4
+npx @xn-intenton-z2a/agentic-lib iterate \
+  --mission roman-numerals --model claude-sonnet-4
+
+# Complex: string-utils with gpt-4.1 (10 functions, longer timeout)
+npx @xn-intenton-z2a/agentic-lib iterate \
+  --mission string-utils --model gpt-4.1 --timeout 600000
+```
+
+**From a local clone** (development):
+
+```bash
+# From the agentic-lib directory
+npx . iterate --mission hamming-distance --model gpt-5-mini --target /tmp/bench
+
+# Or link globally
+npm link
+agentic-lib iterate --mission hamming-distance --model gpt-5-mini --target /tmp/bench
+```
+
+**Output:**
+
+```
+=== agentic-lib iterate ===
+Target:  /tmp/bench
+Model:   gpt-5-mini
+
+[hybrid] Creating session (model=gpt-5-mini, workspace=/tmp/bench)
+[hybrid] Session: sess_abc123
+  [tool] read_file
+  [tool] read_file
+  [tool] write_file
+  [tool] run_tests
+  [tool] write_file
+  [tool] run_tests
+
+=== Results ===
+Success:       true
+Tests passed:  true
+Session time:  47s
+Total time:    52s
+Tool calls:    6
+Test runs:     2
+Files written: 2
+Tokens:        12400 (in=9200 out=3200)
+End reason:    complete
+```
 
 ### Environment
 
@@ -367,14 +438,14 @@ This repository is the source for the `@xn-intenton-z2a/agentic-lib` npm package
 src/
 ├── workflows/     8 GitHub Actions workflow templates
 ├── actions/       3 composite/SDK actions (agentic-step, commit-if-changed, setup-npmrc)
-├── agents/        8 agent prompt files + 1 config
+├── agents/        9 agent prompt files + 1 config
 ├── seeds/         7 seed files (test.yml + 6 project seed files for --purge reset)
 └── scripts/       7 utility scripts distributed to consumers
 ```
 
 ### Testing
 
-393 unit tests across 26 test files, plus system tests:
+431 unit tests across 27 test files, plus system tests:
 
 ```bash
 npm test                  # Run all tests (vitest)

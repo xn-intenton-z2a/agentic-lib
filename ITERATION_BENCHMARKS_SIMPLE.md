@@ -98,9 +98,8 @@ Standard scenarios for benchmarking. Pick one or more per report.
 | S2 | fizz-buzz | gpt-5-mini | max         | 128 | Profile comparison (max vs recommended).         |
 | S3 | hamming-distance | gpt-5-mini | recommended | 32 | Medium complexity baseline.                      |
 | S4 | hamming-distance | claude-sonnet-4 | recommended | 128 | Model comparison (gpt-5-mini vs claude-sonnet-4). |
-| S5 | roman-numerals | gpt-5-mini | recommended | 32 | New Tier 2 mission.                              |
-| S6 | string-utils | claude-sonnet-4 | max | 128 | Tier 3 — tests multi-function missions.          |
-| S7 | cron-engine | claude-sonnet-4 | max | 128 | Tier 3 — tests algorithmic complexity.           |
+| S5 | roman-numerals | gpt-5-mini | recommended | 32 | Medium complexity baseline.                              |
+| S6 | roman-numerals | claude-sonnet-4 | max | 128 | Model comparison (gpt-5-mini vs claude-sonnet-4).          |
 
 ---
 
