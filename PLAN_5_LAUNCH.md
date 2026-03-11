@@ -299,5 +299,5 @@ The Essex connection is genuine academic lineage, not a marketing story. If inte
 - **[FEATURES.md](FEATURES.md)** — All 27 features with status and architecture
 - **[CONCEPT.md](CONCEPT.md)** — The conceptual model: agents, capabilities, 7-step engine, planning theory
 - **[PLAN_SELF_HOSTED.md](PLAN_4_SELF_HOSTED.md)** — Bootstrap test strategy for self-hosting
-- **[PLAN_LOCAL_SCENARIO_TESTS.md](PLAN_1_LOCAL_SCENARIO_TESTS.md)** — Local scenario tests with tiny LLM
+- **[PLAN_LOCAL_SCENARIO_TESTS.md](PLAN_1_HYBRID_SCENARIO_TESTS.md)** — Local scenario tests with tiny LLM
 - **[FEATURES_ROADMAP.md](FEATURES_ROADMAP.md)** — Post-MVP features (#28+)
