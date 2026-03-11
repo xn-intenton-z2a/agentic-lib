@@ -31,31 +31,32 @@ Both create noise: frequent commits on main, merge conflicts on branches, binary
 | `intentïon.md` | `agentic-step/logging.js:logActivity()` | `commit-if-changed` (main only, unstaged on branches) | `agentic-lib-workflow.yml` supervisor (telemetry), `index.js` (cost sums) |
 | `SCREENSHOT_INDEX.png` | `zero-behaviour.test.js` (Playwright) | `agentic-lib-test.yml` (conditional push on main) | GitHub Pages (if served), user review |
 
+## External Consumer: xn--intenton-z2a.com Website
+
+**CRITICAL CONSTRAINT**: The website at `xn--intenton-z2a.com` fetches both files via `raw.githubusercontent.com`:
+
+```js
+// intentïon.md — fetched from main, polled every 60 seconds for terminal display
+const intentionUrl = `https://raw.githubusercontent.com/${owner}/${repo}/main/intentïon.md`;
+
+// SCREENSHOT_INDEX.png — fetched from main for screenshot showcase with lightbox
+const imgUrl = `https://raw.githubusercontent.com/${owner}/${repo}/main/SCREENSHOT_INDEX.png`;
+```
+
+Source: `xn--intenton-z2a.com/public/index.html` (lines 652-653, 747-760)
+
+`raw.githubusercontent.com` can serve files from **any branch**, not just main. The URL format is:
+`https://raw.githubusercontent.com/{owner}/{repo}/{branch}/{path}`
+
+So a `.logs` branch works — the website just needs its URLs updated from `/main/` to `/.logs/`.
+
 ---
 
 ## Options
 
 ### Option A: GitHub Actions Artifacts Only
 
-Store both files as workflow artifacts, never commit them.
-
-**How it works:**
-- `logActivity()` writes `intentïon.md` to the workspace as now, but `commit-if-changed` never stages it (already the case on branches; extend to main)
-- `agentic-lib-test.yml` uploads `SCREENSHOT_INDEX.png` as artifact (already done) but removes the push-to-main step
-- The supervisor reads `intentïon.md` from the workspace (already the case — it reads the file from the checkout, which was written earlier in the same run)
-- Cross-run persistence: the workflow downloads the artifact from the previous run at the start
-
-**Pros:**
-- Zero commits for log/screenshot files
-- No merge conflicts ever
-- Artifacts auto-expire (90 days default)
-
-**Cons:**
-- Artifact download adds latency to every workflow run
-- Artifacts from previous runs require API calls to find and download
-- `init --purge` can't clean artifacts (would need a separate API call)
-- Cross-run artifact retrieval is fragile (run IDs, retention, artifact names)
-- Loss of persistent history — artifacts expire, git commits don't
+**RULED OUT** — `raw.githubusercontent.com` can't serve artifacts. The website would break.
 
 ### Option B: Detached `.logs` Branch
 
@@ -82,11 +83,7 @@ Store both files on an orphan branch (e.g. `.logs`) that has no common history w
 
 ### Option C: GitHub Actions Cache
 
-Store both files in the GitHub Actions cache (`actions/cache`).
-
-**Pros:** Fast read/write, no commits, auto-eviction
-
-**Cons:** Cache is best-effort (can be evicted any time), no history, can't be inspected without a workflow run, `init --purge` would need to invalidate cache keys. Not suitable for `intentïon.md` which is the primary activity record.
+**RULED OUT** — same problem as Option A. Not accessible via `raw.githubusercontent.com`.
 
 ### Option D: Repository Wiki or Gist
 
@@ -98,53 +95,54 @@ Push to the repo wiki (which is a separate git repo) or a gist.
 
 ### Option E: `.gitignore` + Artifact Upload
 
-Add both files to `.gitignore` so they're never committed. Upload as artifacts for cross-run access.
+**RULED OUT** — same problem as Option A. Not accessible via `raw.githubusercontent.com`.
 
-**Pros:** Simplest change — just add to `.gitignore` and remove commit steps
+### Option F: `.logs` Branch for Both Files
 
-**Cons:** Same artifact fragility as Option A. Loss of persistent `intentïon.md` history. The file would only exist within a single workflow run unless downloaded from artifacts.
+Both files move to the `.logs` orphan branch. The website URLs change from `/main/` to `/.logs/`.
 
-### Option F: Hybrid — `.logs` Branch for `intentïon.md`, Artifact for Screenshot
+**Pros:**
+- Files persist in git, accessible via `raw.githubusercontent.com/.logs/...`
+- Website keeps working (URL change only)
+- No noise on main — zero commits for log/screenshot files
+- No merge conflicts (separate branch with no common history)
+- `init --purge` can delete and recreate `.logs`
+- History preserved on `.logs` branch
 
-Different files have different needs:
-- `intentïon.md` is a **persistent activity record** — it needs to survive across runs and be inspectable. Best fit: `.logs` branch.
-- `SCREENSHOT_INDEX.png` is a **transient snapshot** — latest-only is fine, history is noise. Best fit: artifact upload only.
-
-**Pros:** Right tool for each file. Log history preserved, screenshot noise eliminated.
-
-**Cons:** Two different mechanisms to maintain.
+**Cons:**
+- Requires URL update in `xn--intenton-z2a.com/public/index.html`
+- Extra checkout step in workflows to read/write `.logs`
+- Concurrent workflow runs could race on `.logs` pushes (needs rebase logic)
 
 ---
 
-## Recommendation: Option F (Hybrid)
+## Recommendation: Option F (`.logs` Branch for Both)
 
-### `intentïon.md` → `.logs` orphan branch
+Options A, C, E are ruled out because the website fetches via `raw.githubusercontent.com` which only serves from git branches. Option D is over-engineered. Option B is the right approach — and both files should go there together since both need to be served via raw URLs.
+
+### Both files → `.logs` orphan branch
 
 1. Create orphan branch `.logs` during `init --purge`
-2. `logActivity()` still writes to workspace `intentïon.md` (no change)
+2. `logActivity()` still writes to workspace `intentïon.md` (no change to logging.js)
 3. After agentic-step runs, a new step checks out `.logs`, copies `intentïon.md`, commits, pushes
-4. Supervisor telemetry step checks out `.logs` to read `intentïon.md` before building the prompt
-5. `init --purge` deletes `.logs` branch and recreates it with the init header
-6. `commit-if-changed` no longer needs to handle `intentïon.md` at all (remove unstage logic)
-
-### `SCREENSHOT_INDEX.png` → Artifact only
-
-1. Remove the "Push screenshot on main" step from `agentic-lib-test.yml`
-2. Keep the "Upload screenshot" artifact step (already exists)
-3. Add `SCREENSHOT_INDEX.png` to `.gitignore` seed
-4. Behaviour test still writes it to workspace for the artifact upload
-5. `init --purge` no longer needs to handle it (it's gitignored)
+4. `agentic-lib-test.yml` pushes `SCREENSHOT_INDEX.png` to `.logs` instead of main
+5. Supervisor telemetry step checks out `.logs` to read `intentïon.md` before building the prompt
+6. `init --purge` deletes `.logs` branch and recreates it with the init header
+7. `commit-if-changed` no longer needs to handle `intentïon.md` at all (remove unstage logic)
+8. Add `intentïon.md`, `intention.md`, `SCREENSHOT_INDEX.png` to `.gitignore` seed
+9. Update `xn--intenton-z2a.com/public/index.html` to fetch from `.logs` branch instead of `main`
 
 ---
 
 ## Work Items
 
-| # | Item | Where | Priority |
-|---|------|-------|----------|
-| W1 | Create `.logs` orphan branch management in `init --purge` | `bin/agentic-lib.js` | HIGH |
-| W2 | Move `intentïon.md` commit from `commit-if-changed` to `.logs` branch push | `commit-if-changed/action.yml`, new step in `agentic-lib-workflow.yml` | HIGH |
-| W3 | Update supervisor telemetry to read `intentïon.md` from `.logs` branch | `agentic-lib-workflow.yml` | HIGH |
-| W4 | Remove screenshot push-to-main from `agentic-lib-test.yml` | `agentic-lib-test.yml` | MEDIUM |
-| W5 | Add `SCREENSHOT_INDEX.png` to `.gitignore` seed | `src/seeds/zero-.gitignore` | MEDIUM |
-| W6 | Update `logActivity()` and config-loader docs | `logging.js`, `config-loader.js` | LOW |
-| W7 | Handle concurrent `.logs` pushes (rebase/retry) | new step or shared script | MEDIUM |
+| # | Item | Where (repo) | Priority |
+|---|------|-------------|----------|
+| W1 | Create `.logs` orphan branch management in `init --purge` | agentic-lib: `bin/agentic-lib.js` | HIGH |
+| W2 | Move `intentïon.md` commit from `commit-if-changed` to `.logs` branch push | agentic-lib: `commit-if-changed/action.yml`, `agentic-lib-workflow.yml` | HIGH |
+| W3 | Move `SCREENSHOT_INDEX.png` push from main to `.logs` branch | agentic-lib: `agentic-lib-test.yml` | HIGH |
+| W4 | Update supervisor telemetry to read `intentïon.md` from `.logs` branch | agentic-lib: `agentic-lib-workflow.yml` | HIGH |
+| W5 | Add `intentïon.md`, `intention.md`, `SCREENSHOT_INDEX.png` to `.gitignore` seed | agentic-lib: `src/seeds/zero-.gitignore` | MEDIUM |
+| W6 | Handle concurrent `.logs` pushes (rebase/retry) | agentic-lib: shared script or action | MEDIUM |
+| W7 | Update website to fetch from `.logs` branch | xn--intenton-z2a.com: `public/index.html` | MEDIUM |
+| W8 | Update `logActivity()` and config-loader docs | agentic-lib: `logging.js`, `config-loader.js` | LOW |
