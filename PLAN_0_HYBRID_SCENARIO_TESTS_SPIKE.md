@@ -288,59 +288,122 @@ const session = await client.resumeSession(savedId, { tools, hooks, ... });
 
 ---
 
-## Phase 3: Validate Locally
+## Phase 3: Validate CLI — Unit Tests + Scenario Tests
 
-**Goal**: Run multiple missions end-to-end, compare to Actions benchmarks.
+**Goal**: Prove the CLI delivers the feature set needed to support all workflow scenarios, through testable CLI-level assertions. This is the gate before Phase 4 convergence — we don't rewire the Action until we've demonstrated the CLI can handle every agent/context combination.
 
-### Test matrix
+### 3a: Unit tests for shared modules (run in CI, no Copilot token)
 
-| Mission | Model | Profile | Expected |
-|---------|-------|---------|----------|
-| hamming-distance | gpt-5-mini | min | Pass — simplest mission |
-| fizz-buzz | gpt-5-mini | recommended | Pass — known working in Benchmark 004 |
-| roman-numerals | claude-sonnet-4 | recommended | Pass — moderate complexity |
-| string-utils | gpt-4.1 | max | Stretch — complex mission |
+These tests validate the code paths that build prompts, gather context, enforce safety, and select agents — everything *except* the actual SDK session.
 
-### What to record per run
+#### context.js tests (`tests/copilot/context.test.js`) — DONE (18 tests)
 
-```json
-{
-  "mission": "hamming-distance",
-  "model": "gpt-5-mini",
-  "profile": "min",
-  "reasoningEffort": "medium",
-  "wallClock": "127s",
-  "sessionTime": "98s",
-  "tokensIn": 12400,
-  "tokensOut": 3200,
-  "toolCalls": 14,
-  "testRuns": 3,
-  "filesWritten": ["src/lib/main.js"],
-  "testsPassed": true,
-  "errors": [],
-  "endReason": "complete",
-  "autopilotActive": true,
-  "sessionsCreated": 1,
-  "hooksFired": { "preToolUse": 14, "postToolUse": 14, "errorOccurred": 0, "sessionEnd": 1 }
-}
-```
+- [x] `gatherLocalContext()` reads mission, source, tests, features from filesystem
+- [x] `gatherLocalContext()` uses config paths and tuning limits
+- [x] `gatherLocalContext()` handles missing files gracefully
+- [x] `gatherLocalContext()` captures test output
+- [x] `gatherLocalContext()` includes writable/readOnly paths from config
+- [x] `buildUserPrompt()` includes mission, source, test, feature, paths sections
+- [x] `buildUserPrompt()` includes GitHub issues/PR/issue detail when provided
+- [x] `buildUserPrompt()` respects agent context requirements (e.g. maintain-library skips source)
+- [x] `buildUserPrompt()` falls back to agent-iterate for unknown agents
+- [x] `buildUserPrompt()` always includes instruction footer
 
-### Compare to Actions benchmarks
+#### hybrid-session.js tests (`tests/copilot/hybrid-session.test.js`) — TODO
 
-| Metric | Actions (Benchmark 005/006) | Local (Phase 3) | Delta |
-|--------|----------------------------|-----------------|-------|
-| Wall clock per iteration | 5-10 min | Target: 1-2 min | 3-5x faster |
-| Sessions per iteration | 3 (one per step) | 1 | 3x fewer |
-| Token waste (re-explaining context) | High (no carry) | Low (full carry) | Measurable |
-| Total tokens | Baseline | ? | Compare |
+Mock the SDK to test the session setup logic without a real Copilot token:
+
+- [ ] Session config includes all 5 tools (read_file, write_file, list_files, run_command, run_tests)
+- [ ] `writablePaths` parameter flows through to `createAgentTools()`
+- [ ] Default `writablePaths` is `[wsPath + "/"]` when not specified
+- [ ] `NARRATIVE_INSTRUCTION` appended to system prompt
+- [ ] Narrative extracted from agent response into result.narrative
+- [ ] Rate-limit retry on `createSession()` failure (mock 429)
+- [ ] Rate-limit retry on `sendAndWait()` failure (mock 429)
+- [ ] `agentPrompt` parameter overrides default system prompt
+- [ ] `userPrompt` parameter overrides default mission prompt
+- [ ] Result object includes all expected fields (success, toolCalls, narrative, etc.)
+
+#### agents.js tests (`tests/copilot/agents.test.js`) — TODO
+
+- [ ] `loadAgentPrompt()` loads each of the 11 agent .md files
+- [ ] `loadAgentPrompt()` throws for non-existent agent
+- [ ] `listAgents()` returns all 11 agent names
+- [ ] Every agent file is non-empty and contains markdown content
+
+#### tools.js tests (`tests/copilot/tools.test.js`) — TODO
+
+- [ ] `isPathWritable()` allows writes within writable paths
+- [ ] `isPathWritable()` blocks writes outside writable paths
+- [ ] `createAgentTools()` returns 4 tools (read_file, write_file, list_files, run_command)
+- [ ] `write_file` tool rejects paths outside writable list
+- [ ] `run_command` tool blocks git write commands (commit, push, add, etc.)
+- [ ] `run_command` tool allows git read commands (status, log, diff)
+- [ ] `read_file` tool returns error for non-existent files
+- [ ] `list_files` tool lists directory contents
+
+### 3b: CLI integration tests (run in CI, no Copilot token)
+
+Test the CLI arg parsing, flag handling, and context assembly without requiring a live SDK session. These use `--dry-run` or mock the session.
+
+#### Flag parsing and help (`tests/bin/cli-iterate.test.js`) — TODO
+
+- [ ] `iterate --help` shows help including `--issue`, `--pr`, `--discussion` flags
+- [ ] `iterate --list-missions` lists available seeds and exits 0
+- [ ] `iterate --agent unknown-agent` exits with error and message
+- [ ] `iterate` with no mission and no MISSION.md exits with usage error
+- [ ] `--issue`, `--pr`, `--discussion` flags are parsed correctly
+- [ ] `--agent` flag is parsed and passed to agent loader
+- [ ] `--model` flag overrides default model
+- [ ] `--timeout` flag overrides default timeout
+
+#### Context assembly (tested via imports, not subprocess)
+
+- [ ] For `--agent agent-iterate`: prompt includes mission + source + tests + features
+- [ ] For `--agent agent-maintain-library`: prompt includes library + sources, no source scan
+- [ ] For `--agent agent-issue-resolution --issue 42`: prompt includes issue detail
+- [ ] For `--agent agent-apply-fix --pr 123`: prompt includes PR detail
+- [ ] When no config exists: falls back to defaults, doesn't crash
+- [ ] When features dir is empty: features section omitted from prompt
+
+### 3c: Agent ↔ context mapping coverage
+
+Verify every Action task has a CLI equivalent that produces a comparable prompt:
+
+| Action Task | CLI Command | Agent | Context Includes | Test |
+|---|---|---|---|---|
+| `transform` | `iterate --agent agent-issue-resolution` | agent-issue-resolution.md | mission, source, tests, features, issues | [ ] |
+| `fix-code` | `iterate --agent agent-apply-fix --pr N` | agent-apply-fix.md | source, tests, PR detail | [ ] |
+| `maintain-features` | `iterate --agent agent-maintain-features` | agent-maintain-features.md | mission, features, issues | [ ] |
+| `maintain-library` | `iterate --agent agent-maintain-library` | agent-maintain-library.md | library, sources | [ ] |
+| `resolve-issue` | `iterate --agent agent-issue-resolution --issue N` | agent-issue-resolution.md | mission, source, tests, features, issue detail | [ ] |
+| `enhance-issue` | `iterate --agent agent-ready-issue --issue N` | agent-ready-issue.md | mission, features, issue detail | [ ] |
+| `review-issue` | `iterate --agent agent-review-issue --issue N` | agent-review-issue.md | source, tests, issue detail | [ ] |
+| `discussions` | `iterate --agent agent-discussion-bot --discussion URL` | agent-discussion-bot.md | mission, features, discussion | [ ] |
+| `supervise` | `iterate --agent agent-supervisor` | agent-supervisor.md | mission, features, issues | [ ] |
+| `direct` | `iterate --agent agent-director` | agent-director.md | mission, features, issues, source, tests | [ ] |
+
+### 3d: Live scenario tests (manual, requires COPILOT_GITHUB_TOKEN)
+
+Run against a real workspace to validate end-to-end. Not in CI — run manually before Phase 4.
+
+| Scenario | Command | Expected |
+|----------|---------|----------|
+| Basic iterate | `iterate --mission hamming-distance --model gpt-5-mini` | Tests pass, mission complete |
+| Discovery | `iterate --here --target /tmp/test-project` | MISSION.md generated |
+| Discovery + stop | `iterate --here --mission-file /tmp/out.md --target /tmp/test-project` | Writes file, exits 0 |
+| Issue resolution | `iterate --agent agent-issue-resolution --issue 42` | Issue context in prompt, code changes |
+| Full context | `iterate --agent agent-iterate` in a configured repo | Source, features, tests, paths all present in prompt |
 
 ### Success criteria
 
-- [ ] hamming-distance passes with gpt-5-mini/min
-- [ ] At least 2 of 4 scenarios pass
-- [ ] Wall clock < 3 min for hamming-distance
-- [ ] Structured results JSON produced for every run
-- [ ] Results written to `BENCHMARK_REPORT_007.md` or similar
+- [ ] All unit tests pass in CI (no Copilot token required)
+- [ ] Every agent file loadable and maps to a known context requirement set
+- [ ] Every Action task has a tested CLI equivalent (3c table all checked)
+- [ ] `buildUserPrompt()` produces non-empty prompts for all 10 agent/context combos
+- [ ] Tool safety verified: writable paths enforced, git commands blocked
+- [ ] At least 2 live scenarios pass manually (3d)
+- [ ] Total test count ≥ 490 (current: 453)
 
 ---
 
