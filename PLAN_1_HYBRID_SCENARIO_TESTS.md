@@ -1,273 +1,804 @@
-# Plan: Local Scenario Tests with Tiny LLM
+# Plan: Hybrid Iteration — Copilot SDK Locally with Actions Parity
 
-## Spike Findings (from PLAN_1_LOCAL_SCENARIO_TESTS_SPIKE.md)
+## Goal
 
-The spike is complete and **passed** with Llama-3.2-3B-Instruct Q4_K_M. Key findings that reshape this plan:
+Run whole iterations to completion or failure from a single local command, using the Copilot SDK tool loops, the user's authentication, and Claude Code supervision — without GitHub Actions overhead. Then share the code so both paths (local CLI and Actions workflows) use the same orchestration.
 
-### Model Selection: Llama-3.2-3B-Instruct Q4_K_M (2GB)
+## Current State: Two Diverged Forks
 
-The original plan assumed SmolLM2-360M-Instruct (386MB). The spike tested 4 models:
+The Copilot SDK integration exists in two places that share zero imports:
 
-| Model | Size | Function Calling | Content Quality | Verdict |
-|-------|------|-----------------|----------------|---------|
-| SmolLM2-360M-Instruct Q8_0 | 386MB | None | N/A | Unusable — never calls tools |
-| Qwen2.5-0.5B-Instruct Q8_0 | 676MB | Partial (read only) | N/A | Unusable — calls read but not write |
-| Llama-3.2-1B-Instruct Q4_K_M | 808MB | Works but loops | Garbage | Unusable — infinite tool call loops |
-| **Llama-3.2-3B-Instruct Q4_K_M** | **2.02GB** | **Works** | **Correct JS** | **Use this** |
+| | **Actions** (`src/actions/agentic-step/`) | **CLI** (`bin/agentic-lib.js`) |
+|-|------------------------------------------|-------------------------------|
+| Lines | ~4,500 across 15 files | ~500 in one file (of 1,455 total) |
+| Tasks | 9 handlers (transform, fix-code, supervise, ...) | 4 tasks (transform, fix-code, maintain-features, maintain-library) |
+| Config | Full profile/tuning resolution (min/recommended/max) | Minimal — no profiles, hardcoded limits |
+| Token tracking | Event-based accumulation from `assistant.usage` | Reads `response?.data?.usage` (doesn't work) |
+| Rate limit retry | 3 retries with exponential backoff + Retry-After | None — fails immediately |
+| Source scanning | `scanDirectory()` with mtime sort, `cleanSource()`, `generateOutline()`, web files | Simple `scanDir()`, contentLimit: 2000 |
+| Prompts | Rich context per task with tuning-controlled limits | Simplified prompts with hardcoded limits |
+| Narrative | `[NARRATIVE]` tag extraction for activity log | None |
+| Safety | `safety.js` module for path validation | Inline check |
+| Dependencies | `@actions/core`, `@actions/github`, `@github/copilot-sdk` | `@github/copilot-sdk` (dynamically located) |
 
-**Default model URI**: `hf:bartowski/Llama-3.2-3B-Instruct-GGUF:Q4_K_M`
-Override via `LOCAL_LLM_MODEL_URI` env var.
+The CLI is a degraded fork. Bringing it to parity by hand would be fragile and duplicate work. Instead: extract the Actions code into a shared module, wire both consumers to it, then uplift.
 
-### Critical Finding: Tool Return Format
+## SDK Features We're Not Using (Either Path)
 
-**Tool handlers MUST return plain strings, NOT `JSON.stringify({...})`.**
+The Copilot SDK (`@github/copilot-sdk@0.1.31-unstable.0`) has:
 
-When handlers returned `JSON.stringify({content: "..."})`, the model echoed the JSON wrapper as file content. When handlers return the raw string, the model produces correct output. This means:
-- `local-llm.js` tool handlers must return plain strings
-- This differs from `createCliTools()` in `bin/agentic-lib.js` which returns JSON for the Copilot SDK
+| Feature | SDK API | Currently used? |
+|---------|---------|----------------|
+| **Autopilot mode** | `session.rpc.mode.set({ mode: "autopilot" })` | No |
+| **Session resume** | `client.resumeSession(sessionId)` | No |
+| **Lifecycle hooks** | `onPreToolUse`, `onPostToolUse`, `onSessionEnd`, `onErrorOccurred` | No |
+| **Infinite sessions** | `infiniteSessions: { enabled: true }` | Flag set but not leveraged |
+| **Custom agents** | `customAgents: [{ name, prompt, tools }]` | No |
+| **Streaming** | `streaming: true` + delta events | No |
+| **Attachments** | File/directory attachments on messages | No |
+| **Model switching** | `session.setModel()` mid-session | No |
+| **Built-in workspace files** | `session.rpc.workspace.readFile/createFile/listFiles` | No |
+| **Plan management** | `session.rpc.plan.read/update/delete` | No |
+| **Sub-agents/fleet** | `session.rpc.fleet.start()` + subagent events | No |
+| **Manual compaction** | `session.rpc.compaction.compact()` | No |
+| **Reasoning effort** | `reasoningEffort: "low" \| "medium" \| "high" \| "xhigh"` | Only for 2 models |
 
-### Performance Baseline (macOS, CPU)
+---
 
-| Phase | Measured | Budget |
-|-------|----------|--------|
-| Model load (cached) | 10s | 15s |
-| Model load (first download) | 16s + download | N/A (one-time) |
-| Prompt time | 26-72s | 90s |
-| Tool calls per prompt | 5-21 (expects 2) | Acceptable — extra calls don't break anything |
+## Phase 1: Port Actions Orchestration to Shared Module
 
-### API Corrections Applied
+**Goal**: Copy the rich Actions code into `src/copilot/` as a standalone module that works without `@actions/core` or `@actions/github`. Wire the CLI to use it. Actions continues to work as before.
 
-| Aspect | Original Plan | Correct API (verified) |
-|--------|--------------|----------------------|
-| Function registration | `session.defineChatSessionFunction()` | `defineChatSessionFunction()` standalone import |
-| Function passing | Registered on session | Passed to `session.prompt(options.functions)` |
-| System message | `{ content: "..." }` object | Plain string via `systemPrompt` constructor param |
-| Response method | `session.sendMessage()` | `session.prompt()` returns string |
-| Tool call loop | Manual loop in our code | Handled internally by node-llama-cpp |
-| Tool return values | JSON objects | **Plain strings** (critical for small models) |
+### What moves
 
-## Spike as CI Test
+| Source (Actions) | Target (shared) | Changes needed |
+|-----------------|-----------------|----------------|
+| `copilot.js` (545 lines) | `src/copilot/session.js` | Replace `core.info/warning/error` → logger interface. Remove `@actions/core` import. |
+| `tools.js` (142 lines) | `src/copilot/tools.js` | Replace `core.info` → logger. No other changes. |
+| `config-loader.js` (299 lines) | `src/copilot/config.js` | Already standalone (no `@actions/*` imports). Move as-is. |
+| `safety.js` (106 lines) | `src/copilot/safety.js` | Already standalone. Move as-is. |
+| `tasks/transform.js` (338 lines) | `src/copilot/tasks/transform.js` | Extract prompt-building from octokit-dependent context. Split: `buildTransformPrompt(context)` (pure) + `gatherGitHubContext(octokit)` (optional). |
+| `tasks/fix-code.js` (274 lines) | `src/copilot/tasks/fix-code.js` | Same split: pure prompt + optional GitHub context. |
+| `tasks/maintain-features.js` (112 lines) | `src/copilot/tasks/maintain-features.js` | Same pattern. |
+| `tasks/maintain-library.js` (108 lines) | `src/copilot/tasks/maintain-library.js` | Same pattern. |
 
-The spike script (`scripts/spike-local-llm.js`) is now exercised as a vitest test:
+### What stays in Actions (thin wrapper)
 
-- **Test file**: `tests/spike-local-llm.test.js` — spawns the spike script, asserts exit code 0 and key output markers
-- **npm script**: `npm run test:spike-llm` — runs `vitest --run tests/spike-local-llm.test.js`
-- **CI job**: `test-spike-local-llm` in `.github/workflows/test.yml` — runs concurrently with other jobs, 15-minute timeout, model cached via `actions/cache@v4`
+`src/actions/agentic-step/index.js` becomes a thin dispatcher that:
+1. Reads Action inputs (task, model, issue-number, etc.)
+2. Creates octokit from `@actions/github`
+3. Calls shared task functions from `src/copilot/tasks/`
+4. Writes Action outputs (outcome, pr-number, tokens-used)
+5. Logs to `intentïon.md`
 
-This gives us a continuous validation that node-llama-cpp function calling works in CI before building the full scenario tests on top.
+### What the CLI gets
 
-## Problem Statement
+`bin/agentic-lib.js` `runTask()` (lines 189–296) shrinks to:
+1. Parse CLI args
+2. Load config from `src/copilot/config.js`
+3. Call shared task functions from `src/copilot/tasks/`
+4. Print results
 
-Today, testing the full agentic iteration loop requires: merge agentic-lib -> npm publish -> npm update in repository0 -> run init workflow -> multiple workflow cycles. This takes 30+ minutes and many round-trips. The unit tests mock `runCopilotTask()` entirely — they prove the plumbing but never exercise a real LLM calling real tools on real files.
+The ~500 lines of duplicated CLI code (`buildTaskPrompt`, `createCliTools`, `loadTaskConfig`, `scanDir`, per-task prompt builders) get deleted.
 
-We want to prove the iteration loop works locally in ~90 seconds using a local LLM, with deliberately simple test missions. Non-determinism is expected and desired — the point is proving the mechanics, not producing great code.
+### Logger interface
 
-## Architecture
-
-### High-Level Flow
-
-```
-npm run test:scenario
-  -> scripts/scenario-runner.js
-    -> creates temp workspace (mktemp -d)
-    -> runs: node bin/agentic-lib.js init --purge --target <workspace>
-    -> writes MISSION.md into workspace
-    -> runs: node bin/agentic-lib.js <task> --target <workspace> --local-llm
-    -> checks assertions (file exists, file changed, valid JS)
-    -> cleans up workspace
-```
-
-### Key Design Decision: CLI Extension
-
-The `--local-llm` flag routes through the same CLI path as `--model claude-sonnet-4`, but swaps the Copilot SDK backend for a local node-llama-cpp backend. This means:
-
-- The same `buildTaskPrompt()` functions construct the prompt
-- The same tool handler logic (`read_file`, `write_file`, `list_files`, `run_command`) is reused
-- node-llama-cpp handles the tool call loop internally (grammar-constrained generation forces valid JSON, library calls our handlers and feeds results back automatically)
-- Scenarios exercise the real CLI end-to-end, just with a different LLM
-
-### Building on the Spike
-
-The spike proves the foundation. Scenario tests build on it by:
-
-1. **Using the same model** — Llama-3.2-3B-Instruct Q4_K_M, proven to work
-2. **Using the same tool return format** — plain strings, not JSON
-3. **Going through the CLI** — spike calls node-llama-cpp directly; scenarios go through `bin/agentic-lib.js --local-llm` which exercises the full stack
-4. **Testing real tasks** — spike tests raw function calling; scenarios test `maintain-features`, `transform`, and the full loop
-
-## LLM Backend: node-llama-cpp
-
-### Why node-llama-cpp
-
-| Option | Pros | Cons |
-|--------|------|------|
-| **node-llama-cpp** | npm-installable, prebuilt binaries, built-in function calling with grammar-constrained generation, in-process (no HTTP), proven by spike | 2GB model download, ~30s per prompt on CPU |
-| Ollama | Well-known, model management | External service dependency, HTTP overhead |
-| Mock LLM | Fast, deterministic | Doesn't prove real LLM interaction |
-
-**Grammar-constrained generation** is the killer feature: node-llama-cpp forces the model to output valid JSON matching the tool call schema, even from a 3B parameter model.
-
-### Model Selection (Updated from Spike)
-
-**Primary: Llama-3.2-3B-Instruct Q4_K_M** (~2GB GGUF)
-- Only model that successfully completed the spike end-to-end
-- Calls tools correctly and produces valid JavaScript
-- Source: `hf:bartowski/Llama-3.2-3B-Instruct-GGUF:Q4_K_M`
-- Performance: ~26-72s per prompt on macOS CPU
-
-**Model download strategy:**
-- Models are NOT committed to git (2GB)
-- `resolveModelFile()` auto-downloads on first use from HuggingFace
-- `models/` is gitignored
-- CI caches the model directory between runs (`actions/cache@v4` with key `llm-model-llama-3.2-3b-q4km`)
-
-### Performance Budget (Updated from Spike)
-
-| Phase | Target | Notes |
-|-------|--------|-------|
-| Model load | 10-15s | One-time per test run, cached in memory |
-| Prompt + generation | 30-90s | Llama-3.2-3B is slower than originally budgeted 360M |
-| Tool execution | <0.5s | File I/O, no network |
-| Total per scenario | 45-120s | Model loaded once, reused |
-| Full suite (3 scenarios) | 90-180s | Sequential scenarios, shared model |
-
-## File Inventory
-
-### New Files
-
-#### `src/actions/agentic-step/local-llm.js`
-
-Purpose: Drop-in replacement for `runCopilotTask()` that uses node-llama-cpp. The tool call loop is handled internally by node-llama-cpp — no manual conversation loop needed.
-
-Key differences from the Copilot SDK path:
-- Tool handlers return **plain strings** (not JSON) — critical finding from spike
-- System prompt is a **plain string** (not `{ content: "..." }`)
-- Uses `session.prompt()` instead of `session.sendMessage()`
-- Singleton model pattern — loaded once, reused across scenarios
-
-#### `scripts/scenario-runner.js`
-
-Purpose: Orchestrate scenario execution. Creates temp workspaces, invokes the CLI with `--local-llm`, checks assertions.
-
-### Modified Files
-
-#### `bin/agentic-lib.js`
-
-Add `--local-llm` flag that routes to `local-llm.js` instead of the Copilot SDK.
-
-#### `package.json`
-
-```
-"test:spike-llm": "vitest --run tests/spike-local-llm.test.js"   (DONE)
-"test:scenario": "node scripts/scenario-runner.js"                 (TODO)
-"test:scenario:maintain": "node scripts/scenario-runner.js maintain-features"
-"test:scenario:transform": "node scripts/scenario-runner.js transform"
-"test:scenario:loop": "node scripts/scenario-runner.js full-loop"
+```js
+// src/copilot/logger.js
+// Adapts to @actions/core in Actions, console in CLI
+export function createLogger(backend = "console") {
+  if (backend === "actions") {
+    const core = await import("@actions/core");
+    return { info: core.info, warning: core.warning, error: core.error, debug: core.debug };
+  }
+  return { info: console.log, warning: console.warn, error: console.error, debug: () => {} };
+}
 ```
 
-## Three Test Scenarios
+### Iterate loop
 
-### 1. maintain-features (~45-90s)
+`src/iterate.js` switches from spawning `node bin/agentic-lib.js <step>` (a new process per step) to calling the shared task functions directly in-process:
 
-**Mission:** "Build a function that reverses a string."
+```js
+// Before: 3 processes per cycle, zero context
+runCli(`transform --target ${targetPath} --model ${model}`, targetPath);
 
-**What it exercises:**
-- CLI flag parsing and config loading
-- `buildMaintainFeaturesPrompt()` prompt construction
-- Local LLM receives prompt and makes tool calls
-- `write_file` tool creates markdown files in `features/`
-- Path writability check allows writing to `features/`
+// After: direct function call, same process
+import { transform } from "./copilot/tasks/transform.js";
+await transform({ config, model, writablePaths, logger });
+```
 
-**Assertions (deliberately loose):**
-- `features/` directory exists
-- At least 1 `.md` file was created in `features/`
+### Success criteria
 
-### 2. transform (~45-90s)
+- [ ] `npm test` passes (existing tests still work)
+- [ ] `npx @xn-intenton-z2a/agentic-lib transform --target /tmp/ws --model gpt-5-mini` uses the shared module
+- [ ] Actions `agentic-step` still works (deployed to repository0, runs a cycle)
+- [ ] CLI and Actions produce identical prompts for the same task+config
 
-**Mission:** "Make src/lib/main.js export a function `hello()` that returns 'Hello, World!'."
+### Estimated scope
 
-**What it exercises:**
-- `buildTransformPrompt()` prompt construction with existing source code context
-- `read_file` tool reads current source
-- `write_file` tool modifies source
-- Path writability check allows `src/lib/`
+~15 files changed. No new features — just moving code and replacing the logger.
 
-**Assertions:**
-- `src/lib/main.js` content changed from seed state
-- `src/lib/main.js` is valid JavaScript (`node --check`)
+---
 
-### 3. full-loop (~90-120s)
+## Phase 1b: Close CLI Feature Gaps for Actions Parity
 
-**Mission:** "Make src/lib/main.js export a function `add(a, b)` that returns a + b."
+**Goal**: Bring the CLI `iterate` command up to feature parity with the Action's per-task invocations. After this phase, `iterate --agent <agent-name>` provides the same tools, context gathering, safety, and output structure as the Action.
 
-**What it exercises:**
-- Both `maintain-features` and `transform` in sequence
-- The transform task sees features created by maintain-features
-- Model reloading is avoided (singleton pattern)
+### Gap 1: Tools — give CLI the full 4-tool set
 
-**Assertions:**
-- Feature files exist after maintain-features
-- Source changed after transform
-- Source is valid JavaScript
+**Current**: `runHybridSession()` defines only a `run_tests` tool. The agent uses the SDK's built-in shell/edit tools with no writable-path enforcement.
 
-## What This Tests vs What It Doesn't
+**Target**: Use `createAgentTools()` from `src/copilot/tools.js` (already shared) to provide `read_file`, `write_file`, `list_files`, `run_command` with writable-path safety + blocked git commands. Keep `run_tests` as a 5th tool.
 
-### Tests (proves mechanics work)
-- CLI flag parsing, config loading, TOML parsing
-- Prompt construction for maintain-features and transform
-- Tool definitions are callable and produce correct responses
-- Path writability enforcement works end-to-end
-- Blocked git command detection works
-- `--target` path resolution through the entire stack
-- File I/O tools create/modify real files on real filesystem
-- The task pipeline (maintain-features -> transform) works in sequence
+**Files**: `src/copilot/hybrid-session.js`
 
-### Does NOT Test
-- Copilot SDK authentication or session management
-- Copilot SDK's tool calling protocol (different from node-llama-cpp's)
-- Model quality or code correctness
-- GitHub Actions workflow integration
-- Network connectivity or API availability
-- Concurrent execution or race conditions
-- Large codebases or complex missions
+### Gap 2: Context builder — `buildUserPrompt()`
 
-## Implementation Order
+**Current**: The user prompt is just mission text + initial test output. Each Action task builds a rich prompt with scanned source files, features, issues, etc.
 
-Steps 0-2 are **DONE** (spike + CI integration):
+**Target**: Create `src/copilot/context.js` with a `buildUserPrompt(agentName, context)` function. It assembles context-dependent sections (mission, source files, features, issues, paths) based on what's available. Each agent name maps to a set of context requirements. Works with or without GitHub data.
 
-0. ~~**Run the spike**~~ DONE — see PLAN_1_LOCAL_SCENARIO_TESTS_SPIKE.md
-1. ~~**Add `node-llama-cpp` devDependency**~~ DONE — `^3.17.1` in package.json
-2. ~~**Spike as CI test**~~ DONE — `test:spike-llm` script + `test-spike-local-llm` CI job
+**Files**: `src/copilot/context.js` (new), `src/copilot/hybrid-session.js`, `bin/agentic-lib.js`
 
-Remaining steps:
+### Gap 3: Source scanning in CLI
 
-3. **Create `src/actions/agentic-step/local-llm.js`** — local LLM backend with plain-string tool returns
-4. **Modify `bin/agentic-lib.js`** — add `--local-llm` flag
-5. **Create `scripts/scenario-runner.js`** — scenario orchestrator
-6. **Run first scenario** — `npm run test:scenario:maintain`
-7. **Debug and iterate** — expect 2-3 rounds of adjusting prompts/timeouts (spike showed model makes 5-21 tool calls instead of 2, so assertions must be loose)
-8. **Add remaining scenarios** — transform, full-loop
-9. **Add `test:scenario:*` scripts** to package.json
-10. **Add scenario CI job** — similar to `test-spike-local-llm` but with longer timeout
+**Current**: The CLI doesn't scan the workspace. The agent must explore via tools.
 
-## Resolved Questions
+**Target**: Use `scanDirectory()` from `src/copilot/session.js` to scan source, test, and feature files based on config paths. Include scanned content in the user prompt via `buildUserPrompt()`.
 
-1. **Which model works?** — Llama-3.2-3B-Instruct Q4_K_M. SmolLM2-360M, Qwen2.5-0.5B, and Llama-3.2-1B all failed the spike. See PLAN_1_LOCAL_SCENARIO_TESTS_SPIKE.md for details.
+**Files**: `src/copilot/context.js`, `bin/agentic-lib.js`
 
-2. **node-llama-cpp function calling API** — Verified against v3.17.1. `defineChatSessionFunction()` is a standalone import; functions are passed to `session.prompt({ functions })`. The library handles the tool call loop internally. System prompt is a plain string.
+### Gap 4: Config-driven paths and writable-path enforcement
 
-3. **Tool return format** — **Plain strings, not JSON.** This is the most important finding from the spike. JSON-wrapped returns confuse the model into echoing JSON as file content.
+**Current**: The CLI loads `agentic-lib.toml` for mission path and tuning but ignores `paths.*` for scanning and writable enforcement.
 
-4. **No separate `local-tools.js` needed** — Tools are defined inline using `defineChatSessionFunction()` and passed to `session.prompt()`. No bridge module required.
+**Target**: Read `config.writablePaths` and `config.readOnlyPaths` from config. Pass `writablePaths` to `createAgentTools()`. Include `formatPathsSection()` in the user prompt.
 
-5. **CI integration** — Yes, viable. Model cached via `actions/cache@v4`. Spike runs in CI as `test-spike-local-llm` job with 15-minute timeout.
+**Files**: `src/copilot/hybrid-session.js`, `bin/agentic-lib.js`
 
-6. **node-llama-cpp minimum version** — `^3.17.1` (current stable, spike-verified).
+### Gap 5: Safety — blocked git commands and writable paths
 
-## Open Questions
+**Current**: No safety enforcement in CLI mode.
 
-1. **Module resolution across nested package.json** — `local-llm.js` in `src/actions/agentic-step/` (which has its own `package.json`) importing `node-llama-cpp` from root `devDependencies`. The spike script lives in `scripts/` so it imports from root fine. Need to verify the nested path works.
+**Target**: Already handled by Gap 1 — `createAgentTools()` enforces writable paths and blocks git write commands in `run_command`.
 
-2. **CI performance on Ubuntu** — Spike was measured on macOS. Ubuntu runners may be faster (more CPU cores) or slower (no Metal GPU). The 15-minute timeout for the CI job should cover it.
+### Gap 6: Narrative extraction and structured output
 
-3. **Model download reliability** — HuggingFace is the source. If it's down, the CI job fails. Consider mirroring or pre-baking the model in a custom runner image for reliability.
+**Current**: `runHybridSession()` returns raw metrics. No narrative extraction from agent response.
+
+**Target**: Append `NARRATIVE_INSTRUCTION` to the system prompt. Extract `[NARRATIVE]` from agent response using `extractNarrative()`. Include in result object.
+
+**Files**: `src/copilot/hybrid-session.js`
+
+### Gap 7: GitHub context flags (optional enrichment)
+
+**Current**: No `--issue-number`, `--pr-number`, or `--discussion-url` flags.
+
+**Target**: Add CLI flags. When provided, use `gh` CLI to fetch context (lighter than octokit). Pass as optional context to `buildUserPrompt()`. When absent, prompts work with local-only context.
+
+**Files**: `bin/agentic-lib.js`, `src/copilot/context.js`
+
+### Gap 8: Rate limit retry in hybrid session
+
+**Current**: `runHybridSession()` has no rate-limit retry. `runCopilotTask()` in session.js has 3 retries.
+
+**Target**: Wrap the `client.createSession()` + `session.sendAndWait()` flow with the same `isRateLimitError()` / `retryDelayMs()` pattern from session.js.
+
+**Files**: `src/copilot/hybrid-session.js`
+
+### Success criteria
+
+- [ ] `npm test` passes (all ~435 tests + new tests for context.js)
+- [ ] `runHybridSession()` provides 5 tools (read_file, write_file, list_files, run_command, run_tests)
+- [ ] Writable paths enforced — `write_file` outside configured paths returns error
+- [ ] Git write commands blocked in `run_command`
+- [ ] User prompt includes scanned source files, features, paths section when available
+- [ ] `--issue-number` flag fetches issue context via `gh` and includes in prompt
+- [ ] Agent response narrative extracted and included in result
+- [ ] Rate limit retry works in hybrid session
+
+---
+
+## Phase 2: Uplift to High-Level SDK Abstractions
+
+**Goal**: Replace our manual orchestration with SDK-native features. The shared module from Phase 1 gives us one place to make these changes.
+
+### 2a: Lifecycle hooks (replaces manual tracking)
+
+```js
+// src/copilot/session.js — add to createSession config
+hooks: {
+  onPreToolUse: ({ toolName, toolArgs }) => {
+    logger.info(`[tool] ${toolName}(${JSON.stringify(toolArgs).substring(0, 200)})`);
+    metrics.toolCalls.push({ tool: toolName, time: Date.now() });
+    // Budget guard: if cost >= budget, return { permissionDecision: "deny" }
+  },
+  onPostToolUse: ({ toolName, toolArgs, toolResult }) => {
+    if (toolName.match(/write|edit/i)) {
+      metrics.filesWritten.add(toolArgs?.path || toolArgs?.file_path);
+    }
+  },
+  onErrorOccurred: ({ error, errorContext, recoverable }) => {
+    logger.error(`[${errorContext}] ${error}`);
+    if (recoverable) return { errorHandling: "retry", retryCount: 2 };
+    return { errorHandling: "abort" };
+  },
+  onSessionEnd: ({ reason, finalMessage }) => {
+    metrics.endReason = reason;
+    metrics.finalMessage = finalMessage;
+  },
+},
+```
+
+**Replaces**: Manual try/catch, manual token accumulation, manual convergence detection.
+
+### 2b: Infinite sessions (replaces context-discarding)
+
+```js
+infiniteSessions: { enabled: true, backgroundCompactionThreshold: 0.80 },
+```
+
+**Replaces**: Creating new sessions per step that lose all context.
+
+### 2c: Single-session iteration (replaces multi-session loop)
+
+Instead of `runIterationLoop` creating 3 sessions per cycle:
+
+```js
+// One session for the whole iteration
+const session = await client.createSession({ model, tools, hooks, infiniteSessions, ... });
+
+// Send the mission once — agent drives its own loop
+await session.sendAndWait({
+  prompt: missionPrompt,
+  attachments: [{ type: "directory", path: workspace }],
+}, 600000);
+```
+
+**Replaces**: `runIterationLoop` → `runCli` per step → new process + session per step.
+
+### 2d: Autopilot mode (if available)
+
+```js
+try {
+  await session.rpc.mode.set({ mode: "autopilot" });
+} catch {
+  // Fall back to default — sendAndWait still runs the tool loop
+}
+```
+
+### 2e: Session resume (if available)
+
+```js
+// Save session ID after creation
+writeFileSync(join(workspace, ".session-id"), session.sessionId);
+
+// On subsequent runs, resume instead of recreating
+const savedId = readFileSync(join(workspace, ".session-id"), "utf8");
+const session = await client.resumeSession(savedId, { tools, hooks, ... });
+```
+
+### Success criteria
+
+- [ ] Single session completes hamming-distance without crashes
+- [ ] Hooks fire and collect metrics (tool calls, tokens, errors)
+- [ ] Agent carries context between "read tests → write code → run tests → fix" cycles
+- [ ] Wall clock < 5 min for hamming-distance (vs ~30-60 min via Actions)
+
+---
+
+## Phase 3: Validate CLI — Unit Tests + Scenario Tests
+
+**Goal**: Prove the CLI delivers the feature set needed to support all workflow scenarios, through testable CLI-level assertions. This is the gate before Phase 4 convergence — we don't rewire the Action until we've demonstrated the CLI can handle every agent/context combination.
+
+### 3a: Unit tests for shared modules (run in CI, no Copilot token)
+
+These tests validate the code paths that build prompts, gather context, enforce safety, and select agents — everything *except* the actual SDK session.
+
+#### context.js tests (`tests/copilot/context.test.js`) — DONE (18 tests)
+
+- [x] `gatherLocalContext()` reads mission, source, tests, features from filesystem
+- [x] `gatherLocalContext()` uses config paths and tuning limits
+- [x] `gatherLocalContext()` handles missing files gracefully
+- [x] `gatherLocalContext()` captures test output
+- [x] `gatherLocalContext()` includes writable/readOnly paths from config
+- [x] `buildUserPrompt()` includes mission, source, test, feature, paths sections
+- [x] `buildUserPrompt()` includes GitHub issues/PR/issue detail when provided
+- [x] `buildUserPrompt()` respects agent context requirements (e.g. maintain-library skips source)
+- [x] `buildUserPrompt()` falls back to agent-iterate for unknown agents
+- [x] `buildUserPrompt()` always includes instruction footer
+
+#### hybrid-session.js tests (`tests/copilot/hybrid-session.test.js`) — TODO
+
+Mock the SDK to test the session setup logic without a real Copilot token:
+
+- [ ] Session config includes all 5 tools (read_file, write_file, list_files, run_command, run_tests)
+- [ ] `writablePaths` parameter flows through to `createAgentTools()`
+- [ ] Default `writablePaths` is `[wsPath + "/"]` when not specified
+- [ ] `NARRATIVE_INSTRUCTION` appended to system prompt
+- [ ] Narrative extracted from agent response into result.narrative
+- [ ] Rate-limit retry on `createSession()` failure (mock 429)
+- [ ] Rate-limit retry on `sendAndWait()` failure (mock 429)
+- [ ] `agentPrompt` parameter overrides default system prompt
+- [ ] `userPrompt` parameter overrides default mission prompt
+- [ ] Result object includes all expected fields (success, toolCalls, narrative, etc.)
+
+#### agents.js tests (`tests/copilot/agents.test.js`) — TODO
+
+- [ ] `loadAgentPrompt()` loads each of the 11 agent .md files
+- [ ] `loadAgentPrompt()` throws for non-existent agent
+- [ ] `listAgents()` returns all 11 agent names
+- [ ] Every agent file is non-empty and contains markdown content
+
+#### tools.js tests (`tests/copilot/tools.test.js`) — TODO
+
+- [ ] `isPathWritable()` allows writes within writable paths
+- [ ] `isPathWritable()` blocks writes outside writable paths
+- [ ] `createAgentTools()` returns 4 tools (read_file, write_file, list_files, run_command)
+- [ ] `write_file` tool rejects paths outside writable list
+- [ ] `run_command` tool blocks git write commands (commit, push, add, etc.)
+- [ ] `run_command` tool allows git read commands (status, log, diff)
+- [ ] `read_file` tool returns error for non-existent files
+- [ ] `list_files` tool lists directory contents
+
+### 3b: CLI integration tests (run in CI, no Copilot token)
+
+Test the CLI arg parsing, flag handling, and context assembly without requiring a live SDK session. These use `--dry-run` or mock the session.
+
+#### Flag parsing and help (`tests/bin/cli-iterate.test.js`) — TODO
+
+- [ ] `iterate --help` shows help including `--issue`, `--pr`, `--discussion` flags
+- [ ] `iterate --list-missions` lists available seeds and exits 0
+- [ ] `iterate --agent unknown-agent` exits with error and message
+- [ ] `iterate` with no mission and no MISSION.md exits with usage error
+- [ ] `--issue`, `--pr`, `--discussion` flags are parsed correctly
+- [ ] `--agent` flag is parsed and passed to agent loader
+- [ ] `--model` flag overrides default model
+- [ ] `--timeout` flag overrides default timeout
+
+#### Context assembly (tested via imports, not subprocess)
+
+- [ ] For `--agent agent-iterate`: prompt includes mission + source + tests + features
+- [ ] For `--agent agent-maintain-library`: prompt includes library + sources, no source scan
+- [ ] For `--agent agent-issue-resolution --issue 42`: prompt includes issue detail
+- [ ] For `--agent agent-apply-fix --pr 123`: prompt includes PR detail
+- [ ] When no config exists: falls back to defaults, doesn't crash
+- [ ] When features dir is empty: features section omitted from prompt
+
+### 3c: Agent ↔ context mapping coverage
+
+Verify every Action task has a CLI equivalent that produces a comparable prompt:
+
+| Action Task | CLI Command | Agent | Context Includes | Test |
+|---|---|---|---|---|
+| `transform` | `iterate --agent agent-issue-resolution` | agent-issue-resolution.md | mission, source, tests, features, issues | [ ] |
+| `fix-code` | `iterate --agent agent-apply-fix --pr N` | agent-apply-fix.md | source, tests, PR detail | [ ] |
+| `maintain-features` | `iterate --agent agent-maintain-features` | agent-maintain-features.md | mission, features, issues | [ ] |
+| `maintain-library` | `iterate --agent agent-maintain-library` | agent-maintain-library.md | library, sources | [ ] |
+| `resolve-issue` | `iterate --agent agent-issue-resolution --issue N` | agent-issue-resolution.md | mission, source, tests, features, issue detail | [ ] |
+| `enhance-issue` | `iterate --agent agent-ready-issue --issue N` | agent-ready-issue.md | mission, features, issue detail | [ ] |
+| `review-issue` | `iterate --agent agent-review-issue --issue N` | agent-review-issue.md | source, tests, issue detail | [ ] |
+| `discussions` | `iterate --agent agent-discussion-bot --discussion URL` | agent-discussion-bot.md | mission, features, discussion | [ ] |
+| `supervise` | `iterate --agent agent-supervisor` | agent-supervisor.md | mission, features, issues | [ ] |
+| `direct` | `iterate --agent agent-director` | agent-director.md | mission, features, issues, source, tests | [ ] |
+
+### 3d: Live scenario tests (manual, requires COPILOT_GITHUB_TOKEN)
+
+Run against a real workspace to validate end-to-end. Not in CI — run manually before Phase 4.
+
+| Scenario | Command | Expected |
+|----------|---------|----------|
+| Basic iterate | `iterate --mission hamming-distance --model gpt-5-mini` | Tests pass, mission complete |
+| Discovery | `iterate --here --target /tmp/test-project` | MISSION.md generated |
+| Discovery + stop | `iterate --here --mission-file /tmp/out.md --target /tmp/test-project` | Writes file, exits 0 |
+| Issue resolution | `iterate --agent agent-issue-resolution --issue 42` | Issue context in prompt, code changes |
+| Full context | `iterate --agent agent-iterate` in a configured repo | Source, features, tests, paths all present in prompt |
+
+### Success criteria
+
+- [ ] All unit tests pass in CI (no Copilot token required)
+- [ ] Every agent file loadable and maps to a known context requirement set
+- [ ] Every Action task has a tested CLI equivalent (3c table all checked)
+- [ ] `buildUserPrompt()` produces non-empty prompts for all 10 agent/context combos
+- [ ] Tool safety verified: writable paths enforced, git commands blocked
+- [ ] At least 2 live scenarios pass manually (3d)
+- [ ] Total test count ≥ 490 (current: 453)
+
+---
+
+## Phase 4: CLI as First-Class Product — Converge Actions and CLI
+
+**Goal**: Make the CLI (`bin/agentic-lib.js`) the canonical entry point for all agentic operations. The GitHub Action (`src/actions/agentic-step/index.js`) becomes a thin adapter that reads Action inputs and calls the same shared code the CLI uses. Both paths share agent selection, tool definitions, prompt building, and session management — they differ only in I/O (where context comes from, where results go).
+
+### Design Principle
+
+The CLI is agentic-lib, literally. The `--agent` flag already provides the key abstraction: `iterate --agent agent-issue-resolution` runs the same agent prompt that the Actions `transform` task uses. Every Action task reduces to `runHybridSession()` with a specific agent .md file and a context-dependent user prompt. The Action adds GitHub-specific context (octokit, issues, PRs, discussions) but the core — which agent runs, which tools it gets — is just an `--agent` selection.
+
+### The Key Insight
+
+The `--agent` flag makes all 10 Action tasks expressible as CLI invocations:
+
+```bash
+# These are equivalent:
+npx agentic-lib iterate --agent agent-issue-resolution    # CLI
+agentic-step task=transform                               # Action
+
+# The only difference is what context goes into the user prompt
+```
+
+Each Action task handler does two things:
+1. **Gather context** — scan files, fetch GitHub data, build a user prompt
+2. **Run an agent** — `runCopilotTask()` with a system prompt + user prompt
+
+Phase 4 converges these by:
+- Making context gathering shared (works with or without GitHub)
+- Making agent selection explicit via `--agent` (already done)
+- Making `runHybridSession()` the single execution path (instead of `runCopilotTask()`)
+
+### Current State
+
+```
+src/actions/agentic-step/           ← 4,717 lines, self-contained
+  index.js          (372 lines)     ← Orchestration + telemetry + metrics
+  copilot.js        (545 lines)     ← SDK wrapper, scanning, rate limiting
+  tools.js          (142 lines)     ← Tool definitions (read/write/list/run)
+  safety.js         (106 lines)     ← WIP limits, path validation
+  config-loader.js  (308 lines)     ← TOML config (duplicate of src/copilot/config.js)
+  logging.js        (211 lines)     ← intentïon.md activity log
+  tasks/             (10 handlers)  ← 3,033 lines of prompt builders + SDK calls
+
+src/copilot/                        ← 1,540 lines, new shared module
+  hybrid-session.js (281 lines)     ← Single-session runner (hooks, metrics, events)
+  session.js        (372 lines)     ← SDK wrapper (used by iterate)
+  config.js         (308 lines)     ← TOML config
+  tools.js          (141 lines)     ← Tool definitions (used by iterate)
+  agents.js         (39 lines)      ← Agent prompt loader (--agent support)
+  logger.js         (43 lines)      ← Console/actions adapter
+  sdk.js            (36 lines)      ← SDK locator
+  tasks/            (4 handlers)    ← 320 lines (thin wrappers, soon replaced)
+```
+
+### Target Architecture
+
+The 10 separate task handler files collapse into context-gathering + `--agent` selection. The agent .md files ARE the task definitions.
+
+```
+src/copilot/                        ← Single source of truth
+  hybrid-session.js                 ← runHybridSession() — the one execution path
+  config.js                         ← TOML config
+  tools.js                          ← defineTool() wrappers (merged, no @actions/core)
+  agents.js                         ← loadAgentPrompt() — agent .md file loader
+  context.js                        ← Context gathering (scan, filter, summarise)
+  prompts.js                        ← Prompt assembly (path sections, narrative)
+  safety.js                         ← Path validation + optional GitHub checks
+  logger.js                         ← Logger interface
+  sdk.js                            ← SDK locator
+  session.js                        ← SDK lifecycle (auth, rate limiting)
+  telemetry.js                      ← Mission metrics (from index.js)
+
+src/agents/                         ← Agent prompts (system messages)
+  agent-iterate.md                  ← General iterate
+  agent-discovery.md                ← --here discovery
+  agent-issue-resolution.md         ← transform / resolve-issue
+  agent-apply-fix.md                ← fix-code
+  agent-maintain-features.md        ← maintain-features
+  agent-maintain-library.md         ← maintain-library
+  agent-ready-issue.md              ← enhance-issue
+  agent-review-issue.md             ← review-issue
+  agent-discussion-bot.md           ← discussions
+  agent-supervisor.md               ← supervise
+  agent-director.md                 ← direct
+
+bin/agentic-lib.js                  ← CLI entry point
+  iterate                           ← --agent agent-iterate (default)
+  iterate --here                    ← --agent agent-discovery → --agent agent-iterate
+  iterate --agent agent-supervisor  ← runs supervisor agent locally
+  iterate --agent <any>             ← runs any agent with local context
+  (old runTask() replaced by iterate --agent)
+
+src/actions/agentic-step/           ← Thin adapter (~150 lines)
+  index.js                          ← Map task name → agent + GitHub context → iterate
+  logging.js                        ← intentïon.md (Actions-specific)
+  (copilot.js, tools.js, config-loader.js, safety.js, tasks/*.js → DELETED)
+```
+
+### Task → Agent Mapping
+
+Each Action task maps directly to an `--agent` invocation:
+
+| Action Task | CLI Equivalent | Agent File | User Prompt Source |
+|---|---|---|---|
+| `transform` | `iterate --agent agent-issue-resolution` | `agent-issue-resolution.md` | Mission + features + source + issues |
+| `fix-code` | `iterate --agent agent-apply-fix` | `agent-apply-fix.md` | Failing test output + PR context |
+| `maintain-features` | `iterate --agent agent-maintain-features` | `agent-maintain-features.md` | Mission + existing features |
+| `maintain-library` | `iterate --agent agent-maintain-library` | `agent-maintain-library.md` | SOURCES.md + library files |
+| `resolve-issue` | `iterate --agent agent-issue-resolution --issue N` | `agent-issue-resolution.md` | Issue body + source |
+| `enhance-issue` | `iterate --agent agent-ready-issue --issue N` | `agent-ready-issue.md` | Issue + mission |
+| `review-issue` | `iterate --agent agent-review-issue --issue N` | `agent-review-issue.md` | Issue + recent PRs |
+| `discussions` | `iterate --agent agent-discussion-bot --discussion <url>` | `agent-discussion-bot.md` | Discussion thread |
+| `supervise` | `iterate --agent agent-supervisor` | `agent-supervisor.md` | Full repo state |
+| `direct` | `iterate --agent agent-director` | `agent-director.md` | Metrics + mission |
+
+### Migration Steps
+
+#### Step 1: Extract shared context utilities from copilot.js
+
+Move scanning, filtering, and summarising to `src/copilot/context.js`. These are pure functions with no `@actions/core` dependency (replace `core.info` with logger parameter):
+
+- `cleanSource()`, `generateOutline()`, `scanDirectory()` — file scanning
+- `filterIssues()`, `summariseIssue()`, `extractFeatureSummary()` — GitHub data formatting
+- `readOptionalFile()` — safe file reading
+
+Move prompt formatting to `src/copilot/prompts.js`:
+- `formatPathsSection()`, `extractNarrative()`, `NARRATIVE_INSTRUCTION`
+
+Move rate limiting to `src/copilot/session.js` (merge with existing):
+- `isRateLimitError()`, `retryDelayMs()`, `buildClientOptions()`, `runCopilotTask()`
+
+#### Step 2: Build user prompt from context
+
+Create a `buildUserPrompt(agentName, context)` function in `context.js` that assembles the user prompt for each agent based on available context. This replaces the per-task prompt builders:
+
+```javascript
+export function buildUserPrompt(agentName, { config, mission, sourceFiles, features, github }) {
+  const sections = [];
+  sections.push(`## Mission\n${mission}`);
+
+  if (sourceFiles?.length) {
+    sections.push(`## Source Files (${sourceFiles.length})`);
+    sourceFiles.forEach(f => sections.push(`### ${f.name}\n\`\`\`\n${f.content}\n\`\`\``));
+  }
+
+  if (features?.length) {
+    sections.push(`## Features (${features.length})`);
+    // ...
+  }
+
+  // GitHub context is optional — only included when available
+  if (github?.openIssues?.length) {
+    sections.push(`## Open Issues (${github.openIssues.length})`);
+    // ...
+  }
+
+  return sections.join("\n\n");
+}
+```
+
+#### Step 3: Replace runTask() with iterate --agent
+
+The CLI's `runTask()` function (lines 332-412) currently dispatches to `src/copilot/tasks/*.js`. Replace this with `runHybridSession()` using the appropriate agent:
+
+```javascript
+const TASK_AGENT_MAP = {
+  "transform": "agent-issue-resolution",
+  "fix-code": "agent-apply-fix",
+  "maintain-features": "agent-maintain-features",
+  "maintain-library": "agent-maintain-library",
+  "resolve-issue": "agent-issue-resolution",
+  "enhance-issue": "agent-ready-issue",
+  "review-issue": "agent-review-issue",
+  "discussions": "agent-discussion-bot",
+  "supervise": "agent-supervisor",
+  "direct": "agent-director",
+};
+
+// runTask() becomes:
+const agentName = TASK_AGENT_MAP[taskName];
+const agentPrompt = loadAgentPrompt(agentName);
+const userPrompt = buildUserPrompt(agentName, localContext);
+const result = await runHybridSession({ agentPrompt, userPrompt, ... });
+```
+
+#### Step 4: Slim Actions index.js
+
+The Action's `index.js` becomes a thin adapter that:
+1. Reads Action inputs (task, model, issue-number, etc.)
+2. Maps task name → agent name via `TASK_AGENT_MAP`
+3. Gathers GitHub context via octokit
+4. Calls `runHybridSession()` with the agent prompt + enriched user prompt
+5. Sets Action outputs and logs to intentïon.md
+
+### What Gets Deleted
+
+| File | Lines | Reason |
+|------|-------|--------|
+| `src/actions/agentic-step/copilot.js` | 545 | Split into `context.js`, `prompts.js`, merged into `session.js` |
+| `src/actions/agentic-step/tools.js` | 142 | Merged into `src/copilot/tools.js` |
+| `src/actions/agentic-step/config-loader.js` | 308 | Duplicate of `src/copilot/config.js` |
+| `src/actions/agentic-step/safety.js` | 106 | Moved to `src/copilot/safety.js` |
+| `src/actions/agentic-step/tasks/*.js` | 3,033 | Replaced by `--agent` + `buildUserPrompt()` |
+| `src/copilot/tasks/*.js` | 320 | Replaced by `--agent` + `buildUserPrompt()` |
+| `src/iterate.js` | 285 | Already replaced by `hybrid-session.js` |
+| `src/actions/agentic-step/index.js` | 372 → 150 | Slimmed to adapter |
+| **Total deleted** | **~4,900** | |
+
+### What Gets Created
+
+| File | Lines (est.) | What |
+|------|---|---|
+| `src/copilot/context.js` | ~300 | Scanning + `buildUserPrompt()` (from copilot.js + task prompt builders) |
+| `src/copilot/prompts.js` | ~80 | Path formatting, narrative extraction |
+| `src/copilot/safety.js` | ~120 | Path validation + optional GitHub checks |
+| `src/copilot/telemetry.js` | ~120 | Mission metrics, readiness narrative |
+
+**Net**: ~4,300 lines deleted, ~620 lines added = **~3,700 fewer lines**. The agent .md files replace 3,033 lines of per-task prompt builders.
+
+### CLI Parameter Parity
+
+| Action Input | CLI Flag | Notes |
+|---|---|---|
+| `task` | `iterate --agent <agent-name>` | Agent selection replaces task dispatch |
+| `config` | (auto-detected from `agentic-lib.toml`) | Same config loader |
+| `model` | `--model <name>` | Same |
+| `issue-number` | `--issue <N>` | Passed as context to user prompt |
+| `pr-number` | `--pr <N>` | Passed as context to user prompt |
+| `instructions` | `--agent <name>` | Agent .md IS the instructions |
+| `discussion-url` | `--discussion <url>` | Passed as context to user prompt |
+| — | `--here` | Discovery mode (agent-discovery.md) |
+| — | `--mission-file <path>` | Custom mission |
+| — | `--timeout <ms>` | Session timeout |
+
+### Success Criteria
+
+- [ ] Every Action task is expressible as `npx @xn-intenton-z2a/agentic-lib iterate --agent <agent-name>`
+- [ ] `src/copilot/` is the single source of truth for all SDK integration
+- [ ] `src/actions/agentic-step/index.js` is < 150 lines (I/O adapter only)
+- [ ] Agent .md files are the system prompts for both CLI and Actions
+- [ ] No per-task handler files — context gathering + `--agent` replaces them
+- [ ] `npm test` passes (all ~435 tests)
+- [ ] Actions `agentic-step` still works on repository0
+- [ ] CLI `iterate --agent` works for all agent types
+
+---
+
+## Phase 5: Validate Both Paths
+
+**Goal**: Prove that the converged code works identically via CLI and Actions.
+
+### Local validation
+
+Run all task types via CLI against a real workspace:
+
+```bash
+# Iterate (existing — already validated in Phase 3)
+COPILOT_GITHUB_TOKEN=<token> npx @xn-intenton-z2a/agentic-lib iterate \
+  --mission hamming-distance --model gpt-5-mini
+
+# Discovery (new)
+COPILOT_GITHUB_TOKEN=<token> npx @xn-intenton-z2a/agentic-lib iterate --here
+
+# Transform (shared task handler)
+COPILOT_GITHUB_TOKEN=<token> npx @xn-intenton-z2a/agentic-lib transform \
+  --target /tmp/test-ws --model gpt-5-mini
+
+# Supervise (local-only mode — no GitHub context, shows prompt)
+npx @xn-intenton-z2a/agentic-lib supervise --target /tmp/test-ws --dry-run
+
+# All 10 tasks as CLI commands
+npx @xn-intenton-z2a/agentic-lib --help
+```
+
+### Actions validation
+
+Deploy to repository0 and run full cycle:
+
+1. Push refactored agentic-lib to npm (new version)
+2. Run `npx @xn-intenton-z2a/agentic-lib init --purge` on repository0
+3. Verify init copies `src/copilot/` alongside `src/actions/`
+4. Dispatch `agentic-lib-workflow-transform` manually
+5. Verify: session creates, tools fire, code transforms, tests run
+6. Dispatch full cycle: director → supervisor → transform → test → fix-code
+7. Compare results to Benchmark 006 baseline
+8. Verify agent .md files are used as system prompts (check logs)
+
+### Regression checklist
+
+- [ ] `npm test` passes in agentic-lib (all ~435 unit tests)
+- [ ] `npm run lint:workflows` passes
+- [ ] Init distributes `src/copilot/` correctly to consumer repos
+- [ ] Actions `agentic-step` uses shared tasks from `src/copilot/tasks/`
+- [ ] CLI all 10 tasks produce valid output (at least dry-run)
+- [ ] CLI `iterate` completes hamming-distance
+- [ ] CLI `iterate --here` discovers and generates MISSION.md
+- [ ] MCP server `iterate` tool works
+- [ ] Token tracking produces correct numbers in both paths
+- [ ] Rate limit retry works in both paths
+- [ ] Agent .md files loaded as system prompts in both paths
+- [ ] Profile tuning (min/recommended/max) works in both paths
+
+---
+
+## Phase 6: Tune Locally
+
+**Goal**: Use the fast local iteration loop to explore reasoning effort levels, models, and prompt variations — things that take hours via Actions but minutes locally.
+
+### Reasoning effort matrix
+
+| Model | low | medium | high | xhigh |
+|-------|-----|--------|------|-------|
+| gpt-5-mini | Baseline | ? | ? | ? |
+| claude-sonnet-4 | ? | ? | ? | N/A |
+| gpt-4.1 | ? | ? | ? | ? |
+
+For each cell: run hamming-distance + fizz-buzz, record tokens, time, pass/fail, code quality.
+
+### Model comparison
+
+| Mission | gpt-5-mini | claude-sonnet-4 | gpt-4.1 |
+|---------|-----------|----------------|---------|
+| hamming-distance | Benchmark 005/006 data | ? | ? |
+| fizz-buzz | Benchmark 004 data | ? | ? |
+| roman-numerals | ? | ? | ? |
+| cron-engine | ? | ? | ? |
+
+### What to explore
+
+1. **Reasoning effort vs cost**: Does `high` reasoning on gpt-5-mini outperform `medium` on gpt-4.1 for less cost?
+2. **Model switching mid-session**: Start with cheap model (gpt-5-mini), if stuck after N tool calls, `session.setModel("gpt-4.1")` — does this help?
+3. **Autopilot vs default mode**: Does autopilot produce better results (fewer wasted tool calls, more focused iteration)?
+4. **Infinite sessions impact**: Does auto-compaction help or hurt for multi-iteration runs?
+5. **Custom agents**: Define specialist agents (test-reader, code-writer, debugger) and see if agent switching improves outcomes
+6. **Prompt engineering**: Which system prompt produces the most efficient tool call patterns?
+
+### Output
+
+`BENCHMARK_REPORT_007.md` (or similar) with:
+- Side-by-side comparison tables for all model/effort/profile combinations
+- Token cost analysis
+- Recommendations for default profile settings
+- Findings on which SDK features provide measurable improvement
+
+---
+
+## Risks
+
+1. **`@actions/core` coupling** — The shared module must not import `@actions/core`. The logger interface handles this, but every utility extracted from `copilot.js` must have its `core.info()` calls replaced with `logger.info()`. Grep for `core.` after each extraction step.
+
+2. **Init distribution** — Adding `src/copilot/` to the distributed files means updating the init script and verifying that the relative import paths from `src/actions/agentic-step/index.js` resolve correctly in consumer repos. Test with a fresh `init --purge` on repository0 after each structural change.
+
+3. **SDK v0.1.31 instability** — Higher-level features (autopilot, fleet, custom agents) may not work at runtime despite type definitions existing. Phase 2 tested the core features; Phase 4 should not introduce new SDK features.
+
+4. **GitHub context optionality** — Tasks like `supervise`, `review-issue`, and `discussions` are deeply coupled to GitHub APIs (issues, PRs, discussions). The shared task handlers must gracefully handle `context.github === null` (CLI mode) — either by skipping GitHub-dependent sections or by providing a `--dry-run` that shows the prompt without executing.
+
+5. **Test coverage** — Moving ~4,500 lines of code means updating ~400 unit tests. Many tests mock `@actions/core` and `@actions/github`. After migration, tests should mock the logger interface and optional GitHub context instead. Plan for 2-3 sessions of test migration work.
+
+6. **Breaking change for consumers** — If the init-distributed file structure changes (adding `copilot/` directory), existing repository0 installations break until re-init'd. Coordinate with a version bump. The init system already handles stale file cleanup, so this is manageable.
+
+7. **Two-session architecture** — The old Actions path uses `runCopilotTask()` (single prompt→response) while the CLI uses `runHybridSession()` (persistent session with hooks). Phase 4 converges on `runHybridSession()` for all tasks, which means the Actions path gains hooks, metrics, and token tracking for free — but the session lifecycle changes. This is the highest-risk change.
+
+8. **Agent prompt sufficiency** — The current agent .md files were designed for Actions context (rich prompts with issues, PRs, features). When used via CLI with less context, the agent may behave differently. The `buildUserPrompt()` function must provide enough local context to keep agents effective even without GitHub data.
+
+---
+
+## Phase Dependencies
+
+```
+Phase 1 (Port to shared module)            ← DONE (partial)
+  ↓
+Phase 1b (Close CLI feature gaps)          ← CURRENT — tools, context, safety, GitHub flags
+  ↓
+Phase 2 (Uplift SDK abstractions)          ← DONE
+  ↓
+Phase 3 (Validate locally)                 ← DONE (iterate works, --here works)
+  ↓
+Phase 4 (CLI as first-class product)       ← converge Actions + CLI
+  ↓
+Phase 5 (Validate both paths)
+  ↓
+Phase 6 (Tune)                             ← can start as soon as Phase 4 is stable
+```
+
+Phase 4 is the big one. Recommended execution order within Phase 4:
+
+```
+Step 1: Extract context.js + prompts.js from copilot.js      (no behavior change)
+Step 2: Implement buildUserPrompt() for 4 local tasks        (transform, fix-code, maintain-*)
+Step 3: Replace CLI runTask() with iterate --agent            (validate locally)
+Step 4: Extract safety.js, telemetry.js                      (no behavior change)
+Step 5: Merge tools.js (remove @actions/core dependency)     (no behavior change)
+Step 6: Implement buildUserPrompt() for GitHub tasks         (supervise, direct, etc.)
+Step 7: Slim Actions index.js to adapter                     (validate on repository0)
+Step 8: Update init to distribute src/copilot/               (validate with init --purge)
+Step 9: Delete old task handler files + copilot.js           (final cleanup)
+```
