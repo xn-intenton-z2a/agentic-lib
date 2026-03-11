@@ -2,7 +2,7 @@
 
 **Source**: Observation of hamming-distance benchmark run on repository0 (2026-03-11)
 **Created**: 2026-03-11
-**Status**: analysis complete, not yet implemented
+**Status**: implemented — all 6 work items done (W1-W6)
 
 ---
 
@@ -236,13 +236,41 @@ Confirm whether the "Dedicated test files: NO" result is a timing issue (files c
 
 ---
 
+## Implementation Notes
+
+### W1: Coupling test in `zero-behaviour.test.js` — DONE
+
+Added a Playwright test that imports `getIdentity()` from `../../src/lib/main.js` and asserts the page's `#lib-version` text contains `getIdentity().version`. This proves the web page consumes the real library via the build pipeline.
+
+### W2: README file map and test strategy — DONE
+
+Added "File Layout" and "Test Strategy" sections to `zero-README.md` showing the interconnected files and explaining how the coupling test bridges library and web.
+
+### W3: Agent prompts updated — DONE
+
+Added "CRITICAL: Never duplicate library code in the web page" section to `agent-issue-resolution.md` with explanation of why (behaviour tests test a simulation) and how to share code (via build pipeline). Updated `agent-apply-fix.md` with the same rule and coupling test reference.
+
+### W4: `build:web` enhancement — INVESTIGATED, NO CHANGE NEEDED
+
+`main.js` mixes Node APIs (`createRequire`, `process.argv`) with pure functions, so it can't be directly imported in the browser. Extracting pure functions generically is fragile (mission-dependent function names/shapes). The agent prompts (W3) are the correct fix — they instruct the agent to use the build pipeline rather than inline duplication. If a future mission needs browser-side function access, the agent should create a browser-compatible module as part of its transform, guided by the prompt rules.
+
+### W5: Issue-resolved detection for automerge — DONE
+
+Added a third detection path in both `supervise.js` and `direct.js`: if a closed issue has the `"merged"` label (set by `ci-automerge.yml`), it counts as RESOLVED. This fires after the existing two paths (review comment, commit-linked close) so it doesn't change behaviour for issues that already match.
+
+### W6: Dedicated test file regex — VERIFIED, TIMING ISSUE
+
+Tested the regex `/from\s+['"].*src\/lib\//` against all import path styles (`../../src/lib/main.js`, `./src/lib/main.js`, bare `src/lib/main.js`) — all match correctly. The "Dedicated test files: NO" result in the hamming-distance benchmark was a timing issue: the placeholder test files were created by a later step in the same workflow run, after the metric was computed. This is a benign race that self-corrects on the next iteration. No code change needed.
+
+Confirmed: placeholder test files with `expect(true).toBe(true)` and TODO comments correctly count as dedicated tests when the regex matches. They are created by init to be those tests, and the TODOs prevent false negatives.
+
 ## Summary
 
-| # | Item | Where | Priority |
-|---|------|-------|----------|
-| W1 | Add identity coupling test to `zero-behaviour.test.js` | seeds | HIGH |
-| W2 | Update `zero-README.md` with file map and test strategy | seeds | HIGH |
-| W3 | Update agent prompts with file layout rules (no inline duplication) | agents | HIGH |
-| W4 | Investigate `build:web` enhancement for mission functions | seeds | MEDIUM |
-| W5 | Fix issue-resolved detection for automerge closures (`merged` label) | agentic-step | HIGH |
-| W6 | Verify dedicated test file regex vs timing | agentic-step | LOW |
+| # | Item | Where | Priority | Status |
+|---|------|-------|----------|--------|
+| W1 | Add identity coupling test to `zero-behaviour.test.js` | seeds | HIGH | DONE |
+| W2 | Update `zero-README.md` with file map and test strategy | seeds | HIGH | DONE |
+| W3 | Update agent prompts with file layout rules (no inline duplication) | agents | HIGH | DONE |
+| W4 | Investigate `build:web` enhancement for mission functions | seeds | MEDIUM | NO CHANGE NEEDED |
+| W5 | Fix issue-resolved detection for automerge closures (`merged` label) | agentic-step | HIGH | DONE |
+| W6 | Verify dedicated test file regex vs timing | agentic-step | LOW | VERIFIED — timing issue |
