@@ -91,8 +91,8 @@ describe("MCP server", () => {
 
     expect(result.content).toHaveLength(1);
     expect(result.content[0].type).toBe("text");
-    expect(result.content[0].text).toContain("hamming-distance");
-    expect(result.content[0].text).toContain("fizz-buzz");
+    expect(result.content[0].text).toContain("6-kyu-understand-hamming-distance");
+    expect(result.content[0].text).toContain("7-kyu-understand-fizz-buzz");
   });
 
   it("workspace_create rejects unknown mission", async () => {
@@ -105,7 +105,7 @@ describe("MCP server", () => {
     });
 
     expect(result.content[0].text).toContain("Unknown mission");
-    expect(result.content[0].text).toContain("hamming-distance");
+    expect(result.content[0].text).toContain("6-kyu-understand-hamming-distance");
   });
 
   it("workspace_list returns empty when no workspaces exist", async () => {

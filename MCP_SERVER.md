@@ -47,8 +47,8 @@ No API keys needed. Claude provides the intelligence directly.
 
 > You: Run the hamming-distance mission with lowest resources
 >
-> Claude: *calls `workspace_create(mission: "hamming-distance")`*
-> *calls `prepare_iteration(workspace: "hamming-distance-...")`*
+> Claude: *calls `workspace_create(mission: "6-kyu-understand-hamming-distance")`*
+> *calls `prepare_iteration(workspace: "6-kyu-understand-hamming-distance-...")`*
 > *reads context, writes code via `workspace_write_file`*
 > *calls `run_tests` — tests failing*
 > *reads failures, fixes code, calls `run_tests` again*
@@ -87,7 +87,7 @@ GitHub Copilot SDK runs as the LLM. The `iterate` tool handles everything autono
 
 > You: Run hamming-distance with lowest resources, then increase and compare
 >
-> Claude: *calls `workspace_create(mission: "hamming-distance", profile: "min")`*
+> Claude: *calls `workspace_create(mission: "6-kyu-understand-hamming-distance", profile: "min")`*
 > *calls `iterate(workspace: "...", cycles: 10)`*
 > Min profile: 10 iterations, tests still failing.
 >
@@ -141,16 +141,16 @@ Claude calls `list_missions` and gets back:
 ```
 Available missions (11):
 
-- **hamming-distance**: Hamming Distance
-- **fizz-buzz**: FizzBuzz
-- **roman-numerals**: Roman Numerals
-- **string-utils**: String Utilities
-- **dense-encoding**: Dense Binary Encoding
-- **cron-engine**: Cron Expression Parser
-- **lunar-lander**: Lunar Lander Simulation
-- **owl-ontology**: OWL Ontology Processor
-- **plot-code-lib**: Code Visualization Library
-- **time-series-lab**: Time Series Analysis
+- **6-kyu-understand-hamming-distance**: Hamming Distance (6 kyu)
+- **7-kyu-understand-fizz-buzz**: FizzBuzz (7 kyu)
+- **6-kyu-understand-roman-numerals**: Roman Numerals (6 kyu)
+- **5-kyu-apply-string-utils**: String Utilities (5 kyu)
+- **4-kyu-apply-dense-encoding**: Dense Binary Encoding (4 kyu)
+- **4-kyu-apply-cron-engine**: Cron Expression Parser (4 kyu)
+- **3-kyu-analyze-lunar-lander**: Lunar Lander Simulation (3 kyu)
+- **3-kyu-evaluate-owl-ontology**: OWL Ontology Processor (3 kyu)
+- **2-kyu-create-plot-code-lib**: Code Visualization Library (2 kyu)
+- **3-kyu-evaluate-time-series-lab**: Time Series Analysis (3 kyu)
 - **empty**: Empty Mission
 ```
 
@@ -158,12 +158,12 @@ Available missions (11):
 
 > **You:** Let's do hamming-distance with the lowest resources.
 
-Claude calls `workspace_create(mission: "hamming-distance", profile: "min")`:
+Claude calls `workspace_create(mission: "6-kyu-understand-hamming-distance", profile: "min")`:
 
 ```
-Workspace created: hamming-distance-20260306T143200
-Path: ~/.agentic-lib/workspaces/hamming-distance-20260306T143200
-Mission: hamming-distance
+Workspace created: 6-kyu-understand-6-kyu-understand-hamming-distance-20260306T143200
+Path: ~/.agentic-lib/workspaces/6-kyu-understand-6-kyu-understand-hamming-distance-20260306T143200
+Mission: 6-kyu-understand-hamming-distance
 Profile: min
 Model: gpt-5-mini
 
@@ -176,7 +176,7 @@ Ready for `iterate` or `run_tests`.
 
 ### Step 3: Check the starting state
 
-Claude calls `run_tests(workspace: "hamming-distance-20260306T143200")`:
+Claude calls `run_tests(workspace: "6-kyu-understand-hamming-distance-20260306T143200")`:
 
 ```
 FAIL — tests are failing.
@@ -192,7 +192,7 @@ The seed code has placeholder tests that define what needs to be built but the i
 
 ### Step 4: Prepare context and write code (Claude mode)
 
-Claude calls `prepare_iteration(workspace: "hamming-distance-20260306T143200", focus: "transform")`.
+Claude calls `prepare_iteration(workspace: "6-kyu-understand-hamming-distance-20260306T143200", focus: "transform")`.
 
 This returns the full context: mission description, feature specs, current source code, test files, and test output. Claude reads it all, then decides what to implement.
 
@@ -214,7 +214,7 @@ export function hammingDistance(a, b) {
 
 ### Step 5: Verify
 
-Claude calls `run_tests(workspace: "hamming-distance-20260306T143200")`:
+Claude calls `run_tests(workspace: "6-kyu-understand-hamming-distance-20260306T143200")`:
 
 ```
 PASS — all tests passing.
@@ -241,24 +241,24 @@ Claude calls `workspace_list`:
 ```
 Workspaces (2):
 
-- hamming-distance-20260306T143200 | mission: hamming-distance | profile: min | iterations: 1 | status: ready
-- roman-numerals-20260306T144500 | mission: roman-numerals | profile: recommended | iterations: 3 | status: ready
+- 6-kyu-understand-hamming-distance-20260306T143200 | mission: 6-kyu-understand-hamming-distance | profile: min | iterations: 1 | status: ready
+- 6-kyu-understand-roman-numerals-20260306T144500 | mission: 6-kyu-understand-roman-numerals | profile: recommended | iterations: 3 | status: ready
 ```
 
 ### Step 7: Clean up
 
 > **You:** Destroy the hamming-distance workspace.
 
-Claude calls `workspace_destroy(workspace: "hamming-distance-20260306T143200")`.
+Claude calls `workspace_destroy(workspace: "6-kyu-understand-hamming-distance-20260306T143200")`.
 
 ### Alternative: Autonomous iteration (Copilot mode)
 
 If you have a `COPILOT_GITHUB_TOKEN`, you can skip the manual read/write cycle and let the Copilot SDK drive everything:
 
-> **You:** Run hamming-distance with min profile for 10 cycles, then switch to recommended and compare.
+> **You:** Run 6-kyu-understand-hamming-distance with min profile for 10 cycles, then switch to recommended and compare.
 
 Claude calls:
-1. `workspace_create(mission: "hamming-distance", profile: "min")`
+1. `workspace_create(mission: "6-kyu-understand-hamming-distance", profile: "min")`
 2. `iterate(workspace: "...", cycles: 10)` — autonomous loop
 3. `config_set(workspace: "...", profile: "recommended")`
 4. `iterate(workspace: "...", cycles: 5)` — continues from where it left off
@@ -272,7 +272,7 @@ Each iteration records elapsed time, files changed, and test status — giving y
 
 | Tool | Description |
 |------|-------------|
-| `list_missions` | List available mission seeds (hamming-distance, fizz-buzz, etc.) |
+| `list_missions` | List available mission seeds (6-kyu-understand-hamming-distance, 7-kyu-understand-fizz-buzz, etc.) |
 | `workspace_create` | Create workspace from a mission seed with a tuning profile |
 | `workspace_list` | List all active workspaces with status |
 | `workspace_status` | Full status: mission, features, source, tests, iteration history |
@@ -322,16 +322,24 @@ Run `list_missions` to see all seeds, or browse:
 
 | Mission | Description |
 |---------|-------------|
-| hamming-distance | Calculate Hamming distance between strings |
-| fizz-buzz | Classic FizzBuzz implementation |
-| roman-numerals | Roman numeral conversion |
-| string-utils | String utility library |
-| dense-encoding | Dense binary encoding |
-| cron-engine | Cron expression parser |
-| lunar-lander | Lunar lander simulation |
-| owl-ontology | OWL ontology processor |
-| plot-code-lib | Code visualization library |
-| time-series-lab | Time series analysis |
+| 8-kyu-remember-hello-world | Hello World (8 kyu) |
+| 8-kyu-remember-empty | Blank template (8 kyu) |
+| 7-kyu-understand-fizz-buzz | Classic FizzBuzz (7 kyu) |
+| 6-kyu-understand-hamming-distance | Hamming distance (6 kyu) |
+| 6-kyu-understand-roman-numerals | Roman numeral conversion (6 kyu) |
+| 5-kyu-create-ascii-face | ASCII face art (5 kyu) |
+| 5-kyu-apply-string-utils | String utility library (5 kyu) |
+| 4-kyu-apply-cron-engine | Cron expression parser (4 kyu) |
+| 4-kyu-apply-dense-encoding | Dense binary encoding (4 kyu) |
+| 4-kyu-analyze-json-schema-diff | JSON Schema diff (4 kyu) |
+| 3-kyu-analyze-lunar-lander | Lunar lander simulation (3 kyu) |
+| 3-kyu-evaluate-time-series-lab | Time series analysis (3 kyu) |
+| 3-kyu-evaluate-owl-ontology | OWL ontology processor (3 kyu) |
+| 2-kyu-evaluate-markdown-compiler | Markdown compiler (2 kyu) |
+| 2-kyu-create-plot-code-lib | Code visualization library (2 kyu) |
+| 1-kyu-create-ray-tracer | Ray tracer (1 kyu) |
+| 1-dan-create-c64-emulator | C64 emulator (1 dan) |
+| 2-dan-create-agi | AGI vision (2 dan) |
 | empty | Blank slate — write your own MISSION.md |
 
 ## Workspace Location

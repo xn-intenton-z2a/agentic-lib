@@ -236,7 +236,7 @@ jobs:
       - name: Seed workspace via init --purge
         run: |
           mkdir -p /tmp/test-workspace
-          node bin/agentic-lib.js init --purge --mission fizz-buzz --target /tmp/test-workspace
+          node bin/agentic-lib.js init --purge --mission 7-kyu-understand-fizz-buzz --target /tmp/test-workspace
           cd /tmp/test-workspace
           node -e "const p=JSON.parse(require('fs').readFileSync('package.json','utf8')); delete p.dependencies; require('fs').writeFileSync('package.json',JSON.stringify(p,null,2)+'\n')"
           npm install
@@ -265,7 +265,7 @@ jobs:
           diff -rN --exclude=.git --exclude=node_modules /tmp/post-seed /tmp/test-workspace || true
 
       - name: Re-seed workspace
-        run: node bin/agentic-lib.js init --purge --mission fizz-buzz --target /tmp/test-workspace
+        run: node bin/agentic-lib.js init --purge --mission 7-kyu-understand-fizz-buzz --target /tmp/test-workspace
 
       - name: Show re-seed changes
         run: diff -rN --exclude=.git --exclude=node_modules /tmp/post-seed /tmp/test-workspace || true
@@ -299,7 +299,7 @@ jobs:
       - name: Seed workspace via init --purge
         run: |
           mkdir -p /tmp/test-workspace
-          node bin/agentic-lib.js init --purge --mission fizz-buzz --target /tmp/test-workspace
+          node bin/agentic-lib.js init --purge --mission 7-kyu-understand-fizz-buzz --target /tmp/test-workspace
 
       - name: Snapshot post-seed
         run: rsync -a --exclude=.git --exclude=node_modules /tmp/test-workspace/ /tmp/post-seed/
@@ -321,7 +321,7 @@ jobs:
           diff -rN --exclude=.git --exclude=node_modules /tmp/post-seed /tmp/test-workspace || true
 
       - name: Re-seed workspace
-        run: node bin/agentic-lib.js init --purge --mission fizz-buzz --target /tmp/test-workspace
+        run: node bin/agentic-lib.js init --purge --mission 7-kyu-understand-fizz-buzz --target /tmp/test-workspace
 
       - name: Show re-seed changes
         run: diff -rN --exclude=.git --exclude=node_modules /tmp/post-seed /tmp/test-workspace || true
@@ -355,7 +355,7 @@ jobs:
       - name: Seed workspace via init --purge
         run: |
           mkdir -p /tmp/test-workspace
-          node bin/agentic-lib.js init --purge --mission fizz-buzz --target /tmp/test-workspace
+          node bin/agentic-lib.js init --purge --mission 7-kyu-understand-fizz-buzz --target /tmp/test-workspace
 
       - name: Snapshot post-seed
         run: rsync -a --exclude=.git --exclude=node_modules /tmp/test-workspace/ /tmp/post-seed/
@@ -377,7 +377,7 @@ jobs:
           diff -rN --exclude=.git --exclude=node_modules /tmp/post-seed /tmp/test-workspace || true
 
       - name: Re-seed workspace
-        run: node bin/agentic-lib.js init --purge --mission fizz-buzz --target /tmp/test-workspace
+        run: node bin/agentic-lib.js init --purge --mission 7-kyu-understand-fizz-buzz --target /tmp/test-workspace
 
       - name: Show re-seed changes
         run: diff -rN --exclude=.git --exclude=node_modules /tmp/post-seed /tmp/test-workspace || true
@@ -398,13 +398,13 @@ jobs:
       - name: First init --purge
         run: |
           mkdir -p /tmp/test-workspace
-          node bin/agentic-lib.js init --purge --mission fizz-buzz --target /tmp/test-workspace
+          node bin/agentic-lib.js init --purge --mission 7-kyu-understand-fizz-buzz --target /tmp/test-workspace
 
       - name: Snapshot after first init
         run: rsync -a --exclude=.git --exclude=node_modules /tmp/test-workspace/ /tmp/after-first/
 
       - name: Second init --purge (should be idempotent)
-        run: node bin/agentic-lib.js init --purge --mission fizz-buzz --target /tmp/test-workspace
+        run: node bin/agentic-lib.js init --purge --mission 7-kyu-understand-fizz-buzz --target /tmp/test-workspace
 
       - name: Verify no diff
         run: |
@@ -473,7 +473,7 @@ jobs:
       - name: Purge-seed a workspace
         run: |
           mkdir -p /tmp/test-workspace
-          node bin/agentic-lib.js init --purge --mission fizz-buzz --target /tmp/test-workspace
+          node bin/agentic-lib.js init --purge --mission 7-kyu-understand-fizz-buzz --target /tmp/test-workspace
 
       - name: Add user content (simulates repository0 work)
         run: |
@@ -530,7 +530,7 @@ jobs:
         run: |
           mkdir -p /tmp/test-workspace/.github/workflows
           echo "name: stale" > /tmp/test-workspace/.github/workflows/agentic-lib-old-stale.yml
-          node bin/agentic-lib.js init --purge --mission fizz-buzz --target /tmp/test-workspace
+          node bin/agentic-lib.js init --purge --mission 7-kyu-understand-fizz-buzz --target /tmp/test-workspace
 
       - name: Verify stale workflow was removed
         run: |

@@ -27,7 +27,7 @@ on:
       mission-seed:
         type: string
         required: false
-        default: "hamming-distance"
+        default: "6-kyu-understand-hamming-distance"
       mission-text:
         type: string
         required: false
@@ -64,26 +64,26 @@ on:
         description: "Mission seed name (purge only)"
         type: choice
         required: false
-        default: "hamming-distance"
+        default: "6-kyu-understand-hamming-distance"
         options:
-          - hamming-distance
-          - agi
-          - ascii-face
-          - c64-emulator
-          - cron-engine
-          - dense-encoding
-          - fizz-buzz
-          - hello-world
-          - json-schema-diff
-          - lunar-lander
-          - markdown-compiler
-          - owl-ontology
-          - plot-code-lib
-          - ray-tracer
-          - roman-numerals
-          - string-utils
-          - time-series-lab
-          - empty
+          - 6-kyu-understand-hamming-distance
+          - 2-dan-create-agi
+          - 5-kyu-create-ascii-face
+          - 1-dan-create-c64-emulator
+          - 4-kyu-apply-cron-engine
+          - 4-kyu-apply-dense-encoding
+          - 7-kyu-understand-fizz-buzz
+          - 8-kyu-remember-hello-world
+          - 4-kyu-analyze-json-schema-diff
+          - 3-kyu-analyze-lunar-lander
+          - 2-kyu-evaluate-markdown-compiler
+          - 3-kyu-evaluate-owl-ontology
+          - 2-kyu-create-plot-code-lib
+          - 1-kyu-create-ray-tracer
+          - 6-kyu-understand-roman-numerals
+          - 5-kyu-apply-string-utils
+          - 3-kyu-evaluate-time-series-lab
+          - 8-kyu-remember-empty
       mission-text:
         description: "Freeform mission text for MISSION.md (overrides mission-seed if provided)"
         type: string
@@ -140,7 +140,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       INIT_MODE: ${{ inputs.mode }}
-      INIT_MISSION_SEED: ${{ inputs.mission-seed || 'hamming-distance' }}
+      INIT_MISSION_SEED: ${{ inputs.mission-seed || '6-kyu-understand-hamming-distance' }}
       INIT_MISSION_TEXT: ${{ inputs.mission-text }}
     steps:
       - uses: actions/checkout@v6
