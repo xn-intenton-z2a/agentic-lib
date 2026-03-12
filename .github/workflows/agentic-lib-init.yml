@@ -66,24 +66,24 @@ on:
         required: false
         default: "6-kyu-understand-hamming-distance"
         options:
+          - 8-kyu-remember-empty
+          - 8-kyu-remember-hello-world
+          - 7-kyu-understand-fizz-buzz
           - 6-kyu-understand-hamming-distance
-          - 2-dan-create-agi
+          - 6-kyu-understand-roman-numerals
           - 5-kyu-create-ascii-face
-          - 1-dan-create-c64-emulator
+          - 5-kyu-apply-string-utils
           - 4-kyu-apply-cron-engine
           - 4-kyu-apply-dense-encoding
-          - 7-kyu-understand-fizz-buzz
-          - 8-kyu-remember-hello-world
           - 4-kyu-analyze-json-schema-diff
           - 3-kyu-analyze-lunar-lander
-          - 2-kyu-evaluate-markdown-compiler
+          - 3-kyu-evaluate-time-series-lab
           - 3-kyu-evaluate-owl-ontology
+          - 2-kyu-evaluate-markdown-compiler
           - 2-kyu-create-plot-code-lib
           - 1-kyu-create-ray-tracer
-          - 6-kyu-understand-roman-numerals
-          - 5-kyu-apply-string-utils
-          - 3-kyu-evaluate-time-series-lab
-          - 8-kyu-remember-empty
+          - 1-dan-create-c64-emulator
+          - 2-dan-create-agi
       mission-text:
         description: "Freeform mission text for MISSION.md (overrides mission-seed if provided)"
         type: string
