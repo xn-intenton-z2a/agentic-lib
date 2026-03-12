@@ -81,7 +81,10 @@ async function run() {
     }
 
     // Compute metrics
-    const isInstability = issueNumber && await checkInstabilityLabel(context, issueNumber);
+    const COST_TASKS = ["transform", "fix-code", "maintain-features", "maintain-library"];
+    const isNop = result.outcome === "nop" || result.outcome === "error";
+    const isInstability = issueNumber && COST_TASKS.includes(task) && !isNop
+      && await checkInstabilityLabel(context, issueNumber);
     if (isInstability) core.info(`Issue #${issueNumber} has instability label — does not count against budget`);
     const transformationCost = computeTransformationCost(task, result.outcome, isInstability);
     const intentionFilepath = config.intentionBot?.intentionFilepath;
