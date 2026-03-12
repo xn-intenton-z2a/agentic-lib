@@ -10,13 +10,11 @@ import { resolve, dirname } from "path";
 import { fileURLToPath } from "url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
+const pkgRoot = resolve(__dirname, "../..");
 
-// Search for the SDK relative to this file's location. Works in both:
-// - npm package: src/copilot/sdk.js → ../../node_modules/ or ../actions/agentic-step/node_modules/
-// - consumer repo: .github/agentic-lib/copilot/sdk.js → ../actions/agentic-step/node_modules/
 const SDK_LOCATIONS = [
-  resolve(__dirname, "../../node_modules/@github/copilot-sdk/dist/index.js"),
-  resolve(__dirname, "../actions/agentic-step/node_modules/@github/copilot-sdk/dist/index.js"),
+  resolve(pkgRoot, "node_modules/@github/copilot-sdk/dist/index.js"),
+  resolve(pkgRoot, "src/actions/agentic-step/node_modules/@github/copilot-sdk/dist/index.js"),
 ];
 
 let _sdk = null;

@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0-only
 // Copyright (C) 2025-2026 Polycode Limited
-// config-loader.js — Thin re-export from shared src/copilot/config.js
+// config-loader.js — Parse agentic-lib.toml and resolve paths
 //
-// Phase 4: Configuration logic now lives in src/copilot/config.js.
-// This file re-exports for backwards compatibility with existing imports.
+// TOML-only configuration. The config file is required.
+// All defaults are defined here in one place.
 
 import { readFileSync, existsSync } from "fs";
 import { dirname, join } from "path";
@@ -306,4 +306,3 @@ export function getWritablePaths(config, override) {
   }
   return config.writablePaths;
 }
-export { loadConfig, getWritablePaths } from "../../copilot/config.js";
