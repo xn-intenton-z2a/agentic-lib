@@ -20,6 +20,7 @@ on:
       - "**/*.js"
       - "**/*.json"
       - "**/*.html"
+      - "**/*.sh"
       - "**/*.yml"
       - "src/agents/*.md"
       - "src/scripts/*.sh"
