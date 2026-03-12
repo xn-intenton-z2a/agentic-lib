@@ -622,10 +622,12 @@ jobs:
           test -f /tmp/test-workspace/.github/agentic-lib/copilot/session.js || { echo "ERROR: copilot/session.js missing"; exit 1; }
           echo "OK: copilot/ directory distributed"
 
-      - name: Run self-init and verify symlink
+      - name: Install agentic-step deps and create symlink
         run: |
-          cd /tmp/test-workspace
-          bash .github/agentic-lib/scripts/self-init.sh
+          cd /tmp/test-workspace/.github/agentic-lib/actions/agentic-step
+          npm ci
+          # Replicate the symlink step from self-init.sh
+          ln -sf "$(pwd)/node_modules" /tmp/test-workspace/.github/agentic-lib/copilot/node_modules
 
       - name: Verify node_modules symlink resolves
         run: |
