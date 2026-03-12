@@ -126,17 +126,20 @@ permissions: write-all
 
 jobs:
   # Step 1: Update agentic-lib and infrastructure (commits to main)
+  # Skip tests when purge/reseed will replace all user code anyway
   update:
     uses: ./.github/workflows/agentic-lib-update.yml
     with:
       ref: ${{ inputs.ref }}
       dry-run: ${{ inputs.dry-run || 'false' }}
+      skip-tests: ${{ inputs.mode == 'reseed' || inputs.mode == 'purge' }}
     secrets: inherit
 
   # Step 2: Reseed/purge and configure (only if mode != update)
+  # Use !cancelled() so purge runs even if update's npm test failed
   init:
     needs: update
-    if: inputs.mode == 'reseed' || inputs.mode == 'purge'
+    if: "!cancelled() && (inputs.mode == 'reseed' || inputs.mode == 'purge')"
     runs-on: ubuntu-latest
     env:
       INIT_MODE: ${{ inputs.mode }}
