@@ -120,7 +120,7 @@ const TOOLS = [
       properties: {
         mission: {
           type: "string",
-          description: "Mission seed name (e.g. 'hamming-distance', 'fizz-buzz')",
+          description: "Mission seed name (e.g. '6-kyu-understand-hamming-distance', '7-kyu-understand-fizz-buzz')",
         },
         profile: {
           type: "string",

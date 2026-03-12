@@ -243,7 +243,7 @@ All task commands accept these flags:
 | `--dry-run` | off | Show the prompt without calling the Copilot SDK |
 | `--target <path>` | current directory | Target repository to transform |
 | `--model <name>` | `claude-sonnet-4` | Copilot SDK model |
-| `--mission <name>` | hamming-distance | Init with --purge before iterating (iterate only) |
+| `--mission <name>` | 6-kyu-understand-hamming-distance | Init with --purge before iterating (iterate only) |
 | `--timeout <ms>` | 600000 | Session timeout in milliseconds (iterate only) |
 
 ### Example: Full Walkthrough
@@ -303,18 +303,39 @@ The `iterate` command runs a single persistent Copilot SDK session that autonomo
 
 ```bash
 # Init a mission and iterate
-npx @xn-intenton-z2a/agentic-lib iterate --mission hamming-distance --model gpt-5-mini
+npx @xn-intenton-z2a/agentic-lib iterate --mission 6-kyu-understand-hamming-distance --model gpt-5-mini
 
 # Iterate on an existing workspace
 npx @xn-intenton-z2a/agentic-lib iterate --target /path/to/workspace
 
 # With a longer timeout (10 minutes)
-npx @xn-intenton-z2a/agentic-lib iterate --mission fizz-buzz --timeout 600000
+npx @xn-intenton-z2a/agentic-lib iterate --mission 7-kyu-understand-fizz-buzz --timeout 600000
 ```
 
 The session uses SDK hooks for observability (tool call tracking, error recovery) and infinite sessions for context management. The agent drives its own read-write-test loop until the mission is complete or the timeout is reached.
 
-**Available missions:** hamming-distance, fizz-buzz, roman-numerals, string-utils, cron-engine, dense-encoding, markdown-compiler, and more (see `src/seeds/missions/`).
+**Available missions** (see `src/seeds/missions/`). Mission names encode difficulty ([Codewars kyu/dan](https://docs.codewars.com/concepts/kata/)) and cognitive type ([Bloom's taxonomy](https://en.wikipedia.org/wiki/Bloom%27s_taxonomy)):
+
+| Mission | Kyu/Dan | Bloom's | Description |
+|---------|---------|---------|-------------|
+| `8-kyu-remember-empty` | 8 kyu | Remember | Blank template |
+| `8-kyu-remember-hello-world` | 8 kyu | Remember | Hello World |
+| `7-kyu-understand-fizz-buzz` | 7 kyu | Understand | Classic FizzBuzz |
+| `6-kyu-understand-hamming-distance` | 6 kyu | Understand | Hamming distance (strings + bits) |
+| `6-kyu-understand-roman-numerals` | 6 kyu | Understand | Roman numeral conversion |
+| `5-kyu-create-ascii-face` | 5 kyu | Create | ASCII face art |
+| `5-kyu-apply-string-utils` | 5 kyu | Apply | 10 string utility functions |
+| `4-kyu-apply-cron-engine` | 4 kyu | Apply | Cron expression parser |
+| `4-kyu-apply-dense-encoding` | 4 kyu | Apply | Dense binary encoding |
+| `4-kyu-analyze-json-schema-diff` | 4 kyu | Analyze | JSON Schema diff |
+| `3-kyu-analyze-lunar-lander` | 3 kyu | Analyze | Lunar lander simulation |
+| `3-kyu-evaluate-time-series-lab` | 3 kyu | Evaluate | Time series analysis |
+| `3-kyu-evaluate-owl-ontology` | 3 kyu | Evaluate | OWL ontology processor |
+| `2-kyu-evaluate-markdown-compiler` | 2 kyu | Evaluate | Markdown compiler |
+| `2-kyu-create-plot-code-lib` | 2 kyu | Create | Code visualization library |
+| `1-kyu-create-ray-tracer` | 1 kyu | Create | Ray tracer |
+| `1-dan-create-c64-emulator` | 1 dan | Create | C64 emulator |
+| `2-dan-create-agi` | 2 dan | Create | AGI vision |
 
 ### Running Local Benchmarks
 
@@ -338,28 +359,28 @@ source .env
 **Run a benchmark:**
 
 ```bash
-# Quick: hamming-distance with gpt-5-mini (simplest mission, ~1-2 min)
+# Quick: hamming-distance with gpt-5-mini (6 kyu, ~1-2 min)
 npx @xn-intenton-z2a/agentic-lib iterate \
-  --mission hamming-distance --model gpt-5-mini --timeout 300000
+  --mission 6-kyu-understand-hamming-distance --model gpt-5-mini --timeout 300000
 
 # Medium: roman-numerals with claude-sonnet-4
 npx @xn-intenton-z2a/agentic-lib iterate \
-  --mission roman-numerals --model claude-sonnet-4
+  --mission 6-kyu-understand-roman-numerals --model claude-sonnet-4
 
-# Complex: string-utils with gpt-4.1 (10 functions, longer timeout)
+# Complex: string-utils with gpt-4.1 (5 kyu, 10 functions, longer timeout)
 npx @xn-intenton-z2a/agentic-lib iterate \
-  --mission string-utils --model gpt-4.1 --timeout 600000
+  --mission 5-kyu-apply-string-utils --model gpt-4.1 --timeout 600000
 ```
 
 **From a local clone** (development):
 
 ```bash
 # From the agentic-lib directory
-npx . iterate --mission hamming-distance --model gpt-5-mini --target /tmp/bench
+npx . iterate --mission 6-kyu-understand-hamming-distance --model gpt-5-mini --target /tmp/bench
 
 # Or link globally
 npm link
-agentic-lib iterate --mission hamming-distance --model gpt-5-mini --target /tmp/bench
+agentic-lib iterate --mission 6-kyu-understand-hamming-distance --model gpt-5-mini --target /tmp/bench
 ```
 
 **Output:**

@@ -52,7 +52,7 @@ describe("CLI iterate", () => {
 
     it("--list-missions lists available seeds and exits 0", () => {
       const output = execSync(`node ${cliPath} iterate --list-missions`, { encoding: "utf8", timeout: 10000 });
-      expect(output).toContain("hamming-distance");
+      expect(output).toContain("6-kyu-understand-hamming-distance");
       expect(output).toContain("Available missions");
     });
 

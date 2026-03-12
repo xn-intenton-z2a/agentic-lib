@@ -11,41 +11,41 @@ const allFiles = readdirSync(MISSIONS_DIR)
   .sort();
 
 const EXPECTED_MISSIONS = [
-  "agi",
-  "ascii-face",
-  "c64-emulator",
-  "cron-engine",
-  "dense-encoding",
-  "empty",
-  "fizz-buzz",
-  "hamming-distance",
-  "hello-world",
-  "json-schema-diff",
-  "lunar-lander",
-  "markdown-compiler",
-  "owl-ontology",
-  "plot-code-lib",
-  "ray-tracer",
-  "roman-numerals",
-  "string-utils",
-  "time-series-lab",
+  "1-dan-create-c64-emulator",
+  "1-kyu-create-ray-tracer",
+  "2-dan-create-agi",
+  "2-kyu-create-plot-code-lib",
+  "2-kyu-evaluate-markdown-compiler",
+  "3-kyu-analyze-lunar-lander",
+  "3-kyu-evaluate-owl-ontology",
+  "3-kyu-evaluate-time-series-lab",
+  "4-kyu-analyze-json-schema-diff",
+  "4-kyu-apply-cron-engine",
+  "4-kyu-apply-dense-encoding",
+  "5-kyu-apply-string-utils",
+  "5-kyu-create-ascii-face",
+  "6-kyu-understand-hamming-distance",
+  "6-kyu-understand-roman-numerals",
+  "7-kyu-understand-fizz-buzz",
+  "8-kyu-remember-empty",
+  "8-kyu-remember-hello-world",
 ];
 
 const BOUNDED_MISSIONS = [
-  "c64-emulator",
-  "cron-engine",
-  "dense-encoding",
-  "fizz-buzz",
-  "hamming-distance",
-  "lunar-lander",
-  "markdown-compiler",
-  "plot-code-lib",
-  "ray-tracer",
-  "roman-numerals",
-  "string-utils",
+  "1-dan-create-c64-emulator",
+  "1-kyu-create-ray-tracer",
+  "2-kyu-create-plot-code-lib",
+  "2-kyu-evaluate-markdown-compiler",
+  "3-kyu-analyze-lunar-lander",
+  "4-kyu-apply-cron-engine",
+  "4-kyu-apply-dense-encoding",
+  "5-kyu-apply-string-utils",
+  "6-kyu-understand-hamming-distance",
+  "6-kyu-understand-roman-numerals",
+  "7-kyu-understand-fizz-buzz",
 ];
 
-const ONGOING_MISSIONS = ["owl-ontology", "time-series-lab"];
+const ONGOING_MISSIONS = ["3-kyu-evaluate-owl-ontology", "3-kyu-evaluate-time-series-lab"];
 
 describe("src/seeds/missions", () => {
   it("has 18 mission files", () => {
@@ -78,14 +78,14 @@ describe("src/seeds/missions", () => {
     });
   });
 
-  it("empty.md is a blank template", () => {
-    const content = readFileSync(join(MISSIONS_DIR, "empty.md"), "utf8");
+  it("8-kyu-remember-empty.md is a blank template", () => {
+    const content = readFileSync(join(MISSIONS_DIR, "8-kyu-remember-empty.md"), "utf8");
     expect(content).toContain("Describe your project");
   });
 
-  it("zero-MISSION.md matches hamming-distance.md", () => {
+  it("zero-MISSION.md matches 6-kyu-understand-hamming-distance.md", () => {
     const zeroMission = readFileSync(join(MISSIONS_DIR, "../zero-MISSION.md"), "utf8");
-    const hammingDistance = readFileSync(join(MISSIONS_DIR, "hamming-distance.md"), "utf8");
+    const hammingDistance = readFileSync(join(MISSIONS_DIR, "6-kyu-understand-hamming-distance.md"), "utf8");
     expect(zeroMission).toBe(hammingDistance);
   });
 });
