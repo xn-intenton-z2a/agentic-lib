@@ -5,19 +5,22 @@
 #
 # Runs the complete agentic-lib flow in a temporary workspace:
 #   1. init --purge a fresh workspace
-#   2. Write a mission statement
-#   3. Run maintain-features (generate feature files)
-#   4. Run transform (advance code toward mission)
-#   5. Verify files were created/modified
-#   6. Clean up the temporary workspace
+#   2. Install dependencies and run unit tests
+#   3. Optionally run behaviour tests (Playwright)
+#   4. Write a mission statement
+#   5. Run maintain-features and transform (SDK steps)
+#   6. Re-run tests to verify SDK changes pass
+#   7. Clean up the temporary workspace
 #
 # Usage:
-#   bash scripts/system-test.sh                  # full run (needs COPILOT_GITHUB_TOKEN)
-#   bash scripts/system-test.sh --dry-run        # prompt construction only, no SDK calls
-#   bash scripts/system-test.sh --init-only      # test init/purge cycle only
+#   bash scripts/system-test.sh                              # full run (needs COPILOT_GITHUB_TOKEN)
+#   bash scripts/system-test.sh --dry-run                    # prompt construction only, no SDK calls
+#   bash scripts/system-test.sh --init-only                  # test init/purge + tests only (no SDK)
+#   bash scripts/system-test.sh --init-only --behaviour      # also run Playwright behaviour tests
+#   bash scripts/system-test.sh --workspace /tmp/ws           # use a specific directory (no auto-cleanup)
 #
 # Environment:
-#   COPILOT_GITHUB_TOKEN  — required for SDK calls (not needed with --dry-run)
+#   COPILOT_GITHUB_TOKEN  — required for SDK calls (not needed with --dry-run or --init-only)
 #   MODEL                 — Copilot model (default: claude-sonnet-4)
 #
 
@@ -27,17 +30,23 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PKG_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 CLI="$PKG_ROOT/bin/agentic-lib.js"
 WORKSPACE=""
+WORKSPACE_ARG=""
 DRY_RUN=""
 INIT_ONLY=""
+BEHAVIOUR=""
 MODEL="${MODEL:-claude-sonnet-4}"
 
 # Parse args
-for arg in "$@"; do
-  case "$arg" in
-    --dry-run)   DRY_RUN="--dry-run" ;;
-    --init-only) INIT_ONLY="true" ;;
-    *)           echo "Unknown arg: $arg"; exit 1 ;;
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --dry-run)    DRY_RUN="--dry-run" ;;
+    --init-only)  INIT_ONLY="true" ;;
+    --behaviour)  BEHAVIOUR="true" ;;
+    --workspace)  WORKSPACE_ARG="$2"; shift ;;
+    --)           ;; # ignore -- separator (npm run passes this)
+    *)            echo "Unknown arg: $1"; exit 1 ;;
   esac
+  shift
 done
 
 # ── Helpers ──────────────────────────────────────────────────────────
@@ -47,7 +56,7 @@ fail() { echo "  ✗ $1"; FAILURES=$((FAILURES + 1)); }
 FAILURES=0
 
 cleanup() {
-  if [[ -n "$WORKSPACE" && -d "$WORKSPACE" ]]; then
+  if [[ -z "$WORKSPACE_ARG" && -n "$WORKSPACE" && -d "$WORKSPACE" ]]; then
     echo ""
     echo "--- Cleanup ---"
     rm -rf "$WORKSPACE"
@@ -58,17 +67,26 @@ trap cleanup EXIT
 
 # ── Setup ────────────────────────────────────────────────────────────
 
-WORKSPACE="$(mktemp -d)"
+if [[ -n "$WORKSPACE_ARG" ]]; then
+  mkdir -p "$WORKSPACE_ARG"
+  WORKSPACE="$(cd "$WORKSPACE_ARG" && pwd)"
+else
+  WORKSPACE="$(mktemp -d)"
+fi
+
+VERSION="$(node "$CLI" version)"
 echo ""
 echo "╔══════════════════════════════════════════════════════╗"
 echo "║          agentic-lib system test                     ║"
 echo "╚══════════════════════════════════════════════════════╝"
 echo ""
+echo "Version:   $VERSION"
 echo "Package:   $PKG_ROOT"
 echo "Workspace: $WORKSPACE"
 echo "Model:     $MODEL"
 echo "Dry-run:   ${DRY_RUN:-no}"
 echo "Init-only: ${INIT_ONLY:-no}"
+echo "Behaviour: ${BEHAVIOUR:-no}"
 echo ""
 
 # ── Step 1: Init with purge ─────────────────────────────────────────
@@ -78,31 +96,18 @@ echo ""
 
 # Create a minimal git repo (required context for some operations)
 cd "$WORKSPACE"
-git init --quiet
-git config user.email "test@test.com"
-git config user.name "Test"
-
-# Create package.json so npm install works
-cat > package.json <<'PKGJSON'
-{
-  "name": "system-test-workspace",
-  "version": "0.0.0",
-  "private": true,
-  "type": "module",
-  "scripts": {
-    "test": "echo 'tests pass'",
-    "build": "echo 'build ok'",
-    "start": "echo 'start ok'"
-  }
-}
-PKGJSON
+if [[ ! -d "$WORKSPACE/.git" ]]; then
+  git init --quiet
+  git config user.email "test@test.com"
+  git config user.name "Test"
+fi
 
 node "$CLI" init --purge --target "$WORKSPACE"
 echo ""
 
 # Verify init output
 echo "--- Verifying init ---"
-[[ -f "$WORKSPACE/.github/workflows/agent-flow-transform.yml" ]] && pass "Workflows installed" || fail "Workflows missing"
+[[ -f "$WORKSPACE/.github/workflows/agentic-lib-test.yml" ]] && pass "Workflows installed" || fail "Workflows missing"
 [[ -d "$WORKSPACE/.github/agentic-lib/actions/agentic-step" ]] && pass "Actions installed" || fail "Actions missing"
 [[ -d "$WORKSPACE/.github/agentic-lib/agents" ]] && pass "Agents installed" || fail "Agents missing"
 [[ -d "$WORKSPACE/.github/agentic-lib/seeds" ]] && pass "Seeds installed" || fail "Seeds missing"
@@ -111,6 +116,59 @@ echo "--- Verifying init ---"
 [[ -f "$WORKSPACE/tests/unit/main.test.js" ]] && pass "Seed test file created" || fail "Seed test missing"
 [[ -f "$WORKSPACE/MISSION.md" ]] && pass "Seed MISSION.md created" || fail "Seed MISSION.md missing"
 echo ""
+
+# ── Step 2: Install workspace dependencies ──────────────────────────
+
+echo "=== Step 2: Install workspace dependencies ==="
+echo ""
+
+# Strip SDK self-dependency — seed tests don't import it,
+# and the package may not be published yet during CI
+node -e "
+  const fs = require('fs');
+  const p = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+  delete (p.dependencies || {})['@xn-intenton-z2a/agentic-lib'];
+  fs.writeFileSync('package.json', JSON.stringify(p, null, 2) + '\n');
+"
+
+if npm install; then
+  pass "Workspace dependencies installed"
+else
+  fail "Workspace dependency install failed"
+fi
+echo ""
+
+# ── Step 3: Run unit tests ──────────────────────────────────────────
+
+echo "=== Step 3: Unit tests (seed verification) ==="
+echo ""
+
+if npm test; then
+  pass "Unit tests passed"
+else
+  fail "Unit tests failed"
+fi
+echo ""
+
+# ── Step 4: Run behaviour tests (optional) ──────────────────────────
+
+if [[ -n "$BEHAVIOUR" ]]; then
+  echo "=== Step 4: Behaviour tests (seed verification) ==="
+  echo ""
+
+  echo "  Installing Playwright browsers..."
+  npx playwright install --with-deps chromium 2>&1 | tail -5
+  echo ""
+
+  if npm run test:behaviour; then
+    pass "Behaviour tests passed"
+  else
+    fail "Behaviour tests failed"
+  fi
+  echo ""
+fi
+
+# ── Early exit for init-only mode ───────────────────────────────────
 
 if [[ -n "$INIT_ONLY" ]]; then
   echo "--- Init-only mode: skipping SDK steps ---"
@@ -123,9 +181,9 @@ if [[ -n "$INIT_ONLY" ]]; then
   exit 0
 fi
 
-# ── Step 2: Write a mission ─────────────────────────────────────────
+# ── Step 5: Write a mission ─────────────────────────────────────────
 
-echo "=== Step 2: Write mission ==="
+echo "=== Step 5: Write mission ==="
 echo ""
 
 cat > "$WORKSPACE/MISSION.md" <<'MISSION'
@@ -144,9 +202,9 @@ MISSION
 echo "  Mission written ($(wc -c < "$WORKSPACE/MISSION.md") bytes)"
 echo ""
 
-# ── Step 3: Install agentic-step dependencies ───────────────────────
+# ── Step 6: Install agentic-step dependencies ───────────────────────
 
-echo "=== Step 3: Install dependencies ==="
+echo "=== Step 6: Install agentic-step dependencies ==="
 echo ""
 
 STEP_DIR="$WORKSPACE/.github/agentic-lib/actions/agentic-step"
@@ -160,9 +218,9 @@ else
 fi
 echo ""
 
-# ── Step 4: Run maintain-features ────────────────────────────────────
+# ── Step 7: Run maintain-features ────────────────────────────────────
 
-echo "=== Step 4: maintain-features ==="
+echo "=== Step 7: maintain-features ==="
 echo ""
 
 mkdir -p "$WORKSPACE/features"
@@ -186,9 +244,9 @@ else
 fi
 echo ""
 
-# ── Step 5: Run transform ───────────────────────────────────────────
+# ── Step 8: Run transform ───────────────────────────────────────────
 
-echo "=== Step 5: transform ==="
+echo "=== Step 8: transform ==="
 echo ""
 
 SOURCE_BEFORE=$(wc -c < "$WORKSPACE/src/lib/main.js" | tr -d ' ')
@@ -209,7 +267,33 @@ else
 fi
 echo ""
 
-# ── Step 6: Summary ─────────────────────────────────────────────────
+# ── Step 9: Re-run unit tests ───────────────────────────────────────
+
+echo "=== Step 9: Unit tests (post-transform) ==="
+echo ""
+
+if npm test; then
+  pass "Unit tests passed after transform"
+else
+  fail "Unit tests failed after transform"
+fi
+echo ""
+
+# ── Step 10: Re-run behaviour tests (optional) ─────────────────────
+
+if [[ -n "$BEHAVIOUR" ]]; then
+  echo "=== Step 10: Behaviour tests (post-transform) ==="
+  echo ""
+
+  if npm run test:behaviour; then
+    pass "Behaviour tests passed after transform"
+  else
+    fail "Behaviour tests failed after transform"
+  fi
+  echo ""
+fi
+
+# ── Summary ─────────────────────────────────────────────────────────
 
 echo "=== Summary ==="
 echo ""

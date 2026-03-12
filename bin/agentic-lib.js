@@ -558,9 +558,11 @@ function initScripts(agenticDir) {
   const DISTRIBUTED_SCRIPTS = [
     "accept-release.sh",
     "activate-schedule.sh",
+    "build-web.cjs",
     "clean.sh",
     "initialise.sh",
     "md-to-html.js",
+    "push-to-logs.sh",
     "update.sh",
   ];
   if (!existsSync(scriptsDir)) return;
@@ -722,6 +724,7 @@ function initPurge(seedsDir, missionName, initTimestamp) {
     "zero-main.js": "src/lib/main.js",
     "zero-main.test.js": "tests/unit/main.test.js",
     "zero-index.html": "src/web/index.html",
+    "zero-lib.js": "src/web/lib.js",
     "zero-web.test.js": "tests/unit/web.test.js",
     "zero-behaviour.test.js": "tests/behaviour/homepage.test.js",
     "zero-playwright.config.js": "playwright.config.js",
@@ -1132,6 +1135,32 @@ function initPurgeGitHub() {
     }
   } catch (err) {
     console.log(`  SKIP: Could not create discussion (${err.message})`);
+  }
+
+  // ── Create/reset agentic-lib-logs orphan branch ─────────────────────────────
+  console.log("\n--- agentic-lib-logs branch (activity log + screenshot) ---");
+  try {
+    if (!dryRun) {
+      // Delete existing agentic-lib-logs branch if present
+      try {
+        ghExec(`gh api repos/${repoSlug}/git/refs/heads/agentic-lib-logs -X DELETE`);
+        console.log("  DELETE: existing agentic-lib-logs branch");
+      } catch { /* branch may not exist */ }
+      // Create orphan agentic-lib-logs branch with an empty commit via the API
+      // First get the empty tree SHA
+      const emptyTree = JSON.parse(ghExec(`gh api repos/${repoSlug}/git/trees -X POST -f "tree[0][path]=.gitkeep" -f "tree[0][mode]=100644" -f "tree[0][type]=blob" -f "tree[0][content]="`));
+      const commitData = JSON.parse(ghExec(
+        `gh api repos/${repoSlug}/git/commits -X POST -f "message=init agentic-lib-logs branch" -f "tree=${emptyTree.sha}"`,
+      ));
+      ghExec(`gh api repos/${repoSlug}/git/refs -X POST -f "ref=refs/heads/agentic-lib-logs" -f "sha=${commitData.sha}"`);
+      console.log("  CREATE: agentic-lib-logs orphan branch");
+      initChanges++;
+    } else {
+      console.log("  CREATE: agentic-lib-logs orphan branch (dry run)");
+      initChanges++;
+    }
+  } catch (err) {
+    console.log(`  SKIP: Could not create agentic-lib-logs branch (${err.message})`);
   }
 
   // ── Enable GitHub Pages ───────────────────────────────────────────

@@ -27,8 +27,8 @@ function stripForYaml(content) {
 }
 
 describe(".github/workflows (distributable)", () => {
-  it("has 5 workflow files", () => {
-    expect(workflowFiles).toHaveLength(5);
+  it("has 6 workflow files", () => {
+    expect(workflowFiles).toHaveLength(6);
   });
 
   describe.each(workflowFiles)("%s", (filename) => {

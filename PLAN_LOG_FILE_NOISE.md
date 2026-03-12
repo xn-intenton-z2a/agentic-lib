@@ -1,7 +1,7 @@
 # Plan: Move Noisy Files Off Working Branches
 
 **Created**: 2026-03-11
-**Status**: plan — not yet implemented
+**Status**: implemented — pushed to main (agentic-lib), branch `claude/logs-branch-urls` (xn--intenton-z2a.com)
 
 ---
 
