@@ -49,19 +49,13 @@ async function main() {
   const { runHybridSession } = await import("../src/copilot/hybrid-session.js");
   console.log("   [OK] hybrid-session.js");
 
-  // ── 2. Validate task imports ──
-  console.log("\n2. Testing task imports...");
-  const { transform } = await import("../src/copilot/tasks/transform.js");
-  console.log("   [OK] tasks/transform.js");
+  // ── 2. Validate agent/context imports (Phase 4: replaces task imports) ──
+  console.log("\n2. Testing agent/context imports...");
+  const { loadAgentPrompt } = await import("../src/copilot/agents.js");
+  console.log("   [OK] agents.js");
 
-  const { fixCode } = await import("../src/copilot/tasks/fix-code.js");
-  console.log("   [OK] tasks/fix-code.js");
-
-  const { maintainFeatures } = await import("../src/copilot/tasks/maintain-features.js");
-  console.log("   [OK] tasks/maintain-features.js");
-
-  const { maintainLibrary } = await import("../src/copilot/tasks/maintain-library.js");
-  console.log("   [OK] tasks/maintain-library.js");
+  const { gatherLocalContext, buildUserPrompt } = await import("../src/copilot/context.js");
+  console.log("   [OK] context.js");
 
   // ── 3. Validate config loading ──
   console.log("\n3. Testing config loading...");
@@ -92,6 +86,9 @@ async function main() {
   console.log(`   isPathWritable("src/lib/main.js", ["src/lib/"]): ${isPathWritable("src/lib/main.js", ["src/lib/"])}`);
   console.log(`   readOptionalFile: ${typeof readOptionalFile === "function" ? "OK" : "FAIL"}`);
   console.log(`   scanDirectory: ${typeof scanDirectory === "function" ? "OK" : "FAIL"}`);
+  console.log(`   loadAgentPrompt: ${typeof loadAgentPrompt === "function" ? "OK" : "FAIL"}`);
+  console.log(`   gatherLocalContext: ${typeof gatherLocalContext === "function" ? "OK" : "FAIL"}`);
+  console.log(`   buildUserPrompt: ${typeof buildUserPrompt === "function" ? "OK" : "FAIL"}`);
 
   // ── 6. Run hybrid session (if token available) ──
   const hasToken = !!process.env.COPILOT_GITHUB_TOKEN;
