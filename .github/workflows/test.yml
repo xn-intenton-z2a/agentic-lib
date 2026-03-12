@@ -613,7 +613,7 @@ jobs:
       - name: Init workspace with --purge
         run: |
           mkdir -p /tmp/test-workspace
-          node bin/agentic-lib.js init --purge --mission fizz-buzz --target /tmp/test-workspace
+          node bin/agentic-lib.js init --purge --mission 7-kyu-understand-fizz-buzz --target /tmp/test-workspace
 
       - name: Verify copilot/ directory was distributed
         run: |
