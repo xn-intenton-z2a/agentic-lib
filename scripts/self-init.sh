@@ -86,5 +86,11 @@ cd "${AGENTIC_DIR}/actions/agentic-step"
 npm ci
 echo "  DONE: agentic-step dependencies installed"
 
+# 7. Link copilot node_modules to agentic-step's (shared packages like smol-toml)
+if [ -d "${AGENTIC_DIR}/copilot" ] && [ -d "${AGENTIC_DIR}/actions/agentic-step/node_modules" ]; then
+  ln -sf "${AGENTIC_DIR}/actions/agentic-step/node_modules" "${AGENTIC_DIR}/copilot/node_modules"
+  echo "  LINK: copilot/node_modules → actions/agentic-step/node_modules"
+fi
+
 echo ""
 echo "=== Self-init complete ==="
