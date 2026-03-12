@@ -419,7 +419,7 @@ describe("config-loader", () => {
     });
 
     it("derives TOML path from YAML-style path (3 levels up)", () => {
-      // Simulate .github/agentic-lib/agents/agentic-lib.yml → project root agentic-lib.toml
+      // Simulate legacy .github/agentic-lib/agents/agentic-lib.yml → project root agentic-lib.toml
       const agentsDir = join(tmpDir, ".github", "agentic-lib", "agents");
       mkdirSync(agentsDir, { recursive: true });
       const yamlPath = join(agentsDir, "agentic-lib.yml");

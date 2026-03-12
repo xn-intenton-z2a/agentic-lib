@@ -74,14 +74,14 @@ Tests use **Vitest**. Test files are in `tests/unit/` and `sandbox/tests/`.
 ### Key Architecture
 
 - **Reusable workflows** (`.github/workflows/`) — invoked via `workflow_call`
-- **Agent configurations** (`.github/agentic-lib/agents/`) — define agent behavior patterns
+- **Agent configurations** (`.github/agents/`) — define agent behavior patterns (Copilot-discoverable)
 - **Sandbox** (`sandbox/`) — restricted path for automated code changes
 - **Source** (`src/lib/`) — core library code
 
 ### Naming Conventions
 
 - Workflow files: `agent-{type}-{action}.yml` or `ci-{purpose}.yml` or `publish-{target}.yml`
-- Agent configs: `.github/agentic-lib/agents/*.yml`
+- Agent configs: `.github/agents/*.md`
 - npm scripts: colon separator for variants (e.g., `test:unit`)
 
 ## Code Review Focus Areas
@@ -141,7 +141,7 @@ Tests use **Vitest**. Test files are in `tests/unit/` and `sandbox/tests/`.
 - **Contributing**: [`./CONTRIBUTING.md`](../CONTRIBUTING.md)
 - **Package Scripts**: [`./package.json`](../package.json)
 - **Workflows**: [`./.github/workflows/`](./workflows/)
-- **Agent Configs**: [`./.github/agentic-lib/agents/`](./agentic-lib/agents/)
+- **Agent Configs**: [`./.github/agents/`](./agents/)
 
 ---
 

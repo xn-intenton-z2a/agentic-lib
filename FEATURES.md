@@ -211,7 +211,7 @@ Tests on push/PR (Vitest), linting (ESLint), auto-merge of passing PRs. `copilot
 
 Centralises agent parameters in `agentic-lib.yml`: file paths with read/write permissions, build/test/main scripts, WIP limits, attempt limits, sandbox reset behaviour, seed files, schedule selection. The `config-loader.js` and `safety.js` modules enforce limits.
 
-**Config file:** `.github/agentic-lib/agents/agentic-lib.yml`
+**Config file:** `agentic-lib.toml`
 **Status:** Done
 
 #### 14. Template System

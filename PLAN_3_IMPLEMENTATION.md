@@ -278,7 +278,7 @@ tools: [read_file, write_file, list_files]
 
 ### Agent definition file format
 
-Agent definitions live in `.github/agentic-lib/agents/`. Each is a markdown file with YAML front matter:
+Agent definitions live in `.github/agents/`. Each is a markdown file with YAML front matter:
 
 ```markdown
 ---

@@ -203,7 +203,7 @@ The `profile` setting controls all tuning defaults. Three profiles are built in:
 
 Override individual knobs in `[tuning]` to deviate from a profile. Limits (`[limits]`) also scale with the profile.
 
-The YAML config at `.github/agentic-lib/agents/agentic-lib.yml` is also supported as a fallback.
+The legacy YAML config at `.github/agentic-lib/agents/agentic-lib.yml` is also supported as a fallback.
 
 ## The `agentic-step` Action
 

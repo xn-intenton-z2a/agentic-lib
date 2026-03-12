@@ -575,11 +575,13 @@ function initActions(agenticDir) {
   }
 }
 
-function initDirContents(srcSubdir, dstDir, label) {
+function initDirContents(srcSubdir, dstDir, label, excludeFiles = []) {
   console.log(`\n--- ${label} ---`);
   const dir = resolve(srcDir, srcSubdir);
   if (!existsSync(dir)) return;
+  const excludeSet = new Set(excludeFiles);
   for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    if (excludeSet.has(entry.name)) continue;
     if (entry.isDirectory()) {
       initCopyDirRecursive(resolve(dir, entry.name), resolve(dstDir, entry.name), `${srcSubdir}/${entry.name}`);
     } else {
@@ -1269,7 +1271,14 @@ function runInit() {
   initWorkflows();
   initActions(agenticDir);
   initDirContents("copilot", resolve(agenticDir, "copilot"), "Copilot (shared modules)");
-  initDirContents("agents", resolve(agenticDir, "agents"), "Agents");
+  initDirContents("agents", resolve(target, ".github/agents"), "Agents", ["agentic-lib.yml"]);
+  // Remove stale legacy agents directory
+  const legacyAgentsDir = resolve(agenticDir, "agents");
+  if (existsSync(legacyAgentsDir)) {
+    if (!dryRun) rmSync(legacyAgentsDir, { recursive: true });
+    console.log("  REMOVE stale: .github/agentic-lib/agents/ (migrated to .github/agents/)");
+    initChanges++;
+  }
   initDirContents("seeds", resolve(agenticDir, "seeds"), "Seeds");
   initScripts(agenticDir);
   initConfig(seedsDir);

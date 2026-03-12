@@ -59,7 +59,7 @@ Running `npx @xn-intenton-z2a/agentic-lib init --purge` in a consumer repo copie
 | `.github/workflows/agentic-lib-*.yml` | `.github/workflows/` | 5 workflow files (transformed via `#@dist` markers) |
 | `agentic-lib.toml` | `agentic-lib.toml` | Config file (transformed via `#@dist` markers, only if not exists) |
 | `src/actions/*/` | `.github/agentic-lib/actions/` | 3 actions (agentic-step, commit-if-changed, setup-npmrc) |
-| `src/agents/*` | `.github/agentic-lib/agents/` | Agent config + prompts |
+| `src/agents/*.md` | `.github/agents/` | Agent prompts (Copilot-discoverable) |
 | `src/seeds/*` | `.github/agentic-lib/seeds/` | All seed files (for reference) |
 | `src/scripts/` (selected) | `.github/agentic-lib/scripts/` | 6 scripts |
 | `src/seeds/zero-*.{js,md,json}` | Project root (`src/lib/`, `tests/`, etc.) | **--purge only** — resets user content |
@@ -199,7 +199,7 @@ Three AI agents work on the intentïon project. Follow these guidelines to be go
 | `.github/workflows/*`                              | Claude Code              | Review, fix bugs      |
 | `FEATURES.md`, `PLAN_*.md`                         | Claude Code              | Comment via issues    |
 | `src/lib/main.js` (repository0)                    | Automated (agentic-step) | Review                |
-| Agent prompt files (`.github/agentic-lib/agents/`) | Shared                   | Any agent may update  |
+| Agent prompt files (`.github/agents/`) | Shared                   | Any agent may update  |
 
 ### Conflict Avoidance
 

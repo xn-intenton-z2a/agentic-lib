@@ -31,14 +31,20 @@ for action_dir in "${SRC_DIR}/actions"/*/; do
   echo "  COPY: actions/${action_name}"
 done
 
-# 2. Agents → .github/agentic-lib/agents/
+# 2. Agents → .github/agents/ (Copilot-discoverable location)
 echo ""
 echo "--- Agents ---"
-mkdir -p "${AGENTIC_DIR}/agents"
-for f in "${SRC_DIR}/agents"/*; do
-  cp "$f" "${AGENTIC_DIR}/agents/$(basename "$f")"
+AGENTS_DIR="${REPO_ROOT}/.github/agents"
+mkdir -p "${AGENTS_DIR}"
+for f in "${SRC_DIR}/agents"/*.md; do
+  cp "$f" "${AGENTS_DIR}/$(basename "$f")"
   echo "  COPY: agents/$(basename "$f")"
 done
+# Remove legacy agents directory if it exists
+if [ -d "${AGENTIC_DIR}/agents" ]; then
+  rm -rf "${AGENTIC_DIR}/agents"
+  echo "  REMOVE stale: .github/agentic-lib/agents/ (migrated to .github/agents/)"
+fi
 
 # 3. Seeds → .github/agentic-lib/seeds/
 echo ""

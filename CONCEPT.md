@@ -44,7 +44,7 @@ Branches can create new capabilities that persist after merge. A builder working
 
 ## Agents (Assembled Transformations)
 
-An **agent** is a transformation defined by what it changes and what capabilities it needs. Agent definitions live in `.github/agentic-lib/agents/` as text files. Each defines:
+An **agent** is a transformation defined by what it changes and what capabilities it needs. Agent definitions live in `.github/agents/` as text files. Each defines:
 
 - A **transformation**: from state → to state (what the agent changes)
 - Required **capabilities**: which capabilities the agent needs to operate
@@ -328,7 +328,7 @@ Three assembly problems are solved by constraint satisfaction:
 | **plan**              | A committed partial-order document tracking actions, causal links, threats, assumptions, and observations. YAML front matter tracks cycle, realization score, and budget. Refined each cycle. |
 | **transformation**    | A single workflow run. A budget of compute that runs the 7-step engine loop: assess, plan, solve, assemble, execute, witness, iterate.                                                        |
 | **capability**        | A text file describing how to interact with a service. The building blocks that agents are assembled from. Lives in `.github/agentic-lib/capabilities/`.                                      |
-| **agent definition**  | A text file defining a transformation (from state → to state), required capabilities, and constraints. Lives in `.github/agentic-lib/agents/`.                                                |
+| **agent definition**  | A text file defining a transformation (from state → to state), required capabilities, and constraints. Lives in `.github/agents/`.                                                |
 | **constraint solver** | The engine step that finds proceedable actions — those with met preconditions, no unresolved threats, and no resource conflicts. Also assembles agents from capabilities.                     |
 | **assessment**        | The engine step that reads repository state into a representation efficient for reasoning. Maps conditions, assumptions, and observations.                                                    |
 | **belief state**      | The set of assumptions currently held, each with a justification, strength, and dependents. Subject to revision when evidence contradicts.                                                    |
