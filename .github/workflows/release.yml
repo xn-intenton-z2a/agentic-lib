@@ -52,6 +52,7 @@ env:
 jobs:
   test:
     runs-on: ubuntu-latest
+    container: mcr.microsoft.com/playwright:v1.58.2-noble
     permissions:
       contents: read
     steps:
@@ -60,7 +61,6 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version: 24
-          cache: "npm"
 
       - run: npm ci
 
@@ -68,6 +68,9 @@ jobs:
         run: cd src/actions/agentic-step && (npm ci)
 
       - run: npm test
+
+      - name: System test (init + unit + behaviour)
+        run: bash scripts/system-test.sh --init-only --behaviour
 
   publish:
     needs: test

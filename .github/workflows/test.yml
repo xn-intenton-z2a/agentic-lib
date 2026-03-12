@@ -15,10 +15,9 @@
 #     test-cli-transform          — CLI transform
 #     test-cli-maintain-features  — CLI maintain-features
 #     test-cli-maintain-library   — CLI maintain-library
-#   Init pipeline (9 jobs — deterministic, no Copilot token needed):
+#   Init pipeline (8 jobs — deterministic, no Copilot token needed):
 #     test-init-idempotency      — init --purge twice produces no diff
-#     test-seeded-npm-test       — seeded workspace npm test passes
-#     test-seeded-behaviour      — seeded workspace unit + Playwright tests (in Playwright container)
+#     test-seeded                — system-test.sh --init-only --behaviour (unit + Playwright, in Playwright container)
 #     test-dist-yaml-validity    — #@dist transform produces valid YAML
 #     test-init-update-mode      — update mode preserves user content
 #     test-stale-workflow-cleanup — stale workflows are removed
@@ -417,30 +416,7 @@ jobs:
           fi
           echo "init --purge is idempotent"
 
-  test-seeded-npm-test:
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-node@v6
-        with:
-          node-version: 24
-          cache: "npm"
-      - run: npm ci
-
-      - name: Seed workspace
-        run: |
-          mkdir -p /tmp/test-workspace
-          node bin/agentic-lib.js init --purge --mission fizz-buzz --target /tmp/test-workspace
-
-      - name: Install and test seeded workspace
-        working-directory: /tmp/test-workspace
-        run: |
-          node -e "const p=JSON.parse(require('fs').readFileSync('package.json','utf8')); delete p.dependencies; require('fs').writeFileSync('package.json',JSON.stringify(p,null,2)+'\n')"
-          npm install
-          npm test
-
-  test-seeded-behaviour:
+  test-seeded:
     runs-on: ubuntu-latest
     container: mcr.microsoft.com/playwright:v1.58.2-noble
     timeout-minutes: 10
@@ -451,26 +427,8 @@ jobs:
           node-version: 24
       - run: npm ci
 
-      - name: Seed workspace
-        run: |
-          mkdir -p /tmp/test-workspace
-          node bin/agentic-lib.js init --purge --mission fizz-buzz --target /tmp/test-workspace
-
-      - name: Install seeded workspace
-        working-directory: /tmp/test-workspace
-        run: |
-          node -e "const p=JSON.parse(require('fs').readFileSync('package.json','utf8')); delete p.dependencies; require('fs').writeFileSync('package.json',JSON.stringify(p,null,2)+'\n')"
-          npm install
-
-      - name: Run unit tests
-        working-directory: /tmp/test-workspace
-        run: npm test
-
-      - name: Run behaviour tests
-        working-directory: /tmp/test-workspace
-        run: npm run test:behaviour
-        #env:
-        #  HOME: /root
+      - name: System test (init + unit + behaviour)
+        run: bash scripts/system-test.sh --init-only --behaviour --workspace /tmp/test-workspace
 
       - name: Verify screenshot was created
         run: |
