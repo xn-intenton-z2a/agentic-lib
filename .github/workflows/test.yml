@@ -3,7 +3,7 @@
 # .github/workflows/test.yml
 #
 # All testing for agentic-lib in one workflow.
-#
+# 
 # Every push/PR runs up to 23 concurrent jobs:
 #
 #   CI (4 jobs — each fails independently for maximum signal):
