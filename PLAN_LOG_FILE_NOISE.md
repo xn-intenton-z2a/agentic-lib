@@ -1,7 +1,7 @@
 # Plan: Move Noisy Files Off Working Branches
 
 **Created**: 2026-03-11
-**Status**: implemented — pushed to main (agentic-lib), branch `claude/logs-branch-urls` (xn--intenton-z2a.com)
+**Status**: implemented — pushed to main (agentic-lib), branch `claude/logs-branch-urls` (xn--intenton-z2a.com). Bugs fixed 2026-03-12 (see Bug Fixes section).
 
 ---
 
@@ -146,3 +146,33 @@ Options A, C, E are ruled out because the website fetches via `raw.githubusercon
 | W6 | Handle concurrent `.logs` pushes (rebase/retry) | agentic-lib: shared script or action | MEDIUM |
 | W7 | Update website to fetch from `.logs` branch | xn--intenton-z2a.com: `public/index.html` | MEDIUM |
 | W8 | Update `logActivity()` and config-loader docs | agentic-lib: `logging.js`, `config-loader.js` | LOW |
+
+---
+
+## Bug Fixes (2026-03-12)
+
+Three interconnected bugs found in the initial implementation:
+
+### Bug 1: `commit-if-changed` — silent push failure
+
+**Symptoms**: Director/supervisor jobs fail with `fatal: remote error: upload-pack: not our ref <SHA>`. The commit SHA captured by `get-sha` was never pushed to the remote.
+
+**Root cause (two parts)**:
+1. **Unstaged changes block rebase**: After `git add -A` + `git reset HEAD -- intentïon.md ...`, the log/screenshot files become unstaged changes. When `git pull --rebase` runs, it refuses: `error: cannot pull with rebase: You have unstaged changes.`
+2. **Unreachable error exit**: The retry loop uses `continue` on rebase failure, which skips the `if [ "$attempt" -eq "$MAX_RETRIES" ]` check at the bottom of the loop. After 3 failed attempts, the loop exits normally (exit 0) without ever pushing the commit.
+
+**Fix**: Added `git stash` after commit (before rebase) to hide unstaged changes. Replaced the unreachable `if` check with a `PUSH_SUCCESS` flag checked after the loop exits.
+
+### Bug 2: `push-to-logs.sh` — fails in Playwright container
+
+**Symptom**: `fatal: --local can only be used inside a git repository` in the `behaviour` job of `agentic-lib-test.yml`.
+
+**Root cause**: The Playwright Docker container runs as a different user than `actions/checkout`. Git's `safe.directory` check rejects the workspace, making `git config --local` fail.
+
+**Fix**: Added `git config --global --add safe.directory "$(pwd)"` before `git config --local`.
+
+### Bug 3: `push-to-logs.sh` — branch switching leaves dirty state
+
+**Root cause**: The script switches to `agentic-lib-logs` branch, commits, pushes, then tries to return with `git checkout -`. If there are uncommitted changes (from the unstaged log files), `git checkout` can fail or leave the repo in a bad state. Also removed `git checkout "origin/${BRANCH}" -- .` which polluted the working tree with files from the logs branch before switching.
+
+**Fix**: Added `git stash --include-untracked` before branch switching and `git stash pop` after returning. Captured `ORIGINAL_REF` explicitly instead of relying on `git checkout -`.
