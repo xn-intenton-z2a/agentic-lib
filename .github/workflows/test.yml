@@ -256,9 +256,9 @@ jobs:
       - name: Show agent changes
         run: |
           echo "--- CLI log markers ---"
-          grep -E '^\[(context|copilot|hybrid|config|prompt|tool|tokens)\]' /tmp/cli-output.log || true
-          if ! grep -qE '\[(copilot|hybrid)\]' /tmp/cli-output.log; then
-            echo "ERROR: No [copilot] or [hybrid] log lines — LLM was not called"
+          grep -E '^\[(context|copilot|agentic-lib|config|prompt|tool|tokens)\]' /tmp/cli-output.log || true
+          if ! grep -qE '\[(copilot|agentic-lib)\]' /tmp/cli-output.log; then
+            echo "ERROR: No [copilot] or [agentic-lib] log lines — LLM was not called"
             exit 1
           fi
           echo "--- File changes ---"
@@ -312,9 +312,9 @@ jobs:
       - name: Show agent changes
         run: |
           echo "--- CLI log markers ---"
-          grep -E '^\[(context|copilot|hybrid|config|prompt|tool|tokens)\]' /tmp/cli-output.log || true
-          if ! grep -qE '\[(copilot|hybrid)\]' /tmp/cli-output.log; then
-            echo "ERROR: No [copilot] or [hybrid] log lines — LLM was not called"
+          grep -E '^\[(context|copilot|agentic-lib|config|prompt|tool|tokens)\]' /tmp/cli-output.log || true
+          if ! grep -qE '\[(copilot|agentic-lib)\]' /tmp/cli-output.log; then
+            echo "ERROR: No [copilot] or [agentic-lib] log lines — LLM was not called"
             exit 1
           fi
           echo "--- File changes ---"
@@ -368,9 +368,9 @@ jobs:
       - name: Show agent changes
         run: |
           echo "--- CLI log markers ---"
-          grep -E '^\[(context|copilot|hybrid|config|prompt|tool|tokens)\]' /tmp/cli-output.log || true
-          if ! grep -qE '\[(copilot|hybrid)\]' /tmp/cli-output.log; then
-            echo "ERROR: No [copilot] or [hybrid] log lines — LLM was not called"
+          grep -E '^\[(context|copilot|agentic-lib|config|prompt|tool|tokens)\]' /tmp/cli-output.log || true
+          if ! grep -qE '\[(copilot|agentic-lib)\]' /tmp/cli-output.log; then
+            echo "ERROR: No [copilot] or [agentic-lib] log lines — LLM was not called"
             exit 1
           fi
           echo "--- File changes ---"
