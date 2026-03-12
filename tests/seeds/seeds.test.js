@@ -11,8 +11,8 @@ const ROOT_DIR = join(import.meta.dirname, "../..");
 const allFiles = readdirSync(SEEDS_DIR).sort();
 
 describe("src/seeds", () => {
-  it("has 14 seed entries (13 files + missions directory)", () => {
-    expect(allFiles).toHaveLength(14);
+  it("has 13 seed entries (12 files + missions directory)", () => {
+    expect(allFiles).toHaveLength(13);
   });
 
   describe("zero-package.json", () => {
