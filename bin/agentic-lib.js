@@ -30,12 +30,6 @@ const flags = args.slice(1);
 
 let initChanges = 0;
 const TASK_COMMANDS = ["transform", "maintain-features", "maintain-library", "fix-code"];
-const TASK_AGENT_MAP = {
-  "transform": "agent-issue-resolution",
-  "fix-code": "agent-apply-fix",
-  "maintain-features": "agent-maintain-features",
-  "maintain-library": "agent-maintain-library",
-};
 const INIT_COMMANDS = ["init", "update", "reset"];
 const ALL_COMMANDS = [...INIT_COMMANDS, ...TASK_COMMANDS, "version", "mcp", "iterate"];
 
@@ -372,30 +366,21 @@ async function runIterate() {
 // ─── Task Runner ─────────────────────────────────────────────────────
 
 async function runTask(taskName) {
-  // Task commands are now aliases for iterate --agent <agent-name>
-  const agentName = TASK_AGENT_MAP[taskName];
-  if (!agentName) {
-    console.error(`Unknown task: ${taskName}`);
-    return 1;
-  }
-
   console.log("");
-  console.log(`=== agentic-lib ${taskName} (→ iterate --agent ${agentName}) ===`);
+  console.log(`=== agentic-lib ${taskName} ===`);
   console.log(`Target:  ${target}`);
   console.log(`Model:   ${model}`);
   console.log(`Dry-run: ${dryRun}`);
   console.log("");
 
+  // Load config from shared module
   const { loadConfig } = await import("../src/copilot/config.js");
-  let config;
-  try {
-    config = loadConfig(resolve(target, "agentic-lib.toml"));
-  } catch {
-    config = { tuning: {}, model: "gpt-5-mini", paths: {}, writablePaths: [], readOnlyPaths: [] };
-  }
-  const effectiveModel = model || config.model || "gpt-5-mini";
+  const config = loadConfig(resolve(target, "agentic-lib.toml"));
+  const effectiveModel = model || config.model;
 
-  console.log(`[config] writable=${(config.writablePaths || []).join(", ")}`);
+  console.log(`[config] supervisor=${config.supervisor}`);
+  console.log(`[config] writable=${config.writablePaths.join(", ")}`);
+  console.log(`[config] test=${config.testScript}`);
   console.log("");
 
   if (dryRun) {
@@ -403,50 +388,62 @@ async function runTask(taskName) {
     return 0;
   }
 
+  // Change to target directory so relative paths in config work
+  const originalCwd = process.cwd();
+  process.chdir(target);
+
   try {
-    const { loadAgentPrompt } = await import("../src/copilot/agents.js");
-    const { runHybridSession } = await import("../src/copilot/hybrid-session.js");
-    const { gatherLocalContext, gatherGitHubContext, buildUserPrompt } = await import("../src/copilot/context.js");
-
-    const agentPrompt = loadAgentPrompt(agentName);
-    const localContext = gatherLocalContext(target, config);
-
-    let githubContext;
-    if (issueNumber || prNumber) {
-      githubContext = gatherGitHubContext({
-        issueNumber: issueNumber || undefined,
-        prNumber: prNumber || undefined,
-        workspacePath: target,
-      });
-    }
-
-    const userPrompt = buildUserPrompt(agentName, localContext, githubContext, { tuning: config.tuning });
-
-    const result = await runHybridSession({
-      workspacePath: target,
+    const context = {
+      config,
+      writablePaths: config.writablePaths,
       model: effectiveModel,
-      tuning: config.tuning || {},
-      timeoutMs,
-      agentPrompt,
-      userPrompt,
-      writablePaths: config.writablePaths?.length > 0 ? config.writablePaths : undefined,
-    });
+      testCommand: config.testScript,
+      logger: { info: console.log, warning: console.warn, error: console.error, debug: () => {} },
+    };
+
+    let result;
+    switch (taskName) {
+      case "transform": {
+        const { transform } = await import("../src/copilot/tasks/transform.js");
+        result = await transform(context);
+        break;
+      }
+      case "maintain-features": {
+        const { maintainFeatures } = await import("../src/copilot/tasks/maintain-features.js");
+        result = await maintainFeatures(context);
+        break;
+      }
+      case "maintain-library": {
+        const { maintainLibrary } = await import("../src/copilot/tasks/maintain-library.js");
+        result = await maintainLibrary(context);
+        break;
+      }
+      case "fix-code": {
+        const { fixCode } = await import("../src/copilot/tasks/fix-code.js");
+        result = await fixCode(context);
+        break;
+      }
+      default:
+        console.error(`Unknown task: ${taskName}`);
+        return 1;
+    }
 
     console.log("");
     console.log(`=== ${taskName} completed ===`);
-    console.log(`Success:       ${result.success}`);
-    console.log(`Session time:  ${result.sessionTime}s`);
-    console.log(`Tool calls:    ${result.toolCalls}`);
-    console.log(`Tokens:        ${result.tokensIn + result.tokensOut} (in=${result.tokensIn} out=${result.tokensOut})`);
+    console.log(`Outcome: ${result.outcome}`);
+    if (result.details) console.log(`Details: ${result.details}`);
+    if (result.tokensUsed) console.log(`Tokens: ${result.tokensUsed} (in=${result.inputTokens} out=${result.outputTokens})`);
     if (result.narrative) console.log(`Narrative: ${result.narrative}`);
     console.log("");
-    return result.success ? 0 : 1;
+    return 0;
   } catch (err) {
     console.error("");
     console.error(`=== ${taskName} FAILED ===`);
     console.error(err.message);
     if (err.stack) console.error(err.stack);
     return 1;
+  } finally {
+    process.chdir(originalCwd);
   }
 }
 
@@ -558,9 +555,11 @@ function initScripts(agenticDir) {
   const DISTRIBUTED_SCRIPTS = [
     "accept-release.sh",
     "activate-schedule.sh",
+    "build-web.cjs",
     "clean.sh",
     "initialise.sh",
     "md-to-html.js",
+    "push-to-logs.sh",
     "update.sh",
   ];
   if (!existsSync(scriptsDir)) return;
@@ -722,6 +721,7 @@ function initPurge(seedsDir, missionName, initTimestamp) {
     "zero-main.js": "src/lib/main.js",
     "zero-main.test.js": "tests/unit/main.test.js",
     "zero-index.html": "src/web/index.html",
+    "zero-lib.js": "src/web/lib.js",
     "zero-web.test.js": "tests/unit/web.test.js",
     "zero-behaviour.test.js": "tests/behaviour/homepage.test.js",
     "zero-playwright.config.js": "playwright.config.js",
@@ -1134,6 +1134,32 @@ function initPurgeGitHub() {
     console.log(`  SKIP: Could not create discussion (${err.message})`);
   }
 
+  // ── Create/reset agentic-lib-logs orphan branch ─────────────────────────────
+  console.log("\n--- agentic-lib-logs branch (activity log + screenshot) ---");
+  try {
+    if (!dryRun) {
+      // Delete existing agentic-lib-logs branch if present
+      try {
+        ghExec(`gh api repos/${repoSlug}/git/refs/heads/agentic-lib-logs -X DELETE`);
+        console.log("  DELETE: existing agentic-lib-logs branch");
+      } catch { /* branch may not exist */ }
+      // Create orphan agentic-lib-logs branch with an empty commit via the API
+      // First get the empty tree SHA
+      const emptyTree = JSON.parse(ghExec(`gh api repos/${repoSlug}/git/trees -X POST -f "tree[0][path]=.gitkeep" -f "tree[0][mode]=100644" -f "tree[0][type]=blob" -f "tree[0][content]="`));
+      const commitData = JSON.parse(ghExec(
+        `gh api repos/${repoSlug}/git/commits -X POST -f "message=init agentic-lib-logs branch" -f "tree=${emptyTree.sha}"`,
+      ));
+      ghExec(`gh api repos/${repoSlug}/git/refs -X POST -f "ref=refs/heads/agentic-lib-logs" -f "sha=${commitData.sha}"`);
+      console.log("  CREATE: agentic-lib-logs orphan branch");
+      initChanges++;
+    } else {
+      console.log("  CREATE: agentic-lib-logs orphan branch (dry run)");
+      initChanges++;
+    }
+  } catch (err) {
+    console.log(`  SKIP: Could not create agentic-lib-logs branch (${err.message})`);
+  }
+
   // ── Enable GitHub Pages ───────────────────────────────────────────
   console.log("\n--- Enable GitHub Pages ---");
   try {
@@ -1203,7 +1229,6 @@ function runInit() {
 
   initWorkflows();
   initActions(agenticDir);
-  initDirContents("copilot", resolve(agenticDir, "copilot"), "Copilot (shared modules)");
   initDirContents("agents", resolve(agenticDir, "agents"), "Agents");
   initDirContents("seeds", resolve(agenticDir, "seeds"), "Seeds");
   initScripts(agenticDir);

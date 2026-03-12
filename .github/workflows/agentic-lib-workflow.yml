@@ -20,10 +20,14 @@ on:
   #@dist   - cron: "0 6 * * 1"
   workflow_call:
     inputs:
+      ref:
+        type: string
+        required: false
+        default: ""
       model:
         type: string
         required: false
-        default: "gpt-5-mini"
+        default: ""
       profile:
         type: string
         required: false
@@ -47,11 +51,12 @@ on:
   workflow_dispatch:
     inputs:
       model:
-        description: "Copilot SDK model to use"
+        description: "Copilot SDK model to use (empty = read from agentic-lib.toml)"
         type: choice
         required: false
-        default: "gpt-5-mini"
+        default: ""
         options:
+          - ""
           - gpt-5-mini
           - claude-sonnet-4
           - gpt-4.1
@@ -134,6 +139,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with:
+          ref: ${{ inputs.ref || github.sha }}
           sparse-checkout: ${{ env.configPath }}
           sparse-checkout-cone-mode: false
       - name: Normalise params
@@ -255,14 +261,59 @@ jobs:
       merged-prs: ${{ steps.cleanup.outputs.merged-prs }}
       closed-prs: ${{ steps.cleanup.outputs.closed-prs }}
 
-  # ─── Telemetry: gather repo state for supervisor ───────────────────
-  telemetry:
+  # ─── Behaviour Telemetry: run Playwright tests in container ────────
+  behaviour-telemetry:
     needs: params
     if: |
       needs.params.outputs.mode == 'full' || needs.params.outputs.mode == 'dev-only' || needs.params.outputs.mode == 'review-only'
     runs-on: ubuntu-latest
+    container: mcr.microsoft.com/playwright:v1.58.2-noble
     steps:
       - uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.ref || github.sha }}
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+
+      - name: Install dependencies (non-blocking)
+        run: npm ci 2>/dev/null || npm install 2>/dev/null || true
+
+      - name: Build web assets (non-blocking)
+        run: npm run build:web 2>/dev/null || true
+
+      - name: Run behaviour tests (non-blocking)
+        id: behaviour-tests
+        if: hashFiles('playwright.config.js') != '' || hashFiles('playwright.config.ts') != ''
+        run: |
+          set +e
+          OUTPUT=$(npm run --if-present test:behaviour 2>&1)
+          EXIT_CODE=$?
+          echo "exit-code=$EXIT_CODE" | tee -a $GITHUB_OUTPUT
+          PASS_COUNT=$(echo "$OUTPUT" | grep -oP '\d+ passed' | head -1 | grep -oP '\d+' || echo "0")
+          FAIL_COUNT=$(echo "$OUTPUT" | grep -oP '\d+ failed' | head -1 | grep -oP '\d+' || echo "0")
+          echo "pass-count=$PASS_COUNT" | tee -a $GITHUB_OUTPUT
+          echo "fail-count=$FAIL_COUNT" | tee -a $GITHUB_OUTPUT
+          echo "$OUTPUT"
+          exit 0
+
+    outputs:
+      exit-code: ${{ steps.behaviour-tests.outputs.exit-code || '-1' }}
+      pass-count: ${{ steps.behaviour-tests.outputs.pass-count || '0' }}
+      fail-count: ${{ steps.behaviour-tests.outputs.fail-count || '0' }}
+
+  # ─── Telemetry: gather repo state for supervisor ───────────────────
+  telemetry:
+    needs: [params, behaviour-telemetry]
+    if: |
+      !cancelled() &&
+      (needs.params.outputs.mode == 'full' || needs.params.outputs.mode == 'dev-only' || needs.params.outputs.mode == 'review-only')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.ref || github.sha }}
 
       - uses: actions/setup-node@v6
         with:
@@ -300,24 +351,6 @@ jobs:
           echo "pass-count=$PASS_COUNT" | tee -a $GITHUB_OUTPUT
           echo "fail-count=$FAIL_COUNT" | tee -a $GITHUB_OUTPUT
           echo "$OUTPUT" > /tmp/unit-test-output.txt
-          echo "$OUTPUT"
-          exit 0
-
-      - name: Run behaviour tests (non-blocking)
-        id: behaviour-tests
-        if: hashFiles('playwright.config.js') != '' || hashFiles('playwright.config.ts') != ''
-        run: |
-          set +e
-          npx playwright install --with-deps chromium 2>/dev/null || true
-          npm run build:web 2>/dev/null || true
-          OUTPUT=$(npm run --if-present test:behaviour 2>&1)
-          EXIT_CODE=$?
-          echo "exit-code=$EXIT_CODE" | tee -a  $GITHUB_OUTPUT
-          PASS_COUNT=$(echo "$OUTPUT" | grep -oP '\d+ passed' | head -1 | grep -oP '\d+' || echo "0")
-          FAIL_COUNT=$(echo "$OUTPUT" | grep -oP '\d+ failed' | head -1 | grep -oP '\d+' || echo "0")
-          echo "pass-count=$PASS_COUNT" | tee -a  $GITHUB_OUTPUT
-          echo "fail-count=$FAIL_COUNT" | tee -a  $GITHUB_OUTPUT
-          echo "$OUTPUT" > /tmp/behaviour-test-output.txt
           echo "$OUTPUT"
           exit 0
 
@@ -427,12 +460,26 @@ jobs:
             const missionComplete = fs.existsSync('MISSION_COMPLETE.md');
             const missionFailed = fs.existsSync('MISSION_FAILED.md');
 
-            // Activity log stats
+            // Activity log stats (fetched from agentic-lib-logs branch)
             let activityStats = null;
             try {
-              const logPath = fs.existsSync('intenti\u00F6n.md') ? 'intenti\u00F6n.md' : (fs.existsSync('intention.md') ? 'intention.md' : null);
-              if (logPath) {
-                const log = fs.readFileSync(logPath, 'utf8');
+              // Try agentic-lib-logs branch first (new location), fall back to local file (legacy)
+              let log = null;
+              for (const logFile of ['intenti\u00F6n.md', 'intention.md']) {
+                try {
+                  const { data } = await github.rest.repos.getContent({
+                    owner, repo, path: logFile, ref: 'agentic-lib-logs',
+                  });
+                  log = Buffer.from(data.content, 'base64').toString('utf8');
+                  break;
+                } catch { /* try next */ }
+              }
+              // Fall back to local file (for repos not yet using agentic-lib-logs branch)
+              if (!log) {
+                const logPath = fs.existsSync('intenti\u00F6n.md') ? 'intenti\u00F6n.md' : (fs.existsSync('intention.md') ? 'intention.md' : null);
+                if (logPath) log = fs.readFileSync(logPath, 'utf8');
+              }
+              if (log) {
                 const entries = log.split('\n## ').length - 1;
                 const costMatches = [...log.matchAll(/\*\*agentic-lib transformation cost:\*\* (\d+)/g)];
                 const totalCost = costMatches.reduce((sum, m) => sum + parseInt(m[1], 10), 0);
@@ -447,10 +494,6 @@ jobs:
             const unitOutput = fs.existsSync('/tmp/unit-test-output.txt')
               ? fs.readFileSync('/tmp/unit-test-output.txt', 'utf8')
               : '';
-            const behaviourOutput = fs.existsSync('/tmp/behaviour-test-output.txt')
-              ? fs.readFileSync('/tmp/behaviour-test-output.txt', 'utf8')
-              : '';
-
             const telemetry = {
               issues: issuesSummary,
               instabilityIssues: instabilityNumbers,
@@ -472,10 +515,9 @@ jobs:
                   output: unitOutput,
                 },
                 behaviour: {
-                  exitCode: parseInt('${{ steps.behaviour-tests.outputs.exit-code }}' || '-1'),
-                  passCount: parseInt('${{ steps.behaviour-tests.outputs.pass-count }}' || '0'),
-                  failCount: parseInt('${{ steps.behaviour-tests.outputs.fail-count }}' || '0'),
-                  output: behaviourOutput,
+                  exitCode: parseInt('${{ needs.behaviour-telemetry.outputs.exit-code }}' || '-1'),
+                  passCount: parseInt('${{ needs.behaviour-telemetry.outputs.pass-count }}' || '0'),
+                  failCount: parseInt('${{ needs.behaviour-telemetry.outputs.fail-count }}' || '0'),
                 },
               },
               externalTestResults,
@@ -520,10 +562,19 @@ jobs:
       needs.params.result == 'success' &&
       inputs.skipMaintain != 'true' && inputs.skipMaintain != true
     runs-on: ubuntu-latest
+    outputs:
+      commit-sha: ${{ steps.get-sha.outputs.sha }}
     steps:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
+          ref: ${{ inputs.ref || github.sha }}
+
+      - name: Fetch log from agentic-lib-logs branch
+        run: |
+          for f in "intentïon.md" "intention.md"; do
+            git show "origin/agentic-lib-logs:${f}" > "$f" 2>/dev/null || true
+          done
 
       - name: Check mission-complete signal
         id: mission-check
@@ -553,17 +604,17 @@ jobs:
         run: npm ci
 
       - name: Apply profile and model to config
-        if: needs.params.outputs.profile != '' || needs.params.outputs.model != 'gpt-5-mini'
+        if: inputs.profile != '' || inputs.model != ''
         run: |
           CONFIG="${{ needs.params.outputs.config-path }}"
-          PROFILE="${{ needs.params.outputs.profile }}"
-          MODEL="${{ needs.params.outputs.model }}"
+          PROFILE="${{ inputs.profile }}"
+          MODEL="${{ inputs.model }}"
           if [ -f "$CONFIG" ]; then
             if [ -n "$PROFILE" ]; then
               sed -i "s/^profile = \"[^\"]*\"/profile = \"${PROFILE}\"/" "$CONFIG"
               echo "Updated [tuning].profile to: ${PROFILE}"
             fi
-            if [ -n "$MODEL" ] && [ "$MODEL" != "gpt-5-mini" ]; then
+            if [ -n "$MODEL" ]; then
               sed -i "s/^model = \"[^\"]*\"/model = \"${MODEL}\"/" "$CONFIG"
               echo "Updated [tuning].model to: ${MODEL}"
             fi
@@ -621,6 +672,14 @@ jobs:
           commit-message: "agentic-step: maintain features and library"
           push-ref: ${{ github.ref_name }}
 
+      - name: Capture commit SHA
+        id: get-sha
+        run: echo "sha=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
+
+      - name: Push log to agentic-lib-logs branch
+        if: github.repository != 'xn-intenton-z2a/agentic-lib' && needs.params.outputs.dry-run != 'true'
+        run: bash .github/agentic-lib/scripts/push-to-logs.sh "intentïon.md" "intention.md"
+
   # ─── Director: LLM evaluates mission status (complete/failed/in-progress) ──
   director:
     needs: [params, telemetry, maintain]
@@ -634,6 +693,15 @@ jobs:
       analysis: ${{ steps.director.outputs.director-analysis }}
     steps:
       - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          ref: ${{ needs.maintain.outputs.commit-sha || github.sha }}
+
+      - name: Fetch log from agentic-lib-logs branch
+        run: |
+          for f in "intentïon.md" "intention.md"; do
+            git show "origin/agentic-lib-logs:${f}" > "$f" 2>/dev/null || true
+          done
 
       - uses: actions/setup-node@v6
         with:
@@ -660,6 +728,10 @@ jobs:
           instructions: ".github/agentic-lib/agents/agent-director.md"
           model: ${{ needs.params.outputs.model }}
 
+      - name: Push log to agentic-lib-logs branch
+        if: github.repository != 'xn-intenton-z2a/agentic-lib' && needs.params.outputs.dry-run != 'true'
+        run: bash .github/agentic-lib/scripts/push-to-logs.sh "intentïon.md" "intention.md"
+
   # ─── Supervisor: LLM decides what to do (after director evaluates) ──
   supervisor:
     needs: [params, pr-cleanup, telemetry, maintain, director]
@@ -672,6 +744,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          ref: ${{ needs.maintain.outputs.commit-sha || github.sha }}
+
+      - name: Fetch log from agentic-lib-logs branch
+        run: |
+          for f in "intentïon.md" "intention.md"; do
+            git show "origin/agentic-lib-logs:${f}" > "$f" 2>/dev/null || true
+          done
 
       - uses: actions/setup-node@v6
         with:
@@ -698,9 +779,13 @@ jobs:
           instructions: ".github/agentic-lib/agents/agent-supervisor.md"
           model: ${{ needs.params.outputs.model }}
 
+      - name: Push log to agentic-lib-logs branch
+        if: github.repository != 'xn-intenton-z2a/agentic-lib' && needs.params.outputs.dry-run != 'true'
+        run: bash .github/agentic-lib/scripts/push-to-logs.sh "intentïon.md" "intention.md"
+
   # ─── Fix stuck PRs with failing checks ─────────────────────────────
   fix-stuck:
-    needs: [params, supervisor]
+    needs: [params, maintain, supervisor]
     if: |
       !cancelled() &&
       needs.params.outputs.mode == 'full' &&
@@ -710,6 +795,7 @@ jobs:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
+          ref: ${{ needs.maintain.outputs.commit-sha || github.sha }}
 
       - uses: actions/setup-node@v6
         with:
@@ -718,13 +804,13 @@ jobs:
       - name: Install project dependencies
         run: npm ci
 
-      - name: Install Playwright (for behaviour tests)
-        if: hashFiles('playwright.config.js') != '' || hashFiles('playwright.config.ts') != ''
-        run: npx playwright install --with-deps chromium
-
-      - name: Self-init (agentic-lib dev only)
-        if: hashFiles('scripts/self-init.sh') != '' && hashFiles('.github/agentic-lib/actions/agentic-step/package.json') == ''
-        run: bash scripts/self-init.sh
+#      - name: Install Playwright (for behaviour tests)
+#        if: hashFiles('playwright.config.js') != '' || hashFiles('playwright.config.ts') != ''
+#        run: npx playwright install --with-deps chromium
+#
+#      - name: Self-init (agentic-lib dev only)
+#        if: hashFiles('scripts/self-init.sh') != '' && hashFiles('.github/agentic-lib/actions/agentic-step/package.json') == ''
+#        run: bash scripts/self-init.sh
 
       - name: Install agentic-step dependencies
         working-directory: .github/agentic-lib/actions/agentic-step
@@ -1021,7 +1107,7 @@ jobs:
 
   # ─── Review: close resolved issues, enhance with criteria ──────────
   review-features:
-    needs: [params, supervisor]
+    needs: [params, maintain, supervisor]
     if: |
       !cancelled() &&
       (needs.params.outputs.mode == 'full' || needs.params.outputs.mode == 'review-only') &&
@@ -1029,6 +1115,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
+        with:
+          ref: ${{ needs.maintain.outputs.commit-sha || github.sha }}
 
       - uses: actions/setup-node@v6
         with:
@@ -1066,7 +1154,7 @@ jobs:
 
   # ─── Dev: sequential issue resolution ──────────────────────────────
   dev:
-    needs: [params, review-features]
+    needs: [params, maintain, review-features]
     if: |
       !cancelled() &&
       (needs.params.outputs.mode == 'full' || needs.params.outputs.mode == 'dev-only') &&
@@ -1077,6 +1165,13 @@ jobs:
         with:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
+          ref: ${{ needs.maintain.outputs.commit-sha || github.sha }}
+
+      - name: Fetch log from agentic-lib-logs branch
+        run: |
+          for f in "intentïon.md" "intention.md"; do
+            git show "origin/agentic-lib-logs:${f}" > "$f" 2>/dev/null || true
+          done
 
       - uses: actions/setup-node@v6
         with:
@@ -1207,29 +1302,29 @@ jobs:
           echo "tests-passed=true" >> $GITHUB_OUTPUT
           echo "All tests passed"
 
-      - name: Run behaviour tests before committing
-        id: pre-commit-behaviour-test
-        if: steps.issue.outputs.issue-number != '' && steps.pre-commit-test.outputs.tests-passed == 'true' && (hashFiles('playwright.config.js') != '' || hashFiles('playwright.config.ts') != '')
-        run: |
-          npx playwright install --with-deps chromium 2>/dev/null || true
-          npm run build:web 2>/dev/null || true
-          set +e
-          npm run --if-present test:behaviour 2>&1 | tail -30
-          EXIT_CODE=$?
-          if [ $EXIT_CODE -ne 0 ]; then
-            echo "::warning::Behaviour test attempt 1 failed — retrying"
-            sleep 2
-            npm run --if-present test:behaviour 2>&1 | tail -30
-            EXIT_CODE=$?
-          fi
-          set -e
-          if [ $EXIT_CODE -ne 0 ]; then
-            echo "tests-passed=false" >> $GITHUB_OUTPUT
-            echo "WARNING: Behaviour tests failed (exit $EXIT_CODE) — skipping commit and PR"
-            exit 0
-          fi
-          echo "tests-passed=true" >> $GITHUB_OUTPUT
-          echo "Behaviour tests passed"
+#      - name: Run behaviour tests before committing
+#        id: pre-commit-behaviour-test
+#        if: steps.issue.outputs.issue-number != '' && steps.pre-commit-test.outputs.tests-passed == 'true' && (hashFiles('playwright.config.js') != '' || hashFiles('playwright.config.ts') != '')
+#        run: |
+#          npx playwright install --with-deps chromium 2>/dev/null || true
+#          npm run build:web 2>/dev/null || true
+#          set +e
+#          npm run --if-present test:behaviour 2>&1 | tail -30
+#          EXIT_CODE=$?
+#          if [ $EXIT_CODE -ne 0 ]; then
+#            echo "::warning::Behaviour test attempt 1 failed — retrying"
+#            sleep 2
+#            npm run --if-present test:behaviour 2>&1 | tail -30
+#            EXIT_CODE=$?
+#          fi
+#          set -e
+#          if [ $EXIT_CODE -ne 0 ]; then
+#            echo "tests-passed=false" >> $GITHUB_OUTPUT
+#            echo "WARNING: Behaviour tests failed (exit $EXIT_CODE) — skipping commit and PR"
+#            exit 0
+#          fi
+#          echo "tests-passed=true" >> $GITHUB_OUTPUT
+#          echo "Behaviour tests passed"
 
       - name: Commit and push
         if: github.repository != 'xn-intenton-z2a/agentic-lib' && steps.issue.outputs.issue-number != '' && needs.params.outputs.dry-run != 'true' && steps.pre-commit-test.outputs.tests-passed == 'true' && steps.pre-commit-behaviour-test.outputs.tests-passed != 'false'
@@ -1237,6 +1332,10 @@ jobs:
         with:
           commit-message: "agentic-step: transform issue #${{ steps.issue.outputs.issue-number }}"
           push-ref: ${{ steps.branch.outputs.branchName }}
+
+      - name: Push log to agentic-lib-logs branch
+        if: github.repository != 'xn-intenton-z2a/agentic-lib' && needs.params.outputs.dry-run != 'true'
+        run: bash .github/agentic-lib/scripts/push-to-logs.sh "intentïon.md" "intention.md"
 
       - name: Create PR and attempt merge
         if: github.repository != 'xn-intenton-z2a/agentic-lib' && steps.issue.outputs.issue-number != '' && needs.params.outputs.dry-run != 'true' && steps.pre-commit-test.outputs.tests-passed == 'true' && steps.pre-commit-behaviour-test.outputs.tests-passed != 'false'
@@ -1328,13 +1427,14 @@ jobs:
 
   # ─── Post-merge: stats, schedule, mission check ────────────────────
   post-merge:
-    needs: [params, dev, pr-cleanup]
+    needs: [params, maintain, dev, pr-cleanup]
     if: ${{ !cancelled() && needs.params.result == 'success' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
+          ref: ${{ needs.maintain.outputs.commit-sha || github.sha }}
 
       - name: Summary
         run: |
@@ -1351,20 +1451,23 @@ jobs:
 
   # ─── Post-commit validation: call test workflow to verify branch health ───
   post-commit-test:
-    needs: [params, dev, fix-stuck, post-merge]
+    needs: [params, maintain, dev, fix-stuck, post-merge]
     if: >-
       !cancelled()
       && needs.params.outputs.dry-run != 'true'
       && needs.params.result == 'success'
     uses: ./.github/workflows/agentic-lib-test.yml
+    with:
+      ref: ${{ needs.maintain.outputs.commit-sha || github.sha }}
     secrets: inherit
 
   # ─── Schedule change (if requested) ────────────────────────────────
   update-schedule:
-    needs: [params, dev]
+    needs: [params, maintain, dev]
     if: ${{ !cancelled() && needs.params.outputs.dry-run != 'true' && needs.params.outputs.schedule != '' && needs.params.result == 'success' }}
     uses: ./.github/workflows/agentic-lib-schedule.yml
     with:
+      ref: ${{ needs.maintain.outputs.commit-sha || github.sha }}
       frequency: ${{ needs.params.outputs.schedule }}
       model: ${{ needs.params.outputs.model }}
       profile: ${{ needs.params.outputs.profile }}
