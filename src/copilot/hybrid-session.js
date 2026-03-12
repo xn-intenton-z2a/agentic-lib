@@ -62,6 +62,7 @@ function formatToolArgs(toolName, args) {
  * @param {string} [options.userPrompt] - Override user prompt (instead of default mission prompt)
  * @param {string[]} [options.writablePaths] - Writable paths for tool safety (default: workspace)
  * @param {number} [options.maxRetries=2] - Max retries on rate-limit errors
+ * @param {number} [options.maxToolCalls] - Max tool calls before graceful stop (undefined = unlimited)
  * @param {Object} [options.logger]
  * @returns {Promise<HybridResult>}
  */
@@ -75,6 +76,7 @@ export async function runHybridSession({
   userPrompt,
   writablePaths,
   maxRetries = 2,
+  maxToolCalls,
   logger = defaultLogger,
 }) {
   const { CopilotClient, approveAll, defineTool } = await getSDK();
@@ -159,6 +161,11 @@ export async function runHybridSession({
     workingDirectory: wsPath,
     hooks: {
       onPreToolUse: (input) => {
+        // Enforce tool-call budget
+        if (maxToolCalls && metrics.toolCalls.length >= maxToolCalls) {
+          logger.warning(`  [tool] Budget reached (${maxToolCalls} calls) — denying ${input.toolName}`);
+          return { action: "deny", reason: `Tool call budget exhausted (${maxToolCalls} max). Wrap up your work.` };
+        }
         const n = metrics.toolCalls.length + 1;
         const elapsed = ((Date.now() - metrics.startTime) / 1000).toFixed(0);
         metrics.toolCalls.push({ tool: input.toolName, time: Date.now(), args: input.toolArgs });

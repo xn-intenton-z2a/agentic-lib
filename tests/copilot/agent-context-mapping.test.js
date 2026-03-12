@@ -13,6 +13,11 @@ vi.mock("child_process", () => ({
   execSync: vi.fn(() => "mock test output"),
 }));
 
+// Mock telemetry to avoid filesystem reads for cumulative cost
+vi.mock("../../src/copilot/telemetry.js", () => ({
+  readCumulativeCost: vi.fn(() => 0),
+}));
+
 const { gatherLocalContext, buildUserPrompt } = await import("../../src/copilot/context.js");
 const { loadAgentPrompt, listAgents } = await import("../../src/copilot/agents.js");
 
@@ -79,7 +84,7 @@ describe("Agent ↔ Context Mapping (Phase 3c)", () => {
       readOnlyPaths: [],
     };
     const ctx = gatherLocalContext(tmpDir, config);
-    const prompt = buildUserPrompt("agent-issue-resolution", ctx);
+    const { prompt } = buildUserPrompt("agent-issue-resolution", ctx);
     expect(prompt).toContain("# Mission");
     expect(prompt).toContain("# Source Files");
     expect(prompt).toContain("# Test Files");
@@ -95,7 +100,7 @@ describe("Agent ↔ Context Mapping (Phase 3c)", () => {
       readOnlyPaths: [],
     };
     const ctx = gatherLocalContext(tmpDir, config);
-    const prompt = buildUserPrompt("agent-apply-fix", ctx);
+    const { prompt } = buildUserPrompt("agent-apply-fix", ctx);
     expect(prompt).toContain("# Source Files");
     expect(prompt).toContain("# Test Files");
     expect(prompt).not.toContain("# Mission");
@@ -114,7 +119,7 @@ describe("Agent ↔ Context Mapping (Phase 3c)", () => {
       issues: [],
       prDetail: { number: 123, title: "Fix tests", body: "PR body", files: [{ path: "src/main.js" }] },
     };
-    const prompt = buildUserPrompt("agent-apply-fix", ctx, github);
+    const { prompt } = buildUserPrompt("agent-apply-fix", ctx, github);
     expect(prompt).toContain("# PR #123: Fix tests");
     expect(prompt).toContain("src/main.js");
   });
@@ -128,7 +133,7 @@ describe("Agent ↔ Context Mapping (Phase 3c)", () => {
       readOnlyPaths: [],
     };
     const ctx = gatherLocalContext(tmpDir, config);
-    const prompt = buildUserPrompt("agent-maintain-features", ctx);
+    const { prompt } = buildUserPrompt("agent-maintain-features", ctx);
     expect(prompt).toContain("# Mission");
     expect(prompt).toContain("# Features");
     expect(prompt).not.toContain("# Source Files");
@@ -143,7 +148,7 @@ describe("Agent ↔ Context Mapping (Phase 3c)", () => {
       readOnlyPaths: [],
     };
     const ctx = gatherLocalContext(tmpDir, config);
-    const prompt = buildUserPrompt("agent-maintain-library", ctx);
+    const { prompt } = buildUserPrompt("agent-maintain-library", ctx);
     expect(prompt).toContain("# Library Files");
     expect(prompt).toContain("# Sources");
     expect(prompt).not.toContain("# Source Files");
@@ -163,8 +168,8 @@ describe("Agent ↔ Context Mapping (Phase 3c)", () => {
       issues: [{ number: 42, title: "Fix bug", body: "broken", labels: [], created_at: new Date().toISOString(), updated_at: new Date().toISOString() }],
       issueDetail: { number: 42, title: "Fix bug", body: "Details here", comments: [] },
     };
-    const prompt = buildUserPrompt("agent-issue-resolution", ctx, github);
-    expect(prompt).toContain("# Issue #42: Fix bug");
+    const { prompt } = buildUserPrompt("agent-issue-resolution", ctx, github);
+    expect(prompt).toContain("# Target Issue #42: Fix bug");
     expect(prompt).toContain("Details here");
   });
 
@@ -181,7 +186,7 @@ describe("Agent ↔ Context Mapping (Phase 3c)", () => {
       issues: [{ number: 10, title: "Enhancement", body: "details", labels: [], created_at: new Date().toISOString(), updated_at: new Date().toISOString() }],
       issueDetail: { number: 10, title: "Enhancement", body: "Enhance this", comments: [] },
     };
-    const prompt = buildUserPrompt("agent-ready-issue", ctx, github);
+    const { prompt } = buildUserPrompt("agent-ready-issue", ctx, github);
     expect(prompt).toContain("# Mission");
     expect(prompt).toContain("# Features");
     expect(prompt).toContain("# Issue #10");
@@ -199,7 +204,7 @@ describe("Agent ↔ Context Mapping (Phase 3c)", () => {
     const github = {
       issues: [{ number: 5, title: "Review this", body: "review body", labels: [], created_at: new Date().toISOString(), updated_at: new Date().toISOString() }],
     };
-    const prompt = buildUserPrompt("agent-review-issue", ctx, github);
+    const { prompt } = buildUserPrompt("agent-review-issue", ctx, github);
     expect(prompt).toContain("# Source Files");
     expect(prompt).toContain("# Test Files");
     expect(prompt).toContain("# Open Issues");
@@ -215,7 +220,7 @@ describe("Agent ↔ Context Mapping (Phase 3c)", () => {
       readOnlyPaths: [],
     };
     const ctx = gatherLocalContext(tmpDir, config);
-    const prompt = buildUserPrompt("agent-discussion-bot", ctx);
+    const { prompt } = buildUserPrompt("agent-discussion-bot", ctx);
     expect(prompt).toContain("# Mission");
     expect(prompt).toContain("# Features");
     expect(prompt).not.toContain("# Source Files");
@@ -233,7 +238,7 @@ describe("Agent ↔ Context Mapping (Phase 3c)", () => {
     const github = {
       issues: [{ number: 1, title: "Open issue", body: "body", labels: [], created_at: new Date().toISOString(), updated_at: new Date().toISOString() }],
     };
-    const prompt = buildUserPrompt("agent-supervisor", ctx, github);
+    const { prompt } = buildUserPrompt("agent-supervisor", ctx, github);
     expect(prompt).toContain("# Mission");
     expect(prompt).toContain("# Features");
     expect(prompt).toContain("# Open Issues");
@@ -251,7 +256,7 @@ describe("Agent ↔ Context Mapping (Phase 3c)", () => {
     const github = {
       issues: [{ number: 99, title: "Director issue", body: "body", labels: [], created_at: new Date().toISOString(), updated_at: new Date().toISOString() }],
     };
-    const prompt = buildUserPrompt("agent-director", ctx, github);
+    const { prompt } = buildUserPrompt("agent-director", ctx, github);
     expect(prompt).toContain("# Mission");
     expect(prompt).toContain("# Source Files");
     expect(prompt).toContain("# Test Files");
@@ -276,7 +281,7 @@ describe("Agent ↔ Context Mapping (Phase 3c)", () => {
     const ctx = gatherLocalContext(tmpDir, config);
     const uniqueAgents = [...new Set(Object.values(TASK_AGENT_MAP))];
     for (const agentName of uniqueAgents) {
-      const prompt = buildUserPrompt(agentName, ctx);
+      const { prompt } = buildUserPrompt(agentName, ctx);
       expect(prompt.length).toBeGreaterThan(50);
     }
   });

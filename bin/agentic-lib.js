@@ -338,7 +338,14 @@ async function runIterate() {
   }
 
   // Build context-aware user prompt
-  const userPrompt = buildUserPrompt(agentName, localContext, githubContext, { tuning: config.tuning });
+  const { prompt: userPrompt } = buildUserPrompt(agentName, localContext, githubContext, {
+    tuning: config.tuning,
+    config,
+  });
+
+  // Derive maxToolCalls from transformation budget
+  const budget = config.transformationBudget || 0;
+  const effectiveMaxToolCalls = budget > 0 ? budget * 20 : undefined;
 
   const result = await runHybridSession({
     workspacePath: target,
@@ -348,6 +355,7 @@ async function runIterate() {
     agentPrompt,
     userPrompt,
     writablePaths: config.writablePaths?.length > 0 ? config.writablePaths : undefined,
+    maxToolCalls: effectiveMaxToolCalls,
   });
 
   console.log("");
@@ -398,6 +406,16 @@ async function runTask(taskName) {
   console.log(`[config] writable=${(config.writablePaths || []).join(", ")}`);
   console.log("");
 
+  // Short-circuit guards — skip LLM invocation when unnecessary
+  const { checkGuards } = await import("../src/copilot/guards.js");
+  const guardResult = checkGuards(taskName, config, target);
+  if (guardResult.skip) {
+    console.log(`=== ${taskName} skipped (nop) ===`);
+    console.log(`Reason: ${guardResult.reason}`);
+    console.log("");
+    return 0;
+  }
+
   if (dryRun) {
     console.log("=== DRY RUN — task would run but not sending to Copilot ===");
     return 0;
@@ -420,7 +438,14 @@ async function runTask(taskName) {
       });
     }
 
-    const userPrompt = buildUserPrompt(agentName, localContext, githubContext, { tuning: config.tuning });
+    const { prompt: userPrompt, promptBudget } = buildUserPrompt(agentName, localContext, githubContext, {
+      tuning: config.tuning,
+      config,
+    });
+
+    // Derive maxToolCalls from transformation budget (budget × 20, or unlimited)
+    const budget = config.transformationBudget || 0;
+    const effectiveMaxToolCalls = budget > 0 ? budget * 20 : undefined;
 
     const result = await runHybridSession({
       workspacePath: target,
@@ -430,15 +455,26 @@ async function runTask(taskName) {
       agentPrompt,
       userPrompt,
       writablePaths: config.writablePaths?.length > 0 ? config.writablePaths : undefined,
+      maxToolCalls: effectiveMaxToolCalls,
     });
+
+    // Build enriched result (10e)
+    const outcome = result.success ? "transformed" : "error";
+    const tokensUsed = result.tokensIn + result.tokensOut;
 
     console.log("");
     console.log(`=== ${taskName} completed ===`);
-    console.log(`Success:       ${result.success}`);
+    console.log(`Outcome:       ${outcome}`);
     console.log(`Session time:  ${result.sessionTime}s`);
     console.log(`Tool calls:    ${result.toolCalls}`);
-    console.log(`Tokens:        ${result.tokensIn + result.tokensOut} (in=${result.tokensIn} out=${result.tokensOut})`);
+    console.log(`Tokens:        ${tokensUsed} (in=${result.tokensIn} out=${result.tokensOut})`);
     if (result.narrative) console.log(`Narrative: ${result.narrative}`);
+    if (promptBudget) {
+      console.log("Prompt budget:");
+      for (const entry of promptBudget) {
+        console.log(`  ${entry.section}: ${entry.size} chars, ${entry.files} files ${entry.notes}`);
+      }
+    }
     console.log("");
     return result.success ? 0 : 1;
   } catch (err) {
