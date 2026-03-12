@@ -601,7 +601,11 @@ jobs:
 
       - name: Install agentic-step dependencies
         working-directory: .github/agentic-lib/actions/agentic-step
-        run: npm ci
+        run: |
+          npm ci
+          if [ -d "../../copilot" ]; then
+            ln -sf "$(pwd)/node_modules" ../../copilot/node_modules
+          fi
 
       - name: Apply profile and model to config
         if: inputs.profile != '' || inputs.model != ''
@@ -713,7 +717,11 @@ jobs:
 
       - name: Install agentic-step dependencies
         working-directory: .github/agentic-lib/actions/agentic-step
-        run: npm ci
+        run: |
+          npm ci
+          if [ -d "../../copilot" ]; then
+            ln -sf "$(pwd)/node_modules" ../../copilot/node_modules
+          fi
 
       - name: Run director
         id: director
@@ -764,7 +772,11 @@ jobs:
 
       - name: Install agentic-step dependencies
         working-directory: .github/agentic-lib/actions/agentic-step
-        run: npm ci
+        run: |
+          npm ci
+          if [ -d "../../copilot" ]; then
+            ln -sf "$(pwd)/node_modules" ../../copilot/node_modules
+          fi
 
       - name: Run supervisor
         if: github.repository != 'xn-intenton-z2a/agentic-lib'
@@ -814,7 +826,11 @@ jobs:
 
       - name: Install agentic-step dependencies
         working-directory: .github/agentic-lib/actions/agentic-step
-        run: npm ci
+        run: |
+          npm ci
+          if [ -d "../../copilot" ]; then
+            ln -sf "$(pwd)/node_modules" ../../copilot/node_modules
+          fi
 
       - name: Check mission-complete signal
         id: fix-mission-check
@@ -1128,7 +1144,11 @@ jobs:
 
       - name: Install agentic-step dependencies
         working-directory: .github/agentic-lib/actions/agentic-step
-        run: npm ci
+        run: |
+          npm ci
+          if [ -d "../../copilot" ]; then
+            ln -sf "$(pwd)/node_modules" ../../copilot/node_modules
+          fi
 
       - name: Review issues
         uses: ./.github/agentic-lib/actions/agentic-step
@@ -1186,7 +1206,11 @@ jobs:
 
       - name: Install agentic-step dependencies
         working-directory: .github/agentic-lib/actions/agentic-step
-        run: npm ci
+        run: |
+          npm ci
+          if [ -d "../../copilot" ]; then
+            ln -sf "$(pwd)/node_modules" ../../copilot/node_modules
+          fi
 
       - name: Load config
         id: config

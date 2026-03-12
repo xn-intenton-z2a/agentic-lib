@@ -390,8 +390,8 @@ agentic-lib iterate --mission 6-kyu-understand-hamming-distance --model gpt-5-mi
 Target:  /tmp/bench
 Model:   gpt-5-mini
 
-[hybrid] Creating session (model=gpt-5-mini, workspace=/tmp/bench)
-[hybrid] Session: sess_abc123
+[agentic-lib] Creating session (model=gpt-5-mini, workspace=/tmp/bench)
+[agentic-lib] Session: sess_abc123
   [tool] read_file
   [tool] read_file
   [tool] write_file

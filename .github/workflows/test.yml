@@ -3,7 +3,7 @@
 # .github/workflows/test.yml
 #
 # All testing for agentic-lib in one workflow.
-#
+# 
 # Every push/PR runs up to 23 concurrent jobs:
 #
 #   CI (4 jobs — each fails independently for maximum signal):
@@ -15,7 +15,7 @@
 #     test-cli-transform          — CLI transform
 #     test-cli-maintain-features  — CLI maintain-features
 #     test-cli-maintain-library   — CLI maintain-library
-#   Init pipeline (8 jobs — deterministic, no Copilot token needed):
+#   Init pipeline (9 jobs — deterministic, no Copilot token needed):
 #     test-init-idempotency      — init --purge twice produces no diff
 #     test-seeded                — system-test.sh --init-only --behaviour (unit + Playwright, in Playwright container)
 #     test-dist-yaml-validity    — #@dist transform produces valid YAML
@@ -23,6 +23,7 @@
 #     test-stale-workflow-cleanup — stale workflows are removed
 #     test-all-missions-seed     — all 14 mission seeds work
 #     test-mcp-server            — MCP server starts, lists tools, responds to calls
+#     test-copilot-symlink       — copilot/ distribution + node_modules symlink + smol-toml import
 
 #   Workflow dry-runs (7 jobs — call distributable workflows in inert mode):
 #     test-workflow-maintain  — agentic-lib-workflow maintain-only
@@ -256,9 +257,9 @@ jobs:
       - name: Show agent changes
         run: |
           echo "--- CLI log markers ---"
-          grep -E '^\[(context|copilot|config|prompt)\]' /tmp/cli-output.log || true
-          if ! grep -q '\[copilot\]' /tmp/cli-output.log; then
-            echo "ERROR: No [copilot] log lines — LLM was not called"
+          grep -E '^\[(context|copilot|agentic-lib|config|prompt|tool|tokens)\]' /tmp/cli-output.log || true
+          if ! grep -qE '\[(copilot|agentic-lib)\]' /tmp/cli-output.log; then
+            echo "ERROR: No [copilot] or [agentic-lib] log lines — LLM was not called"
             exit 1
           fi
           echo "--- File changes ---"
@@ -312,9 +313,9 @@ jobs:
       - name: Show agent changes
         run: |
           echo "--- CLI log markers ---"
-          grep -E '^\[(context|copilot|config|prompt)\]' /tmp/cli-output.log || true
-          if ! grep -q '\[copilot\]' /tmp/cli-output.log; then
-            echo "ERROR: No [copilot] log lines — LLM was not called"
+          grep -E '^\[(context|copilot|agentic-lib|config|prompt|tool|tokens)\]' /tmp/cli-output.log || true
+          if ! grep -qE '\[(copilot|agentic-lib)\]' /tmp/cli-output.log; then
+            echo "ERROR: No [copilot] or [agentic-lib] log lines — LLM was not called"
             exit 1
           fi
           echo "--- File changes ---"
@@ -368,9 +369,9 @@ jobs:
       - name: Show agent changes
         run: |
           echo "--- CLI log markers ---"
-          grep -E '^\[(context|copilot|config|prompt)\]' /tmp/cli-output.log || true
-          if ! grep -q '\[copilot\]' /tmp/cli-output.log; then
-            echo "ERROR: No [copilot] log lines — LLM was not called"
+          grep -E '^\[(context|copilot|agentic-lib|config|prompt|tool|tokens)\]' /tmp/cli-output.log || true
+          if ! grep -qE '\[(copilot|agentic-lib)\]' /tmp/cli-output.log; then
+            echo "ERROR: No [copilot] or [agentic-lib] log lines — LLM was not called"
             exit 1
           fi
           echo "--- File changes ---"
@@ -597,6 +598,62 @@ jobs:
       - run: npm ci
       - name: MCP server integration test
         run: node scripts/test-mcp-server.js
+
+  test-copilot-symlink:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: "npm"
+      - run: npm ci
+
+      - name: Init workspace with --purge
+        run: |
+          mkdir -p /tmp/test-workspace
+          node bin/agentic-lib.js init --purge --mission 7-kyu-understand-fizz-buzz --target /tmp/test-workspace
+
+      - name: Verify copilot/ directory was distributed
+        run: |
+          test -d /tmp/test-workspace/.github/agentic-lib/copilot || { echo "ERROR: copilot/ not distributed"; exit 1; }
+          test -f /tmp/test-workspace/.github/agentic-lib/copilot/config.js || { echo "ERROR: copilot/config.js missing"; exit 1; }
+          test -f /tmp/test-workspace/.github/agentic-lib/copilot/session.js || { echo "ERROR: copilot/session.js missing"; exit 1; }
+          echo "OK: copilot/ directory distributed"
+
+      - name: Install agentic-step deps and create symlink
+        run: |
+          cd /tmp/test-workspace/.github/agentic-lib/actions/agentic-step
+          npm ci
+          # Replicate the symlink step from self-init.sh
+          ln -sf "$(pwd)/node_modules" /tmp/test-workspace/.github/agentic-lib/copilot/node_modules
+
+      - name: Verify node_modules symlink resolves
+        run: |
+          LINK_TARGET=$(readlink /tmp/test-workspace/.github/agentic-lib/copilot/node_modules 2>/dev/null || echo "NOT_A_SYMLINK")
+          echo "Symlink target: $LINK_TARGET"
+          test -d /tmp/test-workspace/.github/agentic-lib/copilot/node_modules || { echo "ERROR: copilot/node_modules does not resolve"; exit 1; }
+          echo "OK: copilot/node_modules symlink resolves"
+
+      - name: Verify smol-toml is importable via symlink
+        run: |
+          cd /tmp/test-workspace/.github/agentic-lib/copilot
+          node -e "require('smol-toml')" || node -e "import('smol-toml').then(() => console.log('OK')).catch(e => { console.error(e); process.exit(1); })"
+          echo "OK: smol-toml importable through symlinked node_modules"
+
+      - name: Verify config.js loads through symlink
+        run: |
+          cd /tmp/test-workspace
+          node -e "
+            import('./.github/agentic-lib/copilot/config.js')
+              .then(m => {
+                const c = m.loadConfig('agentic-lib.toml');
+                console.log('Config loaded: model=' + c.model);
+                console.log('OK: config.js works through symlinked deps');
+              })
+              .catch(e => { console.error(e); process.exit(1); });
+          "
 
 
   # ─── Workflow dry-run tests: call distributable workflows ──────────

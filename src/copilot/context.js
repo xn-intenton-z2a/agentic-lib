@@ -8,7 +8,32 @@
 import { resolve } from "path";
 import { execSync } from "child_process";
 import { scanDirectory, readOptionalFile, extractFeatureSummary, formatPathsSection, summariseIssue, filterIssues } from "./session.js";
+import { readCumulativeCost } from "./telemetry.js";
 import { defaultLogger } from "./logger.js";
+
+/**
+ * Per-agent refinements that control context precision and prompt quality.
+ * These restore the tight scoping that existed in the old per-task handlers.
+ */
+const AGENT_REFINEMENTS = {
+  "agent-issue-resolution": {
+    sortFeatures: "incomplete-first",
+    includeWebFiles: true,
+    highlightTargetIssue: true,
+    trackPromptBudget: true,
+  },
+  "agent-apply-fix": {
+    emphasizeTestOutput: true,
+  },
+  "agent-maintain-features": {
+    sortFeatures: "incomplete-first",
+    injectLimit: "features",
+  },
+  "agent-maintain-library": {
+    checkSourcesForUrls: true,
+    injectLimit: "library",
+  },
+};
 
 /**
  * Context requirements per agent. Defines what context each agent needs.
@@ -89,6 +114,16 @@ export function gatherLocalContext(workspacePath, config, { logger = defaultLogg
   // Library sources
   const sourcesPath = paths.librarySources?.path || "SOURCES.md";
   context.librarySources = readOptionalFile(resolve(wsPath, sourcesPath));
+
+  // Web files
+  const webPath = paths.web?.path || "src/web/";
+  const webDir = resolve(wsPath, webPath);
+  context.webFiles = scanDirectory(webDir, [".html", ".css", ".js"], {
+    fileLimit: tuning.sourceScan || 10,
+    contentLimit: tuning.sourceContent || 5000,
+    sortByMtime: true,
+    clean: true,
+  }, logger);
 
   // Contributing guide
   const contributingPath = paths.contributing?.path || "CONTRIBUTING.md";
@@ -202,26 +237,60 @@ export function gatherGitHubContext({ issueNumber, prNumber, discussionUrl, work
 /**
  * Build a user prompt for the given agent from available context.
  *
+ * Returns an object with the assembled prompt and optional promptBudget metadata.
+ * The prompt includes config-driven limits and per-agent refinements that restore
+ * the context precision from the old per-task handlers.
+ *
  * @param {string} agentName - Agent name (e.g. "agent-iterate")
  * @param {Object} localContext - From gatherLocalContext()
  * @param {Object} [githubContext] - From gatherGitHubContext() (optional)
  * @param {Object} [options]
  * @param {Object} [options.tuning] - Tuning config for limits
- * @returns {string} Assembled user prompt
+ * @param {Object} [options.config] - Full parsed config (for limits injection)
+ * @returns {{ prompt: string, promptBudget: Array|null }}
  */
-export function buildUserPrompt(agentName, localContext, githubContext, { tuning } = {}) {
+export function buildUserPrompt(agentName, localContext, githubContext, { tuning, config } = {}) {
   const needs = AGENT_CONTEXT[agentName] || AGENT_CONTEXT["agent-iterate"];
+  const refinements = AGENT_REFINEMENTS[agentName] || {};
   const sections = [];
+  const promptBudget = refinements.trackPromptBudget ? [] : null;
+
+  // Target issue — placed prominently when highlightTargetIssue is set
+  if (refinements.highlightTargetIssue && githubContext?.issueDetail) {
+    const issue = githubContext.issueDetail;
+    const issueSection = [
+      `# Target Issue #${issue.number}: ${issue.title}`,
+      issue.body || "(no description)",
+      `Labels: ${(issue.labels || []).map((l) => typeof l === "string" ? l : l.name).join(", ") || "none"}`,
+      "",
+      "**Focus your transformation on resolving this specific issue.**",
+    ];
+    if (issue.comments?.length > 0) {
+      issueSection.push("\n## Comments");
+      for (const c of issue.comments.slice(-5)) {
+        issueSection.push(`**${c.author?.login || "unknown"}**: ${c.body}`);
+      }
+    }
+    const text = issueSection.join("\n");
+    sections.push(text);
+    if (promptBudget) promptBudget.push({ section: "target-issue", size: text.length, files: "1", notes: "" });
+  }
 
   // Mission
   if (needs.mission && localContext.mission) {
-    sections.push(`# Mission\n\n${localContext.mission}`);
+    const text = `# Mission\n\n${localContext.mission}`;
+    sections.push(text);
+    if (promptBudget) promptBudget.push({ section: "mission", size: localContext.mission.length, files: "1", notes: "full" });
   }
 
-  // Current test state
+  // Current test state — emphasised for fix-code agent
   if (localContext.testOutput) {
     const testPreview = localContext.testOutput.substring(0, 4000);
-    sections.push(`# Current Test State\n\n\`\`\`\n${testPreview}\n\`\`\``);
+    if (refinements.emphasizeTestOutput) {
+      sections.push(`# Failing Test Output\n\nThe tests are currently failing. Fix the root cause.\n\n\`\`\`\n${testPreview}\n\`\`\``);
+    } else {
+      sections.push(`# Current Test State\n\n\`\`\`\n${testPreview}\n\`\`\``);
+    }
   }
 
   // Source files
@@ -230,7 +299,20 @@ export function buildUserPrompt(agentName, localContext, githubContext, { tuning
     for (const f of localContext.sourceFiles) {
       sourceSection.push(`## ${f.name}\n\`\`\`\n${f.content}\n\`\`\``);
     }
-    sections.push(sourceSection.join("\n\n"));
+    const text = sourceSection.join("\n\n");
+    sections.push(text);
+    if (promptBudget) promptBudget.push({ section: "source", size: text.length, files: `${localContext.sourceFiles.length}`, notes: "" });
+  }
+
+  // Web files — only when refinements request it
+  if (refinements.includeWebFiles && localContext.webFiles?.length > 0) {
+    const webSection = [`# Website Files (${localContext.webFiles.length})`];
+    for (const f of localContext.webFiles) {
+      webSection.push(`## ${f.name}\n\`\`\`\n${f.content}\n\`\`\``);
+    }
+    const text = webSection.join("\n\n");
+    sections.push(text);
+    if (promptBudget) promptBudget.push({ section: "web", size: text.length, files: `${localContext.webFiles.length}`, notes: "" });
   }
 
   // Test files
@@ -239,43 +321,75 @@ export function buildUserPrompt(agentName, localContext, githubContext, { tuning
     for (const f of localContext.testFiles) {
       testSection.push(`## ${f.name}\n\`\`\`\n${f.content}\n\`\`\``);
     }
-    sections.push(testSection.join("\n\n"));
+    const text = testSection.join("\n\n");
+    sections.push(text);
+    if (promptBudget) promptBudget.push({ section: "tests", size: text.length, files: `${localContext.testFiles.length}`, notes: "" });
   }
 
-  // Features
+  // Features — sorted incomplete-first when refinements request it
   if (needs.features && localContext.features?.length > 0) {
-    const featureSection = [`# Features (${localContext.features.length})`];
-    for (const f of localContext.features) {
+    let features = [...localContext.features];
+    if (refinements.sortFeatures === "incomplete-first") {
+      features.sort((a, b) => {
+        const aIncomplete = /Remaining:/.test(a) || /\[ \]/.test(a) ? 0 : 1;
+        const bIncomplete = /Remaining:/.test(b) || /\[ \]/.test(b) ? 0 : 1;
+        return aIncomplete - bIncomplete;
+      });
+    }
+
+    const limit = config?.paths?.features?.limit;
+    const header = limit
+      ? `# Features (${features.length}/${limit} max)`
+      : `# Features (${features.length})`;
+    const featureSection = [header];
+    for (const f of features) {
       featureSection.push(f);
     }
-    sections.push(featureSection.join("\n\n"));
+    const text = featureSection.join("\n\n");
+    sections.push(text);
+    if (promptBudget) promptBudget.push({ section: "features", size: text.length, files: `${features.length}`, notes: "" });
   }
 
   // Library
   if (needs.library && localContext.libraryFiles?.length > 0) {
-    const libSection = [`# Library Files (${localContext.libraryFiles.length})`];
+    const libLimit = config?.paths?.library?.limit;
+    const header = libLimit
+      ? `# Library Files (${localContext.libraryFiles.length}/${libLimit} max)`
+      : `# Library Files (${localContext.libraryFiles.length})`;
+    const libSection = [header];
     for (const f of localContext.libraryFiles) {
       libSection.push(`## ${f.name}\n${f.content}`);
     }
     sections.push(libSection.join("\n\n"));
   }
 
-  // Library sources
+  // Library sources — vary strategy based on URL presence
   if (needs.librarySources && localContext.librarySources) {
-    sections.push(`# Sources\n\n${localContext.librarySources}`);
+    if (refinements.checkSourcesForUrls) {
+      const hasUrls = /https?:\/\//.test(localContext.librarySources);
+      if (!hasUrls) {
+        sections.push(`# Sources\n\n${localContext.librarySources}\n\nPopulate SOURCES.md with 3-8 relevant reference URLs aligned with the mission.`);
+      } else {
+        sections.push(`# Sources\n\n${localContext.librarySources}`);
+      }
+    } else {
+      sections.push(`# Sources\n\n${localContext.librarySources}`);
+    }
   }
 
-  // Issues (from GitHub context)
+  // Issues (from GitHub context) — not duplicated if target issue already shown
   if (needs.issues && githubContext?.issues?.length > 0) {
     const issueSection = [`# Open Issues (${githubContext.issues.length})`];
     for (const issue of githubContext.issues) {
       issueSection.push(summariseIssue(issue, tuning?.issueBodyLimit || 500));
     }
-    sections.push(issueSection.join("\n\n"));
+    const text = issueSection.join("\n\n");
+    sections.push(text);
+    if (promptBudget) promptBudget.push({ section: "issues", size: text.length, files: `${githubContext.issues.length}`, notes: "" });
   }
 
-  // Specific issue detail
-  if (githubContext?.issueDetail) {
+  // Specific issue detail (only if not already highlighted as target issue)
+  if (!refinements.highlightTargetIssue && githubContext?.issueDetail) {
     const issue = githubContext.issueDetail;
     const issueSection = [`# Issue #${issue.number}: ${issue.title}\n\n${issue.body || "(no body)"}`];
     if (issue.comments?.length > 0) {
@@ -306,6 +420,31 @@ export function buildUserPrompt(agentName, localContext, githubContext, { tuning
     ));
   }
 
+  // Limits section — inject concrete numbers from agentic-lib.toml
+  if (config) {
+    const limitsLines = ["# Limits (from agentic-lib.toml)", ""];
+    const budget = config.transformationBudget || 0;
+    const featLimit = config.paths?.features?.limit;
+    const libLimit = config.paths?.library?.limit;
+
+    if (featLimit) limitsLines.push(`- Maximum feature files: ${featLimit}`);
+    if (libLimit) limitsLines.push(`- Maximum library documents: ${libLimit}`);
+    if (budget > 0) {
+      const intentionPath = config.intentionBot?.intentionFilepath;
+      const cumulativeCost = readCumulativeCost(intentionPath);
+      const remaining = Math.max(0, budget - cumulativeCost);
+      limitsLines.push(`- Transformation budget: ${budget} (used: ${cumulativeCost}, remaining: ${remaining})`);
+    }
+    if (config.featureDevelopmentIssuesWipLimit) limitsLines.push(`- Maximum concurrent feature issues: ${config.featureDevelopmentIssuesWipLimit}`);
+    if (config.maintenanceIssuesWipLimit) limitsLines.push(`- Maximum concurrent maintenance issues: ${config.maintenanceIssuesWipLimit}`);
+    if (config.attemptsPerBranch) limitsLines.push(`- Maximum attempts per branch: ${config.attemptsPerBranch}`);
+    if (config.attemptsPerIssue) limitsLines.push(`- Maximum attempts per issue: ${config.attemptsPerIssue}`);
+
+    if (limitsLines.length > 2) {
+      sections.push(limitsLines.join("\n"));
+    }
+  }
+
   // Instructions
   sections.push([
     "Implement this mission. Read the existing source code and tests,",
@@ -314,5 +453,5 @@ export function buildUserPrompt(agentName, localContext, githubContext, { tuning
     "Start by reading the existing files, then implement the solution.",
   ].join("\n"));
 
-  return sections.join("\n\n");
+  return { prompt: sections.join("\n\n"), promptBudget };
 }

@@ -62,6 +62,7 @@ function formatToolArgs(toolName, args) {
  * @param {string} [options.userPrompt] - Override user prompt (instead of default mission prompt)
  * @param {string[]} [options.writablePaths] - Writable paths for tool safety (default: workspace)
  * @param {number} [options.maxRetries=2] - Max retries on rate-limit errors
+ * @param {number} [options.maxToolCalls] - Max tool calls before graceful stop (undefined = unlimited)
  * @param {Object} [options.logger]
  * @returns {Promise<HybridResult>}
  */
@@ -75,6 +76,7 @@ export async function runHybridSession({
   userPrompt,
   writablePaths,
   maxRetries = 2,
+  maxToolCalls,
   logger = defaultLogger,
 }) {
   const { CopilotClient, approveAll, defineTool } = await getSDK();
@@ -145,7 +147,7 @@ export async function runHybridSession({
   const systemPrompt = basePrompt + NARRATIVE_INSTRUCTION;
 
   // ── Session config ─────────────────────────────────────────────────
-  logger.info(`[hybrid] Creating session (model=${model}, workspace=${wsPath})`);
+  logger.info(`[agentic-lib] Creating session (model=${model}, workspace=${wsPath})`);
 
   const client = new CopilotClient({
     env: { ...process.env, GITHUB_TOKEN: copilotToken, GH_TOKEN: copilotToken },
@@ -159,6 +161,11 @@ export async function runHybridSession({
     workingDirectory: wsPath,
     hooks: {
       onPreToolUse: (input) => {
+        // Enforce tool-call budget
+        if (maxToolCalls && metrics.toolCalls.length >= maxToolCalls) {
+          logger.warning(`  [tool] Budget reached (${maxToolCalls} calls) — denying ${input.toolName}`);
+          return { action: "deny", reason: `Tool call budget exhausted (${maxToolCalls} max). Wrap up your work.` };
+        }
         const n = metrics.toolCalls.length + 1;
         const elapsed = ((Date.now() - metrics.startTime) / 1000).toFixed(0);
         metrics.toolCalls.push({ tool: input.toolName, time: Date.now(), args: input.toolArgs });
@@ -211,15 +218,15 @@ export async function runHybridSession({
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     try {
       session = await client.createSession(sessionConfig);
-      logger.info(`[hybrid] Session: ${session.sessionId}`);
+      logger.info(`[agentic-lib] Session: ${session.sessionId}`);
       break;
     } catch (err) {
       if (isRateLimitError(err) && attempt < maxRetries) {
         const delayMs = retryDelayMs(err, attempt);
-        logger.warning(`[hybrid] Rate limit on session creation — waiting ${Math.round(delayMs / 1000)}s (retry ${attempt + 1}/${maxRetries})`);
+        logger.warning(`[agentic-lib] Rate limit on session creation — waiting ${Math.round(delayMs / 1000)}s (retry ${attempt + 1}/${maxRetries})`);
         await new Promise((r) => setTimeout(r, delayMs));
       } else {
-        logger.error(`[hybrid] Failed to create session: ${err.message}`);
+        logger.error(`[agentic-lib] Failed to create session: ${err.message}`);
         await client.stop();
         throw err;
       }
@@ -251,13 +258,13 @@ export async function runHybridSession({
   // ── Try autopilot mode ──────────────────────────────────────────────
   try {
     await session.rpc.mode.set({ mode: "autopilot" });
-    logger.info("[hybrid] Autopilot mode: active");
+    logger.info("[agentic-lib] Autopilot mode: active");
   } catch {
-    logger.info("[hybrid] Autopilot mode not available — using default mode");
+    logger.info("[agentic-lib] Autopilot mode not available — using default mode");
   }
 
   // ── Send mission prompt ─────────────────────────────────────────────
-  logger.info("[hybrid] Sending mission...\n");
+  logger.info("[agentic-lib] Sending mission...\n");
 
   const prompt = userPrompt || [
     `# Mission\n\n${missionText}`,
@@ -281,10 +288,10 @@ export async function runHybridSession({
     } catch (err) {
       if (isRateLimitError(err) && attempt < maxRetries) {
         const delayMs = retryDelayMs(err, attempt);
-        logger.warning(`[hybrid] Rate limit on sendAndWait — waiting ${Math.round(delayMs / 1000)}s (retry ${attempt + 1}/${maxRetries})`);
+        logger.warning(`[agentic-lib] Rate limit on sendAndWait — waiting ${Math.round(delayMs / 1000)}s (retry ${attempt + 1}/${maxRetries})`);
         await new Promise((r) => setTimeout(r, delayMs));
       } else {
-        logger.error(`[hybrid] Session error: ${err.message}`);
+        logger.error(`[agentic-lib] Session error: ${err.message}`);
         response = null;
         endReason = "error";
         break;

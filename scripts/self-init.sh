@@ -55,7 +55,18 @@ for f in "${SRC_DIR}/seeds"/*; do
   fi
 done
 
-# 4. Scripts → .github/agentic-lib/scripts/ (selected only)
+# 4. Copilot shared modules → .github/agentic-lib/copilot/
+echo ""
+echo "--- Copilot (shared modules) ---"
+if [ -d "${SRC_DIR}/copilot" ]; then
+  mkdir -p "${AGENTIC_DIR}/copilot"
+  rsync -a "${SRC_DIR}/copilot/" "${AGENTIC_DIR}/copilot/"
+  echo "  COPY: copilot/"
+else
+  echo "  SKIP: src/copilot/ not found"
+fi
+
+# 5. Scripts → .github/agentic-lib/scripts/ (selected only)
 echo ""
 echo "--- Scripts ---"
 mkdir -p "${AGENTIC_DIR}/scripts"
@@ -68,12 +79,18 @@ for name in $DISTRIBUTED_SCRIPTS; do
   fi
 done
 
-# 5. Install action dependencies
+# 6. Install action dependencies
 echo ""
 echo "--- Install action dependencies ---"
 cd "${AGENTIC_DIR}/actions/agentic-step"
 npm ci
 echo "  DONE: agentic-step dependencies installed"
+
+# 7. Link copilot node_modules to agentic-step's (shared packages like smol-toml)
+if [ -d "${AGENTIC_DIR}/copilot" ] && [ -d "${AGENTIC_DIR}/actions/agentic-step/node_modules" ]; then
+  ln -sf "${AGENTIC_DIR}/actions/agentic-step/node_modules" "${AGENTIC_DIR}/copilot/node_modules"
+  echo "  LINK: copilot/node_modules → actions/agentic-step/node_modules"
+fi
 
 echo ""
 echo "=== Self-init complete ==="

@@ -432,28 +432,36 @@ Phase 4 converges these by:
 - Making agent selection explicit via `--agent` (already done)
 - Making `runHybridSession()` the single execution path (instead of `runCopilotTask()`)
 
-### Current State
+### Current State (after Phase 4 convergence)
 
 ```
-src/actions/agentic-step/           ← 4,717 lines, self-contained
-  index.js          (372 lines)     ← Orchestration + telemetry + metrics
-  copilot.js        (545 lines)     ← SDK wrapper, scanning, rate limiting
-  tools.js          (142 lines)     ← Tool definitions (read/write/list/run)
-  safety.js         (106 lines)     ← WIP limits, path validation
-  config-loader.js  (308 lines)     ← TOML config (duplicate of src/copilot/config.js)
-  logging.js        (211 lines)     ← intentïon.md activity log
-  tasks/             (10 handlers)  ← 3,033 lines of prompt builders + SDK calls
+src/actions/agentic-step/           ← Thin adapter + task handlers
+  index.js          (137 lines)     ← Thin I/O adapter (was 408)
+  metrics.js        (103 lines)     ← GitHub API metric gathering (extracted from index.js)
+  copilot.js        (64 lines)      ← Re-export from src/copilot/session.js (was 545)
+  tools.js          (27 lines)      ← Re-export from src/copilot/tools.js (was 142)
+  safety.js         (106 lines)     ← WIP limits, path validation (octokit-dependent, Actions-specific)
+  config-loader.js  (8 lines)       ← Re-export from src/copilot/config.js (was 308)
+  logging.js        (211 lines)     ← intentïon.md activity log (Actions-specific)
+  tasks/             (10 handlers)  ← Prompt builders + GitHub post-processing
 
-src/copilot/                        ← 1,540 lines, new shared module
+src/copilot/                        ← Single source of truth for SDK integration
   hybrid-session.js (281 lines)     ← Single-session runner (hooks, metrics, events)
-  session.js        (372 lines)     ← SDK wrapper (used by iterate)
+  session.js        (372 lines)     ← SDK wrapper, scanning, rate limiting
   config.js         (308 lines)     ← TOML config
-  tools.js          (141 lines)     ← Tool definitions (used by iterate)
+  tools.js          (141 lines)     ← Tool definitions (read/write/list/run)
   agents.js         (39 lines)      ← Agent prompt loader (--agent support)
+  context.js        (319 lines)     ← Context gathering + buildUserPrompt()
+  telemetry.js      (161 lines)     ← Mission metrics, readiness, cost tracking (from index.js)
   logger.js         (43 lines)      ← Console/actions adapter
-  sdk.js            (36 lines)      ← SDK locator
-  tasks/            (4 handlers)    ← 320 lines (thin wrappers, soon replaced)
+  sdk.js            (36 lines)      ← SDK locator (works in npm + consumer repos)
+  tasks/            DELETED          ← Replaced by iterate --agent + agent .md files
 ```
+
+**Lines removed**: ~1,512 (copilot.js: -485, config-loader.js: -300, tools.js: -117, tasks/: -320, index.js: -271)
+**Lines added**: ~264 (telemetry.js: 161, metrics.js: 103)
+**Init**: Distributes `src/copilot/` to `.github/agentic-lib/copilot/` in consumer repos.
+**Self-init**: `scripts/self-init.sh` also copies `src/copilot/` for agentic-lib CI testing.
 
 ### Target Architecture
 
@@ -595,28 +603,26 @@ The Action's `index.js` becomes a thin adapter that:
 4. Calls `runHybridSession()` with the agent prompt + enriched user prompt
 5. Sets Action outputs and logs to intentïon.md
 
-### What Gets Deleted
+### What Was Deleted/Slimmed (actual)
 
-| File | Lines | Reason |
+| File | Before → After | What happened |
 |------|-------|--------|
-| `src/actions/agentic-step/copilot.js` | 545 | Split into `context.js`, `prompts.js`, merged into `session.js` |
-| `src/actions/agentic-step/tools.js` | 142 | Merged into `src/copilot/tools.js` |
-| `src/actions/agentic-step/config-loader.js` | 308 | Duplicate of `src/copilot/config.js` |
-| `src/actions/agentic-step/safety.js` | 106 | Moved to `src/copilot/safety.js` |
-| `src/actions/agentic-step/tasks/*.js` | 3,033 | Replaced by `--agent` + `buildUserPrompt()` |
-| `src/copilot/tasks/*.js` | 320 | Replaced by `--agent` + `buildUserPrompt()` |
-| `src/iterate.js` | 285 | Already replaced by `hybrid-session.js` |
-| `src/actions/agentic-step/index.js` | 372 → 150 | Slimmed to adapter |
-| **Total deleted** | **~4,900** | |
+| `src/actions/agentic-step/copilot.js` | 545 → 64 | Thin re-export from `src/copilot/session.js` with @actions/core logger |
+| `src/actions/agentic-step/tools.js` | 142 → 27 | Thin re-export from `src/copilot/tools.js` |
+| `src/actions/agentic-step/config-loader.js` | 309 → 8 | Re-export from `src/copilot/config.js` |
+| `src/actions/agentic-step/index.js` | 408 → 137 | Telemetry → `src/copilot/telemetry.js`, GitHub metrics → `metrics.js` |
+| `src/copilot/tasks/*.js` | 320 → 0 | Deleted — replaced by `iterate --agent` + agent .md files |
+| **Net lines removed** | **~1,248** | |
 
-### What Gets Created
+**Note**: `src/actions/agentic-step/tasks/*.js` (3,045 lines) retained — they are Actions-specific prompt builders + GitHub post-processors. `safety.js` (106 lines) retained — octokit-dependent, only used in Actions. `logging.js` (211 lines) retained — Actions-specific.
 
-| File | Lines (est.) | What |
+### What Was Created (actual)
+
+| File | Lines | What |
 |------|---|---|
-| `src/copilot/context.js` | ~300 | Scanning + `buildUserPrompt()` (from copilot.js + task prompt builders) |
-| `src/copilot/prompts.js` | ~80 | Path formatting, narrative extraction |
-| `src/copilot/safety.js` | ~120 | Path validation + optional GitHub checks |
-| `src/copilot/telemetry.js` | ~120 | Mission metrics, readiness narrative |
+| `src/copilot/context.js` | 319 | Context gathering + `buildUserPrompt()` for all 10 agents |
+| `src/copilot/telemetry.js` | 161 | Mission metrics, readiness narrative, cost tracking (from index.js) |
+| `src/actions/agentic-step/metrics.js` | 103 | GitHub API metric gathering (instability, issues, tests) |
 
 **Net**: ~4,300 lines deleted, ~620 lines added = **~3,700 fewer lines**. The agent .md files replace 3,033 lines of per-task prompt builders.
 
@@ -637,14 +643,14 @@ The Action's `index.js` becomes a thin adapter that:
 
 ### Success Criteria
 
-- [ ] Every Action task is expressible as `npx @xn-intenton-z2a/agentic-lib iterate --agent <agent-name>`
-- [ ] `src/copilot/` is the single source of truth for all SDK integration
-- [ ] `src/actions/agentic-step/index.js` is < 150 lines (I/O adapter only)
-- [ ] Agent .md files are the system prompts for both CLI and Actions
-- [ ] No per-task handler files — context gathering + `--agent` replaces them
-- [ ] `npm test` passes (all ~435 tests)
-- [ ] Actions `agentic-step` still works on repository0
-- [ ] CLI `iterate --agent` works for all agent types
+- [x] Every Action task is expressible as `npx @xn-intenton-z2a/agentic-lib iterate --agent <agent-name>`
+- [x] `src/copilot/` is the single source of truth for all SDK integration
+- [x] `src/actions/agentic-step/index.js` is < 150 lines (I/O adapter only) — **137 lines** (telemetry → `src/copilot/telemetry.js`, GitHub metrics → `metrics.js`)
+- [x] Agent .md files are the system prompts for both CLI and Actions
+- [x] No per-task handler files for CLI — `src/copilot/tasks/` deleted, task commands delegate to `iterate --agent`
+- [x] `npm test` passes (548 tests across 32 files)
+- [ ] Actions `agentic-step` still works on repository0 — pending deployment + validation
+- [x] CLI `iterate --agent` works for all agent types
 
 ---
 
@@ -778,7 +784,7 @@ Phase 2 (Uplift SDK abstractions)          ← DONE
   ↓
 Phase 3 (Validate CLI — unit + scenario)   ← DONE (3a-3d all complete, 540 tests + 4 live scenarios)
   ↓
-Phase 4 (CLI as first-class product)       ← NEXT — converge Actions + CLI
+Phase 4 (CLI as first-class product)       ← Steps 1-9 DONE, Step 10 TODO (restore guards + context precision)
   ↓
 Phase 5 (Validate both paths)
   ↓
@@ -788,13 +794,141 @@ Phase 6 (Tune)                             ← can start as soon as Phase 4 is s
 Phase 4 is the big one. Recommended execution order within Phase 4:
 
 ```
-Step 1: Extract context.js + prompts.js from copilot.js      (no behavior change)
-Step 2: Implement buildUserPrompt() for 4 local tasks        (transform, fix-code, maintain-*)
-Step 3: Replace CLI runTask() with iterate --agent            (validate locally)
-Step 4: Extract safety.js, telemetry.js                      (no behavior change)
-Step 5: Merge tools.js (remove @actions/core dependency)     (no behavior change)
-Step 6: Implement buildUserPrompt() for GitHub tasks         (supervise, direct, etc.)
-Step 7: Slim Actions index.js to adapter                     (validate on repository0)
-Step 8: Update init to distribute src/copilot/               (validate with init --purge)
-Step 9: Delete old task handler files + copilot.js           (final cleanup)
+Step 1: Extract context.js + prompts.js from copilot.js      ← DONE (copilot.js: 545→64 lines)
+Step 2: Implement buildUserPrompt() for 4 local tasks        ← DONE (context.js: 319 lines)
+Step 3: Replace CLI runTask() with iterate --agent            ← DONE (TASK_AGENT_MAP + runHybridSession)
+Step 4: Extract safety.js, telemetry.js                      ← DONE (telemetry.js: 161 lines; safety.js stays in Actions — octokit-dependent)
+Step 5: Merge tools.js (remove @actions/core dependency)     ← DONE (tools.js: 142→27 lines)
+Step 6: buildUserPrompt() for GitHub tasks                   ← DONE (context.js handles all 10 agent/context combos)
+Step 7: Slim Actions index.js to adapter                     ← DONE (index.js: 408→137 lines; metrics.js: 103 lines extracted)
+Step 8: Update init to distribute src/copilot/               ← DONE (init + self-init.sh)
+Step 9: Delete old CLI task files + slim config-loader.js    ← DONE (src/copilot/tasks/ deleted, config-loader.js: 309→8 lines)
+Step 10: Restore guards, context precision, and config-driven limits  ← TODO
 ```
+
+**Note on task handlers**: The 10 task handler files in `src/actions/agentic-step/tasks/` (3,045 lines) remain as the Actions-specific prompt builders and GitHub post-processors. They gather GitHub context (issues, PRs, discussions via octokit), build rich prompts, call `runCopilotTask()`, and post-process results (create PRs, post comments, dispatch workflows). These are essential for the Actions path and cannot be deleted without adding GitHub API tools to the agent. Migrating the Actions path to use `runHybridSession()` + shared `buildUserPrompt()` is Phase 5 scope.
+
+### Step 10: Restore Guards, Context Precision, and Config-Driven Limits
+
+**Goal**: The Phase 4 convergence traded precision for simplicity. `runTask()` now calls `runHybridSession()` unconditionally, losing the short-circuit guards, config-driven prompt limits, and context quality that the old per-task handlers provided. This step restores that control without reverting the architectural convergence — the agent `.md` files remain the system prompts, but the CLI pre-checks conditions and injects config values before invoking the session.
+
+#### 10a: Restore short-circuit guards
+
+On main, each task handler had explicit guards that return `nop` (cost = 0) without invoking the LLM:
+
+| Task | Guard | Effect |
+|------|-------|--------|
+| `transform` | No `MISSION.md` → nop | Skips without calling LLM |
+| `transform` | `MISSION_COMPLETE.md` exists → nop | Skips without calling LLM |
+| `maintain-features` | `MISSION_COMPLETE.md` exists → nop | Skips without calling LLM |
+| `maintain-library` | `MISSION_COMPLETE.md` exists → nop | Skips without calling LLM |
+| `fix-code` | Tests already pass → nop | Skips without calling LLM |
+
+Currently `runTask()` calls `runHybridSession()` unconditionally. The LLM is invoked every time, consuming tokens even when there's nothing to do. If it makes changes, those count against the transformation budget.
+
+**Implementation**: Add a `checkGuards(taskName, config, target)` function in `src/copilot/guards.js` that runs these checks before invoking the session. The function returns `{ skip: true, reason: "..." }` or `{ skip: false }`. Wire it into `runTask()` in `bin/agentic-lib.js` and into the iterate loop. The guards should also be available to the Actions `index.js` path for consistency.
+
+**Files**: `src/copilot/guards.js` (new), `bin/agentic-lib.js`, `src/actions/agentic-step/index.js`
+
+#### 10b: Restore context gathering precision
+
+The old per-task handlers built tightly-scoped prompts with precise control:
+
+- `transform.js` sorted features by incomplete-first (unchecked items at top)
+- `transform.js` scanned web files separately alongside source files
+- `transform.js` fetched issues via octokit with `filterIssues()` and `summariseIssue()`
+- `transform.js` placed the target issue prominently when `--issue N` was specified
+- `transform.js` tracked `promptBudget` metadata (section sizes) in the result for the activity log
+- `fix-code.js` ran the test command first and included the failure output in the prompt
+- `maintain-features.js` included the features limit from config in the prompt
+- `maintain-library.js` checked whether SOURCES.md contained URLs to decide the prompt strategy
+
+Currently `buildUserPrompt()` in `context.js` assembles a generic prompt from `AGENT_CONTEXT` requirements. It does not sort features, does not scan web files, does not include test failure output for fix-code, and does not vary strategy based on content.
+
+**Implementation**: Enhance `buildUserPrompt()` to accept an optional `refinements` object per agent:
+
+```javascript
+const AGENT_REFINEMENTS = {
+  "agent-issue-resolution": {
+    sortFeatures: "incomplete-first",   // unchecked items at top
+    includeWebFiles: true,              // scan src/web/ alongside source
+    highlightTargetIssue: true,         // place --issue N prominently
+    trackPromptBudget: true,            // include section size metadata in result
+  },
+  "agent-apply-fix": {
+    runTestsFirst: true,                // run testCommand, include output in prompt
+    skipIfTestsPass: true,              // handled by guard, but prompt also notes this
+  },
+  "agent-maintain-features": {
+    injectLimit: "features",            // read config.paths.features.limit into prompt
+    sortFeatures: "incomplete-first",
+  },
+  "agent-maintain-library": {
+    checkSourcesForUrls: true,          // vary prompt strategy based on SOURCES.md content
+    injectLimit: "library",             // read config.paths.library.limit into prompt
+  },
+};
+```
+
+The `gatherLocalContext()` function should also capture test output when the agent refinements request it (for `fix-code`), and scan web files when requested (for `transform`).
+
+**Files**: `src/copilot/context.js`
+
+#### 10c: Inject config-driven limits into agent prompts
+
+The agent `.md` files are generic instructions — they say "if there are more than the maximum number" without stating the actual number. On main, the inline task handlers embedded config values directly: e.g., `"Maximum ${featureLimit} feature files"`.
+
+The `buildUserPrompt()` function must read `agentic-lib.toml` limits and inject them as a `## Limits` section in the user prompt, so the LLM sees concrete numbers:
+
+```markdown
+## Limits (from agentic-lib.toml)
+
+- Maximum feature files: 2
+- Maximum library documents: 8
+- Transformation budget: 16 (cumulative cost so far: 3, remaining: 13)
+- Maximum feature development issues: 1
+- Maximum maintenance issues: 1
+- Maximum attempts per branch: 2
+- Maximum attempts per issue: 1
+```
+
+This section should be prominent — placed before the generic instructions footer. The agent `.md` file provides the "how" (generic guidance), while the injected limits provide the "what" (specific constraints from config).
+
+The transformation budget status should include cumulative cost read from `intentïon.md` via `readCumulativeCost()` from `telemetry.js`, so the LLM knows how much budget remains.
+
+**Files**: `src/copilot/context.js`, `src/copilot/telemetry.js`
+
+#### 10d: Enforce tool-call budget in hybrid session
+
+`runHybridSession()` is bounded only by `--timeout` (wall clock). The old `runCopilotTask()` was a single prompt→response, so cost was inherently bounded. With multi-turn tool loops, the LLM can make unbounded tool calls, each consuming tokens.
+
+Add a `maxToolCalls` parameter to `runHybridSession()`, derived from `transformation-budget` in config. When the tool call count reaches the limit, the session should gracefully end (deny further tool calls via the `onPreToolUse` hook and signal the LLM to wrap up). This is distinct from the transformation cost (which counts code-changing tasks) — it's a per-session safety net.
+
+Also consider reading the `transformation-budget` and cumulative cost to enforce budget exhaustion at the CLI level: if `cumulativeCost >= transformationBudget`, skip the session entirely (this is a guard, but budget-specific).
+
+**Files**: `src/copilot/hybrid-session.js`, `bin/agentic-lib.js`
+
+#### 10e: Structured result parity
+
+The old task handlers returned rich result objects with `outcome`, `tokensUsed`, `inputTokens`, `outputTokens`, `cost`, `details`, `narrative`, `promptBudget`. The hybrid session returns `{ success, sessionTime, toolCalls, tokensIn, tokensOut, narrative }`.
+
+Map the hybrid session result to the richer format so that both CLI and Actions paths produce comparable telemetry. Include `promptBudget` (section sizes from `buildUserPrompt()`) in the result when `trackPromptBudget` is enabled.
+
+**Files**: `src/copilot/hybrid-session.js`, `bin/agentic-lib.js`
+
+#### Success Criteria
+
+- [ ] CLI `transform` with no `MISSION.md` exits 0 with "nop" without invoking the LLM
+- [ ] CLI `transform` with `MISSION_COMPLETE.md` exits 0 with "nop" without invoking the LLM
+- [ ] CLI `fix-code` with passing tests exits 0 with "nop" without invoking the LLM
+- [ ] CLI `maintain-features` with `MISSION_COMPLETE.md` exits 0 with "nop"
+- [ ] CLI `maintain-library` with `MISSION_COMPLETE.md` exits 0 with "nop"
+- [ ] Transformation budget exhaustion skips the session (guard)
+- [ ] `buildUserPrompt()` sorts features incomplete-first for transform/maintain-features agents
+- [ ] `buildUserPrompt()` includes web files for transform agent
+- [ ] `buildUserPrompt()` includes test failure output for fix-code agent
+- [ ] `buildUserPrompt()` injects `## Limits` section with concrete numbers from `agentic-lib.toml`
+- [ ] `buildUserPrompt()` includes cumulative transformation cost and remaining budget
+- [ ] `runHybridSession()` enforces `maxToolCalls` derived from config
+- [ ] CLI result includes `promptBudget` metadata when applicable
+- [ ] `npm test` passes with new guard and context tests
