@@ -92,7 +92,8 @@ jobs:
           VERSION=$(npx @xn-intenton-z2a/agentic-lib version 2>/dev/null || echo "latest")
           git commit -m "update agentic-lib@${VERSION} [skip ci]"
           for attempt in 1 2 3; do
-            git push origin main && break
+            # Use HEAD:refs/heads/main to handle detached HEAD state
+            git push origin HEAD:refs/heads/main && break
             echo "Push failed (attempt $attempt) — pulling and retrying"
             git pull --rebase origin main || {
               echo "Rebase conflict — aborting rebase and retrying"
