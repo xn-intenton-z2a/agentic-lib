@@ -784,7 +784,7 @@ Phase 2 (Uplift SDK abstractions)          ← DONE
   ↓
 Phase 3 (Validate CLI — unit + scenario)   ← DONE (3a-3d all complete, 540 tests + 4 live scenarios)
   ↓
-Phase 4 (CLI as first-class product)       ← DONE — Steps 1-9 complete (index.js: 137 lines, 548 tests pass)
+Phase 4 (CLI as first-class product)       ← Steps 1-9 DONE, Step 10 TODO (restore guards + context precision)
   ↓
 Phase 5 (Validate both paths)
   ↓
@@ -803,6 +803,132 @@ Step 6: buildUserPrompt() for GitHub tasks                   ← DONE (context.j
 Step 7: Slim Actions index.js to adapter                     ← DONE (index.js: 408→137 lines; metrics.js: 103 lines extracted)
 Step 8: Update init to distribute src/copilot/               ← DONE (init + self-init.sh)
 Step 9: Delete old CLI task files + slim config-loader.js    ← DONE (src/copilot/tasks/ deleted, config-loader.js: 309→8 lines)
+Step 10: Restore guards, context precision, and config-driven limits  ← TODO
 ```
 
 **Note on task handlers**: The 10 task handler files in `src/actions/agentic-step/tasks/` (3,045 lines) remain as the Actions-specific prompt builders and GitHub post-processors. They gather GitHub context (issues, PRs, discussions via octokit), build rich prompts, call `runCopilotTask()`, and post-process results (create PRs, post comments, dispatch workflows). These are essential for the Actions path and cannot be deleted without adding GitHub API tools to the agent. Migrating the Actions path to use `runHybridSession()` + shared `buildUserPrompt()` is Phase 5 scope.
+
+### Step 10: Restore Guards, Context Precision, and Config-Driven Limits
+
+**Goal**: The Phase 4 convergence traded precision for simplicity. `runTask()` now calls `runHybridSession()` unconditionally, losing the short-circuit guards, config-driven prompt limits, and context quality that the old per-task handlers provided. This step restores that control without reverting the architectural convergence — the agent `.md` files remain the system prompts, but the CLI pre-checks conditions and injects config values before invoking the session.
+
+#### 10a: Restore short-circuit guards
+
+On main, each task handler had explicit guards that return `nop` (cost = 0) without invoking the LLM:
+
+| Task | Guard | Effect |
+|------|-------|--------|
+| `transform` | No `MISSION.md` → nop | Skips without calling LLM |
+| `transform` | `MISSION_COMPLETE.md` exists → nop | Skips without calling LLM |
+| `maintain-features` | `MISSION_COMPLETE.md` exists → nop | Skips without calling LLM |
+| `maintain-library` | `MISSION_COMPLETE.md` exists → nop | Skips without calling LLM |
+| `fix-code` | Tests already pass → nop | Skips without calling LLM |
+
+Currently `runTask()` calls `runHybridSession()` unconditionally. The LLM is invoked every time, consuming tokens even when there's nothing to do. If it makes changes, those count against the transformation budget.
+
+**Implementation**: Add a `checkGuards(taskName, config, target)` function in `src/copilot/guards.js` that runs these checks before invoking the session. The function returns `{ skip: true, reason: "..." }` or `{ skip: false }`. Wire it into `runTask()` in `bin/agentic-lib.js` and into the iterate loop. The guards should also be available to the Actions `index.js` path for consistency.
+
+**Files**: `src/copilot/guards.js` (new), `bin/agentic-lib.js`, `src/actions/agentic-step/index.js`
+
+#### 10b: Restore context gathering precision
+
+The old per-task handlers built tightly-scoped prompts with precise control:
+
+- `transform.js` sorted features by incomplete-first (unchecked items at top)
+- `transform.js` scanned web files separately alongside source files
+- `transform.js` fetched issues via octokit with `filterIssues()` and `summariseIssue()`
+- `transform.js` placed the target issue prominently when `--issue N` was specified
+- `transform.js` tracked `promptBudget` metadata (section sizes) in the result for the activity log
+- `fix-code.js` ran the test command first and included the failure output in the prompt
+- `maintain-features.js` included the features limit from config in the prompt
+- `maintain-library.js` checked whether SOURCES.md contained URLs to decide the prompt strategy
+
+Currently `buildUserPrompt()` in `context.js` assembles a generic prompt from `AGENT_CONTEXT` requirements. It does not sort features, does not scan web files, does not include test failure output for fix-code, and does not vary strategy based on content.
+
+**Implementation**: Enhance `buildUserPrompt()` to accept an optional `refinements` object per agent:
+
+```javascript
+const AGENT_REFINEMENTS = {
+  "agent-issue-resolution": {
+    sortFeatures: "incomplete-first",   // unchecked items at top
+    includeWebFiles: true,              // scan src/web/ alongside source
+    highlightTargetIssue: true,         // place --issue N prominently
+    trackPromptBudget: true,            // include section size metadata in result
+  },
+  "agent-apply-fix": {
+    runTestsFirst: true,                // run testCommand, include output in prompt
+    skipIfTestsPass: true,              // handled by guard, but prompt also notes this
+  },
+  "agent-maintain-features": {
+    injectLimit: "features",            // read config.paths.features.limit into prompt
+    sortFeatures: "incomplete-first",
+  },
+  "agent-maintain-library": {
+    checkSourcesForUrls: true,          // vary prompt strategy based on SOURCES.md content
+    injectLimit: "library",             // read config.paths.library.limit into prompt
+  },
+};
+```
+
+The `gatherLocalContext()` function should also capture test output when the agent refinements request it (for `fix-code`), and scan web files when requested (for `transform`).
+
+**Files**: `src/copilot/context.js`
+
+#### 10c: Inject config-driven limits into agent prompts
+
+The agent `.md` files are generic instructions — they say "if there are more than the maximum number" without stating the actual number. On main, the inline task handlers embedded config values directly: e.g., `"Maximum ${featureLimit} feature files"`.
+
+The `buildUserPrompt()` function must read `agentic-lib.toml` limits and inject them as a `## Limits` section in the user prompt, so the LLM sees concrete numbers:
+
+```markdown
+## Limits (from agentic-lib.toml)
+
+- Maximum feature files: 2
+- Maximum library documents: 8
+- Transformation budget: 16 (cumulative cost so far: 3, remaining: 13)
+- Maximum feature development issues: 1
+- Maximum maintenance issues: 1
+- Maximum attempts per branch: 2
+- Maximum attempts per issue: 1
+```
+
+This section should be prominent — placed before the generic instructions footer. The agent `.md` file provides the "how" (generic guidance), while the injected limits provide the "what" (specific constraints from config).
+
+The transformation budget status should include cumulative cost read from `intentïon.md` via `readCumulativeCost()` from `telemetry.js`, so the LLM knows how much budget remains.
+
+**Files**: `src/copilot/context.js`, `src/copilot/telemetry.js`
+
+#### 10d: Enforce tool-call budget in hybrid session
+
+`runHybridSession()` is bounded only by `--timeout` (wall clock). The old `runCopilotTask()` was a single prompt→response, so cost was inherently bounded. With multi-turn tool loops, the LLM can make unbounded tool calls, each consuming tokens.
+
+Add a `maxToolCalls` parameter to `runHybridSession()`, derived from `transformation-budget` in config. When the tool call count reaches the limit, the session should gracefully end (deny further tool calls via the `onPreToolUse` hook and signal the LLM to wrap up). This is distinct from the transformation cost (which counts code-changing tasks) — it's a per-session safety net.
+
+Also consider reading the `transformation-budget` and cumulative cost to enforce budget exhaustion at the CLI level: if `cumulativeCost >= transformationBudget`, skip the session entirely (this is a guard, but budget-specific).
+
+**Files**: `src/copilot/hybrid-session.js`, `bin/agentic-lib.js`
+
+#### 10e: Structured result parity
+
+The old task handlers returned rich result objects with `outcome`, `tokensUsed`, `inputTokens`, `outputTokens`, `cost`, `details`, `narrative`, `promptBudget`. The hybrid session returns `{ success, sessionTime, toolCalls, tokensIn, tokensOut, narrative }`.
+
+Map the hybrid session result to the richer format so that both CLI and Actions paths produce comparable telemetry. Include `promptBudget` (section sizes from `buildUserPrompt()`) in the result when `trackPromptBudget` is enabled.
+
+**Files**: `src/copilot/hybrid-session.js`, `bin/agentic-lib.js`
+
+#### Success Criteria
+
+- [ ] CLI `transform` with no `MISSION.md` exits 0 with "nop" without invoking the LLM
+- [ ] CLI `transform` with `MISSION_COMPLETE.md` exits 0 with "nop" without invoking the LLM
+- [ ] CLI `fix-code` with passing tests exits 0 with "nop" without invoking the LLM
+- [ ] CLI `maintain-features` with `MISSION_COMPLETE.md` exits 0 with "nop"
+- [ ] CLI `maintain-library` with `MISSION_COMPLETE.md` exits 0 with "nop"
+- [ ] Transformation budget exhaustion skips the session (guard)
+- [ ] `buildUserPrompt()` sorts features incomplete-first for transform/maintain-features agents
+- [ ] `buildUserPrompt()` includes web files for transform agent
+- [ ] `buildUserPrompt()` includes test failure output for fix-code agent
+- [ ] `buildUserPrompt()` injects `## Limits` section with concrete numbers from `agentic-lib.toml`
+- [ ] `buildUserPrompt()` includes cumulative transformation cost and remaining budget
+- [ ] `runHybridSession()` enforces `maxToolCalls` derived from config
+- [ ] CLI result includes `promptBudget` metadata when applicable
+- [ ] `npm test` passes with new guard and context tests
