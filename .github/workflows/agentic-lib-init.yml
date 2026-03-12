@@ -67,18 +67,22 @@ on:
         default: "hamming-distance"
         options:
           - hamming-distance
-          - fizz-buzz
-          - roman-numerals
-          - lunar-lander
-          - string-utils
-          - dense-encoding
-          - plot-code-lib
-          - cron-engine
-          - owl-ontology
-          - time-series-lab
+          - agi
+          - ascii-face
           - c64-emulator
-          - ray-tracer
+          - cron-engine
+          - dense-encoding
+          - fizz-buzz
+          - hello-world
+          - json-schema-diff
+          - lunar-lander
           - markdown-compiler
+          - owl-ontology
+          - plot-code-lib
+          - ray-tracer
+          - roman-numerals
+          - string-utils
+          - time-series-lab
           - empty
       mission-text:
         description: "Freeform mission text for MISSION.md (overrides mission-seed if provided)"

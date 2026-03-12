@@ -1,4 +1,4 @@
-# repository0
+# Mission
 
 **Agentic-lib** is evolving into an intelligent automation system endowed with multiple AGI-aligned capabilities, all oriented toward a coherent long-term purpose: enabling agentic, cross-repository intelligent automation. The ultimate vision is a network of self-managing coding agents that can understand high-level goals, break them down, execute tasks across many projects, learn from their experiences, and seek assistance when needed – all with minimal human intervention. Each of the new features (Memory, Planning, Goal Decomposition, Self-Improvement, Replication, and Help-Seeking) contributes to this vision in a concrete, feasible way, building the stepping stones toward a truly autonomous development workflow.
 

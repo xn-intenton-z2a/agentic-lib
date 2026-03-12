@@ -11,12 +11,16 @@ const allFiles = readdirSync(MISSIONS_DIR)
   .sort();
 
 const EXPECTED_MISSIONS = [
+  "agi",
+  "ascii-face",
   "c64-emulator",
   "cron-engine",
   "dense-encoding",
   "empty",
   "fizz-buzz",
   "hamming-distance",
+  "hello-world",
+  "json-schema-diff",
   "lunar-lander",
   "markdown-compiler",
   "owl-ontology",
@@ -44,8 +48,8 @@ const BOUNDED_MISSIONS = [
 const ONGOING_MISSIONS = ["owl-ontology", "time-series-lab"];
 
 describe("src/seeds/missions", () => {
-  it("has 14 mission files", () => {
-    expect(allFiles).toHaveLength(14);
+  it("has 18 mission files", () => {
+    expect(allFiles).toHaveLength(18);
   });
 
   it("contains all expected missions", () => {
