@@ -141,8 +141,8 @@ async function main() {
   const missionsMsg = await waitFor(3);
   const missionsText = missionsMsg?.result?.content?.[0]?.text || "";
 
-  if (!missionsText.includes("hamming-distance")) {
-    console.error("  MISSIONS: did not include hamming-distance");
+  if (!missionsText.includes("6-kyu-understand-hamming-distance")) {
+    console.error("  MISSIONS: did not include 6-kyu-understand-hamming-distance");
     failures++;
   } else {
     const count = (missionsText.match(/^- \*\*/gm) || []).length;

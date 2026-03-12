@@ -281,10 +281,10 @@ const session = await client.resumeSession(savedId, { tools, hooks, ... });
 
 ### Success criteria
 
-- [ ] Single session completes hamming-distance without crashes
+- [ ] Single session completes 6-kyu-understand-hamming-distance without crashes
 - [ ] Hooks fire and collect metrics (tool calls, tokens, errors)
 - [ ] Agent carries context between "read tests → write code → run tests → fix" cycles
-- [ ] Wall clock < 5 min for hamming-distance (vs ~30-60 min via Actions)
+- [ ] Wall clock < 5 min for 6-kyu-understand-hamming-distance (vs ~30-60 min via Actions)
 
 ---
 
@@ -386,7 +386,7 @@ Run against a real workspace to validate end-to-end. Not in CI — run manually 
 
 | Scenario | Command | Result |
 |----------|---------|--------|
-| Basic iterate | `iterate --mission hamming-distance --model gpt-5-mini` | [x] Session ran 29 tool calls, wrote `hammingDistance` + `hammingDistanceBits` implementations + tests in 300s. Timed out before running tests — tuning issue, not feature gap. |
+| Basic iterate | `iterate --mission 6-kyu-understand-hamming-distance --model gpt-5-mini` | [x] Session ran 29 tool calls, wrote `hammingDistance` + `hammingDistanceBits` implementations + tests in 300s. Timed out before running tests — tuning issue, not feature gap. |
 | Discovery + stop | `iterate --here --mission-file /tmp/out.md --target /tmp/test-project` | [x] PASS — 16 tool calls, 107s. Agent explored workspace, wrote focused 58-line MISSION.md, exited 0. |
 | Issue resolution | `iterate --agent agent-issue-resolution --issue 42` (context only) | [x] PASS — `gatherGitHubContext()` gracefully handles missing gh/repo, `buildUserPrompt()` includes all local context. |
 | Full context | `iterate --agent agent-iterate` in configured repo | [x] PASS — prompt includes all 6 sections: Mission, Source Files (1), Test Files (1), Features (1), Current Test State, File Paths. 1799 chars. |
@@ -665,7 +665,7 @@ Run all task types via CLI against a real workspace:
 ```bash
 # Iterate (existing — already validated in Phase 3)
 COPILOT_GITHUB_TOKEN=<token> npx @xn-intenton-z2a/agentic-lib iterate \
-  --mission hamming-distance --model gpt-5-mini
+  --mission 6-kyu-understand-hamming-distance --model gpt-5-mini
 
 # Discovery (new)
 COPILOT_GITHUB_TOKEN=<token> npx @xn-intenton-z2a/agentic-lib iterate --here
@@ -701,7 +701,7 @@ Deploy to repository0 and run full cycle:
 - [ ] Init distributes `src/copilot/` correctly to consumer repos
 - [ ] Actions `agentic-step` uses shared tasks from `src/copilot/tasks/`
 - [ ] CLI all 10 tasks produce valid output (at least dry-run)
-- [ ] CLI `iterate` completes hamming-distance
+- [ ] CLI `iterate` completes 6-kyu-understand-hamming-distance
 - [ ] CLI `iterate --here` discovers and generates MISSION.md
 - [ ] MCP server `iterate` tool works
 - [ ] Token tracking produces correct numbers in both paths
@@ -723,16 +723,16 @@ Deploy to repository0 and run full cycle:
 | claude-sonnet-4 | ? | ? | ? | N/A |
 | gpt-4.1 | ? | ? | ? | ? |
 
-For each cell: run hamming-distance + fizz-buzz, record tokens, time, pass/fail, code quality.
+For each cell: run 6-kyu-understand-hamming-distance + 7-kyu-understand-fizz-buzz, record tokens, time, pass/fail, code quality.
 
 ### Model comparison
 
 | Mission | gpt-5-mini | claude-sonnet-4 | gpt-4.1 |
 |---------|-----------|----------------|---------|
-| hamming-distance | Benchmark 005/006 data | ? | ? |
-| fizz-buzz | Benchmark 004 data | ? | ? |
-| roman-numerals | ? | ? | ? |
-| cron-engine | ? | ? | ? |
+| 6-kyu-understand-hamming-distance | Benchmark 005/006 data | ? | ? |
+| 7-kyu-understand-fizz-buzz | Benchmark 004 data | ? | ? |
+| 6-kyu-understand-roman-numerals | ? | ? | ? |
+| 4-kyu-apply-cron-engine | ? | ? | ? |
 
 ### What to explore
 

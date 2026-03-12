@@ -69,7 +69,7 @@ Options:
   --reseed             Clear features + activity log (keep source code)
   --dry-run            Show what would be done without making changes
   --target <path>      Target repository (default: current directory)
-  --mission <name>     Mission seed name (default: hamming-distance) [purge only]
+  --mission <name>     Mission seed name (default: 6-kyu-understand-hamming-distance) [purge only]
   --mission-file <path>  Use a custom mission file instead of a built-in seed
   --list-missions      List available built-in mission seeds
   --here               Discover the project and generate a MISSION.md, then iterate
@@ -85,7 +85,7 @@ Examples:
   npx @xn-intenton-z2a/agentic-lib transform
   npx @xn-intenton-z2a/agentic-lib maintain-features --model gpt-5-mini
   npx @xn-intenton-z2a/agentic-lib reset --dry-run
-  npx @xn-intenton-z2a/agentic-lib iterate --mission fizz-buzz
+  npx @xn-intenton-z2a/agentic-lib iterate --mission 7-kyu-understand-fizz-buzz
   npx @xn-intenton-z2a/agentic-lib iterate --mission-file ~/my-mission.md
   npx @xn-intenton-z2a/agentic-lib iterate --here
   npx @xn-intenton-z2a/agentic-lib iterate --list-missions
@@ -113,7 +113,7 @@ const target = resolve(targetPath);
 const modelIdx = flags.indexOf("--model");
 const model = modelIdx >= 0 ? flags[modelIdx + 1] : "claude-sonnet-4";
 const missionIdx = flags.indexOf("--mission");
-const mission = missionIdx >= 0 ? flags[missionIdx + 1] : "hamming-distance";
+const mission = missionIdx >= 0 ? flags[missionIdx + 1] : "6-kyu-understand-hamming-distance";
 const cyclesIdx = flags.indexOf("--cycles");
 const cycles = cyclesIdx >= 0 ? parseInt(flags[cyclesIdx + 1], 10) : 0;
 const stepsIdx = flags.indexOf("--steps");
@@ -283,7 +283,7 @@ async function runIterate() {
     }
     console.log(`\n=== Init with custom mission: ${missionFile} ===\n`);
     execSync(
-      `node ${resolve(pkgRoot, "bin/agentic-lib.js")} init --purge --mission empty --target ${target}`,
+      `node ${resolve(pkgRoot, "bin/agentic-lib.js")} init --purge --mission 8-kyu-remember-empty --target ${target}`,
       { encoding: "utf8", timeout: 60000, stdio: "inherit" },
     );
     // Overwrite MISSION.md with the custom file

@@ -45,26 +45,26 @@ The operator has pre-approved these operations (no confirmation needed):
 
 Each mission is a self-contained MISSION.md in `src/seeds/missions/`. Missions are categorised by complexity.
 
-### Tier 1 — Trivial (1-2 transforms expected)
+### 7-8 kyu — Trivial (1-2 transforms expected)
 
 | Mission | Functions | Acceptance Criteria | Notes |
 |---------|-----------|-------------------|-------|
-| `fizz-buzz` | `fizzBuzz(n)`, `fizzBuzzSingle(n)` | 8 criteria | Simplest. If this fails, something fundamental is broken. |
+| `7-kyu-understand-fizz-buzz` | `fizzBuzz(n)`, `fizzBuzzSingle(n)` | 8 criteria | Simplest. If this fails, something fundamental is broken. |
 
-### Tier 2 — Simple (2-4 transforms expected)
-
-| Mission | Functions | Acceptance Criteria | Notes |
-|---------|-----------|-------------------|-------|
-| `hamming-distance` | `hammingDistance(a,b)`, `hammingDistanceBits(x,y)` | 7 criteria | Unicode support, BigInt, input validation. |
-| `roman-numerals` | `toRoman(n)`, `fromRoman(s)` | 9 criteria | Round-trip property, subtractive notation. |
-
-### Tier 3 — Medium (4-8 transforms expected)
+### 6 kyu — Simple (2-4 transforms expected)
 
 | Mission | Functions | Acceptance Criteria | Notes |
 |---------|-----------|-------------------|-------|
-| `string-utils` | 10 functions (slugify, truncate, camelCase, etc.) | 7 criteria | Bag-of-functions. Many independent functions to implement. |
-| `dense-encoding` | encode/decode, createEncoding, listEncodings | 6 criteria | Multiple encoding schemes, round-trip correctness. |
-| `cron-engine` | parseCron, nextRun, matches, etc. | 8 criteria | DST handling, special strings, validation. |
+| `6-kyu-understand-hamming-distance` | `hammingDistance(a,b)`, `hammingDistanceBits(x,y)` | 7 criteria | Unicode support, BigInt, input validation. |
+| `6-kyu-understand-roman-numerals` | `toRoman(n)`, `fromRoman(s)` | 9 criteria | Round-trip property, subtractive notation. |
+
+### 4-5 kyu — Medium (4-8 transforms expected)
+
+| Mission | Functions | Acceptance Criteria | Notes |
+|---------|-----------|-------------------|-------|
+| `5-kyu-apply-string-utils` | 10 functions (slugify, truncate, camelCase, etc.) | 7 criteria | Bag-of-functions. Many independent functions to implement. |
+| `4-kyu-apply-dense-encoding` | encode/decode, createEncoding, listEncodings | 6 criteria | Multiple encoding schemes, round-trip correctness. |
+| `4-kyu-apply-cron-engine` | parseCron, nextRun, matches, etc. | 8 criteria | DST handling, special strings, validation. |
 
 ---
 
@@ -94,12 +94,12 @@ Standard scenarios for benchmarking. Pick one or more per report.
 
 | ID | Mission | Model | Profile     | Budget | Purpose                                          |
 |----|---------|-------|-------------|--------|--------------------------------------------------|
-| S1 | fizz-buzz | gpt-5-mini | recommended | 32 | Baseline. Default config on simplest mission.    |
-| S2 | fizz-buzz | gpt-5-mini | max         | 128 | Profile comparison (max vs recommended).         |
-| S3 | hamming-distance | gpt-5-mini | recommended | 32 | Medium complexity baseline.                      |
-| S4 | hamming-distance | claude-sonnet-4 | recommended | 128 | Model comparison (gpt-5-mini vs claude-sonnet-4). |
-| S5 | roman-numerals | gpt-5-mini | recommended | 32 | Medium complexity baseline.                              |
-| S6 | roman-numerals | claude-sonnet-4 | max | 128 | Model comparison (gpt-5-mini vs claude-sonnet-4).          |
+| S1 | 7-kyu-understand-fizz-buzz | gpt-5-mini | recommended | 32 | Baseline. Default config on simplest mission.    |
+| S2 | 7-kyu-understand-fizz-buzz | gpt-5-mini | max         | 128 | Profile comparison (max vs recommended).         |
+| S3 | 6-kyu-understand-hamming-distance | gpt-5-mini | recommended | 32 | Medium complexity baseline.                      |
+| S4 | 6-kyu-understand-hamming-distance | claude-sonnet-4 | recommended | 128 | Model comparison (gpt-5-mini vs claude-sonnet-4). |
+| S5 | 6-kyu-understand-roman-numerals | gpt-5-mini | recommended | 32 | Medium complexity baseline.                              |
+| S6 | 6-kyu-understand-roman-numerals | claude-sonnet-4 | max | 128 | Model comparison (gpt-5-mini vs claude-sonnet-4).          |
 
 ---
 
