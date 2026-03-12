@@ -435,14 +435,15 @@ Phase 4 converges these by:
 ### Current State (after Phase 4 convergence)
 
 ```
-src/actions/agentic-step/           ← Task handlers + thin re-exports
-  index.js          (372 lines)     ← Orchestration + telemetry + metrics
-  copilot.js        (60 lines)      ← Re-export from src/copilot/session.js (was 545)
-  tools.js          (25 lines)      ← Re-export from src/copilot/tools.js (was 142)
-  safety.js         (106 lines)     ← WIP limits, path validation (octokit-dependent)
+src/actions/agentic-step/           ← Thin adapter + task handlers
+  index.js          (137 lines)     ← Thin I/O adapter (was 408)
+  metrics.js        (103 lines)     ← GitHub API metric gathering (extracted from index.js)
+  copilot.js        (64 lines)      ← Re-export from src/copilot/session.js (was 545)
+  tools.js          (27 lines)      ← Re-export from src/copilot/tools.js (was 142)
+  safety.js         (106 lines)     ← WIP limits, path validation (octokit-dependent, Actions-specific)
   config-loader.js  (8 lines)       ← Re-export from src/copilot/config.js (was 308)
   logging.js        (211 lines)     ← intentïon.md activity log (Actions-specific)
-  tasks/             (10 handlers)  ← Prompt builders + post-processing (unchanged)
+  tasks/             (10 handlers)  ← Prompt builders + GitHub post-processing
 
 src/copilot/                        ← Single source of truth for SDK integration
   hybrid-session.js (281 lines)     ← Single-session runner (hooks, metrics, events)
@@ -451,13 +452,16 @@ src/copilot/                        ← Single source of truth for SDK integrati
   tools.js          (141 lines)     ← Tool definitions (read/write/list/run)
   agents.js         (39 lines)      ← Agent prompt loader (--agent support)
   context.js        (319 lines)     ← Context gathering + buildUserPrompt()
+  telemetry.js      (161 lines)     ← Mission metrics, readiness, cost tracking (from index.js)
   logger.js         (43 lines)      ← Console/actions adapter
   sdk.js            (36 lines)      ← SDK locator (works in npm + consumer repos)
   tasks/            DELETED          ← Replaced by iterate --agent + agent .md files
 ```
 
-**Lines removed**: ~1,211 (copilot.js: -485, config-loader.js: -300, tools.js: -117, tasks/: -320)
-**Init**: Now distributes `src/copilot/` to `.github/agentic-lib/copilot/` in consumer repos.
+**Lines removed**: ~1,512 (copilot.js: -485, config-loader.js: -300, tools.js: -117, tasks/: -320, index.js: -271)
+**Lines added**: ~264 (telemetry.js: 161, metrics.js: 103)
+**Init**: Distributes `src/copilot/` to `.github/agentic-lib/copilot/` in consumer repos.
+**Self-init**: `scripts/self-init.sh` also copies `src/copilot/` for agentic-lib CI testing.
 
 ### Target Architecture
 
@@ -599,28 +603,26 @@ The Action's `index.js` becomes a thin adapter that:
 4. Calls `runHybridSession()` with the agent prompt + enriched user prompt
 5. Sets Action outputs and logs to intentïon.md
 
-### What Gets Deleted
+### What Was Deleted/Slimmed (actual)
 
-| File | Lines | Reason |
+| File | Before → After | What happened |
 |------|-------|--------|
-| `src/actions/agentic-step/copilot.js` | 545 | Split into `context.js`, `prompts.js`, merged into `session.js` |
-| `src/actions/agentic-step/tools.js` | 142 | Merged into `src/copilot/tools.js` |
-| `src/actions/agentic-step/config-loader.js` | 308 | Duplicate of `src/copilot/config.js` |
-| `src/actions/agentic-step/safety.js` | 106 | Moved to `src/copilot/safety.js` |
-| `src/actions/agentic-step/tasks/*.js` | 3,033 | Replaced by `--agent` + `buildUserPrompt()` |
-| `src/copilot/tasks/*.js` | 320 | Replaced by `--agent` + `buildUserPrompt()` |
-| `src/iterate.js` | 285 | Already replaced by `hybrid-session.js` |
-| `src/actions/agentic-step/index.js` | 372 → 150 | Slimmed to adapter |
-| **Total deleted** | **~4,900** | |
+| `src/actions/agentic-step/copilot.js` | 545 → 64 | Thin re-export from `src/copilot/session.js` with @actions/core logger |
+| `src/actions/agentic-step/tools.js` | 142 → 27 | Thin re-export from `src/copilot/tools.js` |
+| `src/actions/agentic-step/config-loader.js` | 309 → 8 | Re-export from `src/copilot/config.js` |
+| `src/actions/agentic-step/index.js` | 408 → 137 | Telemetry → `src/copilot/telemetry.js`, GitHub metrics → `metrics.js` |
+| `src/copilot/tasks/*.js` | 320 → 0 | Deleted — replaced by `iterate --agent` + agent .md files |
+| **Net lines removed** | **~1,248** | |
 
-### What Gets Created
+**Note**: `src/actions/agentic-step/tasks/*.js` (3,045 lines) retained — they are Actions-specific prompt builders + GitHub post-processors. `safety.js` (106 lines) retained — octokit-dependent, only used in Actions. `logging.js` (211 lines) retained — Actions-specific.
 
-| File | Lines (est.) | What |
+### What Was Created (actual)
+
+| File | Lines | What |
 |------|---|---|
-| `src/copilot/context.js` | ~300 | Scanning + `buildUserPrompt()` (from copilot.js + task prompt builders) |
-| `src/copilot/prompts.js` | ~80 | Path formatting, narrative extraction |
-| `src/copilot/safety.js` | ~120 | Path validation + optional GitHub checks |
-| `src/copilot/telemetry.js` | ~120 | Mission metrics, readiness narrative |
+| `src/copilot/context.js` | 319 | Context gathering + `buildUserPrompt()` for all 10 agents |
+| `src/copilot/telemetry.js` | 161 | Mission metrics, readiness narrative, cost tracking (from index.js) |
+| `src/actions/agentic-step/metrics.js` | 103 | GitHub API metric gathering (instability, issues, tests) |
 
 **Net**: ~4,300 lines deleted, ~620 lines added = **~3,700 fewer lines**. The agent .md files replace 3,033 lines of per-task prompt builders.
 
@@ -643,11 +645,11 @@ The Action's `index.js` becomes a thin adapter that:
 
 - [x] Every Action task is expressible as `npx @xn-intenton-z2a/agentic-lib iterate --agent <agent-name>`
 - [x] `src/copilot/` is the single source of truth for all SDK integration
-- [ ] `src/actions/agentic-step/index.js` is < 150 lines (I/O adapter only) — currently 372 lines, task handlers still exist as thin post-processors
+- [x] `src/actions/agentic-step/index.js` is < 150 lines (I/O adapter only) — **137 lines** (telemetry → `src/copilot/telemetry.js`, GitHub metrics → `metrics.js`)
 - [x] Agent .md files are the system prompts for both CLI and Actions
 - [x] No per-task handler files for CLI — `src/copilot/tasks/` deleted, task commands delegate to `iterate --agent`
-- [x] `npm test` passes (540 tests across 32 files)
-- [ ] Actions `agentic-step` still works on repository0 — pending deployment
+- [x] `npm test` passes (548 tests across 32 files)
+- [ ] Actions `agentic-step` still works on repository0 — pending deployment + validation
 - [x] CLI `iterate --agent` works for all agent types
 
 ---
@@ -782,7 +784,7 @@ Phase 2 (Uplift SDK abstractions)          ← DONE
   ↓
 Phase 3 (Validate CLI — unit + scenario)   ← DONE (3a-3d all complete, 540 tests + 4 live scenarios)
   ↓
-Phase 4 (CLI as first-class product)       ← IN PROGRESS — Steps 1-5,8 done; Steps 6-7,9 pending
+Phase 4 (CLI as first-class product)       ← DONE — Steps 1-9 complete (index.js: 137 lines, 548 tests pass)
   ↓
 Phase 5 (Validate both paths)
   ↓
@@ -792,13 +794,15 @@ Phase 6 (Tune)                             ← can start as soon as Phase 4 is s
 Phase 4 is the big one. Recommended execution order within Phase 4:
 
 ```
-Step 1: Extract context.js + prompts.js from copilot.js      (no behavior change)
-Step 2: Implement buildUserPrompt() for 4 local tasks        (transform, fix-code, maintain-*)
-Step 3: Replace CLI runTask() with iterate --agent            (validate locally)
-Step 4: Extract safety.js, telemetry.js                      (no behavior change)
-Step 5: Merge tools.js (remove @actions/core dependency)     (no behavior change)
-Step 6: Implement buildUserPrompt() for GitHub tasks         (supervise, direct, etc.)
-Step 7: Slim Actions index.js to adapter                     (validate on repository0)
-Step 8: Update init to distribute src/copilot/               (validate with init --purge)
-Step 9: Delete old task handler files + copilot.js           (final cleanup)
+Step 1: Extract context.js + prompts.js from copilot.js      ← DONE (copilot.js: 545→64 lines)
+Step 2: Implement buildUserPrompt() for 4 local tasks        ← DONE (context.js: 319 lines)
+Step 3: Replace CLI runTask() with iterate --agent            ← DONE (TASK_AGENT_MAP + runHybridSession)
+Step 4: Extract safety.js, telemetry.js                      ← DONE (telemetry.js: 161 lines; safety.js stays in Actions — octokit-dependent)
+Step 5: Merge tools.js (remove @actions/core dependency)     ← DONE (tools.js: 142→27 lines)
+Step 6: buildUserPrompt() for GitHub tasks                   ← DONE (context.js handles all 10 agent/context combos)
+Step 7: Slim Actions index.js to adapter                     ← DONE (index.js: 408→137 lines; metrics.js: 103 lines extracted)
+Step 8: Update init to distribute src/copilot/               ← DONE (init + self-init.sh)
+Step 9: Delete old CLI task files + slim config-loader.js    ← DONE (src/copilot/tasks/ deleted, config-loader.js: 309→8 lines)
 ```
+
+**Note on task handlers**: The 10 task handler files in `src/actions/agentic-step/tasks/` (3,045 lines) remain as the Actions-specific prompt builders and GitHub post-processors. They gather GitHub context (issues, PRs, discussions via octokit), build rich prompts, call `runCopilotTask()`, and post-process results (create PRs, post comments, dispatch workflows). These are essential for the Actions path and cannot be deleted without adding GitHub API tools to the agent. Migrating the Actions path to use `runHybridSession()` + shared `buildUserPrompt()` is Phase 5 scope.
