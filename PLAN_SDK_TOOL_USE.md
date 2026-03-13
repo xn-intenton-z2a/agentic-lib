@@ -48,11 +48,28 @@ All three fixes are implemented and committed on `claude/sdk-tool-improvements`:
 12. **Migrate supervise.js** — 838 lines, complex orchestration. Still uses `runCopilotTask`.
 13. **Migrate direct.js** — 433 lines, mission-complete evaluation. Still uses `runCopilotTask`.
 
+### DONE — Phase E: Agent Prompts & Website (user request 2026-03-13)
+
+22. **Update agent prompts with context-gathering guidance** ✅
+    - All 10 agent prompts (`src/agents/*.md`) updated with tailored "Context Gathering" sections
+    - Code agents (issue-resolution, apply-fix, iterate): Check intentïon.md for past failures, search discussions for requirements, review closed issues to avoid repeating mistakes
+    - Review agents (review-issue): Check intentïon.md for issues that were previously closed then re-opened, search discussions for user expectations
+    - Maintenance agents (maintain-features, maintain-library): Check discussions for user requests, intentïon.md for implementation patterns
+    - Discussion bot: Added "Narrative Awareness" section — reference recent progress, acknowledge setbacks, connect requests to history
+    - Supervisor: Added "Trend Analysis" section — iteration trends, recurring failures, budget trajectory, mission progress
+    - Director: Added context gathering for intentïon.md trends, discussions, and git history verification
+    - Discovery: Check discussions and intentïon.md for project history before proposing missions
+23. **MISSION.md lightbox on xn--intenton-z2a.com** ✅
+    - Added clickable mission link at top of page
+    - Fetches MISSION.md from repository0 main branch via raw.githubusercontent.com
+    - Displays in a lightbox with website link and GitHub link (directly to MISSION.md)
+    - Moved a/b/c steps block to bottom of window
+
 ### NOT DONE — Phase C: Polish
 
 14. **Use `session.abort()` for budget exhaustion** instead of deny-in-hook
 15. **Use `client.listModels()` for dynamic reasoning effort** detection
-16. **Update agent prompts** in `src/agents/` to reference the new tools
+16. ~~**Update agent prompts** in `src/agents/` to reference the new tools~~ — Done in Phase E (item 22)
 17. **Deprecate `runCopilotTask`** once all handlers use hybrid session (still needed by supervise.js and direct.js)
 
 ### DONE — Phase D: Observability & Purge (user request 2026-03-13)
