@@ -62,28 +62,12 @@ const LIMIT_DEFAULTS = {
 
 // Fallback profile defaults — used only when [profiles.*] is missing from TOML.
 // The canonical source of truth is the [profiles.*] sections in agentic-lib.toml.
-//
-// After migrating task handlers to runCopilotSession (lean prompts + tool-based
-// exploration), prompt-sizing params are only used by the MCP context path
-// (src/copilot/context.js). Task handlers use tools to read files on demand.
-//
-// MCP-only params: featuresScan, sourceScan, sourceContent, testContent,
-//   issueBodyLimit, documentSummary (control front-loaded content sizing)
-// Shared params: issuesScan (GitHub API per_page — used by supervise.js),
-//   reasoningEffort, infiniteSessions, transformationBudget, staleDays,
-//   discussionComments
 const FALLBACK_TUNING = {
   reasoningEffort: "medium",
   infiniteSessions: true,
   transformationBudget: 32,
-  featuresScan: 10,          // MCP context only
-  sourceScan: 10,            // MCP context only
-  sourceContent: 5000,       // MCP context only
-  testContent: 3000,         // MCP context only
-  issuesScan: 20,            // supervise.js + MCP context
-  issueBodyLimit: 500,       // MCP context only
+  issuesScan: 20,
   staleDays: 30,
-  documentSummary: 2000,     // MCP context only
   discussionComments: 10,
 };
 
@@ -105,14 +89,8 @@ function parseTuningProfile(profileSection) {
     reasoningEffort: profileSection["reasoning-effort"] || "medium",
     infiniteSessions: profileSection["infinite-sessions"] ?? true,
     transformationBudget: profileSection["transformation-budget"] || 32,
-    featuresScan: profileSection["max-feature-files"] || 10,
-    sourceScan: profileSection["max-source-files"] || 10,
-    sourceContent: profileSection["max-source-chars"] || 5000,
-    testContent: profileSection["max-test-chars"] || 3000,
     issuesScan: profileSection["max-issues"] || 20,
-    issueBodyLimit: profileSection["issue-body-limit"] || 500,
     staleDays: profileSection["stale-days"] || 30,
-    documentSummary: profileSection["max-summary-chars"] || 2000,
     discussionComments: profileSection["max-discussion-comments"] || 10,
   };
 }
@@ -168,14 +146,8 @@ function resolveTuning(tuningSection, profilesSection) {
   }
   const numericOverrides = {
     "transformation-budget": "transformationBudget",
-    "max-feature-files": "featuresScan",
-    "max-source-files": "sourceScan",
-    "max-source-chars": "sourceContent",
-    "max-test-chars": "testContent",
     "max-issues": "issuesScan",
-    "issue-body-limit": "issueBodyLimit",
     "stale-days": "staleDays",
-    "max-summary-chars": "documentSummary",
     "max-discussion-comments": "discussionComments",
   };
   for (const [tomlKey, jsKey] of Object.entries(numericOverrides)) {

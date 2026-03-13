@@ -54,8 +54,7 @@ async function main() {
   const { loadAgentPrompt } = await import("../src/copilot/agents.js");
   console.log("   [OK] agents.js");
 
-  const { gatherLocalContext, buildUserPrompt } = await import("../src/copilot/context.js");
-  console.log("   [OK] context.js");
+  // context.js removed — lean prompts used everywhere now
 
   // ── 3. Validate config loading ──
   console.log("\n3. Testing config loading...");
@@ -87,8 +86,6 @@ async function main() {
   console.log(`   readOptionalFile: ${typeof readOptionalFile === "function" ? "OK" : "FAIL"}`);
   console.log(`   scanDirectory: ${typeof scanDirectory === "function" ? "OK" : "FAIL"}`);
   console.log(`   loadAgentPrompt: ${typeof loadAgentPrompt === "function" ? "OK" : "FAIL"}`);
-  console.log(`   gatherLocalContext: ${typeof gatherLocalContext === "function" ? "OK" : "FAIL"}`);
-  console.log(`   buildUserPrompt: ${typeof buildUserPrompt === "function" ? "OK" : "FAIL"}`);
 
   // ── 6. Run hybrid session (if token available) ──
   const hasToken = !!process.env.COPILOT_GITHUB_TOKEN;

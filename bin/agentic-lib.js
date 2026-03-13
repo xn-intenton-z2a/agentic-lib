@@ -37,7 +37,7 @@ const TASK_AGENT_MAP = {
   "maintain-library": "agent-maintain-library",
 };
 const INIT_COMMANDS = ["init", "update", "reset"];
-const ALL_COMMANDS = [...INIT_COMMANDS, ...TASK_COMMANDS, "version", "mcp", "iterate"];
+const ALL_COMMANDS = [...INIT_COMMANDS, ...TASK_COMMANDS, "version", "iterate"];
 
 const HELP = `
 @xn-intenton-z2a/agentic-lib — Agentic Coding Systems SDK
@@ -60,9 +60,6 @@ Iterator:
   iterate              Single Copilot SDK session — reads, writes, tests, iterates autonomously
   iterate --here       Discover the project and generate a MISSION.md, then iterate
   iterate --list-missions  List available built-in mission seeds
-
-MCP Server:
-  mcp                  Start MCP server (for Claude Code, Cursor, etc.)
 
 Options:
   --purge              Full reset — clear features, activity log, source code
@@ -134,13 +131,6 @@ const discussionIdx = flags.indexOf("--discussion");
 const discussionUrl = discussionIdx >= 0 ? flags[discussionIdx + 1] : "";
 
 // ─── Task Commands ───────────────────────────────────────────────────
-
-if (command === "mcp") {
-  const { startServer } = await import("../src/mcp/server.js");
-  await startServer();
-  // Server runs until stdin closes — don't exit
-  await new Promise(() => {}); // block forever
-}
 
 if (command === "iterate") {
   process.exit(await runIterate());
@@ -299,7 +289,7 @@ async function runIterate() {
   }
 
   const { runCopilotSession } = await import("../src/copilot/copilot-session.js");
-  const { gatherLocalContext, gatherGitHubContext, buildUserPrompt } = await import("../src/copilot/context.js");
+  const { readOptionalFile } = await import("../src/copilot/session.js");
 
   // Load agent prompt: --agent flag > default agent-iterate
   const agentName = agentFlag || "agent-iterate";
@@ -322,26 +312,20 @@ async function runIterate() {
   if (discussionUrl) console.log(`Discussion: ${discussionUrl}`);
   console.log("");
 
-  // Gather context for the agent
-  const localContext = gatherLocalContext(target, config);
-
-  // Optionally gather GitHub context
-  let githubContext;
-  if (issueNumber || prNumber || discussionUrl) {
-    console.log("Fetching GitHub context...");
-    githubContext = gatherGitHubContext({
-      issueNumber: issueNumber || undefined,
-      prNumber: prNumber || undefined,
-      discussionUrl: discussionUrl || undefined,
-      workspacePath: target,
-    });
-  }
-
-  // Build context-aware user prompt
-  const { prompt: userPrompt } = buildUserPrompt(agentName, localContext, githubContext, {
-    tuning: config.tuning,
-    config,
-  });
+  // Build lean prompt — the model explores via tools (read_file, list_files, run_command)
+  const missionPath = resolve(target, config.paths?.mission?.path || "MISSION.md");
+  const missionContent = readOptionalFile(missionPath, 2000) || "(no mission defined)";
+  const userPrompt = [
+    "## Mission",
+    missionContent,
+    "",
+    "## Your Task",
+    "Use list_files to explore the repository, read_file to examine source code and tests,",
+    "and run_command to run the test suite. Write code to advance the mission.",
+    ...(issueNumber ? [``, `Focus on issue #${issueNumber}.`] : []),
+    ...(prNumber ? [``, `Focus on PR #${prNumber}.`] : []),
+    ...(discussionUrl ? [``, `Discussion context: ${discussionUrl}`] : []),
+  ].join("\n");
 
   // Derive maxToolCalls from transformation budget
   const budget = config.transformationBudget || 0;
@@ -424,24 +408,24 @@ async function runTask(taskName) {
   try {
     const { loadAgentPrompt } = await import("../src/copilot/agents.js");
     const { runCopilotSession } = await import("../src/copilot/copilot-session.js");
-    const { gatherLocalContext, gatherGitHubContext, buildUserPrompt } = await import("../src/copilot/context.js");
+    const { readOptionalFile } = await import("../src/copilot/session.js");
 
     const agentPrompt = loadAgentPrompt(agentName);
-    const localContext = gatherLocalContext(target, config);
 
-    let githubContext;
-    if (issueNumber || prNumber) {
-      githubContext = gatherGitHubContext({
-        issueNumber: issueNumber || undefined,
-        prNumber: prNumber || undefined,
-        workspacePath: target,
-      });
-    }
-
-    const { prompt: userPrompt, promptBudget } = buildUserPrompt(agentName, localContext, githubContext, {
-      tuning: config.tuning,
-      config,
-    });
+    // Build lean prompt — the model explores via tools (read_file, list_files, run_command)
+    const missionPath = resolve(target, config.paths?.mission?.path || config.paths?.mission || "MISSION.md");
+    const missionContent = readOptionalFile(missionPath, 2000) || "(no mission defined)";
+    const userPrompt = [
+      "## Mission",
+      missionContent,
+      "",
+      "## Your Task",
+      "Use list_files to explore the repository, read_file to examine source code and tests,",
+      "and run_command to run the test suite. Write code to advance the mission.",
+      ...(issueNumber ? [``, `Focus on issue #${issueNumber}.`] : []),
+      ...(prNumber ? [``, `Focus on PR #${prNumber}.`] : []),
+      ...(discussionUrl ? [``, `Discussion context: ${discussionUrl}`] : []),
+    ].join("\n");
 
     // Derive maxToolCalls from transformation budget (budget × 20, or unlimited)
     const budget = config.transformationBudget || 0;
@@ -469,12 +453,6 @@ async function runTask(taskName) {
     console.log(`Tool calls:    ${result.toolCalls}`);
     console.log(`Tokens:        ${tokensUsed} (in=${result.tokensIn} out=${result.tokensOut})`);
     if (result.narrative) console.log(`Narrative: ${result.narrative}`);
-    if (promptBudget) {
-      console.log("Prompt budget:");
-      for (const entry of promptBudget) {
-        console.log(`  ${entry.section}: ${entry.size} chars, ${entry.files} files ${entry.notes}`);
-      }
-    }
     console.log("");
     return result.success ? 0 : 1;
   } catch (err) {
