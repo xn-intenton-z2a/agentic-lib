@@ -17,6 +17,7 @@ import { reviewIssue } from "../../../src/actions/agentic-step/tasks/review-issu
 import { discussions } from "../../../src/actions/agentic-step/tasks/discussions.js";
 import { supervise } from "../../../src/actions/agentic-step/tasks/supervise.js";
 import { direct } from "../../../src/actions/agentic-step/tasks/direct.js";
+import { implementationReview } from "../../../src/actions/agentic-step/tasks/implementation-review.js";
 
 const TASKS = {
   "resolve-issue": resolveIssue,
@@ -29,11 +30,12 @@ const TASKS = {
   "discussions": discussions,
   "supervise": supervise,
   "direct": direct,
+  "implementation-review": implementationReview,
 };
 
 describe("index — TASKS map", () => {
-  it("has exactly 10 task entries", () => {
-    expect(Object.keys(TASKS)).toHaveLength(10);
+  it("has exactly 11 task entries", () => {
+    expect(Object.keys(TASKS)).toHaveLength(11);
   });
 
   it("contains all expected task names", () => {
@@ -48,6 +50,7 @@ describe("index — TASKS map", () => {
       "discussions",
       "supervise",
       "direct",
+      "implementation-review",
     ];
     expect(Object.keys(TASKS).sort()).toEqual(expected.sort());
   });
