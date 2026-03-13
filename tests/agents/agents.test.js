@@ -3,43 +3,19 @@
 import { describe, it, expect } from "vitest";
 import { readFileSync, readdirSync, statSync } from "fs";
 import { join } from "path";
-import yaml from "js-yaml";
 
-const AGENTS_DIR = join(import.meta.dirname, "../../src/agents");
+const AGENTS_DIR = join(import.meta.dirname, "../../.github/agents");
 
 const allFiles = readdirSync(AGENTS_DIR).sort();
 const mdFiles = allFiles.filter((f) => f.endsWith(".md"));
-const ymlFiles = allFiles.filter((f) => f.endsWith(".yml"));
 
-describe("src/agents", () => {
-  it("has 12 files total (11 prompts + 1 config)", () => {
-    expect(allFiles).toHaveLength(12);
+describe(".github/agents", () => {
+  it("has 11 agent prompt files", () => {
+    expect(mdFiles).toHaveLength(11);
   });
 
-  it("has exactly 1 YAML config file (agentic-lib.yml)", () => {
-    expect(ymlFiles).toEqual(["agentic-lib.yml"]);
-  });
-
-  describe("agentic-lib.yml", () => {
-    let config;
-
-    it("is valid YAML", () => {
-      const content = readFileSync(join(AGENTS_DIR, "agentic-lib.yml"), "utf8");
-      config = yaml.load(content);
-      expect(config).toBeTruthy();
-    });
-
-    it("has a paths field", () => {
-      const content = readFileSync(join(AGENTS_DIR, "agentic-lib.yml"), "utf8");
-      config = yaml.load(content);
-      expect(config.paths).toBeTruthy();
-    });
-
-    it("has test script", () => {
-      const content = readFileSync(join(AGENTS_DIR, "agentic-lib.yml"), "utf8");
-      config = yaml.load(content);
-      expect(config.testScript).toBeTruthy();
-    });
+  it("contains only .md files", () => {
+    expect(allFiles).toEqual(mdFiles);
   });
 
   describe.each(mdFiles)("%s", (filename) => {

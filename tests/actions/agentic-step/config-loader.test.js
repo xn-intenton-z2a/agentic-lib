@@ -13,14 +13,8 @@ const PROFILE_MIN = `
 reasoning-effort = "low"
 infinite-sessions = false
 transformation-budget = 16
-max-feature-files = 3
-max-source-files = 3
-max-source-chars = 1000
-max-test-chars = 500
 max-issues = 5
-issue-body-limit = 200
 stale-days = 14
-max-summary-chars = 500
 max-discussion-comments = 5
 max-feature-issues = 1
 max-maintenance-issues = 1
@@ -35,14 +29,8 @@ const PROFILE_RECOMMENDED = `
 reasoning-effort = "medium"
 infinite-sessions = true
 transformation-budget = 32
-max-feature-files = 10
-max-source-files = 10
-max-source-chars = 5000
-max-test-chars = 3000
 max-issues = 20
-issue-body-limit = 500
 stale-days = 30
-max-summary-chars = 2000
 max-discussion-comments = 10
 max-feature-issues = 2
 max-maintenance-issues = 1
@@ -57,14 +45,8 @@ const PROFILE_MAX = `
 reasoning-effort = "high"
 infinite-sessions = true
 transformation-budget = 128
-max-feature-files = 50
-max-source-files = 50
-max-source-chars = 20000
-max-test-chars = 15000
 max-issues = 100
-issue-body-limit = 2000
 stale-days = 90
-max-summary-chars = 10000
 max-discussion-comments = 25
 max-feature-issues = 4
 max-maintenance-issues = 2
@@ -239,11 +221,7 @@ describe("config-loader", () => {
       expect(config.tuning).toBeDefined();
       expect(config.tuning.reasoningEffort).toBe("medium");
       expect(config.tuning.infiniteSessions).toBe(true);
-      expect(config.tuning.featuresScan).toBe(10);
-      expect(config.tuning.sourceScan).toBe(10);
-      expect(config.tuning.sourceContent).toBe(5000);
       expect(config.tuning.issuesScan).toBe(20);
-      expect(config.tuning.documentSummary).toBe(2000);
     });
 
     it("uses min tuning profile when specified", () => {
@@ -253,8 +231,6 @@ describe("config-loader", () => {
       const config = loadConfig(configPath);
       expect(config.tuning.reasoningEffort).toBe("low");
       expect(config.tuning.infiniteSessions).toBe(false);
-      expect(config.tuning.featuresScan).toBe(3);
-      expect(config.tuning.sourceContent).toBe(1000);
       expect(config.tuning.issuesScan).toBe(5);
     });
 
@@ -264,8 +240,6 @@ describe("config-loader", () => {
 
       const config = loadConfig(configPath);
       expect(config.tuning.reasoningEffort).toBe("high");
-      expect(config.tuning.featuresScan).toBe(50);
-      expect(config.tuning.sourceContent).toBe(20000);
       expect(config.tuning.issuesScan).toBe(100);
     });
 
@@ -278,18 +252,14 @@ describe("config-loader", () => {
           'profile = "min"',
           'reasoning-effort = "high"',
           "infinite-sessions = true",
-          "max-feature-files = 25",
-          "max-source-chars = 8000",
         ].join("\n") + PROFILE_MIN,
       );
 
       const config = loadConfig(configPath);
       expect(config.tuning.reasoningEffort).toBe("high");
       expect(config.tuning.infiniteSessions).toBe(true);
-      expect(config.tuning.featuresScan).toBe(25);
-      expect(config.tuning.sourceContent).toBe(8000);
-      // sourceScan not overridden, uses min profile default
-      expect(config.tuning.sourceScan).toBe(3);
+      // issuesScan not overridden, uses min profile default
+      expect(config.tuning.issuesScan).toBe(5);
     });
 
     it("includes profileName in tuning config", () => {
@@ -323,22 +293,6 @@ describe("config-loader", () => {
 
       const config = loadConfig(configPath);
       expect(config.tuning.transformationBudget).toBe(10);
-    });
-
-    it("resolves testContent from profile", () => {
-      const configPath = join(tmpDir, "config.toml");
-      writeFileSync(configPath, '[tuning]\nprofile = "recommended"\n' + PROFILE_RECOMMENDED);
-
-      const config = loadConfig(configPath);
-      expect(config.tuning.testContent).toBe(3000);
-    });
-
-    it("resolves issueBodyLimit from profile", () => {
-      const configPath = join(tmpDir, "config.toml");
-      writeFileSync(configPath, '[tuning]\nprofile = "max"\n' + PROFILE_MAX);
-
-      const config = loadConfig(configPath);
-      expect(config.tuning.issueBodyLimit).toBe(2000);
     });
 
     it("resolves staleDays from profile", () => {

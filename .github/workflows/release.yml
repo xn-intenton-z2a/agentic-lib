@@ -22,7 +22,7 @@ on:
       - "**/*.html"
       - "**/*.sh"
       - "**/*.yml"
-      - "src/agents/*.md"
+      - ".github/agents/*.md"
       - "src/scripts/*.sh"
       - "src/seeds/*.md"
       - "src/seeds/missions/*.md"

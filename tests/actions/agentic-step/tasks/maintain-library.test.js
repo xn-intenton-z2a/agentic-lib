@@ -6,6 +6,8 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 vi.mock("@actions/core", () => ({
   info: vi.fn(),
   warning: vi.fn(),
+  error: vi.fn(),
+  debug: vi.fn(),
   setOutput: vi.fn(),
   getInput: vi.fn(),
   setFailed: vi.fn(),
@@ -13,21 +15,34 @@ vi.mock("@actions/core", () => ({
 
 // Mock the copilot module
 vi.mock("../../../../src/actions/agentic-step/copilot.js", () => ({
-  runCopilotTask: vi.fn().mockResolvedValue({ content: "library updated", tokensUsed: 90 }),
   readOptionalFile: vi.fn().mockReturnValue(""),
-  scanDirectory: vi.fn().mockReturnValue([]),
   formatPathsSection: vi.fn().mockReturnValue("## File Paths\n- mock"),
   extractNarrative: vi.fn().mockImplementation((_content, fallback) => fallback || ""),
-  NARRATIVE_INSTRUCTION: "\n\nAfter completing your task, end your response with a line starting with [NARRATIVE]...",
+  NARRATIVE_INSTRUCTION: "\n\nAfter completing your task...",
+}));
+
+// Mock runCopilotSession
+vi.mock("../../../../src/copilot/copilot-session.js", () => ({
+  runCopilotSession: vi.fn().mockResolvedValue({
+    tokensIn: 60,
+    tokensOut: 30,
+    toolCalls: 2,
+    testRuns: 0,
+    filesWritten: 1,
+    sessionTime: 6,
+    agentMessage: "library updated",
+    narrative: "Maintained library.",
+  }),
 }));
 
 vi.mock("fs", async (importOriginal) => {
   const actual = await importOriginal();
-  return { ...actual, existsSync: vi.fn().mockReturnValue(false) };
+  return { ...actual, existsSync: vi.fn().mockReturnValue(false), readdirSync: vi.fn().mockReturnValue([]), statSync: vi.fn().mockReturnValue({ size: 200 }) };
 });
 
 import { maintainLibrary } from "../../../../src/actions/agentic-step/tasks/maintain-library.js";
-import { runCopilotTask, readOptionalFile, scanDirectory } from "../../../../src/actions/agentic-step/copilot.js";
+import { readOptionalFile } from "../../../../src/actions/agentic-step/copilot.js";
+const { runCopilotSession } = await import("../../../../src/copilot/copilot-session.js");
 
 // --- Helpers ---
 
@@ -35,21 +50,11 @@ function createMockConfig(overrides = {}) {
   return {
     paths: {
       mission: { path: "MISSION.md" },
-      contributing: { path: "CONTRIBUTING.md" },
-      features: { path: "features/", permissions: ["write"], limit: 4 },
-      source: { path: "src/" },
-      tests: { path: "tests/" },
       librarySources: { path: "SOURCES.md" },
       library: { path: "library/", limit: 32 },
     },
-    attemptsPerIssue: 2,
-    attemptsPerBranch: 3,
-    featureDevelopmentIssuesWipLimit: 2,
-    maintenanceIssuesWipLimit: 1,
     readOnlyPaths: ["README.md"],
-    writablePaths: ["src/", "tests/"],
-    tdd: false,
-    intentionBot: { intentionFilepath: "intenti\u00F6n.md" },
+    tuning: {},
     ...overrides,
   };
 }
@@ -59,15 +64,8 @@ function createMockContext(overrides = {}) {
     task: "maintain-library",
     config: createMockConfig(),
     instructions: "",
-    issueNumber: "",
-    prNumber: "",
     writablePaths: ["library/"],
-    testCommand: "npm test",
-    discussionUrl: "",
     model: "claude-sonnet-4",
-    octokit: null,
-    repo: { owner: "test-owner", repo: "test-repo" },
-    github: { runId: 12345 },
     ...overrides,
   };
 }
@@ -78,8 +76,16 @@ describe("tasks/maintain-library", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     readOptionalFile.mockReturnValue("");
-    scanDirectory.mockReturnValue([]);
-    runCopilotTask.mockResolvedValue({ content: "library updated", tokensUsed: 90 });
+    runCopilotSession.mockResolvedValue({
+      tokensIn: 60,
+      tokensOut: 30,
+      toolCalls: 2,
+      testRuns: 0,
+      filesWritten: 1,
+      sessionTime: 6,
+      agentMessage: "library updated",
+      narrative: "Maintained library.",
+    });
   });
 
   it("discovers sources when SOURCES.md is empty", async () => {
@@ -87,51 +93,37 @@ describe("tasks/maintain-library", () => {
       if (path === "MISSION.md") return "# Mission\nA JavaScript library for Hamming distance.";
       return "";
     });
-    const ctx = createMockContext();
-
-    const result = await maintainLibrary(ctx);
+    const result = await maintainLibrary(createMockContext());
 
     expect(result.outcome).toBe("sources-discovered");
     expect(result.details).toContain("Discovered sources");
-    expect(runCopilotTask).toHaveBeenCalledTimes(1);
-    const callArgs = runCopilotTask.mock.calls[0][0];
-    expect(callArgs.prompt).toContain("SOURCES.md has no URLs");
-    expect(callArgs.prompt).toContain("Hamming distance");
+    expect(runCopilotSession).toHaveBeenCalledTimes(1);
+    const args = runCopilotSession.mock.calls[0][0];
+    expect(args.userPrompt).toContain("SOURCES.md has no URLs");
+    expect(args.userPrompt).toContain("Hamming distance");
   });
 
-  it("discovers sources when SOURCES.md has no URLs (whitespace-only)", async () => {
+  it("discovers sources when SOURCES.md has no URLs", async () => {
     readOptionalFile.mockImplementation((path) => {
       if (path === "MISSION.md") return "# Mission\nBuild something.";
       return "# Sources\n\n";
     });
-    const ctx = createMockContext();
-
-    const result = await maintainLibrary(ctx);
-
+    const result = await maintainLibrary(createMockContext());
     expect(result.outcome).toBe("sources-discovered");
-    expect(runCopilotTask).toHaveBeenCalledTimes(1);
+    expect(runCopilotSession).toHaveBeenCalledTimes(1);
   });
 
-  it("includes library docs and sources in prompt", async () => {
+  it("includes sources in prompt when URLs exist", async () => {
     readOptionalFile.mockImplementation((path) => {
       if (path === "MISSION.md") return "# Mission\nTest mission";
       return "- https://example.com/docs\n- https://nodejs.org/api";
     });
-    scanDirectory.mockReturnValue([
-      { name: "express.md", content: "Express.js docs" },
-      { name: "node-api.md", content: "Node.js API docs" },
-    ]);
-    const ctx = createMockContext();
+    await maintainLibrary(createMockContext());
 
-    await maintainLibrary(ctx);
-
-    const callArgs = runCopilotTask.mock.calls[0][0];
-    expect(callArgs.prompt).toContain("https://example.com/docs");
-    expect(callArgs.prompt).toContain("https://nodejs.org/api");
-    expect(callArgs.prompt).toContain("express.md");
-    expect(callArgs.prompt).toContain("node-api.md");
-    expect(callArgs.prompt).toContain("Current Library Documents (2/32 max)");
-    expect(callArgs.systemMessage).toContain("knowledge librarian");
+    const args = runCopilotSession.mock.calls[0][0];
+    expect(args.userPrompt).toContain("https://example.com/docs");
+    expect(args.userPrompt).toContain("https://nodejs.org/api");
+    expect(args.agentPrompt).toContain("knowledge librarian");
   });
 
   it("returns library-maintained outcome on happy path", async () => {
@@ -139,15 +131,10 @@ describe("tasks/maintain-library", () => {
       if (path === "MISSION.md") return "# Mission\nTest";
       return "- https://example.com/docs";
     });
-    scanDirectory.mockReturnValue([{ name: "doc.md", content: "some doc" }]);
-    const ctx = createMockContext();
-
-    const result = await maintainLibrary(ctx);
+    const result = await maintainLibrary(createMockContext());
 
     expect(result.outcome).toBe("library-maintained");
     expect(result.tokensUsed).toBe(90);
     expect(result.model).toBe("claude-sonnet-4");
-    expect(result.details).toContain("1 docs");
-    expect(result.details).toContain("limit 32");
   });
 });

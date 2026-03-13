@@ -10,18 +10,34 @@ vi.mock("@actions/core", () => ({
   setOutput: vi.fn(),
   getInput: vi.fn(),
   setFailed: vi.fn(),
+  error: vi.fn(),
 }));
 
 // Mock the copilot module
 vi.mock("../../../../src/actions/agentic-step/copilot.js", () => ({
-  runCopilotTask: vi.fn().mockResolvedValue({
-    content: "[ACTIONS]\nnop\n[/ACTIONS]\n[REASONING]\nNothing to do.\n[/REASONING]",
-    tokensUsed: 100,
-  }),
   readOptionalFile: vi.fn().mockReturnValue("mock content"),
   scanDirectory: vi.fn().mockReturnValue([]),
   formatPathsSection: vi.fn().mockReturnValue("## File Paths\n- mock"),
   filterIssues: vi.fn().mockImplementation((issues) => issues),
+  extractNarrative: vi.fn().mockImplementation((_content, fallback) => fallback || ""),
+  NARRATIVE_INSTRUCTION: "\n\nAfter completing your task...",
+}));
+
+// Mock runCopilotSession
+vi.mock("../../../../src/copilot/copilot-session.js", () => ({
+  runCopilotSession: vi.fn().mockResolvedValue({
+    tokensIn: 80,
+    tokensOut: 20,
+    agentMessage: "[ACTIONS]\nnop\n[/ACTIONS]\n[REASONING]\nNothing to do.\n[/REASONING]",
+    narrative: "Nothing to do.",
+  }),
+}));
+
+// Mock github-tools
+vi.mock("../../../../src/copilot/github-tools.js", () => ({
+  createGitHubTools: vi.fn().mockReturnValue([]),
+  createDiscussionTools: vi.fn().mockReturnValue([]),
+  createGitTools: vi.fn().mockReturnValue([]),
 }));
 
 // Mock fs
@@ -31,7 +47,8 @@ vi.mock("fs", async (importOriginal) => {
 });
 
 import { supervise } from "../../../../src/actions/agentic-step/tasks/supervise.js";
-import { runCopilotTask, readOptionalFile } from "../../../../src/actions/agentic-step/copilot.js";
+import { runCopilotSession } from "../../../../src/copilot/copilot-session.js";
+import { readOptionalFile } from "../../../../src/actions/agentic-step/copilot.js";
 import { existsSync } from "fs";
 
 // --- Helpers ---
@@ -113,9 +130,11 @@ describe("tasks/supervise", () => {
     // Ensure the SDK-repo guard does not skip dispatches in tests
     savedGithubRepository = process.env.GITHUB_REPOSITORY;
     process.env.GITHUB_REPOSITORY = "test-owner/test-repo";
-    runCopilotTask.mockResolvedValue({
-      content: "[ACTIONS]\nnop\n[/ACTIONS]\n[REASONING]\nNothing to do.\n[/REASONING]",
-      tokensUsed: 100,
+    runCopilotSession.mockResolvedValue({
+      tokensIn: 80,
+      tokensOut: 20,
+      agentMessage: "[ACTIONS]\nnop\n[/ACTIONS]\n[REASONING]\nNothing to do.\n[/REASONING]",
+      narrative: "Nothing to do.",
     });
     readOptionalFile.mockReturnValue("mock content");
     existsSync.mockReturnValue(false);
@@ -141,9 +160,11 @@ describe("tasks/supervise", () => {
   });
 
   it("returns nop outcome when no actions block found", async () => {
-    runCopilotTask.mockResolvedValue({
-      content: "I have no idea what to do.",
-      tokensUsed: 50,
+    runCopilotSession.mockResolvedValue({
+      agentMessage: "I have no idea what to do.",
+      tokensIn: 25,
+      tokensOut: 25,
+      narrative: "test",
     });
     const ctx = createMockContext();
 
@@ -154,9 +175,11 @@ describe("tasks/supervise", () => {
   });
 
   it("dispatches a workflow when LLM chooses dispatch action", async () => {
-    runCopilotTask.mockResolvedValue({
-      content: "[ACTIONS]\ndispatch:agentic-lib-workflow\n[/ACTIONS]\n[REASONING]\nPick up next issue.\n[/REASONING]",
-      tokensUsed: 120,
+    runCopilotSession.mockResolvedValue({
+      agentMessage: "[ACTIONS]\ndispatch:agentic-lib-workflow\n[/ACTIONS]\n[REASONING]\nPick up next issue.\n[/REASONING]",
+      tokensIn: 60,
+      tokensOut: 60,
+      narrative: "test",
     });
     const octokit = createMockOctokit();
     octokit.rest.actions.listWorkflowRuns = vi.fn().mockResolvedValue({ data: { total_count: 0 } });
@@ -175,10 +198,12 @@ describe("tasks/supervise", () => {
   });
 
   it("dispatches workflow with pr-number param", async () => {
-    runCopilotTask.mockResolvedValue({
-      content:
+    runCopilotSession.mockResolvedValue({
+      agentMessage:
         "[ACTIONS]\ndispatch:agentic-lib-workflow | pr-number: 42\n[/ACTIONS]\n[REASONING]\nFix failing PR.\n[/REASONING]",
-      tokensUsed: 90,
+      tokensIn: 45,
+      tokensOut: 45,
+      narrative: "test",
     });
     const octokit = createMockOctokit();
     const ctx = createMockContext({ octokit });
@@ -196,10 +221,12 @@ describe("tasks/supervise", () => {
   });
 
   it("creates an issue via github:create-issue", async () => {
-    runCopilotTask.mockResolvedValue({
-      content:
+    runCopilotSession.mockResolvedValue({
+      agentMessage:
         "[ACTIONS]\ngithub:create-issue | title: Add caching layer | labels: automated, enhancement\n[/ACTIONS]\n[REASONING]\nGap in features.\n[/REASONING]",
-      tokensUsed: 80,
+      tokensIn: 40,
+      tokensOut: 40,
+      narrative: "test",
     });
     const octokit = createMockOctokit();
     const ctx = createMockContext({ octokit });
@@ -216,10 +243,12 @@ describe("tasks/supervise", () => {
   });
 
   it("labels an issue via github:label-issue", async () => {
-    runCopilotTask.mockResolvedValue({
-      content:
+    runCopilotSession.mockResolvedValue({
+      agentMessage:
         "[ACTIONS]\ngithub:label-issue | issue-number: 7 | labels: priority, bug\n[/ACTIONS]\n[REASONING]\nCategorise.\n[/REASONING]",
-      tokensUsed: 70,
+      tokensIn: 35,
+      tokensOut: 35,
+      narrative: "test",
     });
     const octokit = createMockOctokit();
     const ctx = createMockContext({ octokit });
@@ -236,9 +265,11 @@ describe("tasks/supervise", () => {
   });
 
   it("closes an issue via github:close-issue", async () => {
-    runCopilotTask.mockResolvedValue({
-      content: "[ACTIONS]\ngithub:close-issue | issue-number: 15\n[/ACTIONS]\n[REASONING]\nResolved.\n[/REASONING]",
-      tokensUsed: 60,
+    runCopilotSession.mockResolvedValue({
+      agentMessage: "[ACTIONS]\ngithub:close-issue | issue-number: 15\n[/ACTIONS]\n[REASONING]\nResolved.\n[/REASONING]",
+      tokensIn: 30,
+      tokensOut: 30,
+      narrative: "test",
     });
     const octokit = createMockOctokit();
     const ctx = createMockContext({ octokit });
@@ -255,8 +286,8 @@ describe("tasks/supervise", () => {
   });
 
   it("handles multiple actions in a single response", async () => {
-    runCopilotTask.mockResolvedValue({
-      content: [
+    runCopilotSession.mockResolvedValue({
+      agentMessage: [
         "[ACTIONS]",
         "dispatch:agentic-lib-workflow | mode: dev-only | issue-number: 1",
         "dispatch:agentic-lib-workflow | mode: maintain-only",
@@ -266,7 +297,9 @@ describe("tasks/supervise", () => {
         "Multiple actions needed.",
         "[/REASONING]",
       ].join("\n"),
-      tokensUsed: 200,
+      tokensIn: 100,
+      tokensOut: 100,
+      narrative: "test",
     });
     const octokit = createMockOctokit();
     octokit.rest.actions.listWorkflowRuns = vi.fn().mockResolvedValue({ data: { total_count: 0 } });
@@ -280,9 +313,11 @@ describe("tasks/supervise", () => {
   });
 
   it("skips label-issue when params are missing", async () => {
-    runCopilotTask.mockResolvedValue({
-      content: "[ACTIONS]\ngithub:label-issue\n[/ACTIONS]\n[REASONING]\nTest.\n[/REASONING]",
-      tokensUsed: 40,
+    runCopilotSession.mockResolvedValue({
+      agentMessage: "[ACTIONS]\ngithub:label-issue\n[/ACTIONS]\n[REASONING]\nTest.\n[/REASONING]",
+      tokensIn: 20,
+      tokensOut: 20,
+      narrative: "test",
     });
     const ctx = createMockContext();
 
@@ -292,9 +327,11 @@ describe("tasks/supervise", () => {
   });
 
   it("skips close-issue when issue-number is missing", async () => {
-    runCopilotTask.mockResolvedValue({
-      content: "[ACTIONS]\ngithub:close-issue\n[/ACTIONS]\n[REASONING]\nTest.\n[/REASONING]",
-      tokensUsed: 40,
+    runCopilotSession.mockResolvedValue({
+      agentMessage: "[ACTIONS]\ngithub:close-issue\n[/ACTIONS]\n[REASONING]\nTest.\n[/REASONING]",
+      tokensIn: 20,
+      tokensOut: 20,
+      narrative: "test",
     });
     const ctx = createMockContext();
 
@@ -304,9 +341,11 @@ describe("tasks/supervise", () => {
   });
 
   it("handles unknown action gracefully", async () => {
-    runCopilotTask.mockResolvedValue({
-      content: "[ACTIONS]\nunknown:action\n[/ACTIONS]\n[REASONING]\nTest.\n[/REASONING]",
-      tokensUsed: 40,
+    runCopilotSession.mockResolvedValue({
+      agentMessage: "[ACTIONS]\nunknown:action\n[/ACTIONS]\n[REASONING]\nTest.\n[/REASONING]",
+      tokensIn: 20,
+      tokensOut: 20,
+      narrative: "test",
     });
     const ctx = createMockContext();
 
@@ -316,9 +355,11 @@ describe("tasks/supervise", () => {
   });
 
   it("handles action execution failure gracefully", async () => {
-    runCopilotTask.mockResolvedValue({
-      content: "[ACTIONS]\ndispatch:agentic-lib-workflow\n[/ACTIONS]\n[REASONING]\nDispatch.\n[/REASONING]",
-      tokensUsed: 90,
+    runCopilotSession.mockResolvedValue({
+      agentMessage: "[ACTIONS]\ndispatch:agentic-lib-workflow\n[/ACTIONS]\n[REASONING]\nDispatch.\n[/REASONING]",
+      tokensIn: 45,
+      tokensOut: 45,
+      narrative: "test",
     });
     const octokit = createMockOctokit();
     octokit.rest.actions.listWorkflowRuns = vi.fn().mockResolvedValue({ data: { total_count: 0 } });
@@ -363,16 +404,14 @@ describe("tasks/supervise", () => {
 
     await supervise(ctx);
 
-    const callArgs = runCopilotTask.mock.calls[0][0];
-    expect(callArgs.prompt).toContain("#1: Test issue");
-    expect(callArgs.prompt).toContain("bug");
-    expect(callArgs.prompt).toContain("#10: Test PR");
-    expect(callArgs.prompt).toContain("feature-branch");
-    expect(callArgs.prompt).toContain("test: success");
-    expect(callArgs.prompt).toContain("Available Actions");
+    const callArgs = runCopilotSession.mock.calls[0][0];
+    expect(callArgs.userPrompt).toContain("#1: Test issue");
+    expect(callArgs.userPrompt).toContain("bug");
+    expect(callArgs.userPrompt).toContain("#10: Test PR");
+    expect(callArgs.userPrompt).toContain("feature-branch");
   });
 
-  it("includes features and library in prompt when directories exist", async () => {
+  it("includes features and library counts in prompt when directories exist", async () => {
     existsSync.mockReturnValue(true);
     const { scanDirectory } = await import("../../../../src/actions/agentic-step/copilot.js");
     scanDirectory.mockReturnValue([{ name: "HTTP.md" }, { name: "AUTH.md" }]);
@@ -380,9 +419,9 @@ describe("tasks/supervise", () => {
 
     await supervise(ctx);
 
-    const callArgs = runCopilotTask.mock.calls[0][0];
-    expect(callArgs.prompt).toContain("HTTP");
-    expect(callArgs.prompt).toContain("AUTH");
+    const callArgs = runCopilotSession.mock.calls[0][0];
+    expect(callArgs.userPrompt).toContain("Features: 2/4");
+    expect(callArgs.userPrompt).toContain("Library docs: 2/32");
   });
 
   it("uses custom instructions when provided", async () => {
@@ -390,8 +429,8 @@ describe("tasks/supervise", () => {
 
     await supervise(ctx);
 
-    const callArgs = runCopilotTask.mock.calls[0][0];
-    expect(callArgs.prompt).toContain("Focus on maintenance tasks only.");
+    const callArgs = runCopilotSession.mock.calls[0][0];
+    expect(callArgs.userPrompt).toContain("Focus on maintenance tasks only.");
   });
 
   it("uses default instructions when none provided", async () => {
@@ -399,15 +438,17 @@ describe("tasks/supervise", () => {
 
     await supervise(ctx);
 
-    const callArgs = runCopilotTask.mock.calls[0][0];
-    expect(callArgs.prompt).toContain("You are the supervisor");
+    const callArgs = runCopilotSession.mock.calls[0][0];
+    expect(callArgs.userPrompt).toContain("You are the supervisor");
   });
 
   it("dispatches discussions bot for respond:discussions action", async () => {
-    runCopilotTask.mockResolvedValue({
-      content:
+    runCopilotSession.mockResolvedValue({
+      agentMessage:
         "[ACTIONS]\nrespond:discussions | message: Working on it | discussion-url: https://github.com/org/repo/discussions/1\n[/ACTIONS]\n[REASONING]\nRespond to user.\n[/REASONING]",
-      tokensUsed: 75,
+      tokensIn: 37,
+      tokensOut: 38,
+      narrative: "test",
     });
     const octokit = createMockOctokit();
     const ctx = createMockContext({ octokit });
@@ -428,9 +469,11 @@ describe("tasks/supervise", () => {
   });
 
   it("skips respond:discussions when message is empty", async () => {
-    runCopilotTask.mockResolvedValue({
-      content: "[ACTIONS]\nrespond:discussions\n[/ACTIONS]\n[REASONING]\nEmpty.\n[/REASONING]",
-      tokensUsed: 30,
+    runCopilotSession.mockResolvedValue({
+      agentMessage: "[ACTIONS]\nrespond:discussions\n[/ACTIONS]\n[REASONING]\nEmpty.\n[/REASONING]",
+      tokensIn: 15,
+      tokensOut: 15,
+      narrative: "test",
     });
     const ctx = createMockContext();
 
@@ -448,7 +491,7 @@ describe("tasks/supervise", () => {
 
     // Should still succeed despite workflow runs fetch failure
     expect(result.outcome).toBeDefined();
-    expect(runCopilotTask).toHaveBeenCalled();
+    expect(runCopilotSession).toHaveBeenCalled();
   });
 
   it("passes model through to result", async () => {
@@ -460,9 +503,11 @@ describe("tasks/supervise", () => {
   });
 
   it("parses set-schedule action from ACTIONS block", async () => {
-    runCopilotTask.mockResolvedValue({
-      content: "[ACTIONS]\nset-schedule:weekly\n[/ACTIONS]\n[REASONING]\nMission complete, wind down.\n[/REASONING]",
-      tokensUsed: 60,
+    runCopilotSession.mockResolvedValue({
+      agentMessage: "[ACTIONS]\nset-schedule:weekly\n[/ACTIONS]\n[REASONING]\nMission complete, wind down.\n[/REASONING]",
+      tokensIn: 30,
+      tokensOut: 30,
+      narrative: "test",
     });
     const octokit = createMockOctokit();
     const ctx = createMockContext({ octokit });
@@ -480,9 +525,11 @@ describe("tasks/supervise", () => {
   });
 
   it("dispatches schedule workflow for valid frequencies", async () => {
-    runCopilotTask.mockResolvedValue({
-      content: "[ACTIONS]\nset-schedule:continuous\n[/ACTIONS]\n[REASONING]\nRamp up.\n[/REASONING]",
-      tokensUsed: 50,
+    runCopilotSession.mockResolvedValue({
+      agentMessage: "[ACTIONS]\nset-schedule:continuous\n[/ACTIONS]\n[REASONING]\nRamp up.\n[/REASONING]",
+      tokensIn: 25,
+      tokensOut: 25,
+      narrative: "test",
     });
     const octokit = createMockOctokit();
     const ctx = createMockContext({ octokit });
@@ -499,9 +546,11 @@ describe("tasks/supervise", () => {
   });
 
   it("skips set-schedule with invalid frequency", async () => {
-    runCopilotTask.mockResolvedValue({
-      content: "[ACTIONS]\nset-schedule:invalid\n[/ACTIONS]\n[REASONING]\nBad frequency.\n[/REASONING]",
-      tokensUsed: 40,
+    runCopilotSession.mockResolvedValue({
+      agentMessage: "[ACTIONS]\nset-schedule:invalid\n[/ACTIONS]\n[REASONING]\nBad frequency.\n[/REASONING]",
+      tokensIn: 20,
+      tokensOut: 20,
+      narrative: "test",
     });
     const octokit = createMockOctokit();
     const ctx = createMockContext({ octokit });
@@ -512,21 +561,22 @@ describe("tasks/supervise", () => {
     expect(result.details).toContain("skipped:invalid-frequency:invalid");
   });
 
-  it("includes set-schedule in prompt available actions", async () => {
-    const ctx = createMockContext();
+  it("passes model through to runCopilotSession", async () => {
+    const ctx = createMockContext({ model: "gpt-5-mini" });
 
     await supervise(ctx);
 
-    const callArgs = runCopilotTask.mock.calls[0][0];
-    expect(callArgs.prompt).toContain("set-schedule:");
-    expect(callArgs.prompt).toContain("Schedule Control");
+    const callArgs = runCopilotSession.mock.calls[0][0];
+    expect(callArgs.model).toBe("gpt-5-mini");
   });
 
   it("forwards issue-number to transform dispatch", async () => {
-    runCopilotTask.mockResolvedValue({
-      content:
+    runCopilotSession.mockResolvedValue({
+      agentMessage:
         "[ACTIONS]\ndispatch:agentic-lib-workflow | issue-number: 7\n[/ACTIONS]\n[REASONING]\nResolve issue.\n[/REASONING]",
-      tokensUsed: 100,
+      tokensIn: 50,
+      tokensOut: 50,
+      narrative: "test",
     });
     const octokit = createMockOctokit();
     octokit.rest.actions.listWorkflowRuns = vi.fn().mockResolvedValue({ data: { total_count: 0 } });
@@ -545,10 +595,12 @@ describe("tasks/supervise", () => {
   });
 
   it("skips transform dispatch when transform is already running", async () => {
-    runCopilotTask.mockResolvedValue({
-      content:
+    runCopilotSession.mockResolvedValue({
+      agentMessage:
         "[ACTIONS]\ndispatch:agentic-lib-workflow | issue-number: 7\n[/ACTIONS]\n[REASONING]\nResolve issue.\n[/REASONING]",
-      tokensUsed: 100,
+      tokensIn: 50,
+      tokensOut: 50,
+      narrative: "test",
     });
     const octokit = createMockOctokit();
     octokit.rest.actions.listWorkflowRuns = vi.fn().mockResolvedValue({ data: { total_count: 1 } });
@@ -562,10 +614,12 @@ describe("tasks/supervise", () => {
   });
 
   it("dispatches pr-cleanup-only workflow", async () => {
-    runCopilotTask.mockResolvedValue({
-      content:
+    runCopilotSession.mockResolvedValue({
+      agentMessage:
         "[ACTIONS]\ndispatch:agentic-lib-workflow | mode: pr-cleanup-only\n[/ACTIONS]\n[REASONING]\nMerge ready PRs.\n[/REASONING]",
-      tokensUsed: 80,
+      tokensIn: 40,
+      tokensOut: 40,
+      narrative: "test",
     });
     const octokit = createMockOctokit();
     const ctx = createMockContext({ octokit });
@@ -581,25 +635,12 @@ describe("tasks/supervise", () => {
     expect(result.details).toContain("dispatched:agentic-lib-workflow.yml");
   });
 
-  it("includes dispatch:agentic-lib-workflow pr-cleanup in prompt available actions", async () => {
+  it("includes supervisor mode in prompt", async () => {
     const ctx = createMockContext();
 
     await supervise(ctx);
 
-    const callArgs = runCopilotTask.mock.calls[0][0];
-    expect(callArgs.prompt).toContain("dispatch:agentic-lib-workflow | mode: pr-cleanup-only");
-  });
-
-  it("includes configToml in prompt when available", async () => {
-    const config = createMockConfig({ configToml: '[schedule]\nsupervisor = "daily"\n' });
-    const ctx = createMockContext({ config });
-
-    await supervise(ctx);
-
-    const callArgs = runCopilotTask.mock.calls[0][0];
-    expect(callArgs.prompt).toContain("### Configuration");
-    expect(callArgs.prompt).toContain("[schedule]");
-    expect(callArgs.prompt).toContain("supervisor");
-    expect(callArgs.prompt).toContain("daily");
+    const callArgs = runCopilotSession.mock.calls[0][0];
+    expect(callArgs.userPrompt).toContain("Supervisor: daily");
   });
 });

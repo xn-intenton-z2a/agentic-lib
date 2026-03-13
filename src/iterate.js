@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 // Copyright (C) 2025-2026 Polycode Limited
-// src/iterate.js — Shared iteration loop for CLI and MCP server
+// src/iterate.js — Shared iteration loop for CLI
 //
 // Runs N cycles of maintain → transform → fix, tracking transformation cost
 // against a budget. Stops early on consecutive test passes, no-progress, or

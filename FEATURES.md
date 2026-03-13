@@ -209,7 +209,7 @@ Tests on push/PR (Vitest), linting (ESLint), auto-merge of passing PRs. `copilot
 
 #### 13. Configuration & Safety
 
-Centralises agent parameters in `agentic-lib.yml`: file paths with read/write permissions, build/test/main scripts, WIP limits, attempt limits, sandbox reset behaviour, seed files, schedule selection. The `config-loader.js` and `safety.js` modules enforce limits.
+Centralises agent parameters in `agentic-lib.toml`: file paths with read/write permissions, build/test/main scripts, WIP limits, attempt limits, sandbox reset behaviour, seed files, schedule selection. The `config.js` and `safety.js` modules enforce limits.
 
 **Config file:** `agentic-lib.toml`
 **Status:** Done
@@ -230,7 +230,7 @@ Crawls URLs in SOURCES.md, extracts technical content, creates/updates library d
 
 #### 16. Maintenance & Hygiene
 
-Handles repository hygiene: sweeps stale branches, recovers stuck issues, reseeds stale repositories. The `init.yml` workflow (maintained locally by each consumer) keeps infrastructure up to date. Reseed logic configured via `agentic-lib.yml`.
+Handles repository hygiene: sweeps stale branches, recovers stuck issues, reseeds stale repositories. The `init.yml` workflow (maintained locally by each consumer) keeps infrastructure up to date. Reseed logic configured via `agentic-lib.toml`.
 
 **Key workflow:** `init.yml` (consumer-maintained, not distributed)
 **Status:** Done

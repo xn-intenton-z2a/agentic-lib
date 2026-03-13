@@ -6,6 +6,8 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 vi.mock("@actions/core", () => ({
   info: vi.fn(),
   warning: vi.fn(),
+  error: vi.fn(),
+  debug: vi.fn(),
   setOutput: vi.fn(),
   getInput: vi.fn(),
   setFailed: vi.fn(),
@@ -13,15 +15,31 @@ vi.mock("@actions/core", () => ({
 
 // Mock the copilot module
 vi.mock("../../../../src/actions/agentic-step/copilot.js", () => ({
-  runCopilotTask: vi.fn().mockResolvedValue({ content: "transformed code", tokensUsed: 150 }),
   readOptionalFile: vi.fn().mockReturnValue(""),
-  scanDirectory: vi.fn().mockReturnValue([]),
   formatPathsSection: vi.fn().mockReturnValue("## File Paths\n- mock"),
-  filterIssues: vi.fn().mockImplementation((issues) => issues),
-  summariseIssue: vi.fn().mockImplementation((i) => `#${i.number}: ${i.title}`),
-  extractFeatureSummary: vi.fn().mockImplementation((content, name) => `Feature: ${name}`),
   extractNarrative: vi.fn().mockImplementation((_content, fallback) => fallback || ""),
-  NARRATIVE_INSTRUCTION: "\n\nAfter completing your task, end your response with a line starting with [NARRATIVE]...",
+  NARRATIVE_INSTRUCTION: "\n\nAfter completing your task...",
+}));
+
+// Mock runCopilotSession
+vi.mock("../../../../src/copilot/copilot-session.js", () => ({
+  runCopilotSession: vi.fn().mockResolvedValue({
+    testsPassed: true,
+    tokensIn: 100,
+    tokensOut: 50,
+    toolCalls: 3,
+    testRuns: 1,
+    filesWritten: 1,
+    sessionTime: 10,
+    agentMessage: "transformed code",
+    narrative: "Transformation complete.",
+  }),
+}));
+
+// Mock github-tools
+vi.mock("../../../../src/copilot/github-tools.js", () => ({
+  createGitHubTools: vi.fn().mockReturnValue([]),
+  createGitTools: vi.fn().mockReturnValue([]),
 }));
 
 vi.mock("fs", async (importOriginal) => {
@@ -29,34 +47,17 @@ vi.mock("fs", async (importOriginal) => {
   return { ...actual, existsSync: vi.fn().mockReturnValue(false), writeFileSync: vi.fn() };
 });
 
-// Use dynamic import after mocks are set up
 const { transform } = await import("../../../../src/actions/agentic-step/tasks/transform.js");
-const { runCopilotTask, readOptionalFile, scanDirectory } =
-  await import("../../../../src/actions/agentic-step/copilot.js");
+const { readOptionalFile } = await import("../../../../src/actions/agentic-step/copilot.js");
+const { runCopilotSession } = await import("../../../../src/copilot/copilot-session.js");
 
-// --- Helpers ---
-
-function createMockOctokit(overrides = {}) {
+function createMockOctokit() {
   return {
     rest: {
       issues: {
-        get: vi.fn().mockResolvedValue({ data: { state: "open", title: "Test Issue", body: "Test body", labels: [] } }),
+        get: vi.fn().mockResolvedValue({ data: { number: 1, title: "Test", body: "body", labels: [] } }),
         listForRepo: vi.fn().mockResolvedValue({ data: [] }),
-        listComments: vi.fn().mockResolvedValue({ data: [] }),
-        update: vi.fn().mockResolvedValue({}),
-        addLabels: vi.fn().mockResolvedValue({}),
-        createComment: vi.fn().mockResolvedValue({}),
       },
-      pulls: {
-        get: vi.fn().mockResolvedValue({ data: { title: "Test PR", body: "", head: { sha: "abc123" } } }),
-      },
-      checks: {
-        listForRef: vi.fn().mockResolvedValue({ data: { check_runs: [] } }),
-      },
-      git: {
-        listMatchingRefs: vi.fn().mockResolvedValue({ data: [] }),
-      },
-      ...overrides,
     },
     graphql: vi.fn().mockResolvedValue({}),
   };
@@ -67,20 +68,12 @@ function createMockConfig(overrides = {}) {
     paths: {
       mission: { path: "MISSION.md" },
       contributing: { path: "CONTRIBUTING.md" },
-      features: { path: "features/", permissions: ["write"], limit: 4 },
+      features: { path: "features/", limit: 4 },
       source: { path: "src/" },
       tests: { path: "tests/" },
-      librarySources: { path: "SOURCES.md" },
-      library: { path: "library/" },
     },
-    attemptsPerIssue: 2,
-    attemptsPerBranch: 3,
-    featureDevelopmentIssuesWipLimit: 2,
-    maintenanceIssuesWipLimit: 1,
     readOnlyPaths: ["README.md"],
-    writablePaths: ["src/", "tests/"],
-    tdd: false,
-    intentionBot: { intentionFilepath: "intenti\u00F6n.md" },
+    tuning: {},
     ...overrides,
   };
 }
@@ -91,130 +84,91 @@ function createMockContext(overrides = {}) {
     config: createMockConfig(),
     instructions: "",
     issueNumber: "",
-    prNumber: "",
     writablePaths: ["src/", "tests/"],
     testCommand: "npm test",
-    discussionUrl: "",
     model: "claude-sonnet-4",
     octokit: createMockOctokit(),
     repo: { owner: "test-owner", repo: "test-repo" },
-    github: { runId: 12345 },
     ...overrides,
   };
 }
-
-// --- Tests ---
 
 describe("tasks/transform", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     readOptionalFile.mockReturnValue("");
-    scanDirectory.mockReturnValue([]);
-    runCopilotTask.mockResolvedValue({ content: "transformed code", tokensUsed: 150 });
+    runCopilotSession.mockResolvedValue({
+      testsPassed: true,
+      tokensIn: 100,
+      tokensOut: 50,
+      toolCalls: 3,
+      testRuns: 1,
+      filesWritten: 1,
+      sessionTime: 10,
+      agentMessage: "transformed code",
+      narrative: "Transformation complete.",
+    });
   });
 
   it("returns nop if no mission file found", async () => {
     readOptionalFile.mockReturnValue("");
-    const ctx = createMockContext();
-
-    const result = await transform(ctx);
-
+    const result = await transform(createMockContext());
     expect(result.outcome).toBe("nop");
     expect(result.details).toBe("No mission file found");
   });
 
-  it("includes features list in the prompt", async () => {
-    readOptionalFile.mockReturnValue("Build an awesome CLI tool");
-    scanDirectory
-      .mockReturnValueOnce([
-        { name: "HTTP_SERVER.md", content: "Feature: HTTP Server for serving content" },
-        { name: "CLI.md", content: "Feature: Command-line interface" },
-      ])
-      .mockReturnValueOnce([{ name: "main.js", content: 'console.log("hello")' }]);
-    const ctx = createMockContext();
-
-    await transform(ctx);
-
-    expect(runCopilotTask).toHaveBeenCalledTimes(1);
-    const callArgs = runCopilotTask.mock.calls[0][0];
-    expect(callArgs.systemMessage).toContain("autonomous code transformation agent");
-    expect(callArgs.prompt).toContain("HTTP_SERVER.md");
-    expect(callArgs.prompt).toContain("CLI.md");
-    expect(callArgs.prompt).toContain("Current Features (2)");
-  });
-
-  it("includes source files in the prompt", async () => {
-    readOptionalFile.mockReturnValue("Build a tool");
-    scanDirectory
-      .mockReturnValueOnce([]) // features
-      .mockReturnValueOnce([
-        { name: "index.js", content: "export function main() {}" },
-        { name: "utils.js", content: "export function helper() {}" },
-      ]);
-    const ctx = createMockContext();
-
-    await transform(ctx);
-
-    const callArgs = runCopilotTask.mock.calls[0][0];
-    expect(callArgs.prompt).toContain("index.js");
-    expect(callArgs.prompt).toContain("utils.js");
-    expect(callArgs.prompt).toContain("Current Source Files (2)");
-  });
-
   it("returns transformed outcome with token count on happy path", async () => {
     readOptionalFile.mockReturnValue("Build a tool");
-    const ctx = createMockContext();
-
-    const result = await transform(ctx);
-
+    const result = await transform(createMockContext());
     expect(result.outcome).toBe("transformed");
     expect(result.tokensUsed).toBe(150);
     expect(result.model).toBe("claude-sonnet-4");
-    expect(result.details).toContain("transformed code");
   });
 
-  it("passes writablePaths and model to runCopilotTask", async () => {
+  it("calls runCopilotSession with correct model and writablePaths", async () => {
     readOptionalFile.mockReturnValue("Build a tool");
-    const ctx = createMockContext();
-
-    await transform(ctx);
-
-    const callArgs = runCopilotTask.mock.calls[0][0];
-    expect(callArgs.model).toBe("claude-sonnet-4");
-    expect(callArgs.writablePaths).toEqual(["src/", "tests/"]);
+    await transform(createMockContext());
+    expect(runCopilotSession).toHaveBeenCalledTimes(1);
+    const args = runCopilotSession.mock.calls[0][0];
+    expect(args.model).toBe("claude-sonnet-4");
+    expect(args.writablePaths).toEqual(["src/", "tests/"]);
+    expect(args.agentPrompt).toContain("autonomous code transformation agent");
   });
 
   it("includes target issue in prompt when issueNumber is set", async () => {
     readOptionalFile.mockReturnValue("Build a tool");
     const octokit = createMockOctokit();
     octokit.rest.issues.get.mockResolvedValue({
-      data: {
-        number: 7,
-        state: "open",
-        title: "Add hamming distance",
-        body: "Implement hamming distance function",
-        labels: [{ name: "ready" }, { name: "automated" }],
-      },
+      data: { number: 7, title: "Add hamming distance", body: "Implement it", labels: [{ name: "ready" }] },
     });
-    const ctx = createMockContext({ octokit, issueNumber: "7" });
-
-    await transform(ctx);
-
-    const callArgs = runCopilotTask.mock.calls[0][0];
-    expect(callArgs.prompt).toContain("Target Issue #7");
-    expect(callArgs.prompt).toContain("Add hamming distance");
-    expect(callArgs.prompt).toContain("Focus your transformation on resolving this specific issue");
+    await transform(createMockContext({ octokit, issueNumber: "7" }));
+    const args = runCopilotSession.mock.calls[0][0];
+    expect(args.userPrompt).toContain("Target Issue #7");
+    expect(args.userPrompt).toContain("Add hamming distance");
   });
 
-  it("uses TDD mode when config.tdd is true", async () => {
+  it("passes excludedTools to runCopilotSession", async () => {
     readOptionalFile.mockReturnValue("Build a tool");
-    const ctx = createMockContext({ config: createMockConfig({ tdd: true }) });
+    await transform(createMockContext());
+    const args = runCopilotSession.mock.calls[0][0];
+    expect(args.excludedTools).toContain("dispatch_workflow");
+    expect(args.excludedTools).toContain("close_issue");
+  });
 
-    const result = await transform(ctx);
+  it("passes createTools function to runCopilotSession", async () => {
+    readOptionalFile.mockReturnValue("Build a tool");
+    await transform(createMockContext());
+    const args = runCopilotSession.mock.calls[0][0];
+    expect(typeof args.createTools).toBe("function");
+  });
 
-    expect(result.outcome).toBe("transformed-tdd");
-    // TDD creates 2 runCopilotTask calls (Phase 1 + Phase 2)
-    expect(runCopilotTask).toHaveBeenCalledTimes(2);
-    expect(result.tokensUsed).toBe(300); // 150 * 2 phases
+  it("skips when MISSION_COMPLETE.md exists and not maintenance mode", async () => {
+    readOptionalFile.mockReturnValue("Build a tool");
+    const { existsSync } = await import("fs");
+    existsSync.mockReturnValue(true);
+    const result = await transform(createMockContext());
+    expect(result.outcome).toBe("nop");
+    expect(result.details).toContain("Mission already complete");
+    existsSync.mockReturnValue(false);
   });
 });

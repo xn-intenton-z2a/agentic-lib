@@ -39,23 +39,22 @@ async function main() {
 
   const {
     cleanSource, generateOutline, readOptionalFile, scanDirectory,
-    formatPathsSection, runCopilotTask, buildClientOptions,
+    formatPathsSection, buildClientOptions,
   } = await import("../src/copilot/session.js");
   console.log("   [OK] session.js");
 
   const { isPathWritable, createAgentTools } = await import("../src/copilot/tools.js");
   console.log("   [OK] tools.js");
 
-  const { runHybridSession } = await import("../src/copilot/hybrid-session.js");
-  console.log("   [OK] hybrid-session.js");
+  const { runCopilotSession } = await import("../src/copilot/copilot-session.js");
+  console.log("   [OK] copilot-session.js");
 
   // ── 2. Validate agent/context imports (Phase 4: replaces task imports) ──
   console.log("\n2. Testing agent/context imports...");
   const { loadAgentPrompt } = await import("../src/copilot/agents.js");
   console.log("   [OK] agents.js");
 
-  const { gatherLocalContext, buildUserPrompt } = await import("../src/copilot/context.js");
-  console.log("   [OK] context.js");
+  // context.js removed — lean prompts used everywhere now
 
   // ── 3. Validate config loading ──
   console.log("\n3. Testing config loading...");
@@ -87,8 +86,6 @@ async function main() {
   console.log(`   readOptionalFile: ${typeof readOptionalFile === "function" ? "OK" : "FAIL"}`);
   console.log(`   scanDirectory: ${typeof scanDirectory === "function" ? "OK" : "FAIL"}`);
   console.log(`   loadAgentPrompt: ${typeof loadAgentPrompt === "function" ? "OK" : "FAIL"}`);
-  console.log(`   gatherLocalContext: ${typeof gatherLocalContext === "function" ? "OK" : "FAIL"}`);
-  console.log(`   buildUserPrompt: ${typeof buildUserPrompt === "function" ? "OK" : "FAIL"}`);
 
   // ── 6. Run hybrid session (if token available) ──
   const hasToken = !!process.env.COPILOT_GITHUB_TOKEN;
@@ -97,7 +94,7 @@ async function main() {
     console.log("   Running hybrid session...");
     try {
       const config = loadConfig(tomlPath);
-      const result = await runHybridSession({
+      const result = await runCopilotSession({
         workspacePath: workspace,
         model: config.model || "gpt-5-mini",
         tuning: config.tuning || {},

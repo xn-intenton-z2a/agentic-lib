@@ -79,10 +79,9 @@
     "src/actions/agentic-step/tasks/",
     "src/actions/commit-if-changed/",
     "src/actions/setup-npmrc/",
-    "src/agents/",
+    ".github/agents/",
     "src/seeds/",
-    "src/scripts/",
-    "src/mcp/"
+    "src/scripts/"
   ],
   "overrides": {
     "minimatch": ">=10.2.3",
