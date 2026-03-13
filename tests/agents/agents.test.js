@@ -4,12 +4,12 @@ import { describe, it, expect } from "vitest";
 import { readFileSync, readdirSync, statSync } from "fs";
 import { join } from "path";
 
-const AGENTS_DIR = join(import.meta.dirname, "../../src/agents");
+const AGENTS_DIR = join(import.meta.dirname, "../../.github/agents");
 
 const allFiles = readdirSync(AGENTS_DIR).sort();
 const mdFiles = allFiles.filter((f) => f.endsWith(".md"));
 
-describe("src/agents", () => {
+describe(".github/agents", () => {
   it("has 11 agent prompt files", () => {
     expect(mdFiles).toHaveLength(11);
   });

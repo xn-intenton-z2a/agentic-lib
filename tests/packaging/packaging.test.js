@@ -72,7 +72,7 @@ describe("npm pack --dry-run", () => {
     expect(filePaths).toContain("agentic-lib.toml");
     expect(filePaths).toContain("src/dist-transform.js");
     expect(filePaths.some((p) => p.startsWith("src/actions/"))).toBe(true);
-    expect(filePaths.some((p) => p.startsWith("src/agents/"))).toBe(true);
+    expect(filePaths.some((p) => p.startsWith(".github/agents/"))).toBe(true);
     expect(filePaths.some((p) => p.startsWith("src/seeds/"))).toBe(true);
   });
 
@@ -83,7 +83,7 @@ describe("npm pack --dry-run", () => {
   it("does not include dev files (except distributable workflows)", () => {
     const devFiles = filePaths.filter(
       (p) =>
-        (p.startsWith(".github/") && !p.startsWith(".github/workflows/agentic-lib-")) ||
+        (p.startsWith(".github/") && !p.startsWith(".github/workflows/agentic-lib-") && !p.startsWith(".github/agents/")) ||
         p.startsWith("node_modules/") ||
         p.startsWith("coverage/"),
     );

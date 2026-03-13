@@ -553,6 +553,16 @@ function initActions(agenticDir) {
   }
 }
 
+function initAgents(dstDir) {
+  console.log("\n--- Agents ---");
+  const agentsSrcDir = resolve(pkgRoot, ".github/agents");
+  if (!existsSync(agentsSrcDir)) return;
+  for (const entry of readdirSync(agentsSrcDir, { withFileTypes: true })) {
+    if (!entry.isFile()) continue;
+    initCopyFile(resolve(agentsSrcDir, entry.name), resolve(dstDir, entry.name), `agents/${entry.name}`);
+  }
+}
+
 function initDirContents(srcSubdir, dstDir, label, excludeFiles = []) {
   console.log(`\n--- ${label} ---`);
   const dir = resolve(srcDir, srcSubdir);
@@ -1250,7 +1260,7 @@ function runInit() {
   initWorkflows();
   initActions(agenticDir);
   initDirContents("copilot", resolve(agenticDir, "copilot"), "Copilot (shared modules)");
-  initDirContents("agents", resolve(target, ".github/agents"), "Agents");
+  initAgents(resolve(target, ".github/agents"));
   // Remove stale legacy agents directory
   const legacyAgentsDir = resolve(agenticDir, "agents");
   if (existsSync(legacyAgentsDir)) {
