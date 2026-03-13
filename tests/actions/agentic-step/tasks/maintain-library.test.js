@@ -21,9 +21,9 @@ vi.mock("../../../../src/actions/agentic-step/copilot.js", () => ({
   NARRATIVE_INSTRUCTION: "\n\nAfter completing your task...",
 }));
 
-// Mock runHybridSession
-vi.mock("../../../../src/copilot/hybrid-session.js", () => ({
-  runHybridSession: vi.fn().mockResolvedValue({
+// Mock runCopilotSession
+vi.mock("../../../../src/copilot/copilot-session.js", () => ({
+  runCopilotSession: vi.fn().mockResolvedValue({
     tokensIn: 60,
     tokensOut: 30,
     toolCalls: 2,
@@ -42,7 +42,7 @@ vi.mock("fs", async (importOriginal) => {
 
 import { maintainLibrary } from "../../../../src/actions/agentic-step/tasks/maintain-library.js";
 import { readOptionalFile } from "../../../../src/actions/agentic-step/copilot.js";
-const { runHybridSession } = await import("../../../../src/copilot/hybrid-session.js");
+const { runCopilotSession } = await import("../../../../src/copilot/copilot-session.js");
 
 // --- Helpers ---
 
@@ -76,7 +76,7 @@ describe("tasks/maintain-library", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     readOptionalFile.mockReturnValue("");
-    runHybridSession.mockResolvedValue({
+    runCopilotSession.mockResolvedValue({
       tokensIn: 60,
       tokensOut: 30,
       toolCalls: 2,
@@ -97,8 +97,8 @@ describe("tasks/maintain-library", () => {
 
     expect(result.outcome).toBe("sources-discovered");
     expect(result.details).toContain("Discovered sources");
-    expect(runHybridSession).toHaveBeenCalledTimes(1);
-    const args = runHybridSession.mock.calls[0][0];
+    expect(runCopilotSession).toHaveBeenCalledTimes(1);
+    const args = runCopilotSession.mock.calls[0][0];
     expect(args.userPrompt).toContain("SOURCES.md has no URLs");
     expect(args.userPrompt).toContain("Hamming distance");
   });
@@ -110,7 +110,7 @@ describe("tasks/maintain-library", () => {
     });
     const result = await maintainLibrary(createMockContext());
     expect(result.outcome).toBe("sources-discovered");
-    expect(runHybridSession).toHaveBeenCalledTimes(1);
+    expect(runCopilotSession).toHaveBeenCalledTimes(1);
   });
 
   it("includes sources in prompt when URLs exist", async () => {
@@ -120,7 +120,7 @@ describe("tasks/maintain-library", () => {
     });
     await maintainLibrary(createMockContext());
 
-    const args = runHybridSession.mock.calls[0][0];
+    const args = runCopilotSession.mock.calls[0][0];
     expect(args.userPrompt).toContain("https://example.com/docs");
     expect(args.userPrompt).toContain("https://nodejs.org/api");
     expect(args.agentPrompt).toContain("knowledge librarian");

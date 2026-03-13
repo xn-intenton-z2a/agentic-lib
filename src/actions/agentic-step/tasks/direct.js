@@ -2,14 +2,14 @@
 // Copyright (C) 2025-2026 Polycode Limited
 // tasks/direct.js — Director: mission-complete/failed evaluation via LLM
 //
-// Uses runHybridSession with lean prompts: the model reads source files
+// Uses runCopilotSession with lean prompts: the model reads source files
 // via tools to determine mission status and produce a structured evaluation.
 // The director does NOT dispatch workflows or create issues — that's the supervisor's job.
 
 import * as core from "@actions/core";
 import { existsSync, readFileSync, writeFileSync, readdirSync, statSync } from "fs";
 import { readOptionalFile, scanDirectory, filterIssues, extractNarrative, NARRATIVE_INSTRUCTION } from "../copilot.js";
-import { runHybridSession } from "../../../copilot/hybrid-session.js";
+import { runCopilotSession } from "../../../copilot/copilot-session.js";
 import { createGitHubTools, createGitTools } from "../../../copilot/github-tools.js";
 
 /**
@@ -386,7 +386,7 @@ export async function direct(context) {
   if (logFilePath) attachments.push({ type: "file", path: logFilePath });
   if (screenshotFilePath) attachments.push({ type: "file", path: screenshotFilePath });
 
-  const result = await runHybridSession({
+  const result = await runCopilotSession({
     workspacePath: process.cwd(),
     model,
     tuning: t,

@@ -21,9 +21,9 @@ vi.mock("../../../../src/actions/agentic-step/copilot.js", () => ({
   NARRATIVE_INSTRUCTION: "\n\nAfter completing your task...",
 }));
 
-// Mock runHybridSession
-vi.mock("../../../../src/copilot/hybrid-session.js", () => ({
-  runHybridSession: vi.fn().mockResolvedValue({
+// Mock runCopilotSession
+vi.mock("../../../../src/copilot/copilot-session.js", () => ({
+  runCopilotSession: vi.fn().mockResolvedValue({
     testsPassed: true,
     tokensIn: 100,
     tokensOut: 50,
@@ -49,7 +49,7 @@ vi.mock("fs", async (importOriginal) => {
 
 const { transform } = await import("../../../../src/actions/agentic-step/tasks/transform.js");
 const { readOptionalFile } = await import("../../../../src/actions/agentic-step/copilot.js");
-const { runHybridSession } = await import("../../../../src/copilot/hybrid-session.js");
+const { runCopilotSession } = await import("../../../../src/copilot/copilot-session.js");
 
 function createMockOctokit() {
   return {
@@ -97,7 +97,7 @@ describe("tasks/transform", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     readOptionalFile.mockReturnValue("");
-    runHybridSession.mockResolvedValue({
+    runCopilotSession.mockResolvedValue({
       testsPassed: true,
       tokensIn: 100,
       tokensOut: 50,
@@ -125,11 +125,11 @@ describe("tasks/transform", () => {
     expect(result.model).toBe("claude-sonnet-4");
   });
 
-  it("calls runHybridSession with correct model and writablePaths", async () => {
+  it("calls runCopilotSession with correct model and writablePaths", async () => {
     readOptionalFile.mockReturnValue("Build a tool");
     await transform(createMockContext());
-    expect(runHybridSession).toHaveBeenCalledTimes(1);
-    const args = runHybridSession.mock.calls[0][0];
+    expect(runCopilotSession).toHaveBeenCalledTimes(1);
+    const args = runCopilotSession.mock.calls[0][0];
     expect(args.model).toBe("claude-sonnet-4");
     expect(args.writablePaths).toEqual(["src/", "tests/"]);
     expect(args.agentPrompt).toContain("autonomous code transformation agent");
@@ -142,23 +142,23 @@ describe("tasks/transform", () => {
       data: { number: 7, title: "Add hamming distance", body: "Implement it", labels: [{ name: "ready" }] },
     });
     await transform(createMockContext({ octokit, issueNumber: "7" }));
-    const args = runHybridSession.mock.calls[0][0];
+    const args = runCopilotSession.mock.calls[0][0];
     expect(args.userPrompt).toContain("Target Issue #7");
     expect(args.userPrompt).toContain("Add hamming distance");
   });
 
-  it("passes excludedTools to runHybridSession", async () => {
+  it("passes excludedTools to runCopilotSession", async () => {
     readOptionalFile.mockReturnValue("Build a tool");
     await transform(createMockContext());
-    const args = runHybridSession.mock.calls[0][0];
+    const args = runCopilotSession.mock.calls[0][0];
     expect(args.excludedTools).toContain("dispatch_workflow");
     expect(args.excludedTools).toContain("close_issue");
   });
 
-  it("passes createTools function to runHybridSession", async () => {
+  it("passes createTools function to runCopilotSession", async () => {
     readOptionalFile.mockReturnValue("Build a tool");
     await transform(createMockContext());
-    const args = runHybridSession.mock.calls[0][0];
+    const args = runCopilotSession.mock.calls[0][0];
     expect(typeof args.createTools).toBe("function");
   });
 

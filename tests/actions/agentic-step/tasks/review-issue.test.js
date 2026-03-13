@@ -19,9 +19,9 @@ vi.mock("../../../../src/actions/agentic-step/copilot.js", () => ({
   NARRATIVE_INSTRUCTION: "\n\nAfter completing your task...",
 }));
 
-// Mock runHybridSession
-vi.mock("../../../../src/copilot/hybrid-session.js", () => ({
-  runHybridSession: vi.fn().mockResolvedValue({
+// Mock runCopilotSession
+vi.mock("../../../../src/copilot/copilot-session.js", () => ({
+  runCopilotSession: vi.fn().mockResolvedValue({
     tokensIn: 40,
     tokensOut: 20,
     toolCalls: 3,
@@ -45,7 +45,7 @@ vi.mock("fs", async (importOriginal) => {
 });
 
 import { reviewIssue } from "../../../../src/actions/agentic-step/tasks/review-issue.js";
-const { runHybridSession } = await import("../../../../src/copilot/hybrid-session.js");
+const { runCopilotSession } = await import("../../../../src/copilot/copilot-session.js");
 
 // --- Helpers ---
 
@@ -99,7 +99,7 @@ function createMockContext(overrides = {}) {
 describe("tasks/review-issue", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    runHybridSession.mockResolvedValue({
+    runCopilotSession.mockResolvedValue({
       tokensIn: 40,
       tokensOut: 20,
       toolCalls: 3,
@@ -126,7 +126,7 @@ describe("tasks/review-issue", () => {
     expect(octokit.rest.issues.listForRepo).toHaveBeenCalledWith(
       expect.objectContaining({ state: "open", labels: "automated" }),
     );
-    expect(runHybridSession).toHaveBeenCalled();
+    expect(runCopilotSession).toHaveBeenCalled();
   });
 
   it("returns nop if no automated issues and no issueNumber", async () => {
@@ -135,7 +135,7 @@ describe("tasks/review-issue", () => {
     const result = await reviewIssue(createMockContext({ octokit, issueNumber: "" }));
     expect(result.outcome).toBe("nop");
     expect(result.details).toContain("No open automated issues");
-    expect(runHybridSession).not.toHaveBeenCalled();
+    expect(runCopilotSession).not.toHaveBeenCalled();
   });
 
   it("returns nop if issue is already closed", async () => {
@@ -146,7 +146,7 @@ describe("tasks/review-issue", () => {
     const result = await reviewIssue(createMockContext({ octokit }));
     expect(result.outcome).toBe("nop");
     expect(result.details).toContain("already closed");
-    expect(runHybridSession).not.toHaveBeenCalled();
+    expect(runCopilotSession).not.toHaveBeenCalled();
   });
 
   it("returns issue-still-open when verdict does not indicate resolved", async () => {
@@ -175,14 +175,14 @@ describe("tasks/review-issue", () => {
     });
     const result = await reviewIssue(createMockContext({ octokit, issueNumber: "" }));
 
-    expect(runHybridSession).toHaveBeenCalledTimes(3);
+    expect(runCopilotSession).toHaveBeenCalledTimes(3);
     expect(result.outcome).toBe("issues-reviewed");
     expect(result.details).toContain("Batch reviewed 3 issues");
   });
 
-  it("calls runHybridSession with read-only tools only", async () => {
+  it("calls runCopilotSession with read-only tools only", async () => {
     await reviewIssue(createMockContext());
-    const args = runHybridSession.mock.calls[0][0];
+    const args = runCopilotSession.mock.calls[0][0];
     expect(args.writablePaths).toEqual([]);
     expect(args.excludedTools).toContain("write_file");
     expect(args.excludedTools).toContain("run_tests");

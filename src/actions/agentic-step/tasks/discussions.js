@@ -2,13 +2,13 @@
 // Copyright (C) 2025-2026 Polycode Limited
 // tasks/discussions.js — GitHub Discussions bot
 //
-// Uses runHybridSession with discussion tools: the model fetches, searches,
+// Uses runCopilotSession with discussion tools: the model fetches, searches,
 // and posts to discussions via tools instead of front-loaded prompts.
 
 import * as core from "@actions/core";
 import { writeFileSync } from "fs";
 import { readOptionalFile, extractNarrative, NARRATIVE_INSTRUCTION } from "../copilot.js";
-import { runHybridSession } from "../../../copilot/hybrid-session.js";
+import { runCopilotSession } from "../../../copilot/copilot-session.js";
 import { createDiscussionTools, createGitHubTools } from "../../../copilot/github-tools.js";
 
 const BOT_LOGINS = ["github-actions[bot]", "github-actions"];
@@ -283,7 +283,7 @@ export async function discussions(context) {
   if (logFilePath) attachments.push({ type: "file", path: logFilePath });
   if (screenshotFilePath) attachments.push({ type: "file", path: screenshotFilePath });
 
-  const result = await runHybridSession({
+  const result = await runCopilotSession({
     workspacePath: process.cwd(),
     model,
     tuning: t,

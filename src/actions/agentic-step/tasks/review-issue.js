@@ -2,14 +2,14 @@
 // Copyright (C) 2025-2026 Polycode Limited
 // tasks/review-issue.js — Review issues and close resolved ones
 //
-// Uses runHybridSession with lean prompts: the model reads source files
+// Uses runCopilotSession with lean prompts: the model reads source files
 // via tools to determine if issues have been resolved.
 
 import * as core from "@actions/core";
 import { existsSync, readdirSync, statSync } from "fs";
 import { join } from "path";
 import { extractNarrative, NARRATIVE_INSTRUCTION } from "../copilot.js";
-import { runHybridSession } from "../../../copilot/hybrid-session.js";
+import { runCopilotSession } from "../../../copilot/copilot-session.js";
 import { createGitHubTools, createGitTools } from "../../../copilot/github-tools.js";
 
 /**
@@ -113,7 +113,7 @@ async function reviewSingleIssue({ octokit, repo, config, targetIssueNumber, ins
   if (logFilePath) attachments.push({ type: "file", path: logFilePath });
   if (screenshotFilePath) attachments.push({ type: "file", path: screenshotFilePath });
 
-  const result = await runHybridSession({
+  const result = await runCopilotSession({
     workspacePath: process.cwd(),
     model,
     tuning: t,

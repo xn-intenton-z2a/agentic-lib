@@ -20,9 +20,9 @@ vi.mock("../../../../src/actions/agentic-step/copilot.js", () => ({
   NARRATIVE_INSTRUCTION: "\n\nAfter completing your task...",
 }));
 
-// Mock runHybridSession
-vi.mock("../../../../src/copilot/hybrid-session.js", () => ({
-  runHybridSession: vi.fn().mockResolvedValue({
+// Mock runCopilotSession
+vi.mock("../../../../src/copilot/copilot-session.js", () => ({
+  runCopilotSession: vi.fn().mockResolvedValue({
     tokensIn: 50,
     tokensOut: 25,
     toolCalls: 2,
@@ -51,7 +51,7 @@ vi.mock("fs", async (importOriginal) => {
 
 import { enhanceIssue } from "../../../../src/actions/agentic-step/tasks/enhance-issue.js";
 import { isIssueResolved } from "../../../../src/actions/agentic-step/safety.js";
-const { runHybridSession } = await import("../../../../src/copilot/hybrid-session.js");
+const { runCopilotSession } = await import("../../../../src/copilot/copilot-session.js");
 
 // --- Helpers ---
 
@@ -103,7 +103,7 @@ describe("tasks/enhance-issue", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     isIssueResolved.mockResolvedValue(false);
-    runHybridSession.mockResolvedValue({
+    runCopilotSession.mockResolvedValue({
       tokensIn: 50,
       tokensOut: 25,
       toolCalls: 2,
@@ -127,7 +127,7 @@ describe("tasks/enhance-issue", () => {
     const result = await enhanceIssue(createMockContext({ octokit, issueNumber: "" }));
 
     // Should enhance 2 unready issues (10 and 11), skip 12 (already ready)
-    expect(runHybridSession).toHaveBeenCalledTimes(2);
+    expect(runCopilotSession).toHaveBeenCalledTimes(2);
     expect(result.outcome).toBe("issues-enhanced");
     expect(result.details).toContain("Batch enhanced 2/2 issues");
   });
@@ -145,7 +145,7 @@ describe("tasks/enhance-issue", () => {
     const result = await enhanceIssue(createMockContext());
     expect(result.outcome).toBe("nop");
     expect(result.details).toBe("Issue #42 already resolved");
-    expect(runHybridSession).not.toHaveBeenCalled();
+    expect(runCopilotSession).not.toHaveBeenCalled();
   });
 
   it("returns nop if issue already has ready label", async () => {
@@ -156,7 +156,7 @@ describe("tasks/enhance-issue", () => {
     const result = await enhanceIssue(createMockContext({ octokit }));
     expect(result.outcome).toBe("nop");
     expect(result.details).toBe("Issue #42 already has ready label");
-    expect(runHybridSession).not.toHaveBeenCalled();
+    expect(runCopilotSession).not.toHaveBeenCalled();
   });
 
   it("updates issue body, adds labels, and comments on happy path", async () => {
@@ -189,7 +189,7 @@ describe("tasks/enhance-issue", () => {
   });
 
   it("does not update issue if enhanced body is empty", async () => {
-    runHybridSession.mockResolvedValue({
+    runCopilotSession.mockResolvedValue({
       tokensIn: 30,
       tokensOut: 20,
       toolCalls: 1,

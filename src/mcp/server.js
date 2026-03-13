@@ -482,7 +482,7 @@ async function handleIterate({ workspace, cycles = 3, steps }) {
     return text(`Workspace "${workspace}" not found.`);
   }
 
-  const { runHybridSession } = await import("../copilot/hybrid-session.js");
+  const { runCopilotSession } = await import("../copilot/copilot-session.js");
 
   let config;
   try {
@@ -495,7 +495,7 @@ async function handleIterate({ workspace, cycles = 3, steps }) {
   meta.status = "iterating";
   writeMetadata(wsPath, meta);
 
-  const result = await runHybridSession({
+  const result = await runCopilotSession({
     workspacePath: wsPath,
     model: meta.model || config.model || "gpt-5-mini",
     tuning: config.tuning || {},

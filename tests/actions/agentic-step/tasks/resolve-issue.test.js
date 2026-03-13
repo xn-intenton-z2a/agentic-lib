@@ -21,9 +21,9 @@ vi.mock("../../../../src/actions/agentic-step/copilot.js", () => ({
   NARRATIVE_INSTRUCTION: "\n\nAfter completing your task...",
 }));
 
-// Mock runHybridSession
-vi.mock("../../../../src/copilot/hybrid-session.js", () => ({
-  runHybridSession: vi.fn().mockResolvedValue({
+// Mock runCopilotSession
+vi.mock("../../../../src/copilot/copilot-session.js", () => ({
+  runCopilotSession: vi.fn().mockResolvedValue({
     tokensIn: 70,
     tokensOut: 30,
     toolCalls: 5,
@@ -50,7 +50,7 @@ vi.mock("../../../../src/actions/agentic-step/safety.js", () => ({
 
 import { resolveIssue } from "../../../../src/actions/agentic-step/tasks/resolve-issue.js";
 import { isIssueResolved, checkAttemptLimit, checkWipLimit } from "../../../../src/actions/agentic-step/safety.js";
-const { runHybridSession } = await import("../../../../src/copilot/hybrid-session.js");
+const { runCopilotSession } = await import("../../../../src/copilot/copilot-session.js");
 
 // --- Helpers ---
 
@@ -106,7 +106,7 @@ describe("tasks/resolve-issue", () => {
     isIssueResolved.mockResolvedValue(false);
     checkAttemptLimit.mockResolvedValue({ allowed: true, attempts: 0 });
     checkWipLimit.mockResolvedValue({ allowed: true, count: 0 });
-    runHybridSession.mockResolvedValue({
+    runCopilotSession.mockResolvedValue({
       tokensIn: 70,
       tokensOut: 30,
       toolCalls: 5,
@@ -133,7 +133,7 @@ describe("tasks/resolve-issue", () => {
     const result = await resolveIssue(createMockContext());
     expect(result.outcome).toBe("nop");
     expect(result.details).toBe("Issue already resolved");
-    expect(runHybridSession).not.toHaveBeenCalled();
+    expect(runCopilotSession).not.toHaveBeenCalled();
   });
 
   it("returns attempt-limit-exceeded if attempts exhausted", async () => {
@@ -141,7 +141,7 @@ describe("tasks/resolve-issue", () => {
     const result = await resolveIssue(createMockContext());
     expect(result.outcome).toBe("attempt-limit-exceeded");
     expect(result.details).toContain("3 attempts exhausted");
-    expect(runHybridSession).not.toHaveBeenCalled();
+    expect(runCopilotSession).not.toHaveBeenCalled();
   });
 
   it("returns wip-limit-reached if WIP limit hit", async () => {
@@ -149,10 +149,10 @@ describe("tasks/resolve-issue", () => {
     const result = await resolveIssue(createMockContext());
     expect(result.outcome).toBe("wip-limit-reached");
     expect(result.details).toContain("2 issues in progress");
-    expect(runHybridSession).not.toHaveBeenCalled();
+    expect(runCopilotSession).not.toHaveBeenCalled();
   });
 
-  it("calls runHybridSession on happy path and returns code-generated", async () => {
+  it("calls runCopilotSession on happy path and returns code-generated", async () => {
     const result = await resolveIssue(createMockContext());
     expect(result.outcome).toBe("code-generated");
     expect(result.tokensUsed).toBe(100);
@@ -160,7 +160,7 @@ describe("tasks/resolve-issue", () => {
     expect(result.prNumber).toBeNull();
     expect(result.commitUrl).toBeNull();
     expect(result.details).toContain("Generated code for issue #42");
-    expect(runHybridSession).toHaveBeenCalledTimes(1);
+    expect(runCopilotSession).toHaveBeenCalledTimes(1);
   });
 
   it("includes issue body and title in the prompt", async () => {
@@ -173,7 +173,7 @@ describe("tasks/resolve-issue", () => {
     });
     await resolveIssue(createMockContext({ octokit }));
 
-    const args = runHybridSession.mock.calls[0][0];
+    const args = runCopilotSession.mock.calls[0][0];
     expect(args.userPrompt).toContain("Fix the widget");
     expect(args.userPrompt).toContain("The widget is broken");
     expect(args.userPrompt).toContain("testuser");
@@ -181,9 +181,9 @@ describe("tasks/resolve-issue", () => {
     expect(args.agentPrompt).toContain("#42");
   });
 
-  it("passes correct writable paths and model to runHybridSession", async () => {
+  it("passes correct writable paths and model to runCopilotSession", async () => {
     await resolveIssue(createMockContext({ writablePaths: ["lib/", "tests/"], model: "gpt-4o" }));
-    const args = runHybridSession.mock.calls[0][0];
+    const args = runCopilotSession.mock.calls[0][0];
     expect(args.writablePaths).toEqual(["lib/", "tests/"]);
     expect(args.model).toBe("gpt-4o");
   });

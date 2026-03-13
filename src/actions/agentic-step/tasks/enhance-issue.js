@@ -2,14 +2,14 @@
 // Copyright (C) 2025-2026 Polycode Limited
 // tasks/enhance-issue.js — Add testable acceptance criteria to issues
 //
-// Uses runHybridSession with lean prompts: the model reads features and docs
+// Uses runCopilotSession with lean prompts: the model reads features and docs
 // via tools to enhance issues with acceptance criteria.
 
 import * as core from "@actions/core";
 import { existsSync, readdirSync } from "fs";
 import { isIssueResolved } from "../safety.js";
 import { readOptionalFile, extractNarrative, NARRATIVE_INSTRUCTION } from "../copilot.js";
-import { runHybridSession } from "../../../copilot/hybrid-session.js";
+import { runCopilotSession } from "../../../copilot/copilot-session.js";
 import { createGitHubTools } from "../../../copilot/github-tools.js";
 
 /**
@@ -101,7 +101,7 @@ async function enhanceSingleIssue({ octokit, repo, config, issueNumber, instruct
   if (logFilePath) attachments.push({ type: "file", path: logFilePath });
   if (screenshotFilePath) attachments.push({ type: "file", path: screenshotFilePath });
 
-  const result = await runHybridSession({
+  const result = await runCopilotSession({
     workspacePath: process.cwd(),
     model,
     tuning: t,

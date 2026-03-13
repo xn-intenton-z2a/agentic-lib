@@ -23,9 +23,9 @@ vi.mock("../../../../src/actions/agentic-step/copilot.js", () => ({
   NARRATIVE_INSTRUCTION: "\n\nAfter completing your task...",
 }));
 
-// Mock runHybridSession
-vi.mock("../../../../src/copilot/hybrid-session.js", () => ({
-  runHybridSession: vi.fn().mockResolvedValue({
+// Mock runCopilotSession
+vi.mock("../../../../src/copilot/copilot-session.js", () => ({
+  runCopilotSession: vi.fn().mockResolvedValue({
     tokensIn: 80,
     tokensOut: 20,
     agentMessage: "[ACTIONS]\nnop\n[/ACTIONS]\n[REASONING]\nNothing to do.\n[/REASONING]",
@@ -47,7 +47,7 @@ vi.mock("fs", async (importOriginal) => {
 });
 
 import { supervise } from "../../../../src/actions/agentic-step/tasks/supervise.js";
-import { runHybridSession } from "../../../../src/copilot/hybrid-session.js";
+import { runCopilotSession } from "../../../../src/copilot/copilot-session.js";
 import { readOptionalFile } from "../../../../src/actions/agentic-step/copilot.js";
 import { existsSync } from "fs";
 
@@ -130,7 +130,7 @@ describe("tasks/supervise", () => {
     // Ensure the SDK-repo guard does not skip dispatches in tests
     savedGithubRepository = process.env.GITHUB_REPOSITORY;
     process.env.GITHUB_REPOSITORY = "test-owner/test-repo";
-    runHybridSession.mockResolvedValue({
+    runCopilotSession.mockResolvedValue({
       tokensIn: 80,
       tokensOut: 20,
       agentMessage: "[ACTIONS]\nnop\n[/ACTIONS]\n[REASONING]\nNothing to do.\n[/REASONING]",
@@ -160,7 +160,7 @@ describe("tasks/supervise", () => {
   });
 
   it("returns nop outcome when no actions block found", async () => {
-    runHybridSession.mockResolvedValue({
+    runCopilotSession.mockResolvedValue({
       agentMessage: "I have no idea what to do.",
       tokensIn: 25,
       tokensOut: 25,
@@ -175,7 +175,7 @@ describe("tasks/supervise", () => {
   });
 
   it("dispatches a workflow when LLM chooses dispatch action", async () => {
-    runHybridSession.mockResolvedValue({
+    runCopilotSession.mockResolvedValue({
       agentMessage: "[ACTIONS]\ndispatch:agentic-lib-workflow\n[/ACTIONS]\n[REASONING]\nPick up next issue.\n[/REASONING]",
       tokensIn: 60,
       tokensOut: 60,
@@ -198,7 +198,7 @@ describe("tasks/supervise", () => {
   });
 
   it("dispatches workflow with pr-number param", async () => {
-    runHybridSession.mockResolvedValue({
+    runCopilotSession.mockResolvedValue({
       agentMessage:
         "[ACTIONS]\ndispatch:agentic-lib-workflow | pr-number: 42\n[/ACTIONS]\n[REASONING]\nFix failing PR.\n[/REASONING]",
       tokensIn: 45,
@@ -221,7 +221,7 @@ describe("tasks/supervise", () => {
   });
 
   it("creates an issue via github:create-issue", async () => {
-    runHybridSession.mockResolvedValue({
+    runCopilotSession.mockResolvedValue({
       agentMessage:
         "[ACTIONS]\ngithub:create-issue | title: Add caching layer | labels: automated, enhancement\n[/ACTIONS]\n[REASONING]\nGap in features.\n[/REASONING]",
       tokensIn: 40,
@@ -243,7 +243,7 @@ describe("tasks/supervise", () => {
   });
 
   it("labels an issue via github:label-issue", async () => {
-    runHybridSession.mockResolvedValue({
+    runCopilotSession.mockResolvedValue({
       agentMessage:
         "[ACTIONS]\ngithub:label-issue | issue-number: 7 | labels: priority, bug\n[/ACTIONS]\n[REASONING]\nCategorise.\n[/REASONING]",
       tokensIn: 35,
@@ -265,7 +265,7 @@ describe("tasks/supervise", () => {
   });
 
   it("closes an issue via github:close-issue", async () => {
-    runHybridSession.mockResolvedValue({
+    runCopilotSession.mockResolvedValue({
       agentMessage: "[ACTIONS]\ngithub:close-issue | issue-number: 15\n[/ACTIONS]\n[REASONING]\nResolved.\n[/REASONING]",
       tokensIn: 30,
       tokensOut: 30,
@@ -286,7 +286,7 @@ describe("tasks/supervise", () => {
   });
 
   it("handles multiple actions in a single response", async () => {
-    runHybridSession.mockResolvedValue({
+    runCopilotSession.mockResolvedValue({
       agentMessage: [
         "[ACTIONS]",
         "dispatch:agentic-lib-workflow | mode: dev-only | issue-number: 1",
@@ -313,7 +313,7 @@ describe("tasks/supervise", () => {
   });
 
   it("skips label-issue when params are missing", async () => {
-    runHybridSession.mockResolvedValue({
+    runCopilotSession.mockResolvedValue({
       agentMessage: "[ACTIONS]\ngithub:label-issue\n[/ACTIONS]\n[REASONING]\nTest.\n[/REASONING]",
       tokensIn: 20,
       tokensOut: 20,
@@ -327,7 +327,7 @@ describe("tasks/supervise", () => {
   });
 
   it("skips close-issue when issue-number is missing", async () => {
-    runHybridSession.mockResolvedValue({
+    runCopilotSession.mockResolvedValue({
       agentMessage: "[ACTIONS]\ngithub:close-issue\n[/ACTIONS]\n[REASONING]\nTest.\n[/REASONING]",
       tokensIn: 20,
       tokensOut: 20,
@@ -341,7 +341,7 @@ describe("tasks/supervise", () => {
   });
 
   it("handles unknown action gracefully", async () => {
-    runHybridSession.mockResolvedValue({
+    runCopilotSession.mockResolvedValue({
       agentMessage: "[ACTIONS]\nunknown:action\n[/ACTIONS]\n[REASONING]\nTest.\n[/REASONING]",
       tokensIn: 20,
       tokensOut: 20,
@@ -355,7 +355,7 @@ describe("tasks/supervise", () => {
   });
 
   it("handles action execution failure gracefully", async () => {
-    runHybridSession.mockResolvedValue({
+    runCopilotSession.mockResolvedValue({
       agentMessage: "[ACTIONS]\ndispatch:agentic-lib-workflow\n[/ACTIONS]\n[REASONING]\nDispatch.\n[/REASONING]",
       tokensIn: 45,
       tokensOut: 45,
@@ -404,7 +404,7 @@ describe("tasks/supervise", () => {
 
     await supervise(ctx);
 
-    const callArgs = runHybridSession.mock.calls[0][0];
+    const callArgs = runCopilotSession.mock.calls[0][0];
     expect(callArgs.userPrompt).toContain("#1: Test issue");
     expect(callArgs.userPrompt).toContain("bug");
     expect(callArgs.userPrompt).toContain("#10: Test PR");
@@ -419,7 +419,7 @@ describe("tasks/supervise", () => {
 
     await supervise(ctx);
 
-    const callArgs = runHybridSession.mock.calls[0][0];
+    const callArgs = runCopilotSession.mock.calls[0][0];
     expect(callArgs.userPrompt).toContain("Features: 2/4");
     expect(callArgs.userPrompt).toContain("Library docs: 2/32");
   });
@@ -429,7 +429,7 @@ describe("tasks/supervise", () => {
 
     await supervise(ctx);
 
-    const callArgs = runHybridSession.mock.calls[0][0];
+    const callArgs = runCopilotSession.mock.calls[0][0];
     expect(callArgs.userPrompt).toContain("Focus on maintenance tasks only.");
   });
 
@@ -438,12 +438,12 @@ describe("tasks/supervise", () => {
 
     await supervise(ctx);
 
-    const callArgs = runHybridSession.mock.calls[0][0];
+    const callArgs = runCopilotSession.mock.calls[0][0];
     expect(callArgs.userPrompt).toContain("You are the supervisor");
   });
 
   it("dispatches discussions bot for respond:discussions action", async () => {
-    runHybridSession.mockResolvedValue({
+    runCopilotSession.mockResolvedValue({
       agentMessage:
         "[ACTIONS]\nrespond:discussions | message: Working on it | discussion-url: https://github.com/org/repo/discussions/1\n[/ACTIONS]\n[REASONING]\nRespond to user.\n[/REASONING]",
       tokensIn: 37,
@@ -469,7 +469,7 @@ describe("tasks/supervise", () => {
   });
 
   it("skips respond:discussions when message is empty", async () => {
-    runHybridSession.mockResolvedValue({
+    runCopilotSession.mockResolvedValue({
       agentMessage: "[ACTIONS]\nrespond:discussions\n[/ACTIONS]\n[REASONING]\nEmpty.\n[/REASONING]",
       tokensIn: 15,
       tokensOut: 15,
@@ -491,7 +491,7 @@ describe("tasks/supervise", () => {
 
     // Should still succeed despite workflow runs fetch failure
     expect(result.outcome).toBeDefined();
-    expect(runHybridSession).toHaveBeenCalled();
+    expect(runCopilotSession).toHaveBeenCalled();
   });
 
   it("passes model through to result", async () => {
@@ -503,7 +503,7 @@ describe("tasks/supervise", () => {
   });
 
   it("parses set-schedule action from ACTIONS block", async () => {
-    runHybridSession.mockResolvedValue({
+    runCopilotSession.mockResolvedValue({
       agentMessage: "[ACTIONS]\nset-schedule:weekly\n[/ACTIONS]\n[REASONING]\nMission complete, wind down.\n[/REASONING]",
       tokensIn: 30,
       tokensOut: 30,
@@ -525,7 +525,7 @@ describe("tasks/supervise", () => {
   });
 
   it("dispatches schedule workflow for valid frequencies", async () => {
-    runHybridSession.mockResolvedValue({
+    runCopilotSession.mockResolvedValue({
       agentMessage: "[ACTIONS]\nset-schedule:continuous\n[/ACTIONS]\n[REASONING]\nRamp up.\n[/REASONING]",
       tokensIn: 25,
       tokensOut: 25,
@@ -546,7 +546,7 @@ describe("tasks/supervise", () => {
   });
 
   it("skips set-schedule with invalid frequency", async () => {
-    runHybridSession.mockResolvedValue({
+    runCopilotSession.mockResolvedValue({
       agentMessage: "[ACTIONS]\nset-schedule:invalid\n[/ACTIONS]\n[REASONING]\nBad frequency.\n[/REASONING]",
       tokensIn: 20,
       tokensOut: 20,
@@ -561,17 +561,17 @@ describe("tasks/supervise", () => {
     expect(result.details).toContain("skipped:invalid-frequency:invalid");
   });
 
-  it("passes model through to runHybridSession", async () => {
+  it("passes model through to runCopilotSession", async () => {
     const ctx = createMockContext({ model: "gpt-5-mini" });
 
     await supervise(ctx);
 
-    const callArgs = runHybridSession.mock.calls[0][0];
+    const callArgs = runCopilotSession.mock.calls[0][0];
     expect(callArgs.model).toBe("gpt-5-mini");
   });
 
   it("forwards issue-number to transform dispatch", async () => {
-    runHybridSession.mockResolvedValue({
+    runCopilotSession.mockResolvedValue({
       agentMessage:
         "[ACTIONS]\ndispatch:agentic-lib-workflow | issue-number: 7\n[/ACTIONS]\n[REASONING]\nResolve issue.\n[/REASONING]",
       tokensIn: 50,
@@ -595,7 +595,7 @@ describe("tasks/supervise", () => {
   });
 
   it("skips transform dispatch when transform is already running", async () => {
-    runHybridSession.mockResolvedValue({
+    runCopilotSession.mockResolvedValue({
       agentMessage:
         "[ACTIONS]\ndispatch:agentic-lib-workflow | issue-number: 7\n[/ACTIONS]\n[REASONING]\nResolve issue.\n[/REASONING]",
       tokensIn: 50,
@@ -614,7 +614,7 @@ describe("tasks/supervise", () => {
   });
 
   it("dispatches pr-cleanup-only workflow", async () => {
-    runHybridSession.mockResolvedValue({
+    runCopilotSession.mockResolvedValue({
       agentMessage:
         "[ACTIONS]\ndispatch:agentic-lib-workflow | mode: pr-cleanup-only\n[/ACTIONS]\n[REASONING]\nMerge ready PRs.\n[/REASONING]",
       tokensIn: 40,
@@ -640,7 +640,7 @@ describe("tasks/supervise", () => {
 
     await supervise(ctx);
 
-    const callArgs = runHybridSession.mock.calls[0][0];
+    const callArgs = runCopilotSession.mock.calls[0][0];
     expect(callArgs.userPrompt).toContain("Supervisor: daily");
   });
 });

@@ -21,9 +21,9 @@ vi.mock("../../../../src/actions/agentic-step/copilot.js", () => ({
   NARRATIVE_INSTRUCTION: "\n\nAfter completing your task...",
 }));
 
-// Mock runHybridSession
-vi.mock("../../../../src/copilot/hybrid-session.js", () => ({
-  runHybridSession: vi.fn().mockResolvedValue({
+// Mock runCopilotSession
+vi.mock("../../../../src/copilot/copilot-session.js", () => ({
+  runCopilotSession: vi.fn().mockResolvedValue({
     tokensIn: 80,
     tokensOut: 40,
     toolCalls: 3,
@@ -51,7 +51,7 @@ vi.mock("fs", async (importOriginal) => {
 
 import { maintainFeatures } from "../../../../src/actions/agentic-step/tasks/maintain-features.js";
 import { readOptionalFile } from "../../../../src/actions/agentic-step/copilot.js";
-const { runHybridSession } = await import("../../../../src/copilot/hybrid-session.js");
+const { runCopilotSession } = await import("../../../../src/copilot/copilot-session.js");
 
 // --- Helpers ---
 
@@ -99,7 +99,7 @@ describe("tasks/maintain-features", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     readOptionalFile.mockReturnValue("mock mission content");
-    runHybridSession.mockResolvedValue({
+    runCopilotSession.mockResolvedValue({
       tokensIn: 80,
       tokensOut: 40,
       toolCalls: 3,
@@ -116,10 +116,10 @@ describe("tasks/maintain-features", () => {
     expect(readOptionalFile).toHaveBeenCalledWith("MISSION.md");
   });
 
-  it("calls runHybridSession with correct parameters", async () => {
+  it("calls runCopilotSession with correct parameters", async () => {
     await maintainFeatures(createMockContext());
-    expect(runHybridSession).toHaveBeenCalledTimes(1);
-    const args = runHybridSession.mock.calls[0][0];
+    expect(runCopilotSession).toHaveBeenCalledTimes(1);
+    const args = runCopilotSession.mock.calls[0][0];
     expect(args.model).toBe("claude-sonnet-4");
     expect(args.writablePaths).toEqual(["features/"]);
     expect(args.agentPrompt).toContain("feature lifecycle manager");
@@ -137,7 +137,7 @@ describe("tasks/maintain-features", () => {
 
   it("passes excludedTools to prevent tests and orchestration", async () => {
     await maintainFeatures(createMockContext());
-    const args = runHybridSession.mock.calls[0][0];
+    const args = runCopilotSession.mock.calls[0][0];
     expect(args.excludedTools).toContain("run_tests");
     expect(args.excludedTools).toContain("dispatch_workflow");
   });

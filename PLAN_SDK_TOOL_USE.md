@@ -30,7 +30,7 @@ All three fixes are implemented and committed on `claude/sdk-tool-improvements`:
      - `createDiscussionTools()` → 4 tools: fetch_discussion, list_discussions, post_discussion_comment, search_discussions
      - `createGitHubTools()` → 8 tools: create_issue, close_issue, label_issue, dispatch_workflow, list_issues, list_prs, get_issue, comment_on_issue
      - `createGitTools()` → 2 tools: git_diff, git_status
-   - `discussions.js` migrated to `runHybridSession` with `report_action` tool (replaces `[ACTION:]` text tags)
+   - `discussions.js` migrated to `runCopilotSession` with `report_action` tool (replaces `[ACTION:]` text tags)
 
 ### DONE — Phase B: Core improvements (items 4-10)
 
@@ -40,13 +40,13 @@ All three fixes are implemented and committed on `claude/sdk-tool-improvements`:
 7. **`excludedTools` per task type** ✅ — each handler excludes inappropriate tools
 8. **`modifiedResult` and `additionalContext` in hooks** ✅ — read_file truncation at 20K chars, test failure guidance
 9. **Hook-based truncation replaces `contentLimit`** ✅ — no more front-loaded content
-10. **8 of 10 task handlers migrated** ✅ — transform, discussions, resolve-issue, fix-code, maintain-features, maintain-library, review-issue, enhance-issue all use `runHybridSession`
+10. **8 of 10 task handlers migrated** ✅ — transform, discussions, resolve-issue, fix-code, maintain-features, maintain-library, review-issue, enhance-issue all use `runCopilotSession`
 
 ### DONE — Remaining Phase B
 
 11. **Simplify tuning parameters** ✅ — After migrating supervise.js and direct.js, confirmed that prompt-sizing params (`sourceScan`, `sourceContent`, `featuresScan`, `issueBodyLimit`, `documentSummary`, `testContent`) are only used by the MCP context path (`src/copilot/context.js`). `issuesScan` is shared (supervise.js + MCP). Added clarifying comments in `config.js`.
-12. **Migrate supervise.js** ✅ — Rewrote to use `runHybridSession` with `report_supervisor_plan` tool (handler executes actions via existing `executeAction`), lean prompt with counts/metrics, `createTools` factory with GitHub/discussion/git tools, `excludedTools: ["write_file", "run_command", "run_tests"]`, text-parsing fallback for backward compatibility. All 28 tests pass.
-13. **Migrate direct.js** ✅ — Rewrote to use `runHybridSession` with `report_director_decision` tool (captures decision/reason/analysis), lean prompt with counts/metrics, `createTools` factory with GitHub/git tools, `excludedTools: ["write_file", "run_command", "run_tests"]`, text-parsing fallback.
+12. **Migrate supervise.js** ✅ — Rewrote to use `runCopilotSession` with `report_supervisor_plan` tool (handler executes actions via existing `executeAction`), lean prompt with counts/metrics, `createTools` factory with GitHub/discussion/git tools, `excludedTools: ["write_file", "run_command", "run_tests"]`, text-parsing fallback for backward compatibility. All 28 tests pass.
+13. **Migrate direct.js** ✅ — Rewrote to use `runCopilotSession` with `report_director_decision` tool (captures decision/reason/analysis), lean prompt with counts/metrics, `createTools` factory with GitHub/git tools, `excludedTools: ["write_file", "run_command", "run_tests"]`, text-parsing fallback.
 
 ### DONE — Phase E: Agent Prompts & Website (user request 2026-03-13)
 
@@ -78,14 +78,14 @@ All three fixes are implemented and committed on `claude/sdk-tool-improvements`:
 19. **Make intentïon.md and SCREENSHOT_INDEX.png available to all LLM task handlers** ✅
     - All 4 "Fetch log from log branch" workflow steps now also fetch SCREENSHOT_FILE
     - `index.js` resolves `logFilePath` and `screenshotFilePath` from config and passes them in the context
-    - All 8 migrated task handlers destructure these from context and pass them as `attachments` to `runHybridSession`
+    - All 8 migrated task handlers destructure these from context and pass them as `attachments` to `runCopilotSession`
     - Files are gitignored at root level (already in `zero-.gitignore` seed)
 20. **Update xn--intenton-z2a.com** ✅ — Already reads from `agentic-lib-logs` branch (no changes needed)
 21. **Add link in vt100 emulator** ✅ — Added `#terminal-link` element in top-left of terminal container, links to `intentïon.md` on the logs branch, opens in new tab
 
 ### Test Status
 
-All 577 tests pass (33 test files). All 10 task handler tests mock `runHybridSession` (none use `runCopilotTask`).
+All 577 tests pass (33 test files). All 10 task handler tests mock `runCopilotSession` (none use `runCopilotTask`).
 
 ## Current Architecture
 
@@ -98,7 +98,7 @@ All 577 tests pass (33 test files). All 10 task handler tests mock `runHybridSes
 - 4 tools: read_file, write_file, list_files, run_command
 - All task handlers migrated — retained only for spike script
 
-**Pattern 2: `runHybridSession`** (src/copilot/hybrid-session.js, used by all 10 task handlers + CLI + MCP)
+**Pattern 2: `runCopilotSession`** (src/copilot/copilot-session.js, used by all 10 task handlers + CLI + MCP)
 
 - Single persistent session with SDK hooks for observability
 - `onPreToolUse` — logs every tool call with timing, enforces tool-call budget
@@ -113,12 +113,12 @@ All 577 tests pass (33 test files). All 10 task handler tests mock `runHybridSes
 
 | File | Status | Purpose |
 |------|--------|---------|
-| `src/copilot/hybrid-session.js` | Updated | Core session runner with hooks, createTools, excludedTools, attachments |
+| `src/copilot/copilot-session.js` | Updated | Core session runner with hooks, createTools, excludedTools, attachments |
 | `src/copilot/github-tools.js` | NEW | Discussion tools, GitHub API tools, git tools (3 factory functions) |
 | `src/copilot/tools.js` | Updated | Standard agent tools with overridesBuiltInTool |
 | `src/copilot/config.js` | Updated | Exposes logBranch, screenshotFile from [bot] config |
 | `src/copilot/session.js` | Deprecated | runCopilotTask — @deprecated, no task handlers use it |
-| `src/actions/agentic-step/tasks/*.js` | Updated | All 10 handlers migrated to runHybridSession |
+| `src/actions/agentic-step/tasks/*.js` | Updated | All 10 handlers migrated to runCopilotSession |
 | `agentic-lib.toml` | Updated | [bot] section with log-branch, screenshot-file |
 | `.github/workflows/agentic-lib-workflow.yml` | Updated | Config-driven log references |
 

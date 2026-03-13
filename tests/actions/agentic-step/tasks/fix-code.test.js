@@ -20,9 +20,9 @@ vi.mock("../../../../src/actions/agentic-step/copilot.js", () => ({
   NARRATIVE_INSTRUCTION: "\n\nAfter completing your task...",
 }));
 
-// Mock runHybridSession
-vi.mock("../../../../src/copilot/hybrid-session.js", () => ({
-  runHybridSession: vi.fn().mockResolvedValue({
+// Mock runCopilotSession
+vi.mock("../../../../src/copilot/copilot-session.js", () => ({
+  runCopilotSession: vi.fn().mockResolvedValue({
     tokensIn: 50,
     tokensOut: 30,
     toolCalls: 4,
@@ -55,7 +55,7 @@ vi.mock("fs", () => ({
 }));
 
 import { fixCode } from "../../../../src/actions/agentic-step/tasks/fix-code.js";
-const { runHybridSession } = await import("../../../../src/copilot/hybrid-session.js");
+const { runCopilotSession } = await import("../../../../src/copilot/copilot-session.js");
 import { execSync } from "child_process";
 import { readFileSync } from "fs";
 
@@ -111,7 +111,7 @@ function createMockContext(overrides = {}) {
 describe("tasks/fix-code", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    runHybridSession.mockResolvedValue({
+    runCopilotSession.mockResolvedValue({
       tokensIn: 50,
       tokensOut: 30,
       toolCalls: 4,
@@ -141,7 +141,7 @@ describe("tasks/fix-code", () => {
     const result = await fixCode(createMockContext({ octokit }));
     expect(result.outcome).toBe("nop");
     expect(result.details).toBe("No failing checks found");
-    expect(runHybridSession).not.toHaveBeenCalled();
+    expect(runCopilotSession).not.toHaveBeenCalled();
   });
 
   it("includes failure details in prompt when checks fail", async () => {
@@ -161,7 +161,7 @@ describe("tasks/fix-code", () => {
     });
     await fixCode(createMockContext({ octokit }));
 
-    const args = runHybridSession.mock.calls[0][0];
+    const args = runCopilotSession.mock.calls[0][0];
     expect(args.userPrompt).toContain("unit-tests");
     expect(args.userPrompt).toContain("FAIL tests/unit/main.test.js");
     expect(args.userPrompt).toContain("Test PR");
@@ -188,7 +188,7 @@ describe("tasks/fix-code", () => {
     });
     await fixCode(createMockContext({ octokit }));
 
-    const args = runHybridSession.mock.calls[0][0];
+    const args = runCopilotSession.mock.calls[0][0];
     expect(args.userPrompt).toContain("TypeError: cannot read property");
   });
 
@@ -219,7 +219,7 @@ describe("tasks/fix-code", () => {
     });
     await fixCode(createMockContext({ octokit }));
 
-    const args = runHybridSession.mock.calls[0][0];
+    const args = runCopilotSession.mock.calls[0][0];
     expect(args.userPrompt).toContain("**build:**");
     expect(args.userPrompt).toContain("Failed");
   });
@@ -251,7 +251,7 @@ describe("tasks/fix-code", () => {
       process.env.NON_TRIVIAL_FILES = "src/main.js";
       await fixCode(createMockContext());
 
-      const args = runHybridSession.mock.calls[0][0];
+      const args = runCopilotSession.mock.calls[0][0];
       expect(args.userPrompt).toContain("Resolve Merge Conflicts");
       expect(args.userPrompt).toContain("src/main.js");
       expect(args.userPrompt).toContain("<<<<<<< HEAD");
@@ -264,7 +264,7 @@ describe("tasks/fix-code", () => {
       const result = await fixCode(createMockContext());
       expect(result.details).toContain("3 conflicted file(s)");
       expect(readFileSync).toHaveBeenCalledTimes(3);
-      const args = runHybridSession.mock.calls[0][0];
+      const args = runCopilotSession.mock.calls[0][0];
       expect(args.userPrompt).toContain("src/a.js");
       expect(args.userPrompt).toContain("src/b.js");
       expect(args.userPrompt).toContain("src/c.js");
@@ -275,7 +275,7 @@ describe("tasks/fix-code", () => {
       const result = await fixCode(createMockContext());
       expect(result.outcome).toBe("nop");
       expect(result.details).toContain("No non-trivial conflict files");
-      expect(runHybridSession).not.toHaveBeenCalled();
+      expect(runCopilotSession).not.toHaveBeenCalled();
     });
 
     it("handles unreadable conflicted files gracefully", async () => {
@@ -285,7 +285,7 @@ describe("tasks/fix-code", () => {
       });
       const result = await fixCode(createMockContext());
       expect(result.outcome).toBe("conflicts-resolved");
-      const args = runHybridSession.mock.calls[0][0];
+      const args = runCopilotSession.mock.calls[0][0];
       expect(args.userPrompt).toContain("(could not read)");
     });
 
@@ -302,7 +302,7 @@ describe("tasks/fix-code", () => {
     it("uses custom instructions for conflict resolution", async () => {
       process.env.NON_TRIVIAL_FILES = "src/main.js";
       await fixCode(createMockContext({ instructions: "Always prefer the PR version." }));
-      const args = runHybridSession.mock.calls[0][0];
+      const args = runCopilotSession.mock.calls[0][0];
       expect(args.userPrompt).toContain("Always prefer the PR version.");
     });
   });

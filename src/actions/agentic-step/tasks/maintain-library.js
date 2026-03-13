@@ -2,14 +2,14 @@
 // Copyright (C) 2025-2026 Polycode Limited
 // tasks/maintain-library.js — Library and knowledge management
 //
-// Uses runHybridSession with lean prompts: the model reads sources, library docs,
+// Uses runCopilotSession with lean prompts: the model reads sources, library docs,
 // and web content via tools to maintain the knowledge base.
 
 import * as core from "@actions/core";
 import { existsSync, readdirSync, statSync } from "fs";
 import { join } from "path";
 import { readOptionalFile, formatPathsSection, extractNarrative, NARRATIVE_INSTRUCTION } from "../copilot.js";
-import { runHybridSession } from "../../../copilot/hybrid-session.js";
+import { runCopilotSession } from "../../../copilot/copilot-session.js";
 
 /**
  * Build a file listing summary (names + sizes, not content).
@@ -116,7 +116,7 @@ export async function maintainLibrary(context) {
   if (logFilePath) attachments.push({ type: "file", path: logFilePath });
   if (screenshotFilePath) attachments.push({ type: "file", path: screenshotFilePath });
 
-  const result = await runHybridSession({
+  const result = await runCopilotSession({
     workspacePath: process.cwd(),
     model,
     tuning: t,

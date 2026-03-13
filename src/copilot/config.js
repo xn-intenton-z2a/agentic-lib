@@ -63,7 +63,7 @@ const LIMIT_DEFAULTS = {
 // Fallback profile defaults — used only when [profiles.*] is missing from TOML.
 // The canonical source of truth is the [profiles.*] sections in agentic-lib.toml.
 //
-// After migrating task handlers to runHybridSession (lean prompts + tool-based
+// After migrating task handlers to runCopilotSession (lean prompts + tool-based
 // exploration), prompt-sizing params are only used by the MCP context path
 // (src/copilot/context.js). Task handlers use tools to read files on demand.
 //

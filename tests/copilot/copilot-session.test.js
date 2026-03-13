@@ -73,9 +73,9 @@ vi.mock("../../src/copilot/sdk.js", () => ({
   })),
 }));
 
-const { runHybridSession } = await import("../../src/copilot/hybrid-session.js");
+const { runCopilotSession } = await import("../../src/copilot/copilot-session.js");
 
-describe("hybrid-session.js", () => {
+describe("copilot-session.js", () => {
   let tmpDir;
   const silentLogger = { info: () => {}, warning: () => {}, error: () => {}, debug: () => {} };
 
@@ -99,7 +99,7 @@ describe("hybrid-session.js", () => {
   });
 
   it("creates a session with tools", async () => {
-    await runHybridSession({
+    await runCopilotSession({
       workspacePath: tmpDir,
       githubToken: "mock-token",
       logger: silentLogger,
@@ -110,7 +110,7 @@ describe("hybrid-session.js", () => {
   });
 
   it("session config includes all 5 tools (read_file, write_file, list_files, run_command, run_tests)", async () => {
-    await runHybridSession({
+    await runCopilotSession({
       workspacePath: tmpDir,
       githubToken: "mock-token",
       logger: silentLogger,
@@ -125,7 +125,7 @@ describe("hybrid-session.js", () => {
 
   it("default writablePaths is [wsPath + '/'] when not specified", async () => {
     // We can verify by checking the tools accept writes within workspace
-    await runHybridSession({
+    await runCopilotSession({
       workspacePath: tmpDir,
       githubToken: "mock-token",
       logger: silentLogger,
@@ -135,7 +135,7 @@ describe("hybrid-session.js", () => {
   });
 
   it("NARRATIVE_INSTRUCTION appended to system prompt", async () => {
-    await runHybridSession({
+    await runCopilotSession({
       workspacePath: tmpDir,
       githubToken: "mock-token",
       logger: silentLogger,
@@ -144,7 +144,7 @@ describe("hybrid-session.js", () => {
   });
 
   it("narrative extracted from agent response into result.narrative", async () => {
-    const result = await runHybridSession({
+    const result = await runCopilotSession({
       workspacePath: tmpDir,
       githubToken: "mock-token",
       logger: silentLogger,
@@ -153,7 +153,7 @@ describe("hybrid-session.js", () => {
   });
 
   it("agentPrompt parameter overrides default system prompt", async () => {
-    await runHybridSession({
+    await runCopilotSession({
       workspacePath: tmpDir,
       githubToken: "mock-token",
       agentPrompt: "You are a custom agent.",
@@ -163,7 +163,7 @@ describe("hybrid-session.js", () => {
   });
 
   it("userPrompt parameter overrides default mission prompt", async () => {
-    await runHybridSession({
+    await runCopilotSession({
       workspacePath: tmpDir,
       githubToken: "mock-token",
       userPrompt: "Custom user prompt content",
@@ -173,7 +173,7 @@ describe("hybrid-session.js", () => {
   });
 
   it("uses default mission prompt when userPrompt not provided", async () => {
-    await runHybridSession({
+    await runCopilotSession({
       workspacePath: tmpDir,
       githubToken: "mock-token",
       logger: silentLogger,
@@ -182,7 +182,7 @@ describe("hybrid-session.js", () => {
   });
 
   it("result includes all expected fields", async () => {
-    const result = await runHybridSession({
+    const result = await runCopilotSession({
       workspacePath: tmpDir,
       githubToken: "mock-token",
       logger: silentLogger,
@@ -206,7 +206,7 @@ describe("hybrid-session.js", () => {
   it("rate-limit retry on createSession failure", async () => {
     createSessionShouldFail = true;
     createSessionFailCount = 1; // Fail once, then succeed
-    const result = await runHybridSession({
+    const result = await runCopilotSession({
       workspacePath: tmpDir,
       githubToken: "mock-token",
       maxRetries: 2,
@@ -220,7 +220,7 @@ describe("hybrid-session.js", () => {
   it("rate-limit retry on sendAndWait failure", async () => {
     sendShouldFail = true;
     sendFailCount = 1; // Fail once, then succeed
-    const result = await runHybridSession({
+    const result = await runCopilotSession({
       workspacePath: tmpDir,
       githubToken: "mock-token",
       maxRetries: 2,
@@ -234,7 +234,7 @@ describe("hybrid-session.js", () => {
     delete process.env.COPILOT_GITHUB_TOKEN;
     try {
       await expect(
-        runHybridSession({
+        runCopilotSession({
           workspacePath: tmpDir,
           logger: silentLogger,
         }),
@@ -245,7 +245,7 @@ describe("hybrid-session.js", () => {
   });
 
   it("respects model parameter", async () => {
-    await runHybridSession({
+    await runCopilotSession({
       workspacePath: tmpDir,
       githubToken: "mock-token",
       model: "gpt-4.1",
@@ -255,7 +255,7 @@ describe("hybrid-session.js", () => {
   });
 
   it("sets hooks on session config", async () => {
-    await runHybridSession({
+    await runCopilotSession({
       workspacePath: tmpDir,
       githubToken: "mock-token",
       logger: silentLogger,

@@ -2,14 +2,14 @@
 // Copyright (C) 2025-2026 Polycode Limited
 // tasks/maintain-features.js — Feature lifecycle management
 //
-// Uses runHybridSession with lean prompts: the model reads feature files,
+// Uses runCopilotSession with lean prompts: the model reads feature files,
 // library docs, and issues via tools to maintain the feature set.
 
 import * as core from "@actions/core";
 import { existsSync, readdirSync, statSync } from "fs";
 import { join } from "path";
 import { readOptionalFile, formatPathsSection, extractNarrative, NARRATIVE_INSTRUCTION } from "../copilot.js";
-import { runHybridSession } from "../../../copilot/hybrid-session.js";
+import { runCopilotSession } from "../../../copilot/copilot-session.js";
 import { createGitHubTools } from "../../../copilot/github-tools.js";
 import { checkWipLimit } from "../safety.js";
 
@@ -103,7 +103,7 @@ export async function maintainFeatures(context) {
   if (logFilePath) attachments.push({ type: "file", path: logFilePath });
   if (screenshotFilePath) attachments.push({ type: "file", path: screenshotFilePath });
 
-  const result = await runHybridSession({
+  const result = await runCopilotSession({
     workspacePath: process.cwd(),
     model,
     tuning: t,

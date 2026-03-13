@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 // Copyright (C) 2025-2026 Polycode Limited
-// src/copilot/hybrid-session.js — Single-session hybrid iterator (Phase 2)
+// src/copilot/copilot-session.js — Single-session Copilot SDK runner
 //
 // Replaces the old multi-session runIterationLoop with a single persistent
 // Copilot SDK session that drives its own tool loop. Hooks provide
@@ -69,7 +69,7 @@ function formatToolArgs(toolName, args) {
  * @param {Object} [options.logger]
  * @returns {Promise<HybridResult>}
  */
-export async function runHybridSession({
+export async function runCopilotSession({
   workspacePath,
   model = "gpt-5-mini",
   githubToken,

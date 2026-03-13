@@ -2,14 +2,14 @@
 // Copyright (C) 2025-2026 Polycode Limited
 // tasks/supervise.js — Supervisor orchestration via LLM
 //
-// Uses runHybridSession with lean prompts: the model explores issues, PRs,
+// Uses runCopilotSession with lean prompts: the model explores issues, PRs,
 // and repository state via tools, then reports its chosen actions via a
 // report_supervisor_plan tool whose handler executes them.
 
 import * as core from "@actions/core";
 import { existsSync, readFileSync, readdirSync, statSync } from "fs";
 import { readOptionalFile, scanDirectory, filterIssues, extractNarrative, NARRATIVE_INSTRUCTION } from "../copilot.js";
-import { runHybridSession } from "../../../copilot/hybrid-session.js";
+import { runCopilotSession } from "../../../copilot/copilot-session.js";
 import { createGitHubTools, createDiscussionTools, createGitTools } from "../../../copilot/github-tools.js";
 
 /**
@@ -752,7 +752,7 @@ export async function supervise(context) {
   if (logFilePath) attachments.push({ type: "file", path: logFilePath });
   if (screenshotFilePath) attachments.push({ type: "file", path: screenshotFilePath });
 
-  const result = await runHybridSession({
+  const result = await runCopilotSession({
     workspacePath: process.cwd(),
     model,
     tuning: t,

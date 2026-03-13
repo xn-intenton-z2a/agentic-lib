@@ -2,14 +2,14 @@
 // Copyright (C) 2025-2026 Polycode Limited
 // tasks/fix-code.js — Fix failing tests or resolve merge conflicts on a PR
 //
-// Uses runHybridSession with lean prompts: the model reads files, analyzes
+// Uses runCopilotSession with lean prompts: the model reads files, analyzes
 // failures, writes fixes, and runs tests via tools.
 
 import * as core from "@actions/core";
 import { readFileSync } from "fs";
 import { execSync } from "child_process";
 import { formatPathsSection, extractNarrative, NARRATIVE_INSTRUCTION } from "../copilot.js";
-import { runHybridSession } from "../../../copilot/hybrid-session.js";
+import { runCopilotSession } from "../../../copilot/copilot-session.js";
 import { createGitHubTools, createGitTools } from "../../../copilot/github-tools.js";
 
 /**
@@ -107,7 +107,7 @@ async function resolveConflicts({ config, pr, prNumber, instructions, model, wri
   if (logFilePath) attachments.push({ type: "file", path: logFilePath });
   if (screenshotFilePath) attachments.push({ type: "file", path: screenshotFilePath });
 
-  const result = await runHybridSession({
+  const result = await runCopilotSession({
     workspacePath: process.cwd(),
     model,
     tuning: t,
@@ -184,7 +184,7 @@ async function fixMainBuild({ config, runId, instructions, model, writablePaths,
   if (logFilePath) attachments.push({ type: "file", path: logFilePath });
   if (screenshotFilePath) attachments.push({ type: "file", path: screenshotFilePath });
 
-  const result = await runHybridSession({
+  const result = await runCopilotSession({
     workspacePath: process.cwd(),
     model,
     tuning: t,
@@ -300,7 +300,7 @@ export async function fixCode(context) {
   if (logFilePath) attachments.push({ type: "file", path: logFilePath });
   if (screenshotFilePath) attachments.push({ type: "file", path: screenshotFilePath });
 
-  const result = await runHybridSession({
+  const result = await runCopilotSession({
     workspacePath: process.cwd(),
     model,
     tuning: t,

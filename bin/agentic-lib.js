@@ -215,10 +215,10 @@ async function runIterate() {
       console.log("");
 
       const discoveryPrompt = loadAgentPrompt("agent-discovery");
-      const { runHybridSession } = await import("../src/copilot/hybrid-session.js");
+      const { runCopilotSession } = await import("../src/copilot/copilot-session.js");
       const effectiveModel = model || config.model || "gpt-5-mini";
 
-      const discoveryResult = await runHybridSession({
+      const discoveryResult = await runCopilotSession({
         workspacePath: target,
         model: effectiveModel,
         tuning: config.tuning || {},
@@ -298,7 +298,7 @@ async function runIterate() {
     );
   }
 
-  const { runHybridSession } = await import("../src/copilot/hybrid-session.js");
+  const { runCopilotSession } = await import("../src/copilot/copilot-session.js");
   const { gatherLocalContext, gatherGitHubContext, buildUserPrompt } = await import("../src/copilot/context.js");
 
   // Load agent prompt: --agent flag > default agent-iterate
@@ -347,7 +347,7 @@ async function runIterate() {
   const budget = config.transformationBudget || 0;
   const effectiveMaxToolCalls = budget > 0 ? budget * 20 : undefined;
 
-  const result = await runHybridSession({
+  const result = await runCopilotSession({
     workspacePath: target,
     model: effectiveModel,
     tuning: config.tuning || {},
@@ -423,7 +423,7 @@ async function runTask(taskName) {
 
   try {
     const { loadAgentPrompt } = await import("../src/copilot/agents.js");
-    const { runHybridSession } = await import("../src/copilot/hybrid-session.js");
+    const { runCopilotSession } = await import("../src/copilot/copilot-session.js");
     const { gatherLocalContext, gatherGitHubContext, buildUserPrompt } = await import("../src/copilot/context.js");
 
     const agentPrompt = loadAgentPrompt(agentName);
@@ -447,7 +447,7 @@ async function runTask(taskName) {
     const budget = config.transformationBudget || 0;
     const effectiveMaxToolCalls = budget > 0 ? budget * 20 : undefined;
 
-    const result = await runHybridSession({
+    const result = await runCopilotSession({
       workspacePath: target,
       model: effectiveModel,
       tuning: config.tuning || {},

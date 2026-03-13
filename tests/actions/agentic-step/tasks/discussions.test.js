@@ -20,9 +20,9 @@ vi.mock("../../../../src/actions/agentic-step/copilot.js", () => ({
   NARRATIVE_INSTRUCTION: "\n\nAfter completing your task...",
 }));
 
-// Mock runHybridSession
-vi.mock("../../../../src/copilot/hybrid-session.js", () => ({
-  runHybridSession: vi.fn().mockResolvedValue({
+// Mock runCopilotSession
+vi.mock("../../../../src/copilot/copilot-session.js", () => ({
+  runCopilotSession: vi.fn().mockResolvedValue({
     tokensIn: 80,
     tokensOut: 30,
     toolCalls: 2,
@@ -47,7 +47,7 @@ vi.mock("fs", async (importOriginal) => {
 });
 
 import { discussions } from "../../../../src/actions/agentic-step/tasks/discussions.js";
-const { runHybridSession } = await import("../../../../src/copilot/hybrid-session.js");
+const { runCopilotSession } = await import("../../../../src/copilot/copilot-session.js");
 
 // --- Helpers ---
 
@@ -120,7 +120,7 @@ function createMockContext(overrides = {}) {
 describe("tasks/discussions", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    runHybridSession.mockResolvedValue({
+    runCopilotSession.mockResolvedValue({
       tokensIn: 80,
       tokensOut: 30,
       toolCalls: 2,
@@ -137,7 +137,7 @@ describe("tasks/discussions", () => {
     await expect(discussions(ctx)).rejects.toThrow("discussions task requires discussion-url input");
   });
 
-  it("fetches discussion via GraphQL before calling runHybridSession", async () => {
+  it("fetches discussion via GraphQL before calling runCopilotSession", async () => {
     const octokit = createMockOctokit();
     const ctx = createMockContext({ octokit });
 
@@ -149,15 +149,15 @@ describe("tasks/discussions", () => {
     expect(firstCall).toContain("test-owner");
     expect(firstCall).toContain("test-repo");
     expect(firstCall).toContain("123");
-    // Should call runHybridSession
-    expect(runHybridSession).toHaveBeenCalledTimes(1);
+    // Should call runCopilotSession
+    expect(runCopilotSession).toHaveBeenCalledTimes(1);
   });
 
   it("includes discussion content in the prompt", async () => {
     const ctx = createMockContext();
     await discussions(ctx);
 
-    const args = runHybridSession.mock.calls[0][0];
+    const args = runCopilotSession.mock.calls[0][0];
     expect(args.userPrompt).toContain("Test Discussion");
     expect(args.userPrompt).toContain("Discussion body text");
     expect(args.userPrompt).toContain("First comment");
@@ -175,14 +175,14 @@ describe("tasks/discussions", () => {
     expect(result.model).toBe("claude-sonnet-4");
   });
 
-  it("handles GraphQL failure gracefully and still calls runHybridSession", async () => {
+  it("handles GraphQL failure gracefully and still calls runCopilotSession", async () => {
     const octokit = createMockOctokit();
     octokit.graphql.mockRejectedValue(new Error("GraphQL query failed"));
     const ctx = createMockContext({ octokit });
 
     const result = await discussions(ctx);
 
-    expect(runHybridSession).toHaveBeenCalled();
+    expect(runCopilotSession).toHaveBeenCalled();
     expect(result.outcome).toContain("discussion-");
   });
 
@@ -193,7 +193,7 @@ describe("tasks/discussions", () => {
 
     // GraphQL should not be called since URL did not match
     expect(ctx.octokit.graphql).not.toHaveBeenCalled();
-    expect(runHybridSession).toHaveBeenCalled();
+    expect(runCopilotSession).toHaveBeenCalled();
     expect(result.outcome).toContain("discussion-");
   });
 
@@ -201,16 +201,16 @@ describe("tasks/discussions", () => {
     const ctx = createMockContext();
     await discussions(ctx);
 
-    const args = runHybridSession.mock.calls[0][0];
+    const args = runCopilotSession.mock.calls[0][0];
     expect(args.excludedTools).toContain("write_file");
     expect(args.excludedTools).toContain("run_tests");
   });
 
-  it("passes createTools function to runHybridSession", async () => {
+  it("passes createTools function to runCopilotSession", async () => {
     const ctx = createMockContext();
     await discussions(ctx);
 
-    const args = runHybridSession.mock.calls[0][0];
+    const args = runCopilotSession.mock.calls[0][0];
     expect(typeof args.createTools).toBe("function");
   });
 });

@@ -2,13 +2,13 @@
 // Copyright (C) 2025-2026 Polycode Limited
 // tasks/resolve-issue.js — Issue → code → PR
 //
-// Uses runHybridSession with lean prompts: the model reads source files,
+// Uses runCopilotSession with lean prompts: the model reads source files,
 // writes code, and runs tests via tools.
 
 import * as core from "@actions/core";
 import { checkAttemptLimit, checkWipLimit, isIssueResolved } from "../safety.js";
 import { readOptionalFile, formatPathsSection, extractNarrative, NARRATIVE_INSTRUCTION } from "../copilot.js";
-import { runHybridSession } from "../../../copilot/hybrid-session.js";
+import { runCopilotSession } from "../../../copilot/copilot-session.js";
 import { createGitHubTools, createGitTools } from "../../../copilot/github-tools.js";
 
 /**
@@ -99,7 +99,7 @@ export async function resolveIssue(context) {
   if (logFilePath) attachments.push({ type: "file", path: logFilePath });
   if (screenshotFilePath) attachments.push({ type: "file", path: screenshotFilePath });
 
-  const result = await runHybridSession({
+  const result = await runCopilotSession({
     workspacePath: process.cwd(),
     model,
     tuning: t,
