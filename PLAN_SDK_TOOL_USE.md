@@ -42,11 +42,11 @@ All three fixes are implemented and committed on `claude/sdk-tool-improvements`:
 9. **Hook-based truncation replaces `contentLimit`** ✅ — no more front-loaded content
 10. **8 of 10 task handlers migrated** ✅ — transform, discussions, resolve-issue, fix-code, maintain-features, maintain-library, review-issue, enhance-issue all use `runHybridSession`
 
-### NOT DONE — Remaining Phase B
+### DONE — Remaining Phase B
 
-11. **Simplify tuning parameters** — `sourceScan`, `sourceContent`, `featuresScan`, `issuesScan`, `issueBodyLimit`, `outline` are still actively used by `context.js`, `supervise.js`, and `direct.js`. Must defer until items 12-13 (migrate those files) are done.
-12. **Migrate supervise.js** — 838 lines, complex orchestration. Still uses `runCopilotTask`.
-13. **Migrate direct.js** — 433 lines, mission-complete evaluation. Still uses `runCopilotTask`.
+11. **Simplify tuning parameters** ✅ — After migrating supervise.js and direct.js, confirmed that prompt-sizing params (`sourceScan`, `sourceContent`, `featuresScan`, `issueBodyLimit`, `documentSummary`, `testContent`) are only used by the MCP context path (`src/copilot/context.js`). `issuesScan` is shared (supervise.js + MCP). Added clarifying comments in `config.js`.
+12. **Migrate supervise.js** ✅ — Rewrote to use `runHybridSession` with `report_supervisor_plan` tool (handler executes actions via existing `executeAction`), lean prompt with counts/metrics, `createTools` factory with GitHub/discussion/git tools, `excludedTools: ["write_file", "run_command", "run_tests"]`, text-parsing fallback for backward compatibility. All 28 tests pass.
+13. **Migrate direct.js** ✅ — Rewrote to use `runHybridSession` with `report_director_decision` tool (captures decision/reason/analysis), lean prompt with counts/metrics, `createTools` factory with GitHub/git tools, `excludedTools: ["write_file", "run_command", "run_tests"]`, text-parsing fallback.
 
 ### DONE — Phase E: Agent Prompts & Website (user request 2026-03-13)
 
@@ -70,7 +70,7 @@ All three fixes are implemented and committed on `claude/sdk-tool-improvements`:
 14. **Use `session.abort()` for budget exhaustion** instead of deny-in-hook
 15. **Use `client.listModels()` for dynamic reasoning effort** detection
 16. ~~**Update agent prompts** in `src/agents/` to reference the new tools~~ — Done in Phase E (item 22)
-17. **Deprecate `runCopilotTask`** once all handlers use hybrid session (still needed by supervise.js and direct.js)
+17. **Deprecate `runCopilotTask`** ✅ — All task handlers migrated. Added `@deprecated` JSDoc tag to `runCopilotTask` in `session.js`. Only retained for spike script.
 
 ### DONE — Phase D: Observability & Purge (user request 2026-03-13)
 
@@ -85,20 +85,20 @@ All three fixes are implemented and committed on `claude/sdk-tool-improvements`:
 
 ### Test Status
 
-All 578 tests pass (33 test files). All 8 migrated task handler tests updated to mock `runHybridSession` instead of `runCopilotTask`.
+All 577 tests pass (33 test files). All 10 task handler tests mock `runHybridSession` (none use `runCopilotTask`).
 
 ## Current Architecture
 
 ### Two integration patterns for the same Copilot SDK tool loop
 
-**Pattern 1: `runCopilotTask`** (src/copilot/session.js, used by supervise.js and direct.js only)
+**Pattern 1: `runCopilotTask`** (src/copilot/session.js — DEPRECATED)
 
 - Front-loaded prompts with all context in the prompt text
 - No hooks, no budget control, basic event logging for token counts
 - 4 tools: read_file, write_file, list_files, run_command
-- Will be deprecated once supervise.js and direct.js are migrated
+- All task handlers migrated — retained only for spike script
 
-**Pattern 2: `runHybridSession`** (src/copilot/hybrid-session.js, used by 8 task handlers + CLI + MCP)
+**Pattern 2: `runHybridSession`** (src/copilot/hybrid-session.js, used by all 10 task handlers + CLI + MCP)
 
 - Single persistent session with SDK hooks for observability
 - `onPreToolUse` — logs every tool call with timing, enforces tool-call budget
@@ -117,8 +117,8 @@ All 578 tests pass (33 test files). All 8 migrated task handler tests updated to
 | `src/copilot/github-tools.js` | NEW | Discussion tools, GitHub API tools, git tools (3 factory functions) |
 | `src/copilot/tools.js` | Updated | Standard agent tools with overridesBuiltInTool |
 | `src/copilot/config.js` | Updated | Exposes logBranch, screenshotFile from [bot] config |
-| `src/copilot/session.js` | Legacy | runCopilotTask — still used by supervise.js, direct.js |
-| `src/actions/agentic-step/tasks/*.js` | Updated | 8 handlers migrated, 2 remaining |
+| `src/copilot/session.js` | Deprecated | runCopilotTask — @deprecated, no task handlers use it |
+| `src/actions/agentic-step/tasks/*.js` | Updated | All 10 handlers migrated to runHybridSession |
 | `agentic-lib.toml` | Updated | [bot] section with log-branch, screenshot-file |
 | `.github/workflows/agentic-lib-workflow.yml` | Updated | Config-driven log references |
 
@@ -128,5 +128,5 @@ All 578 tests pass (33 test files). All 8 migrated task handler tests updated to
 - **Model exploration quality** — the model must know what to read. The file listing in the prompt serves as a roadmap. If the model reads irrelevant files, it wastes budget.
 - **`"append"` mode interactions** — switching from `"replace"` to `"append"` changes the system prompt foundation. Needs testing with each agent type.
 - **`attachments` behaviour** — how the SDK handles directory attachments needs testing with large repos.
-- **Backwards compatibility** — supervise.js and direct.js still use `runCopilotTask` and the old pattern. The workflow YAML still handles supervisor text-parsing for dispatch.
+- **Text-parsing fallback** — supervise.js and direct.js retain text-parsing (`parseActions`, `parseDirectorResponse`) as fallback when the model doesn't call the reporting tool. The workflow YAML still handles supervisor text-parsing for dispatch.
 - **Discussion tool migration** — bot now uses `report_action` tool instead of `[ACTION:]` tags. The bot workflow's dispatch-supervisor job logic may need updating.

@@ -232,6 +232,10 @@ export function retryDelayMs(err, attempt, baseDelayMs = 60000) {
 // ── Core session runner ─────────────────────────────────────────────
 
 /**
+ * @deprecated Use `runHybridSession` from `./hybrid-session.js` instead.
+ * All task handlers have been migrated. This function is retained only for
+ * the spike script and backwards compatibility during transition.
+ *
  * Run a Copilot SDK task: create client → session → send prompt → return result.
  * Retries on 429 rate limits.
  *

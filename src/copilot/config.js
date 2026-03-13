@@ -62,18 +62,28 @@ const LIMIT_DEFAULTS = {
 
 // Fallback profile defaults — used only when [profiles.*] is missing from TOML.
 // The canonical source of truth is the [profiles.*] sections in agentic-lib.toml.
+//
+// After migrating task handlers to runHybridSession (lean prompts + tool-based
+// exploration), prompt-sizing params are only used by the MCP context path
+// (src/copilot/context.js). Task handlers use tools to read files on demand.
+//
+// MCP-only params: featuresScan, sourceScan, sourceContent, testContent,
+//   issueBodyLimit, documentSummary (control front-loaded content sizing)
+// Shared params: issuesScan (GitHub API per_page — used by supervise.js),
+//   reasoningEffort, infiniteSessions, transformationBudget, staleDays,
+//   discussionComments
 const FALLBACK_TUNING = {
   reasoningEffort: "medium",
   infiniteSessions: true,
   transformationBudget: 32,
-  featuresScan: 10,
-  sourceScan: 10,
-  sourceContent: 5000,
-  testContent: 3000,
-  issuesScan: 20,
-  issueBodyLimit: 500,
+  featuresScan: 10,          // MCP context only
+  sourceScan: 10,            // MCP context only
+  sourceContent: 5000,       // MCP context only
+  testContent: 3000,         // MCP context only
+  issuesScan: 20,            // supervise.js + MCP context
+  issueBodyLimit: 500,       // MCP context only
   staleDays: 30,
-  documentSummary: 2000,
+  documentSummary: 2000,     // MCP context only
   discussionComments: 10,
 };
 
