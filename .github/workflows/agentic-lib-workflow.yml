@@ -148,13 +148,13 @@ jobs:
         run: |
           MODEL='${{ inputs.model }}'
           if [ -z "$MODEL" ] && [ -f "${{ env.configPath }}" ]; then
-            TOML_MODEL=$(grep '^\s*model' "${{ env.configPath }}" | head -1 | sed 's/.*= *"\([^"]*\)".*/\1/')
+            TOML_MODEL=$(grep '^\s*model' "${{ env.configPath }}" | head -1 | sed 's/.*= *"\([^"]*\)".*/\1/' || true)
             MODEL="${TOML_MODEL}"
           fi
           echo "model=${MODEL:-gpt-5-mini}" >> $GITHUB_OUTPUT
           PROFILE='${{ inputs.profile }}'
           if [ -z "$PROFILE" ] && [ -f "${{ env.configPath }}" ]; then
-            TOML_PROFILE=$(grep '^\s*profile' "${{ env.configPath }}" | head -1 | sed 's/.*= *"\([^"]*\)".*/\1/')
+            TOML_PROFILE=$(grep '^\s*profile' "${{ env.configPath }}" | head -1 | sed 's/.*= *"\([^"]*\)".*/\1/' || true)
             PROFILE="${TOML_PROFILE}"
           fi
           echo "profile=${PROFILE}" >> $GITHUB_OUTPUT
@@ -183,9 +183,9 @@ jobs:
           LOG_BRANCH=""
           SCREENSHOT=""
           if [ -f "${{ env.configPath }}" ]; then
-            LOG_FILE=$(grep '^\s*log-file' "${{ env.configPath }}" | head -1 | sed 's/.*= *"\([^"]*\)".*/\1/')
-            LOG_BRANCH=$(grep '^\s*log-branch' "${{ env.configPath }}" | head -1 | sed 's/.*= *"\([^"]*\)".*/\1/')
-            SCREENSHOT=$(grep '^\s*screenshot-file' "${{ env.configPath }}" | head -1 | sed 's/.*= *"\([^"]*\)".*/\1/')
+            LOG_FILE=$(grep '^\s*log-file' "${{ env.configPath }}" | head -1 | sed 's/.*= *"\([^"]*\)".*/\1/' || true)
+            LOG_BRANCH=$(grep '^\s*log-branch' "${{ env.configPath }}" | head -1 | sed 's/.*= *"\([^"]*\)".*/\1/' || true)
+            SCREENSHOT=$(grep '^\s*screenshot-file' "${{ env.configPath }}" | head -1 | sed 's/.*= *"\([^"]*\)".*/\1/' || true)
           fi
           echo "log-file=${LOG_FILE:-intentïon.md}" >> $GITHUB_OUTPUT
           echo "log-branch=${LOG_BRANCH:-agentic-lib-logs}" >> $GITHUB_OUTPUT
