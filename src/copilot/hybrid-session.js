@@ -63,6 +63,9 @@ function formatToolArgs(toolName, args) {
  * @param {string[]} [options.writablePaths] - Writable paths for tool safety (default: workspace)
  * @param {number} [options.maxRetries=2] - Max retries on rate-limit errors
  * @param {number} [options.maxToolCalls] - Max tool calls before graceful stop (undefined = unlimited)
+ * @param {Function} [options.createTools] - (defineTool, writablePaths, logger) => Tool[] — custom tool factory
+ * @param {string[]} [options.excludedTools] - Tool names to exclude from the session
+ * @param {Array} [options.attachments] - File/directory attachments for sendAndWait
  * @param {Object} [options.logger]
  * @returns {Promise<HybridResult>}
  */
@@ -77,6 +80,9 @@ export async function runHybridSession({
   writablePaths,
   maxRetries = 2,
   maxToolCalls,
+  createTools,
+  excludedTools,
+  attachments,
   logger = defaultLogger,
 }) {
   const { CopilotClient, approveAll, defineTool } = await getSDK();
@@ -132,9 +138,10 @@ export async function runHybridSession({
   });
 
   // ── Build full tool set ─────────────────────────────────────────────
-  // 4 standard tools (read_file, write_file, list_files, run_command) + run_tests
+  // 4 standard tools (read_file, write_file, list_files, run_command) + run_tests + custom
   const agentTools = createAgentTools(effectiveWritablePaths, logger, defineTool);
-  const allTools = [...agentTools, runTestsTool];
+  const customTools = createTools ? createTools(defineTool, effectiveWritablePaths, logger) : [];
+  const allTools = [...agentTools, runTestsTool, ...customTools];
 
   // ── Build system prompt with narrative instruction ─────────────────
   const basePrompt = agentPrompt || [
@@ -155,16 +162,17 @@ export async function runHybridSession({
 
   const sessionConfig = {
     model,
-    systemMessage: { mode: "replace", content: systemPrompt },
+    systemMessage: { mode: "append", content: systemPrompt },
     tools: allTools,
     onPermissionRequest: approveAll,
     workingDirectory: wsPath,
+    ...(excludedTools && excludedTools.length > 0 ? { excludedTools } : {}),
     hooks: {
       onPreToolUse: (input) => {
         // Enforce tool-call budget
         if (maxToolCalls && metrics.toolCalls.length >= maxToolCalls) {
           logger.warning(`  [tool] Budget reached (${maxToolCalls} calls) — denying ${input.toolName}`);
-          return { action: "deny", reason: `Tool call budget exhausted (${maxToolCalls} max). Wrap up your work.` };
+          return { permissionDecision: "deny", permissionDecisionReason: `Tool call budget exhausted (${maxToolCalls} max). Wrap up your work.` };
         }
         const n = metrics.toolCalls.length + 1;
         const elapsed = ((Date.now() - metrics.startTime) / 1000).toFixed(0);
@@ -173,11 +181,27 @@ export async function runHybridSession({
         logger.info(`  [tool #${n} +${elapsed}s] ${input.toolName}${detail}`);
       },
       onPostToolUse: (input) => {
+        const hookOutput = {};
+
         if (/write|edit|create/i.test(input.toolName)) {
           const path = input.toolArgs?.file_path || input.toolArgs?.path || "unknown";
           metrics.filesWritten.add(path);
           logger.info(`    → wrote ${path}`);
         }
+
+        // Truncate large read_file results to prevent context overflow
+        if (input.toolName === "read_file" || input.toolName === "view") {
+          const resultText = input.toolResult?.textResultForLlm || "";
+          const MAX_READ_CHARS = 20000;
+          if (resultText.length > MAX_READ_CHARS) {
+            hookOutput.modifiedResult = {
+              ...input.toolResult,
+              textResultForLlm: resultText.substring(0, MAX_READ_CHARS) + `\n... (truncated from ${resultText.length} chars)`,
+            };
+            logger.info(`    → truncated read_file output: ${resultText.length} → ${MAX_READ_CHARS} chars`);
+          }
+        }
+
         if (input.toolName === "run_tests" || input.toolName === "run_command" || input.toolName === "bash") {
           const result = input.toolResult?.textResultForLlm || input.toolResult || "";
           const resultStr = typeof result === "string" ? result : JSON.stringify(result);
@@ -188,8 +212,12 @@ export async function runHybridSession({
           } else if (failed) {
             const failMatch = resultStr.match(/(\d+)\s*(failed|fail)/i);
             logger.info(`    → tests FAILED${failMatch ? ` (${failMatch[1]} failures)` : ""}`);
+            // Inject guidance when tests fail
+            hookOutput.additionalContext = "Focus on the failing tests. Read the test file to understand expectations before changing source code.";
           }
         }
+
+        return Object.keys(hookOutput).length > 0 ? hookOutput : undefined;
       },
       onErrorOccurred: (input) => {
         metrics.errors.push({ error: input.error, context: input.errorContext, time: Date.now() });
@@ -281,9 +309,13 @@ export async function runHybridSession({
   let endReason = "complete";
 
   // Send with rate-limit retry
+  const sendOptions = { prompt };
+  if (attachments && attachments.length > 0) {
+    sendOptions.attachments = attachments;
+  }
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     try {
-      response = await session.sendAndWait({ prompt }, timeoutMs);
+      response = await session.sendAndWait(sendOptions, timeoutMs);
       break;
     } catch (err) {
       if (isRateLimitError(err) && attempt < maxRetries) {

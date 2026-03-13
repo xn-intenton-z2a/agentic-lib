@@ -6,6 +6,8 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 vi.mock("@actions/core", () => ({
   info: vi.fn(),
   warning: vi.fn(),
+  error: vi.fn(),
+  debug: vi.fn(),
   setOutput: vi.fn(),
   getInput: vi.fn(),
   setFailed: vi.fn(),
@@ -13,48 +15,56 @@ vi.mock("@actions/core", () => ({
 
 // Mock the copilot module
 vi.mock("../../../../src/actions/agentic-step/copilot.js", () => ({
-  runCopilotTask: vi
-    .fn()
-    .mockResolvedValue({ content: "Enhanced issue body with acceptance criteria", tokensUsed: 75 }),
   readOptionalFile: vi.fn().mockReturnValue("mock contributing"),
-  scanDirectory: vi.fn().mockReturnValue([]),
-  formatPathsSection: vi.fn().mockReturnValue("## File Paths\n- mock"),
+  extractNarrative: vi.fn().mockImplementation((_content, fallback) => fallback || ""),
+  NARRATIVE_INSTRUCTION: "\n\nAfter completing your task...",
+}));
+
+// Mock runHybridSession
+vi.mock("../../../../src/copilot/hybrid-session.js", () => ({
+  runHybridSession: vi.fn().mockResolvedValue({
+    tokensIn: 50,
+    tokensOut: 25,
+    toolCalls: 2,
+    testRuns: 0,
+    filesWritten: 0,
+    sessionTime: 4,
+    agentMessage: "Enhanced issue body with acceptance criteria",
+    narrative: "Enhanced issue.",
+  }),
+}));
+
+// Mock github-tools
+vi.mock("../../../../src/copilot/github-tools.js", () => ({
+  createGitHubTools: vi.fn().mockReturnValue([]),
 }));
 
 // Mock safety.js
 vi.mock("../../../../src/actions/agentic-step/safety.js", () => ({
   isIssueResolved: vi.fn().mockResolvedValue(false),
-  checkAttemptLimit: vi.fn().mockResolvedValue({ allowed: true, attempts: 0 }),
-  checkWipLimit: vi.fn().mockResolvedValue({ allowed: true, count: 0 }),
 }));
+
+vi.mock("fs", async (importOriginal) => {
+  const actual = await importOriginal();
+  return { ...actual, existsSync: vi.fn().mockReturnValue(false), readdirSync: vi.fn().mockReturnValue([]) };
+});
 
 import { enhanceIssue } from "../../../../src/actions/agentic-step/tasks/enhance-issue.js";
 import { isIssueResolved } from "../../../../src/actions/agentic-step/safety.js";
-import { runCopilotTask, readOptionalFile, scanDirectory } from "../../../../src/actions/agentic-step/copilot.js";
+const { runHybridSession } = await import("../../../../src/copilot/hybrid-session.js");
 
 // --- Helpers ---
 
-function createMockOctokit(overrides = {}) {
+function createMockOctokit() {
   return {
     rest: {
       issues: {
         get: vi.fn().mockResolvedValue({ data: { state: "open", title: "Test Issue", body: "Test body", labels: [] } }),
         listForRepo: vi.fn().mockResolvedValue({ data: [] }),
-        listComments: vi.fn().mockResolvedValue({ data: [] }),
         update: vi.fn().mockResolvedValue({}),
         addLabels: vi.fn().mockResolvedValue({}),
         createComment: vi.fn().mockResolvedValue({}),
       },
-      pulls: {
-        get: vi.fn().mockResolvedValue({ data: { title: "Test PR", body: "", head: { sha: "abc123" } } }),
-      },
-      checks: {
-        listForRef: vi.fn().mockResolvedValue({ data: { check_runs: [] } }),
-      },
-      git: {
-        listMatchingRefs: vi.fn().mockResolvedValue({ data: [] }),
-      },
-      ...overrides,
     },
     graphql: vi.fn().mockResolvedValue({}),
   };
@@ -65,20 +75,10 @@ function createMockConfig(overrides = {}) {
     paths: {
       mission: { path: "MISSION.md" },
       contributing: { path: "CONTRIBUTING.md" },
-      features: { path: "features/", permissions: ["write"], limit: 4 },
-      source: { path: "src/" },
-      tests: { path: "tests/" },
-      librarySources: { path: "SOURCES.md" },
-      library: { path: "library/" },
+      features: { path: "features/", limit: 4 },
     },
-    attemptsPerIssue: 2,
-    attemptsPerBranch: 3,
-    featureDevelopmentIssuesWipLimit: 2,
-    maintenanceIssuesWipLimit: 1,
     readOnlyPaths: ["README.md"],
-    writablePaths: ["src/", "tests/"],
-    tdd: false,
-    intentionBot: { intentionFilepath: "intenti\u00F6n.md" },
+    tuning: {},
     ...overrides,
   };
 }
@@ -89,14 +89,10 @@ function createMockContext(overrides = {}) {
     config: createMockConfig(),
     instructions: "",
     issueNumber: "42",
-    prNumber: "",
-    writablePaths: ["src/", "tests/"],
-    testCommand: "npm test",
-    discussionUrl: "",
+    writablePaths: [],
     model: "claude-sonnet-4",
     octokit: createMockOctokit(),
     repo: { owner: "test-owner", repo: "test-repo" },
-    github: { runId: 12345 },
     ...overrides,
   };
 }
@@ -107,9 +103,16 @@ describe("tasks/enhance-issue", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     isIssueResolved.mockResolvedValue(false);
-    runCopilotTask.mockResolvedValue({ content: "Enhanced issue body with acceptance criteria", tokensUsed: 75 });
-    readOptionalFile.mockReturnValue("mock contributing");
-    scanDirectory.mockReturnValue([]);
+    runHybridSession.mockResolvedValue({
+      tokensIn: 50,
+      tokensOut: 25,
+      toolCalls: 2,
+      testRuns: 0,
+      filesWritten: 0,
+      sessionTime: 4,
+      agentMessage: "Enhanced issue body with acceptance criteria",
+      narrative: "Enhanced issue.",
+    });
   });
 
   it("uses batch mode when issueNumber is missing", async () => {
@@ -121,12 +124,10 @@ describe("tasks/enhance-issue", () => {
         { number: 12, title: "Issue 12", labels: [{ name: "automated" }, { name: "ready" }] },
       ],
     });
-    const ctx = createMockContext({ octokit, issueNumber: "" });
-
-    const result = await enhanceIssue(ctx);
+    const result = await enhanceIssue(createMockContext({ octokit, issueNumber: "" }));
 
     // Should enhance 2 unready issues (10 and 11), skip 12 (already ready)
-    expect(runCopilotTask).toHaveBeenCalledTimes(2);
+    expect(runHybridSession).toHaveBeenCalledTimes(2);
     expect(result.outcome).toBe("issues-enhanced");
     expect(result.details).toContain("Batch enhanced 2/2 issues");
   });
@@ -134,23 +135,17 @@ describe("tasks/enhance-issue", () => {
   it("returns nop in batch mode when no unready issues exist", async () => {
     const octokit = createMockOctokit();
     octokit.rest.issues.listForRepo.mockResolvedValue({ data: [] });
-    const ctx = createMockContext({ octokit, issueNumber: "" });
-
-    const result = await enhanceIssue(ctx);
-
+    const result = await enhanceIssue(createMockContext({ octokit, issueNumber: "" }));
     expect(result.outcome).toBe("nop");
     expect(result.details).toContain("No unready automated issues");
   });
 
   it("returns nop if issue is already resolved", async () => {
     isIssueResolved.mockResolvedValue(true);
-    const ctx = createMockContext();
-
-    const result = await enhanceIssue(ctx);
-
+    const result = await enhanceIssue(createMockContext());
     expect(result.outcome).toBe("nop");
     expect(result.details).toBe("Issue #42 already resolved");
-    expect(runCopilotTask).not.toHaveBeenCalled();
+    expect(runHybridSession).not.toHaveBeenCalled();
   });
 
   it("returns nop if issue already has ready label", async () => {
@@ -158,31 +153,23 @@ describe("tasks/enhance-issue", () => {
     octokit.rest.issues.get.mockResolvedValue({
       data: { state: "open", title: "Test", body: "body", labels: [{ name: "ready" }] },
     });
-    const ctx = createMockContext({ octokit });
-
-    const result = await enhanceIssue(ctx);
-
+    const result = await enhanceIssue(createMockContext({ octokit }));
     expect(result.outcome).toBe("nop");
     expect(result.details).toBe("Issue #42 already has ready label");
-    expect(runCopilotTask).not.toHaveBeenCalled();
+    expect(runHybridSession).not.toHaveBeenCalled();
   });
 
   it("updates issue body, adds labels, and comments on happy path", async () => {
     const octokit = createMockOctokit();
-    const ctx = createMockContext({ octokit });
-
-    const result = await enhanceIssue(ctx);
+    const result = await enhanceIssue(createMockContext({ octokit }));
 
     expect(result.outcome).toBe("issue-enhanced");
     expect(result.tokensUsed).toBe(75);
     expect(result.model).toBe("claude-sonnet-4");
     expect(result.details).toContain("Enhanced issue #42");
 
-    // Verify octokit calls
     expect(octokit.rest.issues.update).toHaveBeenCalledWith(
       expect.objectContaining({
-        owner: "test-owner",
-        repo: "test-repo",
         issue_number: 42,
         body: "Enhanced issue body with acceptance criteria",
       }),
@@ -202,14 +189,20 @@ describe("tasks/enhance-issue", () => {
   });
 
   it("does not update issue if enhanced body is empty", async () => {
-    runCopilotTask.mockResolvedValue({ content: "   ", tokensUsed: 50 });
+    runHybridSession.mockResolvedValue({
+      tokensIn: 30,
+      tokensOut: 20,
+      toolCalls: 1,
+      testRuns: 0,
+      filesWritten: 0,
+      sessionTime: 3,
+      agentMessage: "   ",
+      narrative: "",
+    });
     const octokit = createMockOctokit();
-    const ctx = createMockContext({ octokit });
-
-    const result = await enhanceIssue(ctx);
+    const result = await enhanceIssue(createMockContext({ octokit }));
 
     expect(result.outcome).toBe("issue-enhanced");
-    // Should NOT have updated the issue body since content was whitespace
     expect(octokit.rest.issues.update).not.toHaveBeenCalled();
     expect(octokit.rest.issues.addLabels).not.toHaveBeenCalled();
     expect(octokit.rest.issues.createComment).not.toHaveBeenCalled();

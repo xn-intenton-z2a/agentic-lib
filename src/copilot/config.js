@@ -279,6 +279,8 @@ export function loadConfig(configPath) {
     seeding: toml.seeding || {},
     intentionBot: {
       intentionFilepath: bot["log-file"] || "intentïon.md",
+      logBranch: bot["log-branch"] || "agentic-lib-logs",
+      screenshotFile: bot["screenshot-file"] || "SCREENSHOT_INDEX.png",
     },
     init: toml.init || null,
     tdd: toml.tdd === true,

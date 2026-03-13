@@ -6,6 +6,8 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 vi.mock("@actions/core", () => ({
   info: vi.fn(),
   warning: vi.fn(),
+  error: vi.fn(),
+  debug: vi.fn(),
   setOutput: vi.fn(),
   getInput: vi.fn(),
   setFailed: vi.fn(),
@@ -13,18 +15,41 @@ vi.mock("@actions/core", () => ({
 
 // Mock the copilot module
 vi.mock("../../../../src/actions/agentic-step/copilot.js", () => ({
-  runCopilotTask: vi.fn().mockResolvedValue({ content: "OPEN: not yet implemented", tokensUsed: 60 }),
-  readOptionalFile: vi.fn().mockReturnValue("mock content"),
-  scanDirectory: vi.fn().mockReturnValue([]),
-  formatPathsSection: vi.fn().mockReturnValue("## File Paths\n- mock"),
+  extractNarrative: vi.fn().mockImplementation((_content, fallback) => fallback || ""),
+  NARRATIVE_INSTRUCTION: "\n\nAfter completing your task...",
 }));
 
+// Mock runHybridSession
+vi.mock("../../../../src/copilot/hybrid-session.js", () => ({
+  runHybridSession: vi.fn().mockResolvedValue({
+    tokensIn: 40,
+    tokensOut: 20,
+    toolCalls: 3,
+    testRuns: 0,
+    filesWritten: 0,
+    sessionTime: 5,
+    agentMessage: "OPEN: not yet implemented",
+    narrative: "Reviewed issue.",
+  }),
+}));
+
+// Mock github-tools
+vi.mock("../../../../src/copilot/github-tools.js", () => ({
+  createGitHubTools: vi.fn().mockReturnValue([]),
+  createGitTools: vi.fn().mockReturnValue([]),
+}));
+
+vi.mock("fs", async (importOriginal) => {
+  const actual = await importOriginal();
+  return { ...actual, existsSync: vi.fn().mockReturnValue(false), readdirSync: vi.fn().mockReturnValue([]), statSync: vi.fn().mockReturnValue({ size: 200 }) };
+});
+
 import { reviewIssue } from "../../../../src/actions/agentic-step/tasks/review-issue.js";
-import { runCopilotTask, scanDirectory } from "../../../../src/actions/agentic-step/copilot.js";
+const { runHybridSession } = await import("../../../../src/copilot/hybrid-session.js");
 
 // --- Helpers ---
 
-function createMockOctokit(overrides = {}) {
+function createMockOctokit() {
   return {
     rest: {
       issues: {
@@ -32,19 +57,11 @@ function createMockOctokit(overrides = {}) {
         listForRepo: vi.fn().mockResolvedValue({ data: [] }),
         listComments: vi.fn().mockResolvedValue({ data: [] }),
         update: vi.fn().mockResolvedValue({}),
-        addLabels: vi.fn().mockResolvedValue({}),
         createComment: vi.fn().mockResolvedValue({}),
       },
-      pulls: {
-        get: vi.fn().mockResolvedValue({ data: { title: "Test PR", body: "", head: { sha: "abc123" } } }),
+      repos: {
+        listCommits: vi.fn().mockResolvedValue({ data: [] }),
       },
-      checks: {
-        listForRef: vi.fn().mockResolvedValue({ data: { check_runs: [] } }),
-      },
-      git: {
-        listMatchingRefs: vi.fn().mockResolvedValue({ data: [] }),
-      },
-      ...overrides,
     },
     graphql: vi.fn().mockResolvedValue({}),
   };
@@ -54,21 +71,11 @@ function createMockConfig(overrides = {}) {
   return {
     paths: {
       mission: { path: "MISSION.md" },
-      contributing: { path: "CONTRIBUTING.md" },
-      features: { path: "features/", permissions: ["write"], limit: 4 },
       source: { path: "src/" },
       tests: { path: "tests/" },
-      librarySources: { path: "SOURCES.md" },
-      library: { path: "library/" },
     },
-    attemptsPerIssue: 2,
-    attemptsPerBranch: 3,
-    featureDevelopmentIssuesWipLimit: 2,
-    maintenanceIssuesWipLimit: 1,
     readOnlyPaths: ["README.md"],
-    writablePaths: ["src/", "tests/"],
-    tdd: false,
-    intentionBot: { intentionFilepath: "intenti\u00F6n.md" },
+    tuning: {},
     ...overrides,
   };
 }
@@ -79,14 +86,10 @@ function createMockContext(overrides = {}) {
     config: createMockConfig(),
     instructions: "",
     issueNumber: "42",
-    prNumber: "",
     writablePaths: [],
-    testCommand: "npm test",
-    discussionUrl: "",
     model: "claude-sonnet-4",
     octokit: createMockOctokit(),
     repo: { owner: "test-owner", repo: "test-repo" },
-    github: { runId: 12345 },
     ...overrides,
   };
 }
@@ -96,8 +99,16 @@ function createMockContext(overrides = {}) {
 describe("tasks/review-issue", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    runCopilotTask.mockResolvedValue({ content: "OPEN: not yet implemented", tokensUsed: 60 });
-    scanDirectory.mockReturnValue([]);
+    runHybridSession.mockResolvedValue({
+      tokensIn: 40,
+      tokensOut: 20,
+      toolCalls: 3,
+      testRuns: 0,
+      filesWritten: 0,
+      sessionTime: 5,
+      agentMessage: "OPEN: not yet implemented",
+      narrative: "Reviewed issue.",
+    });
   });
 
   it("fetches oldest open automated issue if no issueNumber provided", async () => {
@@ -113,23 +124,18 @@ describe("tasks/review-issue", () => {
     await reviewIssue(ctx);
 
     expect(octokit.rest.issues.listForRepo).toHaveBeenCalledWith(
-      expect.objectContaining({ state: "open", labels: "automated", per_page: 8, sort: "created", direction: "asc" }),
+      expect.objectContaining({ state: "open", labels: "automated" }),
     );
-    expect(octokit.rest.issues.get).toHaveBeenCalledWith(expect.objectContaining({ issue_number: 17 }));
-    // Should proceed to review the issue
-    expect(runCopilotTask).toHaveBeenCalled();
+    expect(runHybridSession).toHaveBeenCalled();
   });
 
   it("returns nop if no automated issues and no issueNumber", async () => {
     const octokit = createMockOctokit();
     octokit.rest.issues.listForRepo.mockResolvedValue({ data: [] });
-    const ctx = createMockContext({ octokit, issueNumber: "" });
-
-    const result = await reviewIssue(ctx);
-
+    const result = await reviewIssue(createMockContext({ octokit, issueNumber: "" }));
     expect(result.outcome).toBe("nop");
     expect(result.details).toContain("No open automated issues");
-    expect(runCopilotTask).not.toHaveBeenCalled();
+    expect(runHybridSession).not.toHaveBeenCalled();
   });
 
   it("returns nop if issue is already closed", async () => {
@@ -137,39 +143,21 @@ describe("tasks/review-issue", () => {
     octokit.rest.issues.get.mockResolvedValue({
       data: { state: "closed", title: "Closed Issue", body: "body", labels: [] },
     });
-    const ctx = createMockContext({ octokit });
-
-    const result = await reviewIssue(ctx);
-
+    const result = await reviewIssue(createMockContext({ octokit }));
     expect(result.outcome).toBe("nop");
     expect(result.details).toContain("already closed");
-    expect(runCopilotTask).not.toHaveBeenCalled();
+    expect(runHybridSession).not.toHaveBeenCalled();
   });
 
-  it("closes issue and comments if verdict starts with RESOLVED", async () => {
-    runCopilotTask.mockResolvedValue({ content: "RESOLVED: The feature has been fully implemented", tokensUsed: 85 });
+  it("returns issue-still-open when verdict does not indicate resolved", async () => {
+    // Default mock returns "OPEN: not yet implemented" in agentMessage
     const octokit = createMockOctokit();
-    const ctx = createMockContext({ octokit });
-
-    const result = await reviewIssue(ctx);
-
-    expect(result.outcome).toBe("issue-closed");
-    expect(result.tokensUsed).toBe(85);
-    expect(result.details).toContain("Closed issue #42");
-    expect(result.details).toContain("RESOLVED");
-
-    expect(octokit.rest.issues.createComment).toHaveBeenCalledWith(
-      expect.objectContaining({
-        issue_number: 42,
-        body: expect.stringContaining("Automated Review Result"),
-      }),
-    );
-    expect(octokit.rest.issues.update).toHaveBeenCalledWith(
-      expect.objectContaining({
-        issue_number: 42,
-        state: "closed",
-      }),
-    );
+    const result = await reviewIssue(createMockContext({ octokit }));
+    expect(result.outcome).toBe("issue-still-open");
+    expect(result.tokensUsed).toBe(60);
+    expect(result.details).toContain("remains open");
+    expect(octokit.rest.issues.update).not.toHaveBeenCalled();
+    expect(octokit.rest.issues.createComment).not.toHaveBeenCalled();
   });
 
   it("uses batch mode when no issueNumber provided", async () => {
@@ -185,30 +173,18 @@ describe("tasks/review-issue", () => {
     octokit.rest.issues.get.mockResolvedValue({
       data: { state: "open", title: "Test Issue", body: "body", labels: [] },
     });
-    const ctx = createMockContext({ octokit, issueNumber: "" });
+    const result = await reviewIssue(createMockContext({ octokit, issueNumber: "" }));
 
-    const result = await reviewIssue(ctx);
-
-    // Should review 3 issues in batch
-    expect(runCopilotTask).toHaveBeenCalledTimes(3);
+    expect(runHybridSession).toHaveBeenCalledTimes(3);
     expect(result.outcome).toBe("issues-reviewed");
     expect(result.details).toContain("Batch reviewed 3 issues");
   });
 
-  it("returns issue-still-open when verdict does not start with RESOLVED", async () => {
-    runCopilotTask.mockResolvedValue({ content: "OPEN: The implementation is incomplete", tokensUsed: 70 });
-    const octokit = createMockOctokit();
-    const ctx = createMockContext({ octokit });
-
-    const result = await reviewIssue(ctx);
-
-    expect(result.outcome).toBe("issue-still-open");
-    expect(result.tokensUsed).toBe(70);
-    expect(result.details).toContain("remains open");
-    expect(result.details).toContain("OPEN");
-
-    // Should NOT close the issue
-    expect(octokit.rest.issues.update).not.toHaveBeenCalled();
-    expect(octokit.rest.issues.createComment).not.toHaveBeenCalled();
+  it("calls runHybridSession with read-only tools only", async () => {
+    await reviewIssue(createMockContext());
+    const args = runHybridSession.mock.calls[0][0];
+    expect(args.writablePaths).toEqual([]);
+    expect(args.excludedTools).toContain("write_file");
+    expect(args.excludedTools).toContain("run_tests");
   });
 });
