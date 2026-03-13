@@ -44,7 +44,7 @@ function buildFileListing(dirPath, extension) {
  * @returns {Promise<Object>} Result with outcome, tokensUsed, model
  */
 export async function maintainFeatures(context) {
-  const { config, instructions, writablePaths, model, octokit, repo } = context;
+  const { config, instructions, writablePaths, model, octokit, repo, logFilePath, screenshotFilePath } = context;
   const t = config.tuning || {};
 
   // Check mission-complete signal (skip in maintenance mode)
@@ -99,6 +99,10 @@ export async function maintainFeatures(context) {
     return createGitHubTools(octokit, repo, defineTool, logger);
   };
 
+  const attachments = [];
+  if (logFilePath) attachments.push({ type: "file", path: logFilePath });
+  if (screenshotFilePath) attachments.push({ type: "file", path: screenshotFilePath });
+
   const result = await runHybridSession({
     workspacePath: process.cwd(),
     model,
@@ -107,6 +111,7 @@ export async function maintainFeatures(context) {
     userPrompt: prompt,
     writablePaths,
     createTools,
+    attachments,
     excludedTools: ["dispatch_workflow", "close_issue", "label_issue", "post_discussion_comment", "run_tests"],
     logger: { info: core.info, warning: core.warning, error: core.error, debug: core.debug },
   });

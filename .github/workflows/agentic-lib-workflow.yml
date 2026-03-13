@@ -590,12 +590,13 @@ jobs:
           fetch-depth: 0
           ref: ${{ inputs.ref || github.sha }}
 
-      - name: Fetch log from log branch
+      - name: Fetch log and screenshot from log branch
         env:
           LOG_FILE: ${{ needs.params.outputs.log-file }}
           LOG_BRANCH: ${{ needs.params.outputs.log-branch }}
+          SCREENSHOT_FILE: ${{ needs.params.outputs.screenshot-file }}
         run: |
-          for f in "${LOG_FILE}" "intention.md"; do
+          for f in "${LOG_FILE}" "intention.md" "${SCREENSHOT_FILE}"; do
             git show "origin/${LOG_BRANCH}:${f}" > "$f" 2>/dev/null || true
           done
 
@@ -726,12 +727,13 @@ jobs:
           fetch-depth: 0
           ref: ${{ needs.maintain.outputs.commit-sha || github.sha }}
 
-      - name: Fetch log from log branch
+      - name: Fetch log and screenshot from log branch
         env:
           LOG_FILE: ${{ needs.params.outputs.log-file }}
           LOG_BRANCH: ${{ needs.params.outputs.log-branch }}
+          SCREENSHOT_FILE: ${{ needs.params.outputs.screenshot-file }}
         run: |
-          for f in "${LOG_FILE}" "intention.md"; do
+          for f in "${LOG_FILE}" "intention.md" "${SCREENSHOT_FILE}"; do
             git show "origin/${LOG_BRANCH}:${f}" > "$f" 2>/dev/null || true
           done
 
@@ -786,12 +788,13 @@ jobs:
           fetch-depth: 0
           ref: ${{ needs.maintain.outputs.commit-sha || github.sha }}
 
-      - name: Fetch log from log branch
+      - name: Fetch log and screenshot from log branch
         env:
           LOG_FILE: ${{ needs.params.outputs.log-file }}
           LOG_BRANCH: ${{ needs.params.outputs.log-branch }}
+          SCREENSHOT_FILE: ${{ needs.params.outputs.screenshot-file }}
         run: |
-          for f in "${LOG_FILE}" "intention.md"; do
+          for f in "${LOG_FILE}" "intention.md" "${SCREENSHOT_FILE}"; do
             git show "origin/${LOG_BRANCH}:${f}" > "$f" 2>/dev/null || true
           done
 
@@ -1222,12 +1225,13 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           ref: ${{ needs.maintain.outputs.commit-sha || github.sha }}
 
-      - name: Fetch log from log branch
+      - name: Fetch log and screenshot from log branch
         env:
           LOG_FILE: ${{ needs.params.outputs.log-file }}
           LOG_BRANCH: ${{ needs.params.outputs.log-branch }}
+          SCREENSHOT_FILE: ${{ needs.params.outputs.screenshot-file }}
         run: |
-          for f in "${LOG_FILE}" "intention.md"; do
+          for f in "${LOG_FILE}" "intention.md" "${SCREENSHOT_FILE}"; do
             git show "origin/${LOG_BRANCH}:${f}" > "$f" 2>/dev/null || true
           done
 

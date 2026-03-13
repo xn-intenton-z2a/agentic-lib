@@ -40,7 +40,7 @@ function buildFileListing(dirPath, extensions) {
 /**
  * Review a single issue against the current codebase.
  */
-async function reviewSingleIssue({ octokit, repo, config, targetIssueNumber, instructions, model, tuning: t }) {
+async function reviewSingleIssue({ octokit, repo, config, targetIssueNumber, instructions, model, tuning: t, logFilePath, screenshotFilePath }) {
   const { data: issue } = await octokit.rest.issues.get({
     ...repo,
     issue_number: Number(targetIssueNumber),
@@ -109,6 +109,10 @@ async function reviewSingleIssue({ octokit, repo, config, targetIssueNumber, ins
     return [...ghTools, ...gitTools, reportVerdict];
   };
 
+  const attachments = [];
+  if (logFilePath) attachments.push({ type: "file", path: logFilePath });
+  if (screenshotFilePath) attachments.push({ type: "file", path: screenshotFilePath });
+
   const result = await runHybridSession({
     workspacePath: process.cwd(),
     model,
@@ -117,6 +121,7 @@ async function reviewSingleIssue({ octokit, repo, config, targetIssueNumber, ins
     userPrompt: prompt,
     writablePaths: [],
     createTools,
+    attachments,
     excludedTools: ["write_file", "run_command", "run_tests", "dispatch_workflow", "close_issue", "label_issue", "post_discussion_comment"],
     logger: { info: core.info, warning: core.warning, error: core.error, debug: core.debug },
   });
@@ -224,12 +229,12 @@ async function findUnreviewedIssues(octokit, repo, limit) {
  * @returns {Promise<Object>} Result with outcome, tokensUsed, model
  */
 export async function reviewIssue(context) {
-  const { octokit, repo, config, issueNumber, instructions, model } = context;
+  const { octokit, repo, config, issueNumber, instructions, model, logFilePath, screenshotFilePath } = context;
   const t = config.tuning || {};
 
   // Single issue mode
   if (issueNumber) {
-    return reviewSingleIssue({ octokit, repo, config, targetIssueNumber: issueNumber, instructions, model, tuning: t });
+    return reviewSingleIssue({ octokit, repo, config, targetIssueNumber: issueNumber, instructions, model, tuning: t, logFilePath, screenshotFilePath });
   }
 
   // Batch mode: find up to 3 unreviewed issues
@@ -246,7 +251,7 @@ export async function reviewIssue(context) {
   for (const num of issueNumbers) {
     core.info(`Batch reviewing issue #${num} (${results.length + 1}/${issueNumbers.length})`);
     const result = await reviewSingleIssue({
-      octokit, repo, config, targetIssueNumber: num, instructions, model, tuning: t,
+      octokit, repo, config, targetIssueNumber: num, instructions, model, tuning: t, logFilePath, screenshotFilePath,
     });
     results.push(result);
     totalTokens += result.tokensUsed || 0;

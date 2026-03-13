@@ -66,7 +66,7 @@ async function fetchDiscussion(octokit, discussionUrl, commentsLimit = 10) {
  * @returns {Promise<Object>} Result with outcome, action, tokensUsed, model
  */
 export async function discussions(context) {
-  const { octokit, model, discussionUrl, repo, config } = context;
+  const { octokit, model, discussionUrl, repo, config, logFilePath, screenshotFilePath } = context;
   const t = config?.tuning || {};
 
   if (!discussionUrl) {
@@ -279,6 +279,10 @@ export async function discussions(context) {
   };
 
   // ── Run hybrid session ───────────────────────────────────────────
+  const attachments = [];
+  if (logFilePath) attachments.push({ type: "file", path: logFilePath });
+  if (screenshotFilePath) attachments.push({ type: "file", path: screenshotFilePath });
+
   const result = await runHybridSession({
     workspacePath: process.cwd(),
     model,
@@ -287,6 +291,7 @@ export async function discussions(context) {
     userPrompt: prompt,
     writablePaths: [],
     createTools,
+    attachments,
     excludedTools: ["write_file", "run_command", "run_tests", "dispatch_workflow"],
     logger: { info: core.info, warning: core.warning, error: core.error, debug: core.debug },
   });

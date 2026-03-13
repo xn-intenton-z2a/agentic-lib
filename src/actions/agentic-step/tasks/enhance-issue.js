@@ -30,7 +30,7 @@ function listFiles(dirPath, extension) {
 /**
  * Enhance a single GitHub issue with testable acceptance criteria.
  */
-async function enhanceSingleIssue({ octokit, repo, config, issueNumber, instructions, model, tuning: t }) {
+async function enhanceSingleIssue({ octokit, repo, config, issueNumber, instructions, model, tuning: t, logFilePath, screenshotFilePath }) {
   if (await isIssueResolved(octokit, repo, issueNumber)) {
     return { outcome: "nop", details: `Issue #${issueNumber} already resolved` };
   }
@@ -97,6 +97,10 @@ async function enhanceSingleIssue({ octokit, repo, config, issueNumber, instruct
     return [...ghTools, reportEnhancedBody];
   };
 
+  const attachments = [];
+  if (logFilePath) attachments.push({ type: "file", path: logFilePath });
+  if (screenshotFilePath) attachments.push({ type: "file", path: screenshotFilePath });
+
   const result = await runHybridSession({
     workspacePath: process.cwd(),
     model,
@@ -105,6 +109,7 @@ async function enhanceSingleIssue({ octokit, repo, config, issueNumber, instruct
     userPrompt: prompt,
     writablePaths: [],
     createTools,
+    attachments,
     excludedTools: ["write_file", "run_command", "run_tests", "dispatch_workflow", "close_issue", "label_issue", "post_discussion_comment"],
     logger: { info: core.info, warning: core.warning, error: core.error, debug: core.debug },
   });
@@ -160,12 +165,12 @@ async function enhanceSingleIssue({ octokit, repo, config, issueNumber, instruct
  * @returns {Promise<Object>} Result with outcome, tokensUsed, model
  */
 export async function enhanceIssue(context) {
-  const { octokit, repo, config, issueNumber, instructions, model } = context;
+  const { octokit, repo, config, issueNumber, instructions, model, logFilePath, screenshotFilePath } = context;
   const t = config.tuning || {};
 
   // Single issue mode
   if (issueNumber) {
-    return enhanceSingleIssue({ octokit, repo, config, issueNumber, instructions, model, tuning: t });
+    return enhanceSingleIssue({ octokit, repo, config, issueNumber, instructions, model, tuning: t, logFilePath, screenshotFilePath });
   }
 
   // Batch mode: find up to 3 unready automated issues
@@ -198,6 +203,8 @@ export async function enhanceIssue(context) {
       instructions,
       model,
       tuning: t,
+      logFilePath,
+      screenshotFilePath,
     });
     results.push(result);
     totalTokens += result.tokensUsed || 0;

@@ -42,7 +42,7 @@ function buildFileListing(dirPath, extension) {
  * @returns {Promise<Object>} Result with outcome, tokensUsed, model
  */
 export async function maintainLibrary(context) {
-  const { config, instructions, writablePaths, model } = context;
+  const { config, instructions, writablePaths, model, logFilePath, screenshotFilePath } = context;
   const t = config.tuning || {};
 
   // Check mission-complete signal (skip in maintenance mode)
@@ -112,6 +112,10 @@ export async function maintainLibrary(context) {
     "You are a knowledge librarian. Maintain a library of technical documents extracted from web sources." +
     NARRATIVE_INSTRUCTION;
 
+  const attachments = [];
+  if (logFilePath) attachments.push({ type: "file", path: logFilePath });
+  if (screenshotFilePath) attachments.push({ type: "file", path: screenshotFilePath });
+
   const result = await runHybridSession({
     workspacePath: process.cwd(),
     model,
@@ -119,6 +123,7 @@ export async function maintainLibrary(context) {
     agentPrompt: systemPrompt,
     userPrompt: prompt,
     writablePaths,
+    attachments,
     excludedTools: ["dispatch_workflow", "close_issue", "label_issue", "post_discussion_comment", "run_tests"],
     logger: { info: core.info, warning: core.warning, error: core.error, debug: core.debug },
   });

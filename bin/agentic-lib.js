@@ -770,6 +770,7 @@ function initPurge(seedsDir, missionName, initTimestamp) {
     "zero-package.json": "package.json",
     "zero-README.md": "README.md",
     "zero-.gitignore": ".gitignore",
+    "zero-SCREENSHOT_INDEX.png": "SCREENSHOT_INDEX.png",
   };
   for (const [seedFile, targetRel] of Object.entries(SEED_MAP)) {
     const src = resolve(seedsDir, seedFile);

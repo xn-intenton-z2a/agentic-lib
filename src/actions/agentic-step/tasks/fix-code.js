@@ -42,7 +42,7 @@ function fetchRunLog(runId) {
 /**
  * Resolve merge conflicts on a PR using the Copilot SDK.
  */
-async function resolveConflicts({ config, pr, prNumber, instructions, model, writablePaths, testCommand, octokit, repo }) {
+async function resolveConflicts({ config, pr, prNumber, instructions, model, writablePaths, testCommand, octokit, repo, logFilePath, screenshotFilePath }) {
   const nonTrivialEnv = process.env.NON_TRIVIAL_FILES || "";
   const conflictedPaths = nonTrivialEnv
     .split("\n")
@@ -103,6 +103,10 @@ async function resolveConflicts({ config, pr, prNumber, instructions, model, wri
     return [...ghTools, ...gitTools];
   };
 
+  const attachments = [];
+  if (logFilePath) attachments.push({ type: "file", path: logFilePath });
+  if (screenshotFilePath) attachments.push({ type: "file", path: screenshotFilePath });
+
   const result = await runHybridSession({
     workspacePath: process.cwd(),
     model,
@@ -111,6 +115,7 @@ async function resolveConflicts({ config, pr, prNumber, instructions, model, wri
     userPrompt: prompt,
     writablePaths,
     createTools,
+    attachments,
     excludedTools: ["dispatch_workflow", "close_issue", "label_issue", "post_discussion_comment"],
     logger: { info: core.info, warning: core.warning, error: core.error, debug: core.debug },
   });
@@ -132,7 +137,7 @@ async function resolveConflicts({ config, pr, prNumber, instructions, model, wri
 /**
  * Fix a broken main branch build.
  */
-async function fixMainBuild({ config, runId, instructions, model, writablePaths, testCommand, octokit, repo }) {
+async function fixMainBuild({ config, runId, instructions, model, writablePaths, testCommand, octokit, repo, logFilePath, screenshotFilePath }) {
   const logContent = fetchRunLog(runId);
   if (!logContent) {
     core.info(`Could not fetch log for run ${runId}. Returning nop.`);
@@ -175,6 +180,10 @@ async function fixMainBuild({ config, runId, instructions, model, writablePaths,
     return [...ghTools, ...gitTools];
   };
 
+  const attachments = [];
+  if (logFilePath) attachments.push({ type: "file", path: logFilePath });
+  if (screenshotFilePath) attachments.push({ type: "file", path: screenshotFilePath });
+
   const result = await runHybridSession({
     workspacePath: process.cwd(),
     model,
@@ -183,6 +192,7 @@ async function fixMainBuild({ config, runId, instructions, model, writablePaths,
     userPrompt: prompt,
     writablePaths,
     createTools,
+    attachments,
     excludedTools: ["dispatch_workflow", "close_issue", "label_issue", "post_discussion_comment"],
     logger: { info: core.info, warning: core.warning, error: core.error, debug: core.debug },
   });
@@ -209,12 +219,12 @@ async function fixMainBuild({ config, runId, instructions, model, writablePaths,
  * @returns {Promise<Object>} Result with outcome, tokensUsed, model
  */
 export async function fixCode(context) {
-  const { octokit, repo, config, prNumber, instructions, writablePaths, testCommand, model } = context;
+  const { octokit, repo, config, prNumber, instructions, writablePaths, testCommand, model, logFilePath, screenshotFilePath } = context;
 
   // Fix main build (no PR involved)
   const fixRunId = process.env.FIX_RUN_ID || "";
   if (fixRunId && !prNumber) {
-    return fixMainBuild({ config, runId: fixRunId, instructions, model, writablePaths, testCommand, octokit, repo });
+    return fixMainBuild({ config, runId: fixRunId, instructions, model, writablePaths, testCommand, octokit, repo, logFilePath, screenshotFilePath });
   }
 
   if (!prNumber) {
@@ -226,7 +236,7 @@ export async function fixCode(context) {
 
   // If we have non-trivial conflict files from the workflow's Tier 1 step, resolve them
   if (process.env.NON_TRIVIAL_FILES) {
-    return resolveConflicts({ config, pr, prNumber, instructions, model, writablePaths, testCommand, octokit, repo });
+    return resolveConflicts({ config, pr, prNumber, instructions, model, writablePaths, testCommand, octokit, repo, logFilePath, screenshotFilePath });
   }
 
   // Otherwise, check for failing checks
@@ -286,6 +296,10 @@ export async function fixCode(context) {
     return [...ghTools, ...gitTools];
   };
 
+  const attachments = [];
+  if (logFilePath) attachments.push({ type: "file", path: logFilePath });
+  if (screenshotFilePath) attachments.push({ type: "file", path: screenshotFilePath });
+
   const result = await runHybridSession({
     workspacePath: process.cwd(),
     model,
@@ -294,6 +308,7 @@ export async function fixCode(context) {
     userPrompt: prompt,
     writablePaths,
     createTools,
+    attachments,
     excludedTools: ["dispatch_workflow", "close_issue", "label_issue", "post_discussion_comment"],
     logger: { info: core.info, warning: core.warning, error: core.error, debug: core.debug },
   });

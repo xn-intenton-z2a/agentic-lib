@@ -45,7 +45,7 @@ function buildFileListing(dirPath, extensions) {
  * @returns {Promise<Object>} Result with outcome, tokensUsed, model
  */
 export async function transform(context) {
-  const { config, instructions, writablePaths, testCommand, model, octokit, repo, issueNumber } = context;
+  const { config, instructions, writablePaths, testCommand, model, octokit, repo, issueNumber, logFilePath, screenshotFilePath } = context;
   const t = config.tuning || {};
 
   // Read mission (required)
@@ -130,12 +130,14 @@ export async function transform(context) {
 
   core.info(`Transform lean prompt length: ${prompt.length} chars`);
 
-  // ── Build attachments (mission + source directory) ─────────────────
+  // ── Build attachments (mission + log + screenshot) ─────────────────
   const attachments = [];
   const missionPath = resolve(config.paths.mission.path);
   if (existsSync(missionPath)) {
     attachments.push({ type: "file", path: missionPath });
   }
+  if (logFilePath) attachments.push({ type: "file", path: logFilePath });
+  if (screenshotFilePath) attachments.push({ type: "file", path: screenshotFilePath });
 
   // ── System prompt ──────────────────────────────────────────────────
   const systemPrompt =
