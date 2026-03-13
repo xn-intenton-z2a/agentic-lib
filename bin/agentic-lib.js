@@ -14,7 +14,7 @@
 //   npx @xn-intenton-z2a/agentic-lib maintain-library
 //   npx @xn-intenton-z2a/agentic-lib fix-code
 
-import { copyFileSync, existsSync, mkdirSync, rmSync, rmdirSync, readdirSync, readFileSync, writeFileSync } from "fs";
+import { copyFileSync, existsSync, mkdirSync, rmSync, rmdirSync, readdirSync, readFileSync, writeFileSync, unlinkSync } from "fs";
 import { applyDistTransform } from "../src/dist-transform.js";
 import { resolve, dirname, join } from "path";
 import { fileURLToPath } from "url";
@@ -784,6 +784,19 @@ function initPurge(seedsDir, missionName, initTimestamp) {
   if (existsSync(tomlSource)) {
     initTransformFile(tomlSource, resolve(target, "agentic-lib.toml"), "SEED: agentic-lib.toml (transformed)");
   }
+
+  // Clear agent log files (written by implementation-review and other tasks)
+  try {
+    const agentLogs = readdirSync(target).filter((f) => f.startsWith("agent-log-") && f.endsWith(".md"));
+    for (const f of agentLogs) {
+      console.log(`  DELETE: ${f} (agent log)`);
+      if (!dryRun) {
+        unlinkSync(resolve(target, f));
+      }
+      initChanges++;
+    }
+    if (agentLogs.length > 0) console.log(`  Cleared ${agentLogs.length} agent log file(s)`);
+  } catch { /* ignore — directory may not have agent logs */ }
 
   // Copy mission seed file as MISSION.md
   const missionsDir = resolve(seedsDir, "missions");
