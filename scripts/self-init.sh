@@ -31,15 +31,10 @@ for action_dir in "${SRC_DIR}/actions"/*/; do
   echo "  COPY: actions/${action_name}"
 done
 
-# 2. Agents → .github/agents/ (Copilot-discoverable location)
+# 2. Agents — already in .github/agents/ (no copy needed)
 echo ""
 echo "--- Agents ---"
-AGENTS_DIR="${REPO_ROOT}/.github/agents"
-mkdir -p "${AGENTS_DIR}"
-for f in "${SRC_DIR}/agents"/*.md; do
-  cp "$f" "${AGENTS_DIR}/$(basename "$f")"
-  echo "  COPY: agents/$(basename "$f")"
-done
+echo "  OK: agents already at .github/agents/"
 # Remove legacy agents directory if it exists
 if [ -d "${AGENTIC_DIR}/agents" ]; then
   rm -rf "${AGENTIC_DIR}/agents"

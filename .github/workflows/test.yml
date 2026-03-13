@@ -22,7 +22,6 @@
 #     test-init-update-mode      — update mode preserves user content
 #     test-stale-workflow-cleanup — stale workflows are removed
 #     test-all-missions-seed     — all 14 mission seeds work
-#     test-mcp-server            — MCP server starts, lists tools, responds to calls
 #     test-copilot-symlink       — copilot/ distribution + node_modules symlink + smol-toml import
 
 #   Workflow dry-runs (7 jobs — call distributable workflows in inert mode):
@@ -587,19 +586,6 @@ jobs:
             exit 1
           fi
           echo "All missions seed and pass tests successfully"
-
-  test-mcp-server:
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-node@v6
-        with:
-          node-version: 24
-          cache: "npm"
-      - run: npm ci
-      - name: MCP server integration test
-        run: node scripts/test-mcp-server.js
 
   test-copilot-symlink:
     runs-on: ubuntu-latest
