@@ -195,15 +195,13 @@ log-file = "intentïon.md"
 
 The `profile` setting controls all tuning defaults. Three profiles are built in:
 
-| Profile | Budget | Source scan | Issues | Best for |
-|---------|--------|-------------|--------|----------|
-| `min` | 4 cycles | 3 files, 1000 chars | 5, 14d stale | CI testing, quick validation |
-| `recommended` | 8 cycles | 10 files, 5000 chars | 20, 30d stale | Balanced cost/quality |
-| `max` | 32 cycles | 50 files, 20000 chars | 100, 90d stale | Complex missions |
+| Profile | Budget | Issues | Best for |
+|---------|--------|--------|----------|
+| `min` | 16 cycles | 5, 14d stale | CI testing, quick validation |
+| `recommended` | 32 cycles | 20, 30d stale | Balanced cost/quality |
+| `max` | 128 cycles | 100, 90d stale | Complex missions |
 
 Override individual knobs in `[tuning]` to deviate from a profile. Limits (`[limits]`) also scale with the profile.
-
-The legacy YAML config at `.github/agentic-lib/agents/agentic-lib.yml` is also supported as a fallback.
 
 ## The `agentic-step` Action
 

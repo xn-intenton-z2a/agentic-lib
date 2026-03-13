@@ -1250,7 +1250,7 @@ function runInit() {
   initWorkflows();
   initActions(agenticDir);
   initDirContents("copilot", resolve(agenticDir, "copilot"), "Copilot (shared modules)");
-  initDirContents("agents", resolve(target, ".github/agents"), "Agents", ["agentic-lib.yml"]);
+  initDirContents("agents", resolve(target, ".github/agents"), "Agents");
   // Remove stale legacy agents directory
   const legacyAgentsDir = resolve(agenticDir, "agents");
   if (existsSync(legacyAgentsDir)) {
