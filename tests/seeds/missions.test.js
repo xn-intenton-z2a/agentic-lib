@@ -12,18 +12,19 @@ const allFiles = readdirSync(MISSIONS_DIR)
 
 const EXPECTED_MISSIONS = [
   "1-dan-create-c64-emulator",
+  "1-dan-create-planning-engine",
   "1-kyu-create-ray-tracer",
-  "2-dan-create-agi",
+  "2-dan-create-self-hosted",
+  "2-kyu-create-markdown-compiler",
   "2-kyu-create-plot-code-lib",
-  "2-kyu-evaluate-markdown-compiler",
   "3-kyu-analyze-lunar-lander",
-  "3-kyu-evaluate-owl-ontology",
   "3-kyu-evaluate-time-series-lab",
   "4-kyu-analyze-json-schema-diff",
   "4-kyu-apply-cron-engine",
   "4-kyu-apply-dense-encoding",
+  "4-kyu-apply-owl-ontology",
+  "5-kyu-apply-ascii-face",
   "5-kyu-apply-string-utils",
-  "5-kyu-create-ascii-face",
   "6-kyu-understand-hamming-distance",
   "6-kyu-understand-roman-numerals",
   "7-kyu-understand-fizz-buzz",
@@ -33,23 +34,27 @@ const EXPECTED_MISSIONS = [
 
 const BOUNDED_MISSIONS = [
   "1-dan-create-c64-emulator",
+  "1-dan-create-planning-engine",
   "1-kyu-create-ray-tracer",
+  "2-dan-create-self-hosted",
+  "2-kyu-create-markdown-compiler",
   "2-kyu-create-plot-code-lib",
-  "2-kyu-evaluate-markdown-compiler",
   "3-kyu-analyze-lunar-lander",
+  "3-kyu-evaluate-time-series-lab",
+  "4-kyu-analyze-json-schema-diff",
   "4-kyu-apply-cron-engine",
   "4-kyu-apply-dense-encoding",
+  "4-kyu-apply-owl-ontology",
+  "5-kyu-apply-ascii-face",
   "5-kyu-apply-string-utils",
   "6-kyu-understand-hamming-distance",
   "6-kyu-understand-roman-numerals",
   "7-kyu-understand-fizz-buzz",
 ];
 
-const ONGOING_MISSIONS = ["3-kyu-evaluate-owl-ontology", "3-kyu-evaluate-time-series-lab"];
-
 describe("src/seeds/missions", () => {
-  it("has 18 mission files", () => {
-    expect(allFiles).toHaveLength(18);
+  it("has 19 mission files", () => {
+    expect(allFiles).toHaveLength(19);
   });
 
   it("contains all expected missions", () => {
@@ -69,13 +74,29 @@ describe("src/seeds/missions", () => {
       const content = readFileSync(join(MISSIONS_DIR, `${name}.md`), "utf8");
       expect(content).toContain("## Acceptance Criteria");
     });
+
+    it("has at least 3 acceptance criteria checkboxes", () => {
+      const content = readFileSync(join(MISSIONS_DIR, `${name}.md`), "utf8");
+      const checkboxes = (content.match(/- \[ \]/g) || []).length;
+      expect(checkboxes).toBeGreaterThanOrEqual(3);
+    });
   });
 
-  describe.each(ONGOING_MISSIONS)("%s is marked as ongoing", (name) => {
-    it("contains 'do not set schedule to off'", () => {
+  it("no bounded mission contains 'do not set schedule to off'", () => {
+    for (const name of BOUNDED_MISSIONS) {
       const content = readFileSync(join(MISSIONS_DIR, `${name}.md`), "utf8");
-      expect(content.toLowerCase()).toContain("do not set schedule to off");
-    });
+      expect(content.toLowerCase()).not.toContain("do not set schedule to off");
+    }
+  });
+
+  it("no mission above 7-kyu contains a 'Core Functions' section", () => {
+    const above7kyu = allFiles.filter(
+      (f) => !f.startsWith("7-kyu-") && !f.startsWith("8-kyu-"),
+    );
+    for (const filename of above7kyu) {
+      const content = readFileSync(join(MISSIONS_DIR, filename), "utf8");
+      expect(content).not.toContain("## Core Functions");
+    }
   });
 
   it("8-kyu-remember-empty.md is a blank template", () => {

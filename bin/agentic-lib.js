@@ -1186,14 +1186,44 @@ function initPurgeGitHub() {
         ghExec(`gh api repos/${repoSlug}/git/refs/heads/agentic-lib-logs -X DELETE`);
         console.log("  DELETE: existing agentic-lib-logs branch");
       } catch { /* branch may not exist */ }
-      // Create orphan agentic-lib-logs branch with an empty commit via the API
-      // First get the empty tree SHA
-      const emptyTree = JSON.parse(ghExec(`gh api repos/${repoSlug}/git/trees -X POST -f "tree[0][path]=.gitkeep" -f "tree[0][mode]=100644" -f "tree[0][type]=blob" -f "tree[0][content]="`));
+      // Create orphan agentic-lib-logs branch with initial state file
+      // C1: Include agentic-lib-state.toml with default state
+      const stateContent = [
+        "# agentic-lib-state.toml — Persistent state across workflow runs",
+        "# Written to the agentic-lib-logs branch by each agentic-step invocation",
+        "",
+        "[counters]",
+        "log-sequence = 0",
+        "cumulative-transforms = 0",
+        "cumulative-maintain-features = 0",
+        "cumulative-maintain-library = 0",
+        "cumulative-nop-cycles = 0",
+        "total-tokens = 0",
+        "",
+        "[budget]",
+        "transformation-budget-used = 0",
+        "transformation-budget-cap = 0",
+        "",
+        "[status]",
+        'mission-complete = false',
+        'mission-failed = false',
+        'mission-failed-reason = ""',
+        'last-transform-at = ""',
+        'last-non-nop-at = ""',
+        "",
+        "[schedule]",
+        'current = ""',
+        "auto-disabled = false",
+        'auto-disabled-reason = ""',
+        "",
+      ].join("\n");
+      const stateBlob = JSON.parse(ghExec(`gh api repos/${repoSlug}/git/blobs -X POST -f "content=${stateContent.replace(/"/g, '\\"')}" -f "encoding=utf-8"`));
+      const emptyTree = JSON.parse(ghExec(`gh api repos/${repoSlug}/git/trees -X POST -f "tree[0][path]=.gitkeep" -f "tree[0][mode]=100644" -f "tree[0][type]=blob" -f "tree[0][content]=" -f "tree[1][path]=agentic-lib-state.toml" -f "tree[1][mode]=100644" -f "tree[1][type]=blob" -f "tree[1][sha]=${stateBlob.sha}"`));
       const commitData = JSON.parse(ghExec(
         `gh api repos/${repoSlug}/git/commits -X POST -f "message=init agentic-lib-logs branch" -f "tree=${emptyTree.sha}"`,
       ));
       ghExec(`gh api repos/${repoSlug}/git/refs -X POST -f "ref=refs/heads/agentic-lib-logs" -f "sha=${commitData.sha}"`);
-      console.log("  CREATE: agentic-lib-logs orphan branch");
+      console.log("  CREATE: agentic-lib-logs orphan branch (with agentic-lib-state.toml)");
       initChanges++;
     } else {
       console.log("  CREATE: agentic-lib-logs orphan branch (dry run)");

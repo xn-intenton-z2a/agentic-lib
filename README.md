@@ -62,13 +62,12 @@ your-repo/
 │
 ├── .github/
 │   ├── workflows/                            # [INIT] 8 workflow files (always overwritten)
-│   │   ├── agent-flow-transform.yml          #   Core: transform code toward the mission
-│   │   ├── agent-flow-maintain.yml           #   Core: maintain features and library
-│   │   ├── agent-flow-review.yml             #   Core: review and close resolved issues
-│   │   ├── agent-flow-fix-code.yml           #   Core: fix failing tests
-│   │   ├── agent-discussions-bot.yml         #   Bot: respond to GitHub Discussions
-│   │   ├── agent-supervisor.yml              #   Supervisor: orchestrate the pipeline
-│   │   ├── ci-automerge.yml                  #   CI: auto-merge passing PRs
+│   │   ├── agentic-lib-workflow.yml           #   Core: supervisor + transform + maintain + review + dev
+│   │   ├── agentic-lib-bot.yml               #   Bot: respond to GitHub Discussions
+│   │   ├── agentic-lib-test.yml              #   CI: run unit + behaviour tests, dispatch fixes
+│   │   ├── agentic-lib-init.yml              #   Infra: init/purge, optional seed issues
+│   │   ├── agentic-lib-update.yml            #   Infra: update agentic-lib version
+│   │   ├── agentic-lib-schedule.yml          #   Infra: change supervisor schedule
 │   │   └── test.yml                          #   CI: run tests
 │   │
 │   └── agentic-lib/                          # [INIT] Internal infrastructure (always overwritten)
@@ -187,9 +186,19 @@ profile = "recommended"       # min | recommended | max
 # model = "gpt-5-mini"        # override model per-profile
 # transformation-budget = 8   # max code-changing cycles per run
 
+[mission-complete]
+min-resolved-issues = 2       # minimum closed-as-RESOLVED issues since init
+max-source-todos = 0          # max TODO comments allowed in ./src (0 = none)
+
 [bot]
-log-file = "intentïon.md"
+log-prefix = "agent-log-"
+log-branch = "agentic-lib-logs"
+screenshot-file = "SCREENSHOT_INDEX.png"
 ```
+
+### Persistent State
+
+The system maintains `agentic-lib-state.toml` on the `agentic-lib-logs` branch to track counters, budget, and status across workflow runs. This file is automatically created on `init --purge` and updated after each `agentic-step` invocation. It tracks cumulative transforms, token usage, consecutive nop cycles (for backoff), and mission status.
 
 ### Tuning Profiles
 
@@ -219,6 +228,7 @@ The core of the system is a single GitHub Action that handles all autonomous tas
 | `enhance-issue` | Add detail and acceptance criteria to issues |
 | `review-issue` | Review and close resolved issues |
 | `discussions` | Respond to GitHub Discussions |
+| `implementation-review` | Review implementation completeness against mission |
 
 Each task calls the GitHub Copilot SDK with context assembled from your repository (mission, code, tests, features) and writes changes back to the working tree. The supervisor can dispatch any of the other tasks via workflow dispatch.
 
@@ -321,19 +331,20 @@ The session uses SDK hooks for observability (tool call tracking, error recovery
 | `7-kyu-understand-fizz-buzz` | 7 kyu | Understand | Classic FizzBuzz |
 | `6-kyu-understand-hamming-distance` | 6 kyu | Understand | Hamming distance (strings + bits) |
 | `6-kyu-understand-roman-numerals` | 6 kyu | Understand | Roman numeral conversion |
-| `5-kyu-create-ascii-face` | 5 kyu | Create | ASCII face art |
+| `5-kyu-apply-ascii-face` | 5 kyu | Apply | ASCII face art |
 | `5-kyu-apply-string-utils` | 5 kyu | Apply | 10 string utility functions |
 | `4-kyu-apply-cron-engine` | 4 kyu | Apply | Cron expression parser |
 | `4-kyu-apply-dense-encoding` | 4 kyu | Apply | Dense binary encoding |
 | `4-kyu-analyze-json-schema-diff` | 4 kyu | Analyze | JSON Schema diff |
+| `4-kyu-apply-owl-ontology` | 4 kyu | Apply | OWL ontology processor |
 | `3-kyu-analyze-lunar-lander` | 3 kyu | Analyze | Lunar lander simulation |
 | `3-kyu-evaluate-time-series-lab` | 3 kyu | Evaluate | Time series analysis |
-| `3-kyu-evaluate-owl-ontology` | 3 kyu | Evaluate | OWL ontology processor |
-| `2-kyu-evaluate-markdown-compiler` | 2 kyu | Evaluate | Markdown compiler |
+| `2-kyu-create-markdown-compiler` | 2 kyu | Create | Markdown compiler |
 | `2-kyu-create-plot-code-lib` | 2 kyu | Create | Code visualization library |
 | `1-kyu-create-ray-tracer` | 1 kyu | Create | Ray tracer |
 | `1-dan-create-c64-emulator` | 1 dan | Create | C64 emulator |
-| `2-dan-create-agi` | 2 dan | Create | AGI vision |
+| `1-dan-create-planning-engine` | 1 dan | Create | Planning engine with POP and belief revision |
+| `2-dan-create-self-hosted` | 2 dan | Create | Self-hosting bootstrap tests |
 
 ### Running Local Benchmarks
 

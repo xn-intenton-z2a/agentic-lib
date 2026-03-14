@@ -51,7 +51,19 @@ env:
   gitUserName: "GitHub Actions[bot]"
 
 jobs:
+  params:
+    runs-on: ubuntu-latest
+    outputs:
+      bump-type: ${{ steps.resolve.outputs.bump-type }}
+    steps:
+      - id: resolve
+        uses: actions/github-script@v7
+        with:
+          script: |
+            core.setOutput('bump-type', context.payload.inputs?.['versionIncrement'] || 'patch');
+
   test:
+    needs: [params]
     runs-on: ubuntu-latest
     container: mcr.microsoft.com/playwright:v1.58.2-noble
     permissions:
@@ -73,8 +85,16 @@ jobs:
       - name: System test (init + unit + behaviour)
         run: bash scripts/system-test.sh --init-only --behaviour
 
+      - name: Job Summary
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const summary = `## Job: test\n| Key | Value |\n|-----|-------|\n| Status | ${context.job.status || 'completed'} |`;
+            core.summary.addRaw(summary).write();
+
   publish:
-    needs: test
+    needs: [params, test]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -173,3 +193,11 @@ jobs:
         run: |
           echo "Released: ${{ steps.released.outputs.releasedVersion || 'prerelease only' }}"
           echo "Next: ${{ steps.rotated.outputs.newVersion }}"
+
+      - name: Job Summary
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const summary = `## Job: publish\n| Key | Value |\n|-----|-------|\n| Status | ${context.job.status || 'completed'} |\n| Released Version | ${{ steps.released.outputs.releasedVersion || 'N/A' }} |\n| Next Version | ${{ steps.rotated.outputs.newVersion || 'N/A' }} |\n| Bump Type | ${{ inputs.versionIncrement || 'patch' }} |`;
+            core.summary.addRaw(summary).write();
