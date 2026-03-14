@@ -163,10 +163,10 @@ describe("config-loader", () => {
 
     it("parses bot config", () => {
       const configPath = join(tmpDir, "config.toml");
-      writeFileSync(configPath, '[bot]\nlog-file = "log.md"\n');
+      writeFileSync(configPath, '[bot]\nlog-prefix = "my-log-"\n');
 
       const config = loadConfig(configPath);
-      expect(config.intentionBot.intentionFilepath).toBe("log.md");
+      expect(config.intentionBot.logPrefix).toBe("my-log-");
     });
 
     it("reads tdd flag", () => {
