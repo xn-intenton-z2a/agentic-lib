@@ -48,9 +48,25 @@ Run scenarios in this order (each builds evidence for the next):
 
 Stop early if a scenario exceeds 2 hours wall clock or exhausts its budget.
 
+## Monitoring
+
+All monitoring follows ITERATION_BENCHMARKS_SIMPLE.md Step 3. The primary sources of truth are:
+
+1. **State file** (`agentic-lib-state.toml` on `agentic-lib-logs` branch) — cumulative counters, budget tracking, mission status
+2. **Agent log files** (`agent-log-*-NNN.md` on `agentic-lib-logs` branch) — per-task metrics, narratives, sequence numbers
+3. **Screenshot** (`SCREENSHOT_INDEX.png` on `agentic-lib-logs` branch) — visual state of the deployed website after each test cycle
+4. **Live website** (`https://xn-intenton-z2a.github.io/repository0/`) — front-end assessment: does the page render, does it include mission-specific content
+
+For advanced scenarios (3-1 kyu), additionally watch for:
+- **Multi-file source growth** — complex missions may produce code across multiple files, not just `src/lib/main.js`
+- **Convergence stalls** — harder missions may get stuck in code/test mismatch loops visible as rising `cumulative-nop-cycles` in the state file
+- **Token consumption scaling** — compare `total-tokens` across kyu levels to understand cost scaling
+- **Website complexity** — do harder missions produce richer front-end experiences? Compare screenshots across scenarios
+
 ## Notes
 
-- All scenarios use `schedule=off` and manual dispatch (same as ITERATION_BENCHMARKS.md)
+- All scenarios use `schedule=off` and manual dispatch (same as ITERATION_BENCHMARKS_SIMPLE.md)
 - For max profile scenarios, the init workflow does not set the profile in toml — set it manually after init via the GitHub Contents API (see Report 005 FINDING-4)
-- Record the same data points as ITERATION_BENCHMARKS.md Step 3
-- Use the same report template from ITERATION_BENCHMARKS.md
+- Record the same data points as ITERATION_BENCHMARKS_SIMPLE.md Step 3 (including state file, logs, screenshot, and website)
+- Use the same report template from ITERATION_BENCHMARKS_SIMPLE.md
+- Include screenshots and website assessment in each scenario's report section

@@ -1199,6 +1199,7 @@ function initPurgeGitHub() {
         "cumulative-maintain-library = 0",
         "cumulative-nop-cycles = 0",
         "total-tokens = 0",
+        "total-duration-ms = 0",
         "",
         "[budget]",
         "transformation-budget-used = 0",

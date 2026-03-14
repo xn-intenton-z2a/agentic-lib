@@ -141,7 +141,63 @@ gh workflow run agentic-lib-schedule -R xn-intenton-z2a/repository0 \
 
 ### Step 3: Monitor iterations
 
-For each iteration, record these data points:
+For each iteration, collect data from these sources. The **primary** source of truth is the persistent state file and individual agent log files on the `agentic-lib-logs` branch — these contain accurate cumulative metrics. The GitHub API provides supplementary context (issues, PRs, source code).
+
+#### 3a: Read the persistent state file
+
+The state file tracks cumulative counters across all workflow runs:
+
+```bash
+# Read agentic-lib-state.toml from the logs branch
+gh api "repos/xn-intenton-z2a/repository0/contents/agentic-lib-state.toml" \
+  --jq '.content' -H "Accept: application/vnd.github.v3+json" \
+  --method GET -f ref=agentic-lib-logs | base64 -d
+```
+
+Key fields: `log-sequence` (total tasks executed), `cumulative-transforms`, `total-tokens`, `total-duration-ms`, `transformation-budget-used`/`cap`, `mission-complete`, `mission-failed`.
+
+#### 3b: Read individual agent log files
+
+Each agentic-step invocation writes a standalone log file with a sequence number. List all logs, then read the latest:
+
+```bash
+# List all log files on the logs branch
+gh api repos/xn-intenton-z2a/repository0/git/trees/agentic-lib-logs \
+  -q '.tree[].path' | grep '^agent-log-' | sort
+
+# Read the latest log file (replace FILENAME with the last entry)
+gh api "repos/xn-intenton-z2a/repository0/contents/FILENAME" \
+  --jq '.content' -H "Accept: application/vnd.github.v3+json" \
+  --method GET -f ref=agentic-lib-logs | base64 -d
+```
+
+Each log contains: Sequence, Task, Outcome, Model, Tokens, Duration, Mission Metrics table (with per-task and cumulative values), and a Narrative.
+
+#### 3c: Download and view the screenshot
+
+The `SCREENSHOT_INDEX.png` on the logs branch is a Playwright screenshot of the deployed website after each test cycle:
+
+```bash
+# Download the screenshot for visual inspection
+gh api "repos/xn-intenton-z2a/repository0/contents/SCREENSHOT_INDEX.png" \
+  --jq '.content' -H "Accept: application/vnd.github.v3+json" \
+  --method GET -f ref=agentic-lib-logs | base64 -d > /tmp/screenshot.png
+```
+
+The operator should view this image (use the Read tool on the downloaded file) to assess the website's visual state — does it render correctly? Does it show the mission-specific content?
+
+#### 3d: Fetch the live website
+
+The repository's GitHub Pages deployment is the user-facing product. Fetch it to assess the front-end:
+
+```bash
+# Fetch the live website HTML
+curl -sL https://xn-intenton-z2a.github.io/repository0/ > /tmp/website.html
+```
+
+Check: Does the page load? Does it contain mission-specific content (function demos, interactive elements)? Does it match the screenshot?
+
+#### 3e: GitHub API context (supplementary)
 
 ```bash
 # Latest workflow runs
@@ -191,7 +247,7 @@ An iteration is complete when one of:
 
 ### Step 5: Verify acceptance criteria
 
-For each acceptance criterion in the mission seed, verify the final codebase:
+For each acceptance criterion in the mission seed, verify the final codebase, website, and screenshot:
 
 ```bash
 # Read source to check function exports
@@ -205,7 +261,17 @@ gh api repos/xn-intenton-z2a/repository0/contents/tests/unit \
 # Read README
 gh api repos/xn-intenton-z2a/repository0/contents/README.md \
   -q '.content' | base64 -d | head -50
+
+# Download and view the final screenshot
+gh api "repos/xn-intenton-z2a/repository0/contents/SCREENSHOT_INDEX.png" \
+  --jq '.content' -H "Accept: application/vnd.github.v3+json" \
+  --method GET -f ref=agentic-lib-logs | base64 -d > /tmp/screenshot-final.png
+
+# Fetch the live website for front-end verification
+curl -sL https://xn-intenton-z2a.github.io/repository0/ > /tmp/website-final.html
 ```
+
+**Include in the report:** A description of the screenshot (what's visible, any rendering issues) and a summary of the website HTML content (does it include mission-specific elements like function demos, interactive widgets, or documentation).
 
 ### Step 6: Stop the schedule
 
@@ -272,6 +338,18 @@ Use this template exactly for consistency across reports:
 |-------|-------|-------|
 | #N | open/closed | title |
 
+### State File (final)
+
+```toml
+# Paste the final agentic-lib-state.toml contents here
+```
+
+### Website & Screenshot
+
+**Screenshot:** Description of the SCREENSHOT_INDEX.png — what is visible, does the page render correctly, any visual issues.
+
+**Website (GitHub Pages):** Summary of the live website HTML. Does it contain mission-specific content? Interactive elements? Function demos? Does it match the screenshot?
+
 ### Scenario Summary
 
 | Metric | Value |
@@ -284,6 +362,8 @@ Use this template exactly for consistency across reports:
 | Acceptance criteria | N/M PASS |
 | Mission complete | YES / NO |
 | Time (init to outcome) | ~Xmin |
+| Total tokens | N (from state file) |
+| Total duration | Ns (from state file) |
 
 ---
 
@@ -329,9 +409,11 @@ These are the known patterns to look for and report on:
 2. **Mission failed declaration** — Does the supervisor detect budget exhaustion or stuck pipeline and use `mission-failed`?
 3. **Issue churn** — Are near-identical issues created each cycle? The dedup guard should prevent this.
 4. **Test/code consistency** — Do tests match the implementation? Does the pre-merge test gate catch mismatches?
-5. **Transformation budget tracking** — Does the activity log show accurate cumulative cost (not `0/32`)?
-6. **Recently-closed issues in context** — Does the supervisor see them and avoid re-creating resolved issues?
-7. **Discussions bot actions** — If the bot is tested, does it execute create-issue, request-supervisor, stop?
-8. **Limits accuracy** — Are the `?` placeholders replaced with actual counts in the activity log?
-9. **Profile impact** — How does min vs recommended vs max affect outcome quality and iteration count?
-10. **Model impact** — How do different models compare on the same mission?
+5. **State file accuracy** — Does `agentic-lib-state.toml` on the `agentic-lib-logs` branch show correct cumulative values? Does `log-sequence` increment across iterations? Do transforms, tokens, and duration accumulate correctly?
+6. **Agent log quality** — Do individual agent-log files contain meaningful narratives? Are sequence numbers sequential? Do Mission Metrics tables show both per-task and cumulative values?
+7. **Recently-closed issues in context** — Does the supervisor see them and avoid re-creating resolved issues?
+8. **Discussions bot actions** — If the bot is tested, does it execute create-issue, request-supervisor, stop?
+9. **Screenshot assessment** — Does `SCREENSHOT_INDEX.png` show a functional website? Does it reflect the mission's implemented features? Compare across iterations for visual regression.
+10. **Website front-end** — Does the GitHub Pages deployment render correctly? Does it include mission-specific interactive content (function demos, forms, visualizations)?
+11. **Profile impact** — How does min vs recommended vs max affect outcome quality and iteration count?
+12. **Model impact** — How do different models compare on the same mission?
