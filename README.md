@@ -62,13 +62,12 @@ your-repo/
 │
 ├── .github/
 │   ├── workflows/                            # [INIT] 8 workflow files (always overwritten)
-│   │   ├── agent-flow-transform.yml          #   Core: transform code toward the mission
-│   │   ├── agent-flow-maintain.yml           #   Core: maintain features and library
-│   │   ├── agent-flow-review.yml             #   Core: review and close resolved issues
-│   │   ├── agent-flow-fix-code.yml           #   Core: fix failing tests
-│   │   ├── agent-discussions-bot.yml         #   Bot: respond to GitHub Discussions
-│   │   ├── agent-supervisor.yml              #   Supervisor: orchestrate the pipeline
-│   │   ├── ci-automerge.yml                  #   CI: auto-merge passing PRs
+│   │   ├── agentic-lib-workflow.yml           #   Core: supervisor + transform + maintain + review + dev
+│   │   ├── agentic-lib-bot.yml               #   Bot: respond to GitHub Discussions
+│   │   ├── agentic-lib-test.yml              #   CI: run unit + behaviour tests, dispatch fixes
+│   │   ├── agentic-lib-init.yml              #   Infra: init/purge, optional seed issues
+│   │   ├── agentic-lib-update.yml            #   Infra: update agentic-lib version
+│   │   ├── agentic-lib-schedule.yml          #   Infra: change supervisor schedule
 │   │   └── test.yml                          #   CI: run tests
 │   │
 │   └── agentic-lib/                          # [INIT] Internal infrastructure (always overwritten)
@@ -187,9 +186,19 @@ profile = "recommended"       # min | recommended | max
 # model = "gpt-5-mini"        # override model per-profile
 # transformation-budget = 8   # max code-changing cycles per run
 
+[mission-complete]
+min-resolved-issues = 2       # minimum closed-as-RESOLVED issues since init
+max-source-todos = 0          # max TODO comments allowed in ./src (0 = none)
+
 [bot]
-log-file = "intentïon.md"
+log-prefix = "agent-log-"
+log-branch = "agentic-lib-logs"
+screenshot-file = "SCREENSHOT_INDEX.png"
 ```
+
+### Persistent State
+
+The system maintains `agentic-lib-state.toml` on the `agentic-lib-logs` branch to track counters, budget, and status across workflow runs. This file is automatically created on `init --purge` and updated after each `agentic-step` invocation. It tracks cumulative transforms, token usage, consecutive nop cycles (for backoff), and mission status.
 
 ### Tuning Profiles
 
@@ -219,6 +228,7 @@ The core of the system is a single GitHub Action that handles all autonomous tas
 | `enhance-issue` | Add detail and acceptance criteria to issues |
 | `review-issue` | Review and close resolved issues |
 | `discussions` | Respond to GitHub Discussions |
+| `implementation-review` | Review implementation completeness against mission |
 
 Each task calls the GitHub Copilot SDK with context assembled from your repository (mission, code, tests, features) and writes changes back to the working tree. The supervisor can dispatch any of the other tasks via workflow dispatch.
 

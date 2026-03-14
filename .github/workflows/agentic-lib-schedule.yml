@@ -79,7 +79,26 @@ permissions:
   contents: write
 
 jobs:
+  params:
+    runs-on: ubuntu-latest
+    outputs:
+      frequency: ${{ steps.resolve.outputs.frequency }}
+      model: ${{ steps.resolve.outputs.model }}
+      profile: ${{ steps.resolve.outputs.profile }}
+      maintenance: ${{ steps.resolve.outputs.maintenance }}
+    steps:
+      - id: resolve
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const frequency = context.payload.inputs?.['frequency'] || 'off';
+            core.setOutput('frequency', frequency);
+            core.setOutput('model', context.payload.inputs?.['model'] || '');
+            core.setOutput('profile', context.payload.inputs?.['profile'] || '');
+            core.setOutput('maintenance', frequency === 'maintenance' ? 'true' : 'false');
+
   update-schedule:
+    needs: [params]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -261,3 +280,11 @@ jobs:
               exit 1
             fi
           done
+
+      - name: Job Summary
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const summary = `## Job: update-schedule\n| Key | Value |\n|-----|-------|\n| Status | ${context.job.status || 'completed'} |\n| Frequency | ${{ inputs.frequency }} |\n| Model | ${{ inputs.model || 'default' }} |\n| Profile | ${{ inputs.profile || 'default' }} |`;
+            core.summary.addRaw(summary).write();

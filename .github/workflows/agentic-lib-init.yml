@@ -44,6 +44,10 @@ on:
         type: string
         required: false
         default: ""
+      create-seed-issues:
+        type: string
+        required: false
+        default: "false"
   workflow_dispatch:
     inputs:
       mode:
@@ -121,13 +125,38 @@ on:
           - min
           - recommended
           - max
+      create-seed-issues:
+        description: "Create initial seed issues after purge"
+        type: boolean
+        required: false
+        default: false
 
 permissions: write-all
 
 jobs:
+  params:
+    runs-on: ubuntu-latest
+    outputs:
+      dry-run: ${{ steps.resolve.outputs.dry-run }}
+      mission: ${{ steps.resolve.outputs.mission }}
+      profile: ${{ steps.resolve.outputs.profile }}
+      model: ${{ steps.resolve.outputs.model }}
+      create-seed-issues: ${{ steps.resolve.outputs.create-seed-issues }}
+    steps:
+      - id: resolve
+        uses: actions/github-script@v7
+        with:
+          script: |
+            core.setOutput('dry-run', context.payload.inputs?.['dry-run'] || 'false');
+            core.setOutput('mission', context.payload.inputs?.['mission-seed'] || '6-kyu-understand-hamming-distance');
+            core.setOutput('profile', context.payload.inputs?.['profile'] || '');
+            core.setOutput('model', context.payload.inputs?.['model'] || '');
+            core.setOutput('create-seed-issues', context.payload.inputs?.['create-seed-issues'] || 'false');
+
   # Step 1: Update agentic-lib and infrastructure (commits to main)
   # Skip tests when purge/reseed will replace all user code anyway
   update:
+    needs: [params]
     uses: ./.github/workflows/agentic-lib-update.yml
     with:
       ref: ${{ inputs.ref }}
@@ -138,7 +167,7 @@ jobs:
   # Step 2: Reseed/purge and configure (only if mode != update)
   # Use !cancelled() so purge runs even if update's npm test failed
   init:
-    needs: update
+    needs: [params, update]
     if: "!cancelled() && (inputs.mode == 'reseed' || inputs.mode == 'purge')"
     runs-on: ubuntu-latest
     env:
@@ -325,7 +354,7 @@ jobs:
           done
 
       - name: Create initial seed issues
-        if: github.repository != 'xn-intenton-z2a/agentic-lib' && env.INIT_MODE == 'purge' && inputs.dry-run != 'true' && inputs.dry-run != true
+        if: github.repository != 'xn-intenton-z2a/agentic-lib' && env.INIT_MODE == 'purge' && inputs.dry-run != 'true' && inputs.dry-run != true && (inputs.create-seed-issues == 'true' || inputs.create-seed-issues == true)
         uses: actions/github-script@v8
         with:
           script: |
@@ -375,3 +404,11 @@ jobs:
               labels: ['automated', 'ready'],
             });
             core.info(`Created issue #${issue2.number}: Initial web layout`);
+
+      - name: Job Summary
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const summary = `## Job: init\n| Key | Value |\n|-----|-------|\n| Status | ${context.job.status || 'completed'} |\n| Mode | ${{ inputs.mode }} |\n| Dry Run | ${{ inputs.dry-run }} |\n| Create Seed Issues | ${{ inputs.create-seed-issues }} |`;
+            core.summary.addRaw(summary).write();

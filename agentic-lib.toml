@@ -110,8 +110,8 @@ library-limit = 64                     # max library entries in library/ directo
 # Thresholds for deterministic mission-complete declaration.
 # All conditions must be met simultaneously.
 min-resolved-issues = 2            # minimum closed-as-RESOLVED issues since init
-min-dedicated-tests = 0            # minimum test files that import from src/lib/
 max-source-todos = 0               # max TODO comments allowed in ./src (0 = none)
+# C6: Removed min-dedicated-tests (replaced by cumulative transforms and acceptance criteria)
 
 [bot]
 log-prefix = "tmp/agent-log-"                  #@dist "agent-log-"

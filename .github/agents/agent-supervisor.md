@@ -116,6 +116,30 @@ Also check for notable progress worth reporting:
 
 When notable progress exists or there are unresponded referrals, use `respond:discussions | message: <status update> | discussion-url: <url>` to post an update. Keep it concise — 2-3 sentences summarising what happened and what's next.
 
+## Discussion Updates
+
+Post to the active discussion thread when:
+- A transform PR has been merged (summarize changes)
+- 5+ consecutive nop cycles indicate stagnation (ask for help)
+- A user's discussion request has been addressed (confirm completion)
+- Mission complete or mission failed is declared (summarize outcome)
+
+Use `respond:discussions | message: <text> | discussion-url: <url>` for each post.
+Do NOT post routine status updates — only post on significant events.
+
+## Feature Spec to Issue Pipeline
+
+When feature specs exist in `features/` but no open issues reference them:
+1. Read the feature spec's acceptance criteria
+2. Cross-reference with implemented code and existing tests
+3. If acceptance criteria are unmet, create an issue from the feature spec
+4. Include the feature spec's acceptance criteria in the issue body
+5. Label with `automated`, `ready`, and `feature`
+
+Priority: Create issues for feature specs whose acceptance criteria most directly
+advance the MISSION.md goals. Don't create issues for all specs at once — respect
+the WIP limit.
+
 ## Guidelines
 
 - Pick multiple actions when appropriate — concurrent work is encouraged.
