@@ -652,20 +652,6 @@ jobs:
           echo "featuresWritablePaths=${FEATURES}" >> $GITHUB_OUTPUT
           echo "libraryWritablePaths=${LIBRARY};${SOURCES}" >> $GITHUB_OUTPUT
 
-      - name: Maintain features
-        id: maintain-features
-        if: steps.mission-check.outputs.mission-complete != 'true'
-        uses: ./.github/agentic-lib/actions/agentic-step
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
-        with:
-          task: "maintain-features"
-          config: ${{ needs.params.outputs.config-path }}
-          instructions: ".github/agents/agent-maintain-features.md"
-          writable-paths: ${{ steps.config.outputs.featuresWritablePaths }}
-          model: ${{ needs.params.outputs.model }}
-
       - name: Maintain library
         id: maintain-library
         if: steps.mission-check.outputs.mission-complete != 'true'
@@ -678,6 +664,20 @@ jobs:
           config: ${{ needs.params.outputs.config-path }}
           instructions: ".github/agents/agent-maintain-library.md"
           writable-paths: ${{ steps.config.outputs.libraryWritablePaths }}
+          model: ${{ needs.params.outputs.model }}
+
+      - name: Maintain features
+        id: maintain-features
+        if: steps.mission-check.outputs.mission-complete != 'true'
+        uses: ./.github/agentic-lib/actions/agentic-step
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
+        with:
+          task: "maintain-features"
+          config: ${{ needs.params.outputs.config-path }}
+          instructions: ".github/agents/agent-maintain-features.md"
+          writable-paths: ${{ steps.config.outputs.featuresWritablePaths }}
           model: ${{ needs.params.outputs.model }}
 
       - name: Log narrative thread
