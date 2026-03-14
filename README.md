@@ -343,6 +343,8 @@ The session uses SDK hooks for observability (tool call tracking, error recovery
 | `2-kyu-create-plot-code-lib` | 2 kyu | Create | Code visualization library |
 | `1-kyu-create-ray-tracer` | 1 kyu | Create | Ray tracer |
 | `1-dan-create-c64-emulator` | 1 dan | Create | C64 emulator |
+| `1-dan-create-planning-engine` | 1 dan | Create | Planning engine with POP and belief revision |
+| `2-dan-create-self-hosted` | 2 dan | Create | Self-hosting bootstrap tests |
 
 ### Running Local Benchmarks
 

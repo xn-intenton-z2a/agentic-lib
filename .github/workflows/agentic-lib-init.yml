@@ -87,6 +87,8 @@ on:
           - 2-kyu-create-plot-code-lib
           - 1-kyu-create-ray-tracer
           - 1-dan-create-c64-emulator
+          - 1-dan-create-planning-engine
+          - 2-dan-create-self-hosted
       mission-text:
         description: "Freeform mission text for MISSION.md (overrides mission-seed if provided)"
         type: string

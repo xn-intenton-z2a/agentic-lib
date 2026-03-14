@@ -20,12 +20,35 @@ The library should progressively implement:
 - Configurable resolution and ray depth
 - Deterministic output: all random sampling must use a seeded PRNG. Given the same scene JSON, output must be byte-identical across runs.
 
+## Scene JSON Structure
+
+The scene description format must support at minimum:
+
+```json
+{
+  "camera": { "position": [0,2,-5], "lookAt": [0,0,0], "fov": 60 },
+  "lights": [{ "position": [5,10,-5], "color": [1,1,1] }],
+  "objects": [
+    { "type": "sphere", "center": [0,1,0], "radius": 1, "material": { "color": [1,0,0], "reflective": 0.3 } },
+    { "type": "plane", "normal": [0,1,0], "d": 0, "material": { "color": [0.5,0.5,0.5] } }
+  ]
+}
+```
+
+## Requirements
+
+- Export all public API as named exports from `src/lib/main.js`.
+- No external runtime dependencies.
+- Comprehensive unit tests verifying ray-sphere intersection, reflection vectors, and Snell's law.
+- A sample scene JSON file included in `docs/examples/`.
+- README with rendering examples and scene format documentation.
+
 ## Acceptance Criteria
 
-- [ ] `renderScene(scene)` returns a PPM string for a given scene description
-- [ ] `parseScene(json)` loads a scene from a JSON string
+- [ ] Rendering a scene from JSON returns a PPM string
+- [ ] Parsing a scene JSON string returns a usable scene object
 - [ ] Renders a scene with 3+ spheres, a plane, and a point light in under 30 seconds (640x480)
 - [ ] At least one sphere is reflective and one is refractive
 - [ ] Unit tests verify ray-sphere intersection, reflection vectors, and Snell's law
-- [ ] A sample scene JSON file is included in `docs/examples/` with the structure: `{ camera: { position, lookAt, fov }, lights: [{ position, color }], objects: [{ type, center/normal, radius, material }] }`
+- [ ] A sample scene JSON file is included in `docs/examples/`
 - [ ] Output PPM can be viewed in any image viewer (validated by checking header format)

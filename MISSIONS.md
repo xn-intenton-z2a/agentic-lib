@@ -1,6 +1,6 @@
 # Missions
 
-The 17 mission files in `src/seeds/missions/` drive autonomous code evolution benchmarks. An AI agent reads a mission, generates code in `src/lib/main.js`, writes tests, and iterates until acceptance criteria pass or budget is exhausted. Missions are benchmarked via:
+The 19 mission files in `src/seeds/missions/` drive autonomous code evolution benchmarks. An AI agent reads a mission, generates code in `src/lib/main.js`, writes tests, and iterates until acceptance criteria pass or budget is exhausted. Missions are benchmarked via:
 
 - **ITERATION_BENCHMARKS_SIMPLE.md** (S1-S6): 7-kyu and 6-kyu missions
 - **ITERATION_BENCHMARKS_ADVANCED.md** (A1-A9): 3-kyu through 1-kyu missions
@@ -14,6 +14,13 @@ Mission filenames encode two dimensions:
 - **Bloom's taxonomy verb** ([cognitive levels](https://en.wikipedia.org/wiki/Bloom%27s_taxonomy)): remember < understand < apply < analyze < evaluate < create
 
 Format: `<difficulty>-<bloom-verb>-<kebab-title>.md`
+
+## Mission Structure
+
+Missions describe **what** the module must do, not **how** the exports should be shaped. The agent designs its own API.
+
+- **8-kyu and 7-kyu** missions include a `## Core Functions` section with named function signatures — these are mechanistic tests of the pipeline, not tests of the agent's design capability.
+- **6-kyu and above** missions use a `## Required Capabilities` section describing behavioral requirements without prescribing function names. The acceptance criteria carry the contract.
 
 ## Mission Inventory
 
@@ -73,18 +80,20 @@ Format: `<difficulty>-<bloom-verb>-<kebab-title>.md`
 |---------|---------|-------------|
 | `1-kyu-create-ray-tracer` | Create | 3D ray tracer with reflection, refraction, and PPM output |
 
-### 1 dan — Extreme
+### Dan — Extreme
 
 | Mission | Bloom's | Description |
 |---------|---------|-------------|
 | `1-dan-create-c64-emulator` | Create | Full Commodore 64 emulator in browser |
+| `1-dan-create-planning-engine` | Create | Planning engine with POP, constraint satisfaction, and belief revision |
+| `2-dan-create-self-hosted` | Create | Self-hosting bootstrap test framework |
 
 ## Mission Quality Standards
 
 Every benchmarkable mission must have:
 
 1. `# Mission` header with a one-line description
-2. `## Core Functions` section with named export signatures
+2. `## Required Capabilities` (6-kyu+) or `## Core Functions` (7-8 kyu) section
 3. `## Requirements` section with edge cases and constraints
 4. `## Acceptance Criteria` section with `- [ ]` checkboxes (minimum 3)
 

@@ -2,15 +2,15 @@
 
 A JavaScript library that computes structured diffs between two JSON Schema (Draft-07) documents, helping API developers track and validate schema changes across versions.
 
-## Core Functions
+## Required Capabilities
 
-- `diffSchemas(schemaA, schemaB)` — compare two JSON Schema objects and return an array of change records.
-- `formatDiff(changes, format?)` — render the change array as human-readable text (`"text"` default) or JSON (`"json"`).
-- `classifyChange(change)` — return `"breaking"`, `"compatible"`, or `"informational"` for a single change record.
+- Compare two JSON Schema objects and return an array of change records.
+- Render changes as human-readable text or JSON.
+- Classify each change as `"breaking"`, `"compatible"`, or `"informational"`.
 
 ## Change Record Format
 
-Each element returned by `diffSchemas` is a plain object:
+Each change is a plain object with these fields:
 
 ```js
 { path: "/properties/email", changeType: "type-changed", before: "string", after: "number" }
@@ -29,20 +29,20 @@ Supported `changeType` values:
 
 - Resolve local `$ref` pointers (JSON Pointer within the same document) before diffing. Remote `$ref` is out of scope — throw if encountered.
 - Traverse `properties`, `items`, `allOf`, `oneOf`, `anyOf` recursively.
-- Export all functions as named exports from `src/lib/main.js`.
+- Export all public API as named exports from `src/lib/main.js`.
 - No external runtime dependencies.
 - Comprehensive unit tests covering each change type, nested schemas, and `$ref` resolution.
 - README with usage examples showing a before/after schema pair.
 
 ## Acceptance Criteria
 
-- [ ] `diffSchemas(schemaA, schemaB)` returns an array of change objects
+- [ ] Diffing two schemas returns an array of change objects
 - [ ] Detects added and removed properties
 - [ ] Detects type changes (e.g. `"string"` → `"number"`)
 - [ ] Detects `required` array changes
 - [ ] Handles nested schemas recursively (properties within properties)
 - [ ] Resolves local `$ref` before diffing
-- [ ] `classifyChange()` returns `"breaking"` for removed required properties and type changes
-- [ ] `formatDiff()` produces readable text output
+- [ ] Classifying a removed required property returns `"breaking"`
+- [ ] Formatting changes produces readable text output
 - [ ] All unit tests pass
 - [ ] README documents usage with examples

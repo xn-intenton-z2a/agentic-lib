@@ -12,7 +12,9 @@ const allFiles = readdirSync(MISSIONS_DIR)
 
 const EXPECTED_MISSIONS = [
   "1-dan-create-c64-emulator",
+  "1-dan-create-planning-engine",
   "1-kyu-create-ray-tracer",
+  "2-dan-create-self-hosted",
   "2-kyu-create-markdown-compiler",
   "2-kyu-create-plot-code-lib",
   "3-kyu-analyze-lunar-lander",
@@ -32,7 +34,9 @@ const EXPECTED_MISSIONS = [
 
 const BOUNDED_MISSIONS = [
   "1-dan-create-c64-emulator",
+  "1-dan-create-planning-engine",
   "1-kyu-create-ray-tracer",
+  "2-dan-create-self-hosted",
   "2-kyu-create-markdown-compiler",
   "2-kyu-create-plot-code-lib",
   "3-kyu-analyze-lunar-lander",
@@ -49,8 +53,8 @@ const BOUNDED_MISSIONS = [
 ];
 
 describe("src/seeds/missions", () => {
-  it("has 17 mission files", () => {
-    expect(allFiles).toHaveLength(17);
+  it("has 19 mission files", () => {
+    expect(allFiles).toHaveLength(19);
   });
 
   it("contains all expected missions", () => {
@@ -82,6 +86,16 @@ describe("src/seeds/missions", () => {
     for (const name of BOUNDED_MISSIONS) {
       const content = readFileSync(join(MISSIONS_DIR, `${name}.md`), "utf8");
       expect(content.toLowerCase()).not.toContain("do not set schedule to off");
+    }
+  });
+
+  it("no mission above 7-kyu contains a 'Core Functions' section", () => {
+    const above7kyu = allFiles.filter(
+      (f) => !f.startsWith("7-kyu-") && !f.startsWith("8-kyu-"),
+    );
+    for (const filename of above7kyu) {
+      const content = readFileSync(join(MISSIONS_DIR, filename), "utf8");
+      expect(content).not.toContain("## Core Functions");
     }
   });
 
