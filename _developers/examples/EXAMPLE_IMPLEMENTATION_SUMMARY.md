@@ -1,147 +1,136 @@
-# Plot-Code-Lib Implementation Summary
+# Benchmark 009 — Hamming Distance Implementation Summary
 
-## What Was Accomplished
+## Scenario
 
-This implementation has **fully delivered** on the mission statement and both open issues, creating a comprehensive mathematical plotting library and CLI tool.
+**Mission**: 6-kyu-understand-hamming-distance
+**Model**: gpt-5-mini (recommended profile)
+**Trigger**: Manual `agentic-lib-update` dispatch at 2026-03-14T22:05:16Z
+**Completed**: 2026-03-14T22:26:24Z (21 minutes wall-clock)
+**Budget used**: 5 of 32 transformation cycles
+**Total tokens**: 976,514
+**Total agent duration**: 577s (~9.6 minutes of LLM time)
 
-## ✅ Mission Statement Fulfilled
+## Mission Statement
 
-**"Be a go-to plot library with a CLI, be the jq of formulae visualisations."**
+> A JavaScript library for computing Hamming distances — between equal-length strings (character positions that differ) and between non-negative integers (differing bits).
 
-The library successfully:
-- ✅ Transforms mathematical expressions to time series data using MathJS
-- ✅ Reads/writes time series data in GeoJSON standard format
-- ✅ Uses industry-standard libraries (MathJS, D3.js, Sharp, JSDOM)
-- ✅ Generates both SVG and PNG plots with professional quality
-- ✅ Provides the exact CLI syntax requested: `plot-code-lib plot -e "sin(x)" -r "x=0:2*pi" -o output.svg`
-- ✅ **Showcases all features** via comprehensive demo with 28+ working examples
+### Acceptance Criteria
 
-## ✅ Open Issues Resolved
+- Hamming distance between `"karolin"` and `"kathrin"` is `3`
+- Hamming distance between `""` and `""` is `0`
+- Hamming distance between strings of different lengths throws `RangeError`
+- Bit-level Hamming distance between `1` and `4` is `2`
+- Bit-level Hamming distance between `0` and `0` is `0`
+- All unit tests pass
+- README documents usage with examples
 
-### Issue #2464: PNG Output and Image Format Options
-**Status: ✅ FULLY IMPLEMENTED**
-- High-resolution PNG output using Sharp library
-- Configurable width/height dimensions
-- Both SVG (vector) and PNG (raster) format support
-- Example: `plot-code-lib plot -e "sin(x)" -r "x=0:2*pi" -o plot.png --width 1920 --height 1080`
+## What Happened
 
-### Issue #2463: Advanced Plotting Features and Error Handling  
-**Status: ✅ FULLY IMPLEMENTED**
-- Multi-expression plotting with automatic legends
-- Custom expression labels (e.g., "Sine:sin(x),Cosine:cos(x)")
-- Parametric curve plotting
-- Robust error handling with domain validation
-- Graceful handling of NaN, infinity, and complex numbers
-- Professional styling with color palettes and intelligent legend placement
+### Phase 1: Update and Init Purge (22:05–22:08)
 
-## 🚀 Core Features Delivered
+| Time | Event | Details |
+|------|-------|---------|
+| 22:05:16 | `agentic-lib-update` | Pulled agentic-lib@7.4.17 — commit `489dc75` |
+| 22:05:44 | Update commit | Added SOURCES.md, 3 feature spec stubs (CORE_API, UNICODE_SUPPORT, VALIDATION_AND_TESTS) — commit `efbed16` |
+| 22:06:39 | `agentic-lib-init purge` | Reset repository to seed state with hamming-distance mission. Deleted the 3 stubs from the update (they were premature — init purge overwrites everything). Set `agentic-lib.toml` to mission `6-kyu-understand-hamming-distance` — commit `8a98d4f` |
 
-### 1. Mathematical Expression Parser
-- **MathJS integration** for comprehensive function support
-- **Expression caching** for performance optimization
-- **Multi-expression parsing** with custom labels
-- **Error handling** with descriptive messages
+After init purge, the repository had only the seed skeleton: identity-only `src/lib/main.js` (49 lines), basic tests, and the hamming-distance `MISSION.md`.
 
-### 2. Time Series Generator
-- **GeoJSON LineString output** (open standard)
-- **Flexible range parsing** with mathematical expressions
-- **Domain validation** and error recovery
-- **Parametric curve generation**
-- **Multi-expression support** with color assignment
+### Phase 2: First Workflow Run (22:08–22:17)
 
-### 3. Professional Plot Generator
-- **D3.js-powered SVG generation** with scalable graphics
-- **Sharp-powered PNG conversion** for universal compatibility
-- **Automatic legend generation** for multi-expression plots
-- **Configurable dimensions and styling**
-- **Professional axis labeling and titles**
+Dispatched as `agentic-lib-workflow`. All 19 jobs succeeded.
 
-### 4. Complete CLI Interface
-- **Four main commands**: `plot`, `parametric`, `export`, `demo`
-- **Unix-style options** with intuitive syntax
-- **Multiple output formats**: SVG, PNG, GeoJSON, CSV, JSON
-- **Comprehensive help system** with examples
+| Seq | Task | Duration | Tokens | Outcome | What It Did |
+|-----|------|----------|--------|---------|-------------|
+| 001 | maintain-features | 64s | 61K | features-maintained | Created 4 feature specs: HAMMING_BITS, HAMMING_STRINGS, LIBRARY_API, VALIDATION_ERRORS |
+| 001 | implementation-review | 88s | 169K | implementation-reviewed | Full gap analysis: all 8 elements NOT IMPLEMENTED. Identified missing functions, tests, README, website updates |
+| 002 | maintain-library | 38s | 36K | sources-discovered | Populated SOURCES.md with authoritative URLs for Hamming distance, popcount, Unicode code points, JS bit/validation guidance |
+| 003 | direct | 59s | 58K | directed | Evaluated gaps, concluded mission in-progress with 6 critical unimplemented features, provided prioritized next steps |
+| 004 | supervise | 35s | 39K | supervised:2-actions | Created Issue #2996 "Implement Hamming distance library with tests, docs, and website updates" and dispatched a dev transform |
+| 005 | transform | 124s | 410K | transformed | **The main implementation step.** 17 tool calls, 5 files written in 122s. Implemented `hammingString()` and `hammingBits()` in main.js, added unit tests, updated README, updated website demo, created PR #2997 which auto-merged |
 
-### 5. Comprehensive Demo System
-- **28+ working examples** covering all functionality
-- **Automatic generation** via `plot-code-lib demo` command
-- **Real-world use cases**: scientific, engineering, mathematical art
-- **Performance demonstrations**: high-frequency, complex curves
-- **Error handling examples**: domain clipping, edge cases
+Commit `c0c667cd0` (maintain): Added SOURCES.md + 4 feature specs (118 insertions)
+Commit `775af14c3` (transform): The implementation — 7 files, 205 insertions, 100 deletions. PR #2997 merged automatically.
 
-## 📊 Test Coverage
+Post-commit tests all passed (unit + behaviour).
 
-**23 tests passing** covering:
-- Expression parsing and evaluation
-- Time series data generation
-- Multi-expression handling
-- SVG plot generation with legends
-- Error handling and edge cases
-- GeoJSON format compliance
-- Parametric curve generation
+### Phase 3: Second Workflow Run (22:21–22:27)
 
-## 🎯 Advanced Capabilities Implemented
+Dispatched as `agentic-lib-workflow`. All jobs succeeded. Supervisor skipped (no action needed).
 
-### Mathematical Functions
-- **Trigonometric**: sin, cos, tan, sec, csc, cot + inverse/hyperbolic variants
-- **Exponential/Logarithmic**: exp, log, log10, sqrt, cbrt, nthRoot
-- **Statistical**: factorial, combinations, permutations
-- **Utility**: abs, sign, ceil, floor, round, min, max, gcd, lcm
-- **Constants**: pi, e, phi, tau, mathematical constants
+| Seq | Task | Duration | Tokens | Outcome | What It Did |
+|-----|------|----------|--------|---------|-------------|
+| 006 | maintain-features | 93s | 241K | features-maintained | Clarified and unified feature specs, created short verification plan |
+| 006 | implementation-review | 99s | 193K | implementation-reviewed | Confirmed all 7 elements now implemented. Noted minor gap: no explicit supplementary Unicode tests |
+| 007 | maintain-library | 111s | 69K | library-maintained | Wrote 7 technical library documents from SOURCES.md URLs |
+| 008 | direct | 54s | 63K | **mission-complete** | Declared mission complete — all metrics MET |
 
-### Plot Types
-- **Standard function plots** with domain/range specification
-- **Multi-expression comparisons** with automatic coloring and legends
-- **Parametric curves** for mathematical art and scientific visualization
-- **High-resolution output** for presentations and publications
+Commit `3ac8e5eec` (maintain): 11 files — refined 4 feature specs + 7 new library docs (392 insertions)
+Commit `715fddcfb` (mission-complete): Created `MISSION_COMPLETE.md` marker file
 
-### Data Export Options
-- **GeoJSON format** (geographic standard) for maximum interoperability
-- **CSV format** for spreadsheet compatibility with multi-expression support
-- **JSON format** for data processing pipelines
-- **Unix philosophy integration** for command chaining
+### Issue Lifecycle
 
-### Professional Features
-- **Intelligent legend placement** avoiding plot overlap
-- **Color palette optimization** for accessibility and print compatibility
-- **Domain validation** with graceful error recovery
-- **Mathematical expression evaluation** in range specifications
-- **Scientific notation support** for large/small values
+| # | Title | Created | Closed | Lifecycle |
+|---|-------|---------|--------|-----------|
+| #2996 | Implement Hamming distance library with tests, docs, and website updates | 22:13:04 | 22:16:49 | 3m 45s |
+| #2997 | fix: resolve issue #2996 (PR) | 22:16:35 | 22:16:48 | 13s |
 
-## 🔧 Technical Architecture
+## What Was Delivered
 
-**Clean, modular design** with four main classes:
-1. **ExpressionParser**: MathJS integration with caching
-2. **TimeSeriesGenerator**: Data generation with GeoJSON output  
-3. **PlotGenerator**: D3.js visualization with Sharp PNG conversion
-4. **PlotCodeLib**: CLI orchestration and command handling
+### Source Code (`src/lib/main.js` — 95 lines)
 
-**Open standards throughout**:
-- MathJS syntax for expressions
-- GeoJSON for coordinate data
-- SVG for scalable graphics
-- Commander.js for CLI interface
+Two new exported functions added to the existing identity module:
 
-## 📈 Real-World Applications Demonstrated
+- **`hammingString(a, b)`** — Computes Hamming distance between equal-length strings using `Array.from()` for correct Unicode code point iteration (not UTF-16 code units). Throws `TypeError` for non-strings, `RangeError` for unequal lengths.
 
-The demo showcases practical applications in:
-- **Scientific Research**: Gaussian distributions, exponential decay, Fourier series
-- **Engineering**: Damped oscillations, step response, frequency analysis  
-- **Mathematical Art**: Parametric curves, spirals, mathematical flowers
-- **Data Science**: Export capabilities for analysis pipelines
-- **Education**: Function comparisons, domain visualization, error handling
+- **`hammingBits(a, b)`** — Computes bit-level Hamming distance between non-negative integers using `BigInt` XOR and popcount loop. Accepts both `Number` (integer) and `BigInt`. Throws `TypeError` for non-integers, `RangeError` for negatives.
 
-## 🎉 Mission Accomplished
+### Unit Tests (`tests/unit/main.test.js` — 10 tests)
 
-This implementation **exceeds the original requirements** by providing:
-- ✅ Complete CLI tool with intuitive syntax
-- ✅ Full programmatic JavaScript API  
-- ✅ Professional-quality visualizations
-- ✅ Comprehensive demonstration system
-- ✅ Robust error handling and edge case management
-- ✅ Multiple output formats for maximum utility
-- ✅ Scientific and engineering application examples
-- ✅ Complete test coverage
-- ✅ Documentation with 28+ working examples
+- 3 existing identity tests preserved
+- 4 new `hammingString` tests: acceptance example (karolin/kathrin=3), empty strings, unequal length RangeError, non-string TypeError
+- 3 new `hammingBits` tests: acceptance example (1 vs 4=2), zero, non-integer TypeError, negative RangeError, BigInt equality
 
-**The library is production-ready** and fulfills the vision of being "the jq of formulae visualizations" through its command-line simplicity, powerful mathematical capabilities, and seamless integration with Unix-style workflows.
+### Website (`src/web/index.html`)
+
+Updated to import and demo both Hamming functions with live computed examples showing all four acceptance values.
+
+### README
+
+Rewritten with API documentation, usage examples, and project structure.
+
+### Supporting Artefacts
+
+- 4 feature specs in `features/` (HAMMING_BITS, HAMMING_STRINGS, LIBRARY_API, VALIDATION_ERRORS)
+- 7 library documents in `library/` (reference material from SOURCES.md)
+- SOURCES.md with authoritative URLs
+- MISSION_COMPLETE.md marker
+
+## Metrics at Completion
+
+| Metric | Value | Target | Status |
+|--------|-------|--------|--------|
+| Open issues | 0 | 0 | MET |
+| Open PRs | 0 | 0 | MET |
+| Issues resolved | 1 | >= 1 | MET |
+| Source TODO count | 0 | <= 0 | MET |
+| Cumulative transforms | 5 | >= 1 | MET |
+| Budget used | 5/32 | < 32 | OK |
+| Post-commit tests | PASS | PASS | MET |
+| Mission complete | YES | — | DECLARED |
+
+## Observations
+
+1. **Fast completion**: 21 minutes wall-clock, 2 workflow runs, 5 transform cycles. The mission was tractable for gpt-5-mini at the recommended profile.
+
+2. **Init purge cleaned up premature artefacts**: The update commit added 3 feature stubs (CORE_API, UNICODE_SUPPORT, VALIDATION_AND_TESTS) — presumably from a prior run. Init purge correctly removed them and reset to seed state.
+
+3. **Single transform did all the work**: Step 005 (transform) used 410K tokens and 124s to implement both functions, tests, README, and website in one pass (17 tool calls, 0 test runs within the agent, 5 files written). Tests were validated post-merge by the workflow's post-commit-test job.
+
+4. **Second run was verification only**: The second workflow run (22:21–22:27) did no code changes — it refined documentation and declared mission complete. The supervisor skipped because there were no gaps to address.
+
+5. **Implementation review caught real gaps**: The first review (seq 001) correctly identified all 8 elements as NOT IMPLEMENTED. The second review (seq 006) confirmed all 7 were implemented, noting only that supplementary Unicode character tests were missing (a minor non-blocking gap).
+
+6. **No failures**: All workflow jobs succeeded across both runs. No retries, no stuck states, no "Untitled issue" problems (the W5 fix from PLAN_BENCHMARK_009_FIXES is working).
+
+7. **Acceptance criteria coverage**: All 7 acceptance criteria from MISSION.md are covered by unit tests and the website demo. The agent correctly mapped karolin/kathrin=3, empty strings=0, unequal length=RangeError, 1 vs 4=2, 0 vs 0=0 into both test assertions and live demo output.
