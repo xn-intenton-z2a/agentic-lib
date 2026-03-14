@@ -7,7 +7,7 @@ Use the local CLI for fast iteration and the Actions path for real-world validat
 
 ---
 
-## Phase 5: Validate Both Paths
+## Phase 1: Validate Both Paths
 
 **Goal**: Prove that the converged code works identically via CLI and Actions.
 
@@ -64,7 +64,7 @@ Deploy to repository0 and run full cycle:
 
 ---
 
-## Phase 6: Tune Locally
+## Phase 1: Tune Locally
 
 **Goal**: Use the fast local iteration loop to explore reasoning effort levels, models, and prompt variations — things that take hours via Actions but minutes locally.
 
