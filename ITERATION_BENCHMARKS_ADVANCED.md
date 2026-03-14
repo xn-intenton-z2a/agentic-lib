@@ -5,6 +5,8 @@ Benchmarks that explore higher complexity missions (3 kyu through 1 kyu), elevat
 ```text
 Please read ITERATION_BENCHMARKS_ADVANCED.md and ask for any permissions that may be required before you start executing the tests so that benchmarks can be gathered without asking for further permissions.
 Please perform the exercises in ITERATION_BENCHMARKS_ADVANCED.md and create a report in the project root similar to _developers/archive/BENCHMARK_REPORT_007.md
+The session should run hands free but you can stary working on a fix plan like _developers/archive/PLAN_BENCHMARK_007_FIXES.md and work on those fixes in a branch test, merge then use your release and init skill to have repository0 use it.
+Re-use the same branch for multiple fixes as part of the same benchmarking session and keep updating what has been found and/or fixed in the fixes plan document. 
 
 ```
 
