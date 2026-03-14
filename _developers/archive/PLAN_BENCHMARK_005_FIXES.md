@@ -1,6 +1,6 @@
 # Plan: Benchmark Report 005 Fixes
 
-**Source**: [BENCHMARK_REPORT_005.md](../../BENCHMARK_REPORT_005.md)
+**Source**: [BENCHMARK_REPORT_005.md](BENCHMARK_REPORT_005.md)
 **Created**: 2026-03-09
 **Status**: implemented — all 8 work items done + 5 additional fixes from benchmark 006 testing
 
