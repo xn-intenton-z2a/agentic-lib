@@ -38,12 +38,28 @@ The issue was never created. The dev job had nothing to work on. 2 full workflow
 
 **Files**: `src/actions/agentic-step/tasks/supervise.js` (executeDispatch)
 
+### W4: Issue creation fails when LLM omits params entirely (CRITICAL — S1 iteration 3)
+
+**Problem**: After W1 fix (v7.4.18), the action routing works correctly — `github:create-issue` now reaches `executeCreateIssue`. However, the LLM sometimes calls `report_supervisor_plan` with `{action: "github:create-issue", params: {}}` — no title, body, or feature at all. The existing fallback chain (title → body first line → feature name → skip) ends at `skipped:no-title`.
+
+**Evidence**: S1 iteration 3 logged:
+```
+create-issue: no title, body, or feature provided — skipping
+Action result: skipped:no-title
+```
+The LLM's assistant message claimed "Created one comprehensive implementation-gap issue" but no issue was actually created.
+
+**Fix**: Added a mission-context fallback before the `skipped:no-title` exit. When `ctx.mission` exists (from MISSION.md), derive the title as `feat: implement <mission heading>`. This ensures issue creation succeeds even when the LLM provides no params.
+
+**Files**: `src/actions/agentic-step/tasks/supervise.js` (executeCreateIssue)
+
 ---
 
 ## Verification
 
-- [x] All 568 unit tests pass after W1/W2/W3 fixes
-- [ ] After release + init: supervisor creates issues successfully in S1
+- [x] All 568 unit tests pass after W1/W2/W3 fixes (v7.4.18)
+- [x] W1 fix confirmed: action routing now reaches executeCreateIssue (v7.4.18)
+- [ ] W4 fix: supervisor creates issues with mission-derived title
 - [ ] After release + init: dev transform runs on the created issue
 - [ ] Mission-complete declared within budget
 
@@ -51,11 +67,14 @@ The issue was never created. The dev job had nothing to work on. 2 full workflow
 
 ## Implementation Notes
 
-### W1: Inline param parsing — DONE
+### W1: Inline param parsing — DONE (v7.4.18)
 Added to `executeAction()`: when `action` contains ` | `, split and parse. First part is the clean action name, remaining parts are `key: value` pairs merged into params (explicit params take precedence). Logs the parsing for visibility.
 
-### W2: Placeholder issue validation — DONE
+### W2: Placeholder issue validation — DONE (v7.4.18)
 Added to `executeDispatch()`: `issue-number` must pass `/^\d+$/` test. Placeholder strings like `<created_issue_number>` are logged as warnings and not forwarded.
 
-### W3: Mode passthrough — DONE
+### W3: Mode passthrough — DONE (v7.4.18)
 Added to `executeDispatch()`: `params.mode` is forwarded as a workflow input if present.
+
+### W4: Mission-context fallback for issue title — DONE
+Added to `executeCreateIssue()`: before the `skipped:no-title` exit, check `ctx.mission` and derive title from the first heading in MISSION.md. Logs the derived title for visibility.
