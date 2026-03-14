@@ -18,14 +18,14 @@ The library should progressively implement:
 - Output PPM (P3) format — simple text-based image format
 - Vector3 class for all geometric operations
 - Configurable resolution and ray depth
-- Deterministic output (no random sampling unless seeded)
+- Deterministic output: all random sampling must use a seeded PRNG. Given the same scene JSON, output must be byte-identical across runs.
 
 ## Acceptance Criteria
 
-- `renderScene(scene)` returns a PPM string for a given scene description
-- `parseScene(json)` loads a scene from a JSON string
-- Renders a scene with 3+ spheres, a plane, and a point light in under 10 seconds (640x480)
-- At least one sphere is reflective and one is refractive
-- Unit tests verify ray-sphere intersection, reflection vectors, and Snell's law
-- A sample scene JSON file is included in `docs/examples/`
-- Output PPM can be viewed in any image viewer (validated by checking header format)
+- [ ] `renderScene(scene)` returns a PPM string for a given scene description
+- [ ] `parseScene(json)` loads a scene from a JSON string
+- [ ] Renders a scene with 3+ spheres, a plane, and a point light in under 30 seconds (640x480)
+- [ ] At least one sphere is reflective and one is refractive
+- [ ] Unit tests verify ray-sphere intersection, reflection vectors, and Snell's law
+- [ ] A sample scene JSON file is included in `docs/examples/` with the structure: `{ camera: { position, lookAt, fov }, lights: [{ position, color }], objects: [{ type, center/normal, radius, material }] }`
+- [ ] Output PPM can be viewed in any image viewer (validated by checking header format)

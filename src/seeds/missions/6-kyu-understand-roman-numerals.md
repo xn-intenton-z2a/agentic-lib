@@ -25,6 +25,6 @@ A JavaScript library for converting between integers and Roman numeral strings.
 - [ ] `fromRoman(toRoman(n)) === n` for all n in 1–3999
 - [ ] `toRoman(0)` throws `RangeError`
 - [ ] `toRoman(4000)` throws `RangeError`
-- [ ] `fromRoman("IIII")` throws or returns `4` (accept either; document the choice)
+- [ ] `fromRoman("IIII")` throws `TypeError` (strict: only subtractive notation accepted)
 - [ ] All unit tests pass
 - [ ] README documents usage with examples

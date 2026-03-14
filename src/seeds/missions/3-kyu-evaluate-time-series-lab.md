@@ -1,41 +1,35 @@
 # Mission
 
-A JavaScript library that finds, normalises, refreshes, and analyses temporal data. The repo's `data/` directory accumulates CSV/JSON datasets over successive transform cycles.
-
-This is an ongoing mission. Do not set schedule to off.
-
-## Core Capabilities
-
-- **Discover** — find publicly available time series data (APIs, open data portals) and fetch snapshots into `data/`.
-- **Normalise** — parse heterogeneous date/time formats, resample to uniform intervals, handle missing values.
-- **Refresh** — on each transform cycle, update existing datasets with newer observations (append, not replace).
-- **Forecast** — implement basic forecasting: moving average, exponential smoothing, linear regression.
-- **Correlate** — find relationships between datasets: cross-correlation, lag analysis.
-- **Report** — generate a `REPORT.md` summarising datasets, trends, and discovered correlations.
+A JavaScript library for generating, normalising, forecasting, and correlating time series data. Uses deterministic data generators rather than external APIs, making results reproducible.
 
 ## Core Functions
 
-- `discover(sources?)` — search for and download time series data into `data/`.
-- `load(file)` — load a CSV or JSON dataset, auto-detect date format.
-- `normalise(dataset, interval)` — resample to uniform intervals, interpolate missing values.
-- `refresh(file)` — update an existing dataset with newer data from its source.
-- `forecast(dataset, method, horizon)` — predict future values using the specified method.
-- `correlate(datasetA, datasetB)` — compute cross-correlation between two time series.
-- `report(datasets)` — generate a markdown summary report.
+- `generateSineWave(periods, noise, sampleRate)` — generate a sine wave dataset with optional Gaussian noise. Returns an array of `{ time, value }` objects.
+- `generateRandomWalk(steps, seed)` — generate a seeded random walk. Returns an array of `{ time, value }` objects.
+- `load(file)` — load a CSV dataset with columns `time,value`. Auto-detect ISO 8601 and Unix timestamp date formats.
+- `normalise(dataset, interval)` — resample to uniform intervals using linear interpolation for missing values. `interval` is in milliseconds.
+- `forecast(dataset, method, options)` — predict future values. Supported methods:
+  - `"sma"` — simple moving average. Options: `{ window: N, horizon: M }`.
+  - `"ema"` — exponential smoothing. Options: `{ alpha: 0.0-1.0, horizon: M }`.
+- `correlate(datasetA, datasetB, maxLag?)` — compute Pearson cross-correlation coefficient for lags from `-maxLag` to `+maxLag` (default 20). Returns an array of `{ lag, r }` objects.
+- `report(datasets)` — generate a markdown string summarising datasets (row count, min, max, mean, trend direction).
 
 ## Requirements
 
 - Export all functions as named exports from `src/lib/main.js`.
-- Store datasets in `data/` as CSV or JSON with consistent schema.
-- Each dataset file should include metadata (source URL, last updated, interval).
-- Unit tests covering normalisation, forecasting accuracy, and correlation.
+- No external runtime dependencies.
+- All random generators must accept a seed for deterministic output.
+- Comprehensive unit tests covering generation, normalisation, forecasting accuracy, and correlation.
 - README with usage examples.
 
 ## Acceptance Criteria
 
-- [ ] Can load and normalise at least one real-world dataset
-- [ ] Forecast produces reasonable predictions (tested against known data)
-- [ ] `data/` directory contains at least one dataset
-- [ ] `REPORT.md` is generated with dataset summaries
+- [ ] `generateSineWave(2, 0, 100)` produces 200 data points tracing a clean sine wave
+- [ ] `generateRandomWalk(100, 42)` produces identical output on repeated calls (deterministic)
+- [ ] `normalise()` fills gaps with linearly interpolated values
+- [ ] `forecast(sineData, "sma", { window: 10, horizon: 20 })` returns 20 predicted values
+- [ ] Forecast of a known sine wave has RMSE < 0.5 for a 10-point horizon
+- [ ] `correlate(sineA, sineB)` returns peak correlation at the correct lag offset
+- [ ] `report()` produces a markdown string with dataset summaries
 - [ ] All unit tests pass
 - [ ] README documents the API with examples

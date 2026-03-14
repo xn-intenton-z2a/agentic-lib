@@ -14,9 +14,9 @@ Create a report for ITERATION_BENCHMARKS_ADVANCED.md
 | A2 | 3-kyu-analyze-lunar-lander | gpt-5-mini | max | 128 | Profile comparison: does max produce better convergence? |
 | A3 | 3-kyu-evaluate-time-series-lab | gpt-5-mini | recommended | 32 | 3 kyu — data science, forecasting, ongoing mission |
 | A4 | 3-kyu-evaluate-time-series-lab | gpt-5-mini | max | 128 | Profile comparison on 3 kyu: can max handle domain-specific algorithms? |
-| A5 | 3-kyu-evaluate-owl-ontology | claude-sonnet-4 | recommended | 32 | Model comparison: claude-sonnet-4 vs gpt-5-mini on 3 kyu |
-| A6 | 2-kyu-evaluate-markdown-compiler | gpt-5-mini | recommended | 32 | 2 kyu — multi-pass parser, XSS safety, 30+ tests |
-| A7 | 2-kyu-evaluate-markdown-compiler | gpt-5-mini | max | 128 | Profile comparison on parser mission |
+| A5 | 4-kyu-apply-owl-ontology | claude-sonnet-4 | recommended | 32 | Model comparison: claude-sonnet-4 vs gpt-5-mini on ontology |
+| A6 | 2-kyu-create-markdown-compiler | gpt-5-mini | recommended | 32 | 2 kyu — Markdown compiler, XSS safety, structured tests |
+| A7 | 2-kyu-create-markdown-compiler | gpt-5-mini | max | 128 | Profile comparison on parser mission |
 | A8 | 2-kyu-create-plot-code-lib | gpt-5-mini | recommended | 32 | 2 kyu — expression parsing, SVG/PNG rendering |
 | A9 | 1-kyu-create-ray-tracer | gpt-5-mini | max | 128 | 1 kyu — 3D geometry, optics, stress test |
 

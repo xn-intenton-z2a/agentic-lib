@@ -16,12 +16,14 @@ The library should implement progressively denser encodings:
 - `base62` — `[0-9a-zA-Z]`, ~5.95 bits/char, URL-safe, 22 chars for a UUID
 - `base85` (Ascii85/Z85) — ~6.41 bits/char, 20 chars for a UUID
 - `base91` — ~6.50 bits/char, ~20 chars for a UUID
-- Optionally: custom higher bases cherry-picking from safe printable Unicode
+- Optionally: custom higher bases using printable ASCII characters U+0021–U+007E (excluding space), omitting ambiguous characters (`0`/`O`, `1`/`l`/`I`)
 
 ## Requirements
 
 - Round-trip property: `decode(encode(x, enc), enc)` must equal `x` for all inputs and all encodings.
-- No control characters, no ambiguous characters (0/O, 1/l/I in contexts where they matter).
+- No control characters. Exclude visually ambiguous characters (`0`/`O`, `1`/`l`/`I`) from custom charsets.
+- Input type for encode/decode is `Uint8Array`.
+- Baseline comparison: UUID hex = 32 chars, base64 (no padding) = 22 chars. The densest encoding should produce fewer than 22 characters for a UUID.
 - Test across edge cases: all-zero bytes, all-0xFF bytes, single byte, empty buffer.
 - Compare encoded UUID lengths across all encodings.
 - Export all functions as named exports from `src/lib/main.js`.

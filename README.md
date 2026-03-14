@@ -331,19 +331,18 @@ The session uses SDK hooks for observability (tool call tracking, error recovery
 | `7-kyu-understand-fizz-buzz` | 7 kyu | Understand | Classic FizzBuzz |
 | `6-kyu-understand-hamming-distance` | 6 kyu | Understand | Hamming distance (strings + bits) |
 | `6-kyu-understand-roman-numerals` | 6 kyu | Understand | Roman numeral conversion |
-| `5-kyu-create-ascii-face` | 5 kyu | Create | ASCII face art |
+| `5-kyu-apply-ascii-face` | 5 kyu | Apply | ASCII face art |
 | `5-kyu-apply-string-utils` | 5 kyu | Apply | 10 string utility functions |
 | `4-kyu-apply-cron-engine` | 4 kyu | Apply | Cron expression parser |
 | `4-kyu-apply-dense-encoding` | 4 kyu | Apply | Dense binary encoding |
 | `4-kyu-analyze-json-schema-diff` | 4 kyu | Analyze | JSON Schema diff |
+| `4-kyu-apply-owl-ontology` | 4 kyu | Apply | OWL ontology processor |
 | `3-kyu-analyze-lunar-lander` | 3 kyu | Analyze | Lunar lander simulation |
 | `3-kyu-evaluate-time-series-lab` | 3 kyu | Evaluate | Time series analysis |
-| `3-kyu-evaluate-owl-ontology` | 3 kyu | Evaluate | OWL ontology processor |
-| `2-kyu-evaluate-markdown-compiler` | 2 kyu | Evaluate | Markdown compiler |
+| `2-kyu-create-markdown-compiler` | 2 kyu | Create | Markdown compiler |
 | `2-kyu-create-plot-code-lib` | 2 kyu | Create | Code visualization library |
 | `1-kyu-create-ray-tracer` | 1 kyu | Create | Ray tracer |
 | `1-dan-create-c64-emulator` | 1 dan | Create | C64 emulator |
-| `2-dan-create-agi` | 2 dan | Create | AGI vision |
 
 ### Running Local Benchmarks
 

@@ -16,7 +16,8 @@ Support these shortcuts: `@yearly` (`0 0 1 1 *`), `@monthly` (`0 0 1 * *`), `@we
 
 ## Requirements
 
-- Handle edge cases: DST transitions, month-end boundaries (e.g. "30th of February"), leap years.
+- Handle edge cases: month-end boundaries (e.g. `0 0 31 * *` fires only in months with 31 days — skip months with fewer days, do not fire on the last day as a fallback), leap years (Feb 29 fires only in leap years).
+- All times are UTC. Timezone support is out of scope.
 - Validate expressions: throw on invalid syntax with a descriptive error message.
 - No external dependencies required (but allowed if beneficial).
 - Export all functions as named exports from `src/lib/main.js`.
@@ -29,7 +30,7 @@ Support these shortcuts: `@yearly` (`0 0 1 1 *`), `@monthly` (`0 0 1 * *`), `@we
 - [ ] `nextRun("0 9 * * 1")` returns the next Monday at 09:00
 - [ ] `matches("0 0 25 12 *", new Date("2025-12-25"))` returns `true`
 - [ ] `nextRuns("@daily", 7)` returns 7 consecutive daily dates
-- [ ] DST transitions handled correctly (no skipped or duplicated runs)
+- [ ] `nextRuns("0 0 31 * *", 3, new Date("2025-01-01"))` returns dates in Jan, Mar, May (skips months without 31 days)
 - [ ] Invalid expressions throw descriptive errors
 - [ ] All unit tests pass
 - [ ] README documents usage with examples

@@ -75,19 +75,18 @@ on:
           - 7-kyu-understand-fizz-buzz
           - 6-kyu-understand-hamming-distance
           - 6-kyu-understand-roman-numerals
-          - 5-kyu-create-ascii-face
+          - 5-kyu-apply-ascii-face
           - 5-kyu-apply-string-utils
           - 4-kyu-apply-cron-engine
           - 4-kyu-apply-dense-encoding
           - 4-kyu-analyze-json-schema-diff
+          - 4-kyu-apply-owl-ontology
           - 3-kyu-analyze-lunar-lander
           - 3-kyu-evaluate-time-series-lab
-          - 3-kyu-evaluate-owl-ontology
-          - 2-kyu-evaluate-markdown-compiler
+          - 2-kyu-create-markdown-compiler
           - 2-kyu-create-plot-code-lib
           - 1-kyu-create-ray-tracer
           - 1-dan-create-c64-emulator
-          - 2-dan-create-agi
       mission-text:
         description: "Freeform mission text for MISSION.md (overrides mission-seed if provided)"
         type: string
