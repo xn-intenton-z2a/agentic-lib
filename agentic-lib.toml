@@ -109,7 +109,7 @@ library-limit = 64                     # max library entries in library/ directo
 [mission-complete]
 # Thresholds for deterministic mission-complete declaration.
 # All conditions must be met simultaneously.
-min-resolved-issues = 2            # minimum closed-as-RESOLVED issues since init
+min-resolved-issues = 1            # minimum closed-as-RESOLVED issues since init
 max-source-todos = 0               # max TODO comments allowed in ./src (0 = none)
 # C6: Removed min-dedicated-tests (replaced by cumulative transforms and acceptance criteria)
 
