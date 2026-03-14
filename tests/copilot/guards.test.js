@@ -11,11 +11,6 @@ vi.mock("child_process", () => ({
   execSync: (...args) => mockExecSync(...args),
 }));
 
-// Mock telemetry to control cumulative cost
-const mockReadCumulativeCost = vi.fn(() => 0);
-vi.mock("../../src/copilot/telemetry.js", () => ({
-  readCumulativeCost: (...args) => mockReadCumulativeCost(...args),
-}));
 
 const { checkGuards } = await import("../../src/copilot/guards.js");
 
@@ -25,7 +20,6 @@ describe("guards.js", () => {
   beforeEach(() => {
     tmpDir = mkdtempSync(join(tmpdir(), "guards-test-"));
     mockExecSync.mockReset();
-    mockReadCumulativeCost.mockReturnValue(0);
   });
 
   afterEach(() => {
@@ -36,7 +30,7 @@ describe("guards.js", () => {
     paths: { mission: { path: "MISSION.md" } },
     testScript: "npm test",
     transformationBudget: 16,
-    intentionBot: { intentionFilepath: "intention.md" },
+    intentionBot: { logPrefix: "agent-log-" },
   };
 
   describe("transform guards", () => {
@@ -69,7 +63,8 @@ describe("guards.js", () => {
 
     it("skips when transformation budget exhausted", () => {
       writeFileSync(join(tmpDir, "MISSION.md"), "# Mission");
-      mockReadCumulativeCost.mockReturnValue(16);
+      // Create agent-log files with cumulative cost >= budget (16)
+      writeFileSync(join(tmpDir, "agent-log-2026-01-01T00-00-00-000Z.md"), "# Log\n**agentic-lib transformation cost:** 16\n");
       const result = checkGuards("transform", baseConfig, tmpDir);
       expect(result.skip).toBe(true);
       expect(result.reason).toContain("budget exhausted");
@@ -77,7 +72,8 @@ describe("guards.js", () => {
 
     it("proceeds when budget has room", () => {
       writeFileSync(join(tmpDir, "MISSION.md"), "# Mission");
-      mockReadCumulativeCost.mockReturnValue(15);
+      // Create agent-log file with cost below budget (16)
+      writeFileSync(join(tmpDir, "agent-log-2026-01-01T00-00-00-000Z.md"), "# Log\n**agentic-lib transformation cost:** 15\n");
       const result = checkGuards("transform", baseConfig, tmpDir);
       expect(result.skip).toBe(false);
     });
@@ -99,7 +95,9 @@ describe("guards.js", () => {
 
     it("skips when budget exhausted even if tests fail", () => {
       mockExecSync.mockImplementation(() => { throw new Error("test failure"); });
-      mockReadCumulativeCost.mockReturnValue(16);
+      // Create agent-log files with cumulative cost >= budget (16)
+      writeFileSync(join(tmpDir, "agent-log-2026-01-01T00-00-00-000Z.md"), "# Log\n**agentic-lib transformation cost:** 10\n");
+      writeFileSync(join(tmpDir, "agent-log-2026-01-02T00-00-00-000Z.md"), "# Log\n**agentic-lib transformation cost:** 6\n");
       const result = checkGuards("fix-code", baseConfig, tmpDir);
       expect(result.skip).toBe(true);
       expect(result.reason).toContain("budget exhausted");
@@ -147,7 +145,8 @@ describe("guards.js", () => {
   describe("budget with zero means unlimited", () => {
     it("does not skip when budget is 0 (unlimited)", () => {
       writeFileSync(join(tmpDir, "MISSION.md"), "# Mission");
-      mockReadCumulativeCost.mockReturnValue(999);
+      // Even with high cost in logs, budget=0 means unlimited
+      writeFileSync(join(tmpDir, "agent-log-2026-01-01T00-00-00-000Z.md"), "# Log\n**agentic-lib transformation cost:** 999\n");
       const result = checkGuards("transform", { ...baseConfig, transformationBudget: 0 }, tmpDir);
       expect(result.skip).toBe(false);
     });

@@ -95,7 +95,7 @@ function createMockConfig(overrides = {}) {
     readOnlyPaths: ["README.md"],
     writablePaths: ["src/", "tests/"],
     tdd: false,
-    intentionBot: { intentionFilepath: "intenti\u00F6n.md" },
+    intentionBot: { logPrefix: "agent-log-" },
     schedule: "daily",
     supervisor: "daily",
     ...overrides,

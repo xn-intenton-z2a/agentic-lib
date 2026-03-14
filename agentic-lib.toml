@@ -114,6 +114,6 @@ min-dedicated-tests = 0            # minimum test files that import from src/lib
 max-source-todos = 0               # max TODO comments allowed in ./src (0 = none)
 
 [bot]
-log-file = "test/intentïon.md"                  #@dist "intentïon.md"
-log-branch = "agentic-lib-logs"
+log-prefix = "tmp/agent-log-"                  #@dist "agent-log-"
+log-branch = "main"                            #@dist "agentic-lib-logs"
 screenshot-file = "SCREENSHOT_INDEX.png"
