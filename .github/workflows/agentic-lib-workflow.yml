@@ -485,7 +485,7 @@ jobs:
             try {
               // Try log branch first, fall back to local file (legacy)
               let log = null;
-              for (const lf of [logFile, 'intention.md']) {
+              for (const lf of [logFile]) {
                 try {
                   const { data } = await github.rest.repos.getContent({
                     owner, repo, path: lf, ref: logBranch,
@@ -496,7 +496,7 @@ jobs:
               }
               // Fall back to local file
               if (!log) {
-                const logPath = fs.existsSync(logFile) ? logFile : (fs.existsSync('intention.md') ? 'intention.md' : null);
+                const logPath = fs.existsSync(logFile) ? logFile : null;
                 if (logPath) log = fs.readFileSync(logPath, 'utf8');
               }
               if (log) {
@@ -596,7 +596,7 @@ jobs:
           LOG_BRANCH: ${{ needs.params.outputs.log-branch }}
           SCREENSHOT_FILE: ${{ needs.params.outputs.screenshot-file }}
         run: |
-          for f in "${LOG_FILE}" "intention.md" "${SCREENSHOT_FILE}"; do
+          for f in "${LOG_FILE}" "${SCREENSHOT_FILE}"; do
             git show "origin/${LOG_BRANCH}:${f}" > "$f" 2>/dev/null || true
           done
 
@@ -708,7 +708,7 @@ jobs:
         if: github.repository != 'xn-intenton-z2a/agentic-lib' && needs.params.outputs.dry-run != 'true'
         env:
           LOG_BRANCH: ${{ needs.params.outputs.log-branch }}
-        run: bash .github/agentic-lib/scripts/push-to-logs.sh "${{ needs.params.outputs.log-file }}" "intention.md" agent-log-*.md
+        run: bash .github/agentic-lib/scripts/push-to-logs.sh "${{ needs.params.outputs.log-file }}" agent-log-*.md
 
   # ─── Implementation Review: traces mission elements through code/tests/website ──
   implementation-review:
@@ -733,7 +733,7 @@ jobs:
           LOG_BRANCH: ${{ needs.params.outputs.log-branch }}
           SCREENSHOT_FILE: ${{ needs.params.outputs.screenshot-file }}
         run: |
-          for f in "${LOG_FILE}" "intention.md" "${SCREENSHOT_FILE}"; do
+          for f in "${LOG_FILE}" "${SCREENSHOT_FILE}"; do
             git show "origin/${LOG_BRANCH}:${f}" > "$f" 2>/dev/null || true
           done
           mkdir -p .agent-logs
@@ -776,7 +776,7 @@ jobs:
         if: github.repository != 'xn-intenton-z2a/agentic-lib' && needs.params.outputs.dry-run != 'true'
         env:
           LOG_BRANCH: ${{ needs.params.outputs.log-branch }}
-        run: bash .github/agentic-lib/scripts/push-to-logs.sh "${{ needs.params.outputs.log-file }}" "intention.md" agent-log-*.md
+        run: bash .github/agentic-lib/scripts/push-to-logs.sh "${{ needs.params.outputs.log-file }}" agent-log-*.md
 
   # ─── Director: LLM evaluates mission status (complete/failed/in-progress) ──
   director:
@@ -801,7 +801,7 @@ jobs:
           LOG_BRANCH: ${{ needs.params.outputs.log-branch }}
           SCREENSHOT_FILE: ${{ needs.params.outputs.screenshot-file }}
         run: |
-          for f in "${LOG_FILE}" "intention.md" "${SCREENSHOT_FILE}"; do
+          for f in "${LOG_FILE}" "${SCREENSHOT_FILE}"; do
             git show "origin/${LOG_BRANCH}:${f}" > "$f" 2>/dev/null || true
           done
 
@@ -840,7 +840,7 @@ jobs:
         if: github.repository != 'xn-intenton-z2a/agentic-lib' && needs.params.outputs.dry-run != 'true'
         env:
           LOG_BRANCH: ${{ needs.params.outputs.log-branch }}
-        run: bash .github/agentic-lib/scripts/push-to-logs.sh "${{ needs.params.outputs.log-file }}" "intention.md" agent-log-*.md
+        run: bash .github/agentic-lib/scripts/push-to-logs.sh "${{ needs.params.outputs.log-file }}" agent-log-*.md
 
   # ─── Supervisor: LLM decides what to do (after director evaluates) ──
   supervisor:
@@ -864,7 +864,7 @@ jobs:
           LOG_BRANCH: ${{ needs.params.outputs.log-branch }}
           SCREENSHOT_FILE: ${{ needs.params.outputs.screenshot-file }}
         run: |
-          for f in "${LOG_FILE}" "intention.md" "${SCREENSHOT_FILE}"; do
+          for f in "${LOG_FILE}" "${SCREENSHOT_FILE}"; do
             git show "origin/${LOG_BRANCH}:${f}" > "$f" 2>/dev/null || true
           done
 
@@ -903,7 +903,7 @@ jobs:
         if: github.repository != 'xn-intenton-z2a/agentic-lib' && needs.params.outputs.dry-run != 'true'
         env:
           LOG_BRANCH: ${{ needs.params.outputs.log-branch }}
-        run: bash .github/agentic-lib/scripts/push-to-logs.sh "${{ needs.params.outputs.log-file }}" "intention.md" agent-log-*.md
+        run: bash .github/agentic-lib/scripts/push-to-logs.sh "${{ needs.params.outputs.log-file }}" agent-log-*.md
 
   # ─── Fix stuck PRs with failing checks ─────────────────────────────
   fix-stuck:
@@ -1303,7 +1303,7 @@ jobs:
           LOG_BRANCH: ${{ needs.params.outputs.log-branch }}
           SCREENSHOT_FILE: ${{ needs.params.outputs.screenshot-file }}
         run: |
-          for f in "${LOG_FILE}" "intention.md" "${SCREENSHOT_FILE}"; do
+          for f in "${LOG_FILE}" "${SCREENSHOT_FILE}"; do
             git show "origin/${LOG_BRANCH}:${f}" > "$f" 2>/dev/null || true
           done
 
@@ -1475,7 +1475,7 @@ jobs:
         if: github.repository != 'xn-intenton-z2a/agentic-lib' && needs.params.outputs.dry-run != 'true'
         env:
           LOG_BRANCH: ${{ needs.params.outputs.log-branch }}
-        run: bash .github/agentic-lib/scripts/push-to-logs.sh "${{ needs.params.outputs.log-file }}" "intention.md" agent-log-*.md
+        run: bash .github/agentic-lib/scripts/push-to-logs.sh "${{ needs.params.outputs.log-file }}" agent-log-*.md
 
       - name: Create PR and attempt merge
         if: github.repository != 'xn-intenton-z2a/agentic-lib' && steps.issue.outputs.issue-number != '' && needs.params.outputs.dry-run != 'true' && steps.pre-commit-test.outputs.tests-passed == 'true' && steps.pre-commit-behaviour-test.outputs.tests-passed != 'false'
