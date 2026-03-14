@@ -64,7 +64,7 @@ Deploy to repository0 and run full cycle:
 
 ---
 
-## Phase 1: Tune Locally
+## Phase 2: Tune Locally
 
 **Goal**: Use the fast local iteration loop to explore reasoning effort levels, models, and prompt variations — things that take hours via Actions but minutes locally.
 
