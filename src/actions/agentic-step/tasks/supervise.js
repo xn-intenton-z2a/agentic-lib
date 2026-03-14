@@ -579,8 +579,17 @@ async function executeDispatch(octokit, repo, actionName, params, ctx) {
 }
 
 async function executeCreateIssue(octokit, repo, params, ctx) {
-  const title = params.title || "Untitled issue";
-  const labels = params.labels ? params.labels.split(",").map((l) => l.trim()) : ["automated"];
+  const title = (params.title || "").trim();
+  if (!title) {
+    core.warning("create-issue: no title provided — skipping");
+    return "skipped:no-title";
+  }
+  const rawLabels = params.labels;
+  const labels = Array.isArray(rawLabels)
+    ? rawLabels.map((l) => String(l).trim()).filter(Boolean)
+    : typeof rawLabels === "string"
+      ? rawLabels.split(",").map((l) => l.trim()).filter(Boolean)
+      : ["automated"];
 
   // Dedup guard: skip if a similarly-titled issue was closed in the last hour
   // Exclude issues closed before the init timestamp (cross-scenario protection)
@@ -616,7 +625,12 @@ async function executeCreateIssue(octokit, repo, params, ctx) {
 
 async function executeLabelIssue(octokit, repo, params) {
   const issueNumber = Number(params["issue-number"]);
-  const labels = params.labels ? params.labels.split(",").map((l) => l.trim()) : [];
+  const rawLabels = params.labels;
+  const labels = Array.isArray(rawLabels)
+    ? rawLabels.map((l) => String(l).trim()).filter(Boolean)
+    : typeof rawLabels === "string"
+      ? rawLabels.split(",").map((l) => l.trim()).filter(Boolean)
+      : [];
   if (issueNumber && labels.length > 0) {
     core.info(`Labelling issue #${issueNumber}: ${labels.join(", ")}`);
     await octokit.rest.issues.addLabels({ ...repo, issue_number: issueNumber, labels });
