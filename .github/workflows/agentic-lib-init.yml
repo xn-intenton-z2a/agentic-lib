@@ -284,8 +284,9 @@ jobs:
             }
             if (!model) model = 'gpt-5-mini';
 
+            // Problem 4 fix: Use "never fires" cron for off instead of removing the block
             const SCHEDULE_MAP = {
-              off: null,
+              off: '0 0 31 2 *',
               weekly: '25 6 * * 1',
               daily: '25 6 * * *',
               hourly: '25 * * * *',
@@ -295,8 +296,11 @@ jobs:
             if (fs.existsSync(workflowPath)) {
               let content = fs.readFileSync(workflowPath, 'utf8');
               const cron = SCHEDULE_MAP[frequency];
-              content = content.replace(/\n  schedule:\n    - cron: "[^"]*"\n/g, '\n');
-              if (cron) {
+              // Replace existing cron or insert new schedule block
+              const cronRegex = /- cron: "[^"]*"/;
+              if (cronRegex.test(content)) {
+                content = content.replace(cronRegex, `- cron: "${cron}"`);
+              } else {
                 const scheduleBlock = `\n  schedule:\n    - cron: "${cron}"\n`;
                 content = content.replace(/\non:\n/, `\non:${scheduleBlock}`);
               }
@@ -325,7 +329,7 @@ jobs:
               core.info(`Updated agentic-lib.toml: model=${model}, supervisor=${frequency}`);
             }
 
-      - name: Commit and push to main [skip ci]
+      - name: Commit and push to main
         if: github.repository != 'xn-intenton-z2a/agentic-lib' && inputs.dry-run != 'true' && inputs.dry-run != true
         env:
           GH_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
@@ -337,7 +341,14 @@ jobs:
           git add -A
           git diff --cached --quiet && echo "No changes" && exit 0
           VERSION=$(npx @xn-intenton-z2a/agentic-lib version 2>/dev/null || echo "latest")
-          git commit -m "init ${INIT_MODE} (agentic-lib@${VERSION}) [skip ci]"
+          # Problem 1 fix: Don't use [skip ci] when workflow files changed.
+          # GitHub may not register cron schedule changes from [skip ci] commits.
+          WORKFLOW_CHANGED=$(git diff --cached --name-only -- '.github/workflows/' | head -1)
+          if [ -n "$WORKFLOW_CHANGED" ]; then
+            git commit -m "init ${INIT_MODE} (agentic-lib@${VERSION})"
+          else
+            git commit -m "init ${INIT_MODE} (agentic-lib@${VERSION}) [skip ci]"
+          fi
           for attempt in 1 2 3; do
             # Use HEAD:refs/heads/main to handle detached HEAD state
             git push origin HEAD:refs/heads/main && break
@@ -352,6 +363,22 @@ jobs:
               exit 1
             fi
           done
+
+      - name: "Verify schedule registered with GitHub"
+        if: github.repository != 'xn-intenton-z2a/agentic-lib' && inputs.schedule != '' && inputs.dry-run != 'true' && inputs.dry-run != true
+        env:
+          GH_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
+        run: |
+          echo "Waiting 10s for GitHub to process the push..."
+          sleep 10
+          WORKFLOW_STATE=$(gh api "repos/${{ github.repository }}/actions/workflows/agentic-lib-workflow.yml" --jq '.state' 2>/dev/null || echo "unknown")
+          echo "Workflow state: ${WORKFLOW_STATE}"
+          if [ "$WORKFLOW_STATE" != "active" ]; then
+            echo "::warning::Workflow state is '${WORKFLOW_STATE}', attempting to enable..."
+            gh api "repos/${{ github.repository }}/actions/workflows/agentic-lib-workflow.yml/enable" -X PUT 2>/dev/null || true
+            WORKFLOW_STATE=$(gh api "repos/${{ github.repository }}/actions/workflows/agentic-lib-workflow.yml" --jq '.state' 2>/dev/null || echo "unknown")
+            echo "Workflow state after enable: ${WORKFLOW_STATE}"
+          fi
 
       - name: Create initial seed issues
         if: github.repository != 'xn-intenton-z2a/agentic-lib' && env.INIT_MODE == 'purge' && inputs.dry-run != 'true' && inputs.dry-run != true && (inputs.create-seed-issues == 'true' || inputs.create-seed-issues == true)
