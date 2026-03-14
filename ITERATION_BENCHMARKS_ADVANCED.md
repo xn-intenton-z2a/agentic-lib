@@ -3,7 +3,9 @@
 Benchmarks that explore higher complexity missions (3 kyu through 1 kyu), elevated profiles, and model comparisons. Builds on ITERATION_BENCHMARKS.md — same procedures, target repository, and conventions apply.
 
 ```text
-Create a report for ITERATION_BENCHMARKS_ADVANCED.md
+Please read ITERATION_BENCHMARKS_ADVANCED.md and ask for any permissions that may be required before you start executing the tests so that benchmarks can be gathered without asking for further permissions.
+Please perform the exercises in ITERATION_BENCHMARKS_ADVANCED.md and create a report in the project root similar to _developers/archive/BENCHMARK_REPORT_007.md
+
 ```
 
 ## Scenario Matrix

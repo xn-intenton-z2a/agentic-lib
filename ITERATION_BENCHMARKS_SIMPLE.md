@@ -3,7 +3,8 @@
 Self-contained guide for running agentic-lib pipeline benchmarks on repository0. A Claude Code session can execute these benchmarks end-to-end and produce a numbered report file.
 
 ```text
-Create a report for ITERATION_BENCHMARKS.md
+Please read ITERATION_BENCHMARKS_SIMPLE.md and ask for any permissions that may be required before you start executing the tests so that benchmarks can be gathered without asking for further permissions.
+Please perform the exercises in ITERATION_BENCHMARKS_SIMPLE.md and create a report in the project root similar to _developers/archive/BENCHMARK_REPORT_007.md
 ```
 
 ## Quick Start
