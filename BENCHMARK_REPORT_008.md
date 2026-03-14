@@ -15,6 +15,21 @@
 
 ---
 
+Prompt for this report:
+```
+Hello Claude, Please create a BENCHMARK_REPORT_*.md document like the other ones in ./agentic-lib which analyses a single experiment which ran from this init and purge at 1:05am           
+https://github.com/xn-intenton-z2a/repository0/actions/workflows/agentic-lib-init.yml to work on 3-kyu-evaluate-owl-ontology and the logs are in here                                         
+https://github.com/xn-intenton-z2a/repository0/tree/agentic-lib-logs. Please so these things with 1 and 2 in consecutively, then 2 through 6 concurrently, then 7 and 8 consecutively: 1.     
+Build a timeline summarising the log activity and when changes (otherbhan logs) were committed to git. 2. Create a report similar to the other BENCHMARK_REPORT_*.md documents. 3. Add        
+reccommedations to improve the workflows based on the report. 4. Take a deep dive into the logging documents and locate reported values which are counter intuative and suggest improvements. 
+ 5. Locate periods where the workflow seems stuck and suggest ways to mitigate this.6. Review the code that was actually created and make reccomendations which will skew the work towards    
+extending the functionality of the core library. 7. Review the FEATURES.md against the report and suggest improvements to areas where we have a declared feature but the implemenation is     
+weak or the actual behaviour is underperforming. 8.Re-assess the whole timeline and report covering itenms 1 through 7 we have workled on and extract any re-occuring patterns that could be  
+optimised and suggest improvements.  
+```
+
+---
+
 ## Configuration
 
 | Parameter | Value |
