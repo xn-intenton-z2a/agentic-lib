@@ -590,6 +590,7 @@ jobs:
           LOG_BRANCH: ${{ needs.params.outputs.log-branch }}
           SCREENSHOT_FILE: ${{ needs.params.outputs.screenshot-file }}
         run: |
+          git fetch origin "${LOG_BRANCH}" 2>/dev/null || true
           git show "origin/${LOG_BRANCH}:${SCREENSHOT_FILE}" > "${SCREENSHOT_FILE}" 2>/dev/null || true
           git show "origin/${LOG_BRANCH}:agentic-lib-state.toml" > "agentic-lib-state.toml" 2>/dev/null || true
 
@@ -701,7 +702,7 @@ jobs:
         if: github.repository != 'xn-intenton-z2a/agentic-lib' && needs.params.outputs.dry-run != 'true'
         env:
           LOG_BRANCH: ${{ needs.params.outputs.log-branch }}
-        run: bash .github/agentic-lib/scripts/push-to-logs.sh agent-log-*.md
+        run: bash .github/agentic-lib/scripts/push-to-logs.sh agent-log-*.md agentic-lib-state.toml
 
   # ─── Implementation Review: traces mission elements through code/tests/website ──
   implementation-review:
@@ -725,10 +726,10 @@ jobs:
           LOG_BRANCH: ${{ needs.params.outputs.log-branch }}
           SCREENSHOT_FILE: ${{ needs.params.outputs.screenshot-file }}
         run: |
+          git fetch origin "${LOG_BRANCH}" 2>/dev/null || true
           git show "origin/${LOG_BRANCH}:${SCREENSHOT_FILE}" > "${SCREENSHOT_FILE}" 2>/dev/null || true
           git show "origin/${LOG_BRANCH}:agentic-lib-state.toml" > "agentic-lib-state.toml" 2>/dev/null || true
           mkdir -p .agent-logs
-          git fetch origin "${LOG_BRANCH}" 2>/dev/null || true
           for f in $(git ls-tree --name-only "origin/${LOG_BRANCH}" 2>/dev/null | grep '^agent-log-' || true); do
             git show "origin/${LOG_BRANCH}:${f}" > ".agent-logs/${f}" 2>/dev/null || true
           done
@@ -767,7 +768,7 @@ jobs:
         if: github.repository != 'xn-intenton-z2a/agentic-lib' && needs.params.outputs.dry-run != 'true'
         env:
           LOG_BRANCH: ${{ needs.params.outputs.log-branch }}
-        run: bash .github/agentic-lib/scripts/push-to-logs.sh agent-log-*.md
+        run: bash .github/agentic-lib/scripts/push-to-logs.sh agent-log-*.md agentic-lib-state.toml
 
   # ─── Director: LLM evaluates mission status (complete/failed/in-progress) ──
   director:
@@ -791,6 +792,7 @@ jobs:
           LOG_BRANCH: ${{ needs.params.outputs.log-branch }}
           SCREENSHOT_FILE: ${{ needs.params.outputs.screenshot-file }}
         run: |
+          git fetch origin "${LOG_BRANCH}" 2>/dev/null || true
           git show "origin/${LOG_BRANCH}:${SCREENSHOT_FILE}" > "${SCREENSHOT_FILE}" 2>/dev/null || true
           git show "origin/${LOG_BRANCH}:agentic-lib-state.toml" > "agentic-lib-state.toml" 2>/dev/null || true
 
@@ -829,7 +831,7 @@ jobs:
         if: github.repository != 'xn-intenton-z2a/agentic-lib' && needs.params.outputs.dry-run != 'true'
         env:
           LOG_BRANCH: ${{ needs.params.outputs.log-branch }}
-        run: bash .github/agentic-lib/scripts/push-to-logs.sh agent-log-*.md
+        run: bash .github/agentic-lib/scripts/push-to-logs.sh agent-log-*.md agentic-lib-state.toml
 
   # ─── Supervisor: LLM decides what to do (after director evaluates) ──
   supervisor:
@@ -854,12 +856,13 @@ jobs:
           LOG_BRANCH: ${{ needs.params.outputs.log-branch }}
           SCREENSHOT_FILE: ${{ needs.params.outputs.screenshot-file }}
         run: |
+          git fetch origin "${LOG_BRANCH}" 2>/dev/null || true
           git show "origin/${LOG_BRANCH}:${SCREENSHOT_FILE}" > "${SCREENSHOT_FILE}" 2>/dev/null || true
           git show "origin/${LOG_BRANCH}:agentic-lib-state.toml" > "agentic-lib-state.toml" 2>/dev/null || true
 
       - name: "C15: Check nop backoff"
         id: backoff
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const fs = require('fs');
@@ -916,7 +919,7 @@ jobs:
         if: github.repository != 'xn-intenton-z2a/agentic-lib' && needs.params.outputs.dry-run != 'true'
         env:
           LOG_BRANCH: ${{ needs.params.outputs.log-branch }}
-        run: bash .github/agentic-lib/scripts/push-to-logs.sh agent-log-*.md
+        run: bash .github/agentic-lib/scripts/push-to-logs.sh agent-log-*.md agentic-lib-state.toml
 
   # ─── Fix stuck PRs with failing checks ─────────────────────────────
   fix-stuck:
@@ -1315,6 +1318,7 @@ jobs:
           LOG_BRANCH: ${{ needs.params.outputs.log-branch }}
           SCREENSHOT_FILE: ${{ needs.params.outputs.screenshot-file }}
         run: |
+          git fetch origin "${LOG_BRANCH}" 2>/dev/null || true
           git show "origin/${LOG_BRANCH}:${SCREENSHOT_FILE}" > "${SCREENSHOT_FILE}" 2>/dev/null || true
           git show "origin/${LOG_BRANCH}:agentic-lib-state.toml" > "agentic-lib-state.toml" 2>/dev/null || true
 
@@ -1486,7 +1490,7 @@ jobs:
         if: github.repository != 'xn-intenton-z2a/agentic-lib' && needs.params.outputs.dry-run != 'true'
         env:
           LOG_BRANCH: ${{ needs.params.outputs.log-branch }}
-        run: bash .github/agentic-lib/scripts/push-to-logs.sh agent-log-*.md
+        run: bash .github/agentic-lib/scripts/push-to-logs.sh agent-log-*.md agentic-lib-state.toml
 
       - name: Create PR and attempt merge
         if: github.repository != 'xn-intenton-z2a/agentic-lib' && steps.issue.outputs.issue-number != '' && needs.params.outputs.dry-run != 'true' && steps.pre-commit-test.outputs.tests-passed == 'true' && steps.pre-commit-behaviour-test.outputs.tests-passed != 'false'

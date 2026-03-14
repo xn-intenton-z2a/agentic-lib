@@ -57,7 +57,7 @@ jobs:
       bump-type: ${{ steps.resolve.outputs.bump-type }}
     steps:
       - id: resolve
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             core.setOutput('bump-type', context.payload.inputs?.['versionIncrement'] || 'patch');
@@ -87,7 +87,7 @@ jobs:
 
       - name: Job Summary
         if: always()
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const summary = `## Job: test\n| Key | Value |\n|-----|-------|\n| Status | ${context.job.status || 'completed'} |`;
@@ -196,7 +196,7 @@ jobs:
 
       - name: Job Summary
         if: always()
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const summary = `## Job: publish\n| Key | Value |\n|-----|-------|\n| Status | ${context.job.status || 'completed'} |\n| Released Version | ${{ steps.released.outputs.releasedVersion || 'N/A' }} |\n| Next Version | ${{ steps.rotated.outputs.newVersion || 'N/A' }} |\n| Bump Type | ${{ inputs.versionIncrement || 'patch' }} |`;

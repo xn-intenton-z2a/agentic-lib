@@ -36,6 +36,7 @@ describe("state.js", () => {
       expect(s.counters["cumulative-transforms"]).toBe(0);
       expect(s.counters["cumulative-nop-cycles"]).toBe(0);
       expect(s.counters["total-tokens"]).toBe(0);
+      expect(s.counters["total-duration-ms"]).toBe(0);
     });
   });
 
@@ -182,6 +183,19 @@ describe("state.js", () => {
       updateStateAfterTask(state, { task: "transform", outcome: "transformed", transformationCost: 1, tokensUsed: 100000 });
       updateStateAfterTask(state, { task: "maintain-features", outcome: "features-maintained", transformationCost: 0, tokensUsed: 50000 });
       expect(state.counters["total-tokens"]).toBe(150000);
+    });
+
+    it("accumulates total duration", () => {
+      const state = defaultState();
+      updateStateAfterTask(state, { task: "transform", outcome: "transformed", transformationCost: 1, tokensUsed: 1000, durationMs: 38000 });
+      updateStateAfterTask(state, { task: "supervise", outcome: "supervised", transformationCost: 0, tokensUsed: 500, durationMs: 12000 });
+      expect(state.counters["total-duration-ms"]).toBe(50000);
+    });
+
+    it("handles missing durationMs gracefully", () => {
+      const state = defaultState();
+      updateStateAfterTask(state, { task: "transform", outcome: "transformed", transformationCost: 1, tokensUsed: 1000 });
+      expect(state.counters["total-duration-ms"]).toBe(0);
     });
 
     it("tracks maintain-features counter", () => {
