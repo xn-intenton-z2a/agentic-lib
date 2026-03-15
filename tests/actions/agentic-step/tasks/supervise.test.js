@@ -643,4 +643,66 @@ describe("tasks/supervise", () => {
     const callArgs = runCopilotSession.mock.calls[0][0];
     expect(callArgs.userPrompt).toContain("Supervisor: daily");
   });
+
+  it("creates issue with mission-derived title when no params provided", async () => {
+    readOptionalFile.mockReturnValue("# Mission\n\nA FizzBuzz library");
+    runCopilotSession.mockResolvedValue({
+      agentMessage: "[ACTIONS]\ngithub:create-issue\n[/ACTIONS]\n[REASONING]\nNeed implementation.\n[/REASONING]",
+      tokensIn: 30,
+      tokensOut: 30,
+      narrative: "test",
+    });
+    const octokit = createMockOctokit();
+    const ctx = createMockContext({ octokit });
+
+    const result = await supervise(ctx);
+
+    expect(octokit.rest.issues.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: "feat: implement mission",
+      }),
+    );
+    expect(result.details).toContain("created-issue:#99");
+  });
+
+  it("rejects non-numeric issue-number in dispatch", async () => {
+    runCopilotSession.mockResolvedValue({
+      agentMessage: "[ACTIONS]\ndispatch:agentic-lib-workflow | issue-number: <placeholder>\n[/ACTIONS]\n[REASONING]\nTest.\n[/REASONING]",
+      tokensIn: 30,
+      tokensOut: 30,
+      narrative: "test",
+    });
+    const octokit = createMockOctokit();
+    octokit.rest.actions.listWorkflowRuns = vi.fn().mockResolvedValue({ data: { total_count: 0 } });
+    const ctx = createMockContext({ octokit });
+
+    const result = await supervise(ctx);
+
+    // Should dispatch but without issue-number
+    expect(octokit.rest.actions.createWorkflowDispatch).toHaveBeenCalledWith(
+      expect.objectContaining({
+        inputs: {},
+      }),
+    );
+  });
+
+  it("forwards mode parameter in dispatch", async () => {
+    runCopilotSession.mockResolvedValue({
+      agentMessage: "[ACTIONS]\ndispatch:agentic-lib-workflow | mode: dev-only | issue-number: 42\n[/ACTIONS]\n[REASONING]\nTest.\n[/REASONING]",
+      tokensIn: 30,
+      tokensOut: 30,
+      narrative: "test",
+    });
+    const octokit = createMockOctokit();
+    octokit.rest.actions.listWorkflowRuns = vi.fn().mockResolvedValue({ data: { total_count: 0 } });
+    const ctx = createMockContext({ octokit });
+
+    const result = await supervise(ctx);
+
+    expect(octokit.rest.actions.createWorkflowDispatch).toHaveBeenCalledWith(
+      expect.objectContaining({
+        inputs: { "issue-number": "42", mode: "dev-only" },
+      }),
+    );
+  });
 });
