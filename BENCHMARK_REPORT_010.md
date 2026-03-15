@@ -48,7 +48,7 @@
 | 3 | 7.4.18 | [23098736957](https://github.com/xn-intenton-z2a/repository0/actions/runs/23098736957) | 23:31 | 6min | NO (maintain only) | -- | 48 | W1 fix worked — action routing now reaches executeCreateIssue. But LLM provided no params (`{action: "github:create-issue", params: {}}`). Logged `skipped:no-title`. **BUG: W4** |
 | 4 | 7.4.20 | [23099060499](https://github.com/xn-intenton-z2a/repository0/actions/runs/23099060499) | 23:52 | 12min | **YES** | [#3004](https://github.com/xn-intenton-z2a/repository0/pull/3004) | 75 | W4 fix worked! Issues #3002, #3003 created. Dev transformed: `fizzbuzzNumber`, `fizzbuzzRange` implemented. PR merged. Post-commit tests pass. |
 | 5 | 7.4.20 | [23099281976](https://github.com/xn-intenton-z2a/repository0/actions/runs/23099281976) | 00:10 | 42min | **YES** | -- | 89 | Long iteration. review-features took 20+ min. More transforms (9 total). `fizzBuzz` and `fizzBuzzSingle` aliases added. Tests expanded. |
-| 6 | 7.4.20 | [23099668678](https://github.com/xn-intenton-z2a/repository0/actions/runs/23099668678) | 00:39 | pending | -- | -- | -- | In progress at time of report |
+| 6 | 7.4.20 | [23099668678](https://github.com/xn-intenton-z2a/repository0/actions/runs/23099668678) | 00:39 | 60+ min (dev stuck) | maintain only | -- | 89 | Dev job running 60+ min in a single Copilot session. `infinite-sessions = true` allows unbounded sessions. No new PR created. **FINDING-7** |
 
 ### Acceptance Criteria
 
@@ -95,19 +95,20 @@ mission-failed = false
 
 | Metric | Value |
 |--------|-------|
-| Total iterations | 5 (+ 1 pending) |
+| Total iterations | 6 (3 wasted on bugs, 2 productive, 1 stuck) |
 | Init purges | 3 (for version upgrades) |
-| Code transforms | 2 (iterations 4, 5) |
+| Code transforms (PRs merged) | 2 (#3004, #3005 from iterations 4-5) |
 | Maintain transforms | 7 |
-| Failed iterations (bugs) | 3 (iterations 1-3) |
+| Failed iterations (bugs) | 3 (iterations 1-3: W1/W4) |
 | Final source lines | 89 (main.js) |
 | Final test count | 8 tests in main.test.js |
 | Acceptance criteria | 7/8 PASS (README not verified) |
-| Mission complete | NOT YET |
-| Time (first init to iteration 5 complete) | ~90 min |
-| Time (working code to iteration 5) | ~48 min (from iteration 4 onwards) |
-| Total tokens | 2,377,553 |
-| Total duration (LLM) | 1,194s (~20 min) |
+| Mission complete | NOT YET (after 6 iterations) |
+| Time (first init to iteration 6 start) | ~104 min |
+| Time (working code at iteration 4) | ~60 min from first init |
+| Total tokens (after iteration 5) | 2,816,266 |
+| Total budget used | 11/32 |
+| Total duration (LLM) | 1,447s (~24 min) |
 
 ---
 
@@ -147,6 +148,12 @@ The tests import `fizzbuzzNumber` and `fizzbuzzRange` (the implementation's inte
 
 FizzBuzz is explicitly labelled in ITERATION_BENCHMARKS_SIMPLE.md as "the simplest mission — if this fails, something fundamental is broken." The fact that 3 of 5 iterations were wasted on supervisor bugs suggests the supervisor prompt and tool schema need better validation. The implementation itself was correct on the first actual transform (iteration 4).
 
+### FINDING-7: Dev job runs 60+ minutes on a fizz-buzz transform (CRITICAL)
+
+Iteration 6's dev job has been running for 60+ minutes in a single Copilot session. The `infinite-sessions = true` setting in the recommended profile enables session compaction and allows unbounded sessions. For a 7-kyu mission where the code is already functionally complete (89 lines, all acceptance criteria passing), spending 60+ minutes in a transform is grossly disproportionate. The dev job should have either: (a) found nothing to do and exited, or (b) made a minor fix and merged quickly. Instead, it appears stuck in a long LLM loop. This is the same pattern as the review-features delay in iteration 5.
+
+**Root cause hypothesis**: The LLM is not detecting that the mission is already implemented. It keeps iterating on minor improvements (reformatting, adding comments, restructuring) instead of recognizing that all acceptance criteria are met. The `infinite-sessions` flag exacerbates this by allowing the session to continue indefinitely.
+
 ---
 
 ## Comparison with Previous Reports
@@ -176,3 +183,7 @@ FizzBuzz is explicitly labelled in ITERATION_BENCHMARKS_SIMPLE.md as "the simple
 4. **Investigate review-features timeouts** (MEDIUM) — Add a hard timeout to the review-features job to prevent 20+ minute sessions. The job should complete in under 2 minutes for simple missions.
 
 5. **Consider hot-fixing without init purge** (MEDIUM) — The current fix cycle (branch → PR → CI → merge → release → init purge) requires restarting the entire scenario. A mechanism to update the agentic-step action in-place (without resetting logs/state/source) would avoid losing accumulated progress.
+
+6. **Add hard timeout to dev job transform sessions** (HIGH) — The dev job's Copilot session should have a maximum duration (e.g., 5 minutes for 7-kyu, 10 minutes for 6-kyu, 15 minutes for 4-kyu). The `infinite-sessions = true` setting should not allow a single fizz-buzz transform to run for 60+ minutes. Consider: (a) setting `infinite-sessions = false` for the recommended profile, or (b) adding a session-level timeout that terminates the Copilot session gracefully after a budget of tool calls or wall-clock time.
+
+7. **Director should declare mission-complete when acceptance criteria are met** (HIGH) — The director has all the metrics and source code. After iteration 4, the code was functionally complete (all acceptance criteria passing). The director should have declared mission-complete on iteration 5, not dispatched more transforms. The gap analysis should check acceptance criteria directly, not just issue/PR counts.
