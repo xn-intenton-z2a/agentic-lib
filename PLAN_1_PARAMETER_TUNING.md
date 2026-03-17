@@ -37,30 +37,88 @@ A successful validation means all scenarios reach mission-complete within budget
 
 ### CLI validation
 
-Construct an equivalent local validation using the agentic-lib CLI:
+Construct an equivalent local validation using the agentic-lib CLI.
+
+> **Note:** The `iterate`, `transform`, `maintain-features`, `maintain-library`, and `fix-code` commands
+> require `@github/copilot-sdk` which is not bundled in the npm package. Use the local build
+> (`node bin/agentic-lib.js`) after running `npm ci` in the agentic-lib repo, or run from a checkout
+> that has the SDK installed.
+
+#### Prerequisites
+
+```bash
+# Ensure agentic-lib dependencies (including @github/copilot-sdk) are installed
+cd /path/to/agentic-lib && npm ci
+
+# Set the Copilot token (required for all iterate/transform/task commands)
+export COPILOT_GITHUB_TOKEN=<token>
+```
 
 #### Workspace setup (equivalent to init-purge)
 
 ```bash
-# Create a clean workspace from a mission seed
-mkdir -p ./tmp/bench-ws && cd ./tmp/bench-ws
-npx @xn-intenton-z2a/agentic-lib init --purge --mission 7-kyu-understand-fizz-buzz
+# Create a clean workspace with a git repo, then init-purge with a mission seed
+rm -rf ./tmp/bench-ws
+mkdir -p ./tmp/bench-ws && cd ./tmp/bench-ws && git init
+
+# Init distributes workflows, actions, agents, seeds, scripts, and config
+node /path/to/agentic-lib/bin/agentic-lib.js init --purge --mission 7-kyu-understand-fizz-buzz
+
+# Install workspace dependencies (required before running tests or iterate)
+npm ci
 ```
 
 #### Run each mission via CLI
 
 ```bash
-# Single iteration (transform + test cycle)
-COPILOT_GITHUB_TOKEN=<token> npx @xn-intenton-z2a/agentic-lib iterate \
+# Single iteration — reads MISSION.md, transforms code, runs tests, iterates autonomously
+node bin/agentic-lib.js iterate \
   --mission 7-kyu-understand-fizz-buzz --model gpt-5-mini
 
-# Discovery mode (auto-generate MISSION.md)
-COPILOT_GITHUB_TOKEN=<token> npx @xn-intenton-z2a/agentic-lib iterate --here
+# Discovery mode — generates MISSION.md from project context, then iterates
+node bin/agentic-lib.js iterate --here
 
-# Individual task handlers
-npx @xn-intenton-z2a/agentic-lib transform --target ./tmp/bench-ws --model gpt-5-mini
-npx @xn-intenton-z2a/agentic-lib supervise --target ./tmp/bench-ws --dry-run
+# List available built-in mission seeds
+node bin/agentic-lib.js iterate --list-missions
+
+# Individual task handlers (all require COPILOT_GITHUB_TOKEN)
+node bin/agentic-lib.js transform --target ./tmp/bench-ws --model gpt-5-mini
+node bin/agentic-lib.js maintain-features --target ./tmp/bench-ws --model gpt-5-mini
+node bin/agentic-lib.js maintain-library --target ./tmp/bench-ws --model gpt-5-mini
+node bin/agentic-lib.js fix-code --target ./tmp/bench-ws --model gpt-5-mini
 ```
+
+#### Available CLI commands
+
+| Command | Description |
+|---------|-------------|
+| `init` | Update workflows, actions, agents, seeds, scripts |
+| `init --reseed` | Also clear features + activity log (keep source code) |
+| `init --purge` | Full reset — reseed + replace source files with seeds |
+| `update` | Alias for `init` |
+| `reset` | Alias for `init --purge` |
+| `version` | Show version |
+| `iterate` | Single Copilot SDK session — reads, writes, tests, iterates autonomously |
+| `iterate --here` | Discover the project and generate a MISSION.md, then iterate |
+| `iterate --list-missions` | List available built-in mission seeds |
+| `transform` | Transform code toward the mission |
+| `maintain-features` | Generate feature files from mission |
+| `maintain-library` | Update library docs from SOURCES.md |
+| `fix-code` | Fix failing tests |
+
+#### Key CLI options
+
+| Option | Description | Default |
+|--------|-------------|---------|
+| `--target <path>` | Target repository | current directory |
+| `--mission <name>` | Mission seed name (purge only) | `6-kyu-understand-hamming-distance` |
+| `--mission-file <path>` | Custom mission file | — |
+| `--model <name>` | Copilot SDK model | `claude-sonnet-4` |
+| `--agent <name>` | Agent prompt to use | `agent-iterate` |
+| `--timeout <ms>` | Session timeout | `600000` |
+| `--issue <N>` | GitHub issue number for context | — |
+| `--pr <N>` | GitHub PR number for context | — |
+| `--dry-run` | Show what would be done | — |
 
 #### Metrics to collect
 
@@ -79,16 +137,22 @@ For each CLI run, record: tokens (from session result), duration (wall-clock), t
 
 ### Regression checklist
 
-- [ ] `npm test` passes in agentic-lib (568+ unit tests)
+- [ ] `npm ci` succeeds in agentic-lib (installs @github/copilot-sdk)
+- [ ] `npm test` passes in agentic-lib (577+ unit tests)
 - [ ] `npm run lint:workflows` passes
-- [ ] Init distributes actions, agents, seeds, scripts correctly
-- [ ] CLI `iterate` completes 7-kyu-understand-fizz-buzz
+- [ ] Init distributes actions, agents, seeds, scripts, copilot modules correctly
+- [ ] `npm ci` succeeds in init-purged workspace
+- [ ] CLI `iterate` completes 7-kyu-understand-fizz-buzz (requires COPILOT_GITHUB_TOKEN)
 - [ ] CLI `iterate --here` discovers and generates MISSION.md
-- [ ] MCP server `iterate` tool works
+- [ ] CLI `iterate --list-missions` lists all available seeds
+- [ ] CLI `transform` runs a single transform cycle (requires COPILOT_GITHUB_TOKEN)
+- [ ] CLI `maintain-features` generates feature files (requires COPILOT_GITHUB_TOKEN)
+- [ ] CLI `maintain-library` updates library docs (requires COPILOT_GITHUB_TOKEN)
+- [ ] CLI `fix-code` fixes failing tests (requires COPILOT_GITHUB_TOKEN)
 - [ ] Token tracking produces correct numbers in both paths
 - [ ] Profile tuning (min/recommended/max) works in both paths
-- [ ] Supervisor creates issues successfully (W1 inline param parsing)
-- [ ] Dispatch forwards mode and issue-number correctly (W2/W3)
+- [ ] Supervisor creates issues successfully (Actions only — W1 inline param parsing)
+- [ ] Dispatch forwards mode and issue-number correctly (Actions only — W2/W3)
 
 ---
 
@@ -151,9 +215,9 @@ For each cell: record tokens, wall-clock, transforms, pass/fail, code quality.
 
 | Mission | min | recommended | max |
 |---------|-----|-------------|-----|
-| fizz-buzz | ? | Report 004 data | ? |
-| hamming-distance | ? | Summary 009 data | ? |
-| cron-engine | ? | Report 007 data | ? |
+| 7-kyu-understand-fizz-buzz | ? | Report 004 data | ? |
+| 6-kyu-understand-hamming-distance | ? | Summary 009 data | ? |
+| 4-kyu-apply-cron-engine | ? | Report 007 data | ? |
 
 ### What to observe (from benchmark history)
 
