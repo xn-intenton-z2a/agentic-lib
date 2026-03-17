@@ -43,7 +43,7 @@ Construct an equivalent local validation using the agentic-lib CLI:
 
 ```bash
 # Create a clean workspace from a mission seed
-mkdir -p /tmp/bench-ws && cd /tmp/bench-ws
+mkdir -p ./tmp/bench-ws && cd ./tmp/bench-ws
 npx @xn-intenton-z2a/agentic-lib init --purge --mission 7-kyu-understand-fizz-buzz
 ```
 
@@ -58,8 +58,8 @@ COPILOT_GITHUB_TOKEN=<token> npx @xn-intenton-z2a/agentic-lib iterate \
 COPILOT_GITHUB_TOKEN=<token> npx @xn-intenton-z2a/agentic-lib iterate --here
 
 # Individual task handlers
-npx @xn-intenton-z2a/agentic-lib transform --target /tmp/bench-ws --model gpt-5-mini
-npx @xn-intenton-z2a/agentic-lib supervise --target /tmp/bench-ws --dry-run
+npx @xn-intenton-z2a/agentic-lib transform --target ./tmp/bench-ws --model gpt-5-mini
+npx @xn-intenton-z2a/agentic-lib supervise --target ./tmp/bench-ws --dry-run
 ```
 
 #### Metrics to collect
