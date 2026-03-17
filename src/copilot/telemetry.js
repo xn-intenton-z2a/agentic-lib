@@ -211,7 +211,10 @@ export function buildMissionReadiness(metrics) {
  * @returns {number} 0 or 1
  */
 export function computeTransformationCost(task, outcome, isInstabilityTransform) {
-  const COST_TASKS = ["transform", "fix-code", "maintain-features", "maintain-library"];
+  // Only dev transforms and fix-code count against the mission budget.
+  // Maintain tasks (maintain-features, maintain-library) are infrastructure
+  // overhead and should not consume mission budget (Benchmark 011 W1).
+  const COST_TASKS = ["transform", "fix-code"];
   const isNop = outcome === "nop" || outcome === "error";
   return COST_TASKS.includes(task) && !isNop && !isInstabilityTransform ? 1 : 0;
 }

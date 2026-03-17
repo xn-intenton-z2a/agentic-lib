@@ -107,7 +107,7 @@ async function run() {
     }
 
     // Compute metrics
-    const COST_TASKS = ["transform", "fix-code", "maintain-features", "maintain-library"];
+    const COST_TASKS = ["transform", "fix-code"];
     const isNop = result.outcome === "nop" || result.outcome === "error";
     const isInstability = issueNumber && COST_TASKS.includes(task) && !isNop
       && await checkInstabilityLabel(context, issueNumber);
