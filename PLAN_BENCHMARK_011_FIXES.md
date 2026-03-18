@@ -147,6 +147,16 @@ All fixes target `agentic-lib/` (mastered here, distributed to repository0 via i
 
 **Status**: pending
 
+### W14: Post-merge director evaluation (HIGH)
+
+**Problem**: The director runs before the dev job merges PRs. After a PR merge that resolves the final issue, the mission may be complete — but no director check runs until the next full workflow cycle. This wastes a whole scheduled run.
+
+**Fix**: Add a post-merge director step to the `post-merge` job. After dev and pr-cleanup complete, if the mission isn't already complete and we're not in dry-run mode, run the same `agentic-step` with `task: "direct"` and fresh context. The `direct()` function already gathers its own context from the GitHub API (issues, PRs, metrics) and handles mission-complete execution (signal file, state update, schedule disable). No refactoring of `direct.js` needed — it's fully self-contained.
+
+**Files**: `.github/workflows/agentic-lib-workflow.yml`
+
+**Status**: DONE
+
 ---
 
 ## Implementation Order
@@ -166,6 +176,7 @@ All fixes target `agentic-lib/` (mastered here, distributed to repository0 via i
 | 11 | W11 | HIGH | None | pending |
 | 12 | W12 | MEDIUM | None | pending |
 | 13 | W13 | MEDIUM | W12 | pending |
+| 14 | W14 | HIGH | W4 | DONE |
 
 **Branch**: `claude/benchmark-011-fixes`
 
@@ -203,3 +214,14 @@ Added open-issue dedup guard to `executeCreateIssue()` in `src/actions/agentic-s
 - Skips creation with `skipped:duplicate-open-#N` if match found
 - This runs before the existing closed-issue dedup guard
 - Combined with the W10 (from Report 010) same-session dedup in `report_supervisor_plan`, there are now 3 layers of dedup: same-session, open issues, recently-closed issues
+
+### W14: Post-merge director evaluation — DONE
+
+Added a post-merge director check to the `post-merge` job in `agentic-lib-workflow.yml`:
+- After dev and pr-cleanup complete, the post-merge job now runs the director (`task: "direct"`)
+- Gated on: `mission-complete != 'true'` (from W4 params check), `dry-run != 'true'`, not SDK repo
+- Steps: fetch log/state from log branch → setup-node → self-init → install agentic-step deps → run director → push logs
+- The `direct()` function gathers its own fresh context from the GitHub API, so no telemetry job dependency needed
+- Can fully declare mission-complete: writes `MISSION_COMPLETE.md`, updates state, disables schedule, dispatches bot
+- **No refactoring of `direct.js` needed** — it's completely self-contained and designed for exactly this use case
+- Eliminates the "wasted cycle" problem where the mission is complete but only detected on the next scheduled run

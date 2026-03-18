@@ -1631,6 +1631,72 @@ jobs:
           echo "- Dry-run: ${{ needs.params.outputs.dry-run }}" >> $GITHUB_STEP_SUMMARY
           echo "- Website: [${SITE_URL}](${SITE_URL})" >> $GITHUB_STEP_SUMMARY
 
+      # W14: Post-merge director check — re-evaluate mission status after dev/PR merges
+      - name: Fetch log and screenshot from log branch (post-merge director)
+        if: |
+          needs.params.outputs.mission-complete != 'true' &&
+          needs.params.outputs.dry-run != 'true' &&
+          github.repository != 'xn-intenton-z2a/agentic-lib'
+        env:
+          LOG_BRANCH: ${{ needs.params.outputs.log-branch }}
+          SCREENSHOT_FILE: ${{ needs.params.outputs.screenshot-file }}
+        run: |
+          git fetch origin "${LOG_BRANCH}" 2>/dev/null || true
+          git show "origin/${LOG_BRANCH}:${SCREENSHOT_FILE}" > "${SCREENSHOT_FILE}" 2>/dev/null || true
+          git show "origin/${LOG_BRANCH}:agentic-lib-state.toml" > "agentic-lib-state.toml" 2>/dev/null || true
+
+      - uses: actions/setup-node@v6
+        if: |
+          needs.params.outputs.mission-complete != 'true' &&
+          needs.params.outputs.dry-run != 'true' &&
+          github.repository != 'xn-intenton-z2a/agentic-lib'
+        with:
+          node-version: "24"
+
+      - name: Self-init (agentic-lib dev only)
+        if: |
+          needs.params.outputs.mission-complete != 'true' &&
+          needs.params.outputs.dry-run != 'true' &&
+          hashFiles('scripts/self-init.sh') != '' && hashFiles('.github/agentic-lib/actions/agentic-step/package.json') == ''
+        run: bash scripts/self-init.sh
+
+      - name: Install agentic-step dependencies (post-merge director)
+        if: |
+          needs.params.outputs.mission-complete != 'true' &&
+          needs.params.outputs.dry-run != 'true' &&
+          github.repository != 'xn-intenton-z2a/agentic-lib'
+        working-directory: .github/agentic-lib/actions/agentic-step
+        run: |
+          npm ci
+          if [ -d "../../copilot" ]; then
+            ln -sf "$(pwd)/node_modules" ../../copilot/node_modules
+          fi
+
+      - name: "W14: Post-merge director evaluation"
+        id: post-merge-director
+        if: |
+          needs.params.outputs.mission-complete != 'true' &&
+          needs.params.outputs.dry-run != 'true' &&
+          github.repository != 'xn-intenton-z2a/agentic-lib'
+        uses: ./.github/agentic-lib/actions/agentic-step
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
+        with:
+          task: "direct"
+          config: ${{ needs.params.outputs.config-path }}
+          instructions: ".github/agents/agent-director.md"
+          model: ${{ needs.params.outputs.model }}
+
+      - name: Push log to log branch (post-merge director)
+        if: |
+          needs.params.outputs.mission-complete != 'true' &&
+          needs.params.outputs.dry-run != 'true' &&
+          github.repository != 'xn-intenton-z2a/agentic-lib'
+        env:
+          LOG_BRANCH: ${{ needs.params.outputs.log-branch }}
+        run: bash .github/agentic-lib/scripts/push-to-logs.sh agent-log-*.md agentic-lib-state.toml
+
   # ─── Post-commit validation: call test workflow to verify branch health ───
   post-commit-test:
     needs: [params, maintain, dev, fix-stuck, post-merge]
