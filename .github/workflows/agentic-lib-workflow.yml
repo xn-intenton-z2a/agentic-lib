@@ -68,7 +68,7 @@ on:
         options:
           - ""
           - min
-          - recommended
+          - med
           - max
       mode:
         description: "Run mode"
@@ -573,8 +573,8 @@ jobs:
               if (fs.existsSync('agentic-lib.toml')) {
                 const toml = fs.readFileSync('agentic-lib.toml', 'utf8');
                 const profileMatch = toml.match(/^\s*profile\s*=\s*"(\w+)"/m);
-                const profile = profileMatch ? profileMatch[1] : 'recommended';
-                const PROFILE_LIMITS = { min: 10000, recommended: 30000, max: 60000 };
+                const profile = profileMatch ? profileMatch[1] : 'med';
+                const PROFILE_LIMITS = { min: 10000, med: 30000, max: 60000 };
                 maxTelemetryChars = PROFILE_LIMITS[profile] || 30000;
               }
             } catch (e) {}

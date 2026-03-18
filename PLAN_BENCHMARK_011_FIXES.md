@@ -217,13 +217,17 @@ All fixes target `agentic-lib/` (mastered here, distributed to repository0 via i
 
 **Status**: pending
 
-### W21: Change default profile to max and verify no truncation with gpt-5 (HIGH)
+### W21: Change default profile to max, rename recommended → med (HIGH)
 
-**Problem**: The default distributed profile is `recommended`, which is conservative. With gpt-5-mini's large context window, the `max` profile's higher limits (30 issues, 128 budget, 8 features, 64 library) are safe and give the LLM more to work with.
+**Problem**: The default distributed profile is `recommended`, which is conservative. With gpt-5-mini's large context window, the `max` profile's higher limits (30 issues, 128 budget, 8 features, 64 library) are safe and give the LLM more to work with. Also, "recommended" is verbose — rename to "med" for consistency with "min" and "max".
 
-**Fix**: Change the `#@dist` marker on the profile setting from `"recommended"` to `"max"`. Verify all truncation points are safe: telemetry output at 60K chars (within GitHub Actions 1MB output limit), `MAX_READ_CHARS = 20000` (reasonable per-file cap), initial test output at 4K chars (adequate), file listing cap at 30 (adequate for max). No truncation changes needed — the existing limits are safe for gpt-5-mini's context.
+**Fix**:
+1. Change the `#@dist` marker on the profile setting from `"recommended"` to `"max"`.
+2. Rename `[profiles.recommended]` to `[profiles.med]` in `agentic-lib.toml`.
+3. Update all references to `"recommended"` profile name: `PROFILE_LIMITS` in `agentic-lib-workflow.yml`, `FALLBACK_TUNING`/`FALLBACK_LIMITS` in `config.js`, and `profiles` section in `agentic-lib-flow.yml`.
+4. Verify all truncation points are safe for gpt-5-mini context with max profile.
 
-**Files**: `agentic-lib.toml`
+**Files**: `agentic-lib.toml`, `src/copilot/config.js`, `.github/workflows/agentic-lib-workflow.yml`, `.github/workflows/agentic-lib-flow.yml`
 
 **Status**: DONE
 
@@ -319,7 +323,9 @@ Added a post-merge director check to the `post-merge` job in `agentic-lib-workfl
 
 ### W21: Change default profile to max — DONE
 
-Changed `#@dist` marker in `agentic-lib.toml` from `"recommended"` to `"max"`.
+Two changes:
+
+**1. Default profile changed to max**: Changed `#@dist` marker from `"recommended"` to `"max"`.
 
 Truncation safety check for gpt-5-mini with max profile:
 - Telemetry output: `PROFILE_LIMITS.max = 60000` chars (~60KB) — within GitHub Actions 1MB output limit
@@ -335,3 +341,10 @@ Max profile values now distributed to consumer repos:
 - `max-issues: 30`, `max-feature-issues: 4`, `max-maintenance-issues: 2`
 - `max-attempts-per-branch: 5`, `max-attempts-per-issue: 4`
 - `features-limit: 8`, `library-limit: 64`
+
+**2. Renamed `recommended` → `med`**: For consistency with `min` and `max`. Updated:
+- `agentic-lib.toml`: `[profiles.recommended]` → `[profiles.med]`, comment updated
+- `src/copilot/config.js`: fallback profile `"recommended"` → `"med"`
+- 4 workflow files: profile choice options `recommended` → `med`
+- `agentic-lib-workflow.yml`: `PROFILE_LIMITS` key and fallback
+- 3 test files: assertions and fixtures updated

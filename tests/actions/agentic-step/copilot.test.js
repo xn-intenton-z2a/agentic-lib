@@ -157,11 +157,11 @@ describe("supportsReasoningEffort", () => {
 
 describe("logTuningParam", () => {
   it("is a function that does not throw", () => {
-    expect(() => logTuningParam("reasoningEffort", "medium", "recommended", "gpt-5-mini")).not.toThrow();
+    expect(() => logTuningParam("reasoningEffort", "medium", "med", "gpt-5-mini")).not.toThrow();
   });
 
   it("accepts optional clip info", () => {
-    expect(() => logTuningParam("featuresScan", 10, "recommended", "gpt-5-mini", { requested: 50, available: 10 })).not.toThrow();
+    expect(() => logTuningParam("featuresScan", 10, "med", "gpt-5-mini", { requested: 50, available: 10 })).not.toThrow();
   });
 });
 

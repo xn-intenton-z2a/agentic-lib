@@ -25,7 +25,7 @@ library-limit = 8
 `;
 
 const PROFILE_RECOMMENDED = `
-[profiles.recommended]
+[profiles.med]
 reasoning-effort = "medium"
 infinite-sessions = true
 transformation-budget = 32
@@ -213,7 +213,7 @@ describe("config-loader", () => {
       expect(config.packageJson).toBe("");
     });
 
-    it("uses recommended tuning profile by default", () => {
+    it("uses med tuning profile by default", () => {
       const configPath = join(tmpDir, "config.toml");
       writeFileSync(configPath, "");
 
@@ -270,12 +270,12 @@ describe("config-loader", () => {
       expect(config.tuning.profileName).toBe("min");
     });
 
-    it("defaults profileName to recommended", () => {
+    it("defaults profileName to med", () => {
       const configPath = join(tmpDir, "config.toml");
       writeFileSync(configPath, "");
 
       const config = loadConfig(configPath);
-      expect(config.tuning.profileName).toBe("recommended");
+      expect(config.tuning.profileName).toBe("med");
     });
 
     it("resolves transformation-budget from profile", () => {

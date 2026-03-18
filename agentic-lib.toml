@@ -36,7 +36,7 @@ test = "npm ci && npm test"
 # library-limit = 32
 
 [tuning]
-# Profile sets defaults for all tuning and limit knobs: min | recommended | max
+# Profile sets defaults for all tuning and limit knobs: min | med | max
 # Profile definitions live in [profiles.*] sections below.
 profile = "min"                                  #@dist "max"
 #
@@ -76,8 +76,8 @@ max-attempts-per-issue = 1                 # max transform attempts before aband
 features-limit = 2                     # max feature files in features/ directory
 library-limit = 8                      # max library entries in library/ directory
 
-[profiles.recommended]
-# Balanced — good results, default for consumer repos.
+[profiles.med]
+# Balanced — good results, middle ground.
 reasoning-effort = "medium"            # low | medium | high | none
 infinite-sessions = true               # enable session compaction for long runs
 transformation-budget = 32             # max code-changing cycles per run

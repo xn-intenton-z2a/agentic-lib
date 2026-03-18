@@ -132,7 +132,7 @@ function readPackageJson(tomlPath, depsRelPath) {
  * @param {Object} [profilesSection] - The [profiles] section from TOML (source of truth)
  */
 function resolveTuning(tuningSection, profilesSection) {
-  const profileName = tuningSection.profile || "recommended";
+  const profileName = tuningSection.profile || "med";
   const tomlProfile = profilesSection?.[profileName];
   const profile = parseTuningProfile(tomlProfile) || FALLBACK_TUNING;
   const tuning = { ...profile, profileName };
