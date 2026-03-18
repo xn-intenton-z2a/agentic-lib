@@ -108,7 +108,7 @@ export function readTransformationCost(targetPath) {
 
 /**
  * Read transformation budget from agentic-lib.toml.
- * Falls back to 8 (the "recommended" profile default).
+ * Falls back to 8 (the "med" profile default).
  */
 export function readBudget(targetPath) {
   const tomlPath = resolve(targetPath, "agentic-lib.toml");

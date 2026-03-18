@@ -179,11 +179,11 @@ describe("logging", () => {
         filepath,
         task: "transform",
         outcome: "transformed",
-        profile: "recommended",
+        profile: "med",
       });
 
       const content = readFileSync(filepath, "utf8");
-      expect(content).toContain("**Profile:** recommended");
+      expect(content).toContain("**Profile:** med");
     });
 
     it("includes changes section when provided", () => {

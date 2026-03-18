@@ -38,6 +38,18 @@ Premium models (like Claude Sonnet 4) are restricted to:
 
 Free models (GPT-5 mini, GPT-4.1) are available to all Copilot plans.
 
+## Profile ↔ Model Guidance
+
+Profiles control LLM-facing context limits (file read sizes, test output, listings). Choose a profile that fits your model's context window:
+
+| Profile | Sized for | Max single read | Total context budget |
+|---------|-----------|-----------------|---------------------|
+| `min`   | gpt-4.1 (128K tokens) | 20K chars (~6K tokens) | Conservative — fast, cheap |
+| `med`   | claude-sonnet-4 (216K tokens) | 50K chars (~14K tokens) | Balanced |
+| `max`   | gpt-5-mini (264K tokens) | 100K chars (~28K tokens) | Full capability |
+
+With `infinite-sessions: true` (enabled in med and max profiles), the Copilot SDK compacts earlier messages if context fills up. This means the limits above are per-tool-call caps, not hard session limits.
+
 ## Notes
 
 - Model IDs are what you pass to `createSession({ model: "..." })`
