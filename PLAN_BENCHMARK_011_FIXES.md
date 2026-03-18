@@ -157,6 +157,90 @@ All fixes target `agentic-lib/` (mastered here, distributed to repository0 via i
 
 **Status**: DONE
 
+### W15: Skip expensive jobs when no work exists (MEDIUM — WASTE)
+
+**Problem**: Several jobs run full setup (checkout, node, npm ci, agentic-step install) even when there's nothing to do: `review-features` when there are no open issues, `fix-stuck` when there are no automerge PRs, `behaviour-telemetry` when there's no `playwright.config.js`, `post-commit-test` when dev nop'd.
+
+**Fix**: Add early-exit conditions to these jobs. For `review-features` and `fix-stuck`, have the telemetry job output issue/PR counts so downstream jobs can gate on them. For `behaviour-telemetry`, move the `hashFiles` check from the step to the job `if` condition. For `post-commit-test`, gate on dev having produced changes (add an output from the dev job).
+
+**Files**: `.github/workflows/agentic-lib-workflow.yml`
+
+**Status**: pending
+
+### W16: Bot notification on mission-complete and mission-failed (MEDIUM — LIFECYCLE)
+
+**Problem**: Neither `executeMissionComplete()` nor `executeMissionFailed()` notifies the discussion bot. The user's first indication that the mission ended is seeing the schedule go quiet. The supervisor has lifecycle posts but they run before the director's decision.
+
+**Fix**: In `executeMissionComplete()` and `executeMissionFailed()` in `direct.js`, after writing the signal file and disabling the schedule, dispatch the bot workflow with a summary message ("Mission complete: {reason}" / "Mission failed: {reason}"). Use the same `dispatchBot` pattern from `supervise.js`, or call the bot workflow directly via `createWorkflowDispatch`.
+
+**Files**: `src/actions/agentic-step/tasks/direct.js`
+
+**Status**: pending
+
+### W17: Pass implementation-review results to the dev/transform task (MEDIUM — CONTEXT)
+
+**Problem**: The `implementation-review` job produces `review-advice` and `review-gaps` which are passed to `director` and `supervisor` via env vars, but NOT to the `dev` (transform) job. The agent writing code can't see what the implementation review found is missing — it has to rediscover gaps via tool calls.
+
+**Fix**: Add `REVIEW_ADVICE` and `REVIEW_GAPS` env vars to the "Run transformation" step in the dev job, sourced from `needs.implementation-review.outputs`. Update the transform prompt to include a "## Implementation Review" section (similar to what the supervisor prompt already does).
+
+**Files**: `.github/workflows/agentic-lib-workflow.yml`, `src/actions/agentic-step/tasks/transform.js`
+
+**Status**: pending
+
+### W18: Pass review results to W14 post-merge director (LOW — CONTEXT)
+
+**Problem**: The pre-dev director receives `REVIEW_ADVICE`/`REVIEW_GAPS` from the implementation-review job, but the W14 post-merge director doesn't. It evaluates mission-complete without knowing about critical implementation gaps, which could lead to premature mission-complete declarations.
+
+**Fix**: Add `REVIEW_ADVICE` and `REVIEW_GAPS` env vars to the W14 post-merge director step, sourced from `needs.implementation-review.outputs`. The `implementation-review` job needs to be added to the `post-merge` job's `needs` list.
+
+**Files**: `.github/workflows/agentic-lib-workflow.yml`
+
+**Status**: pending
+
+### W19: Pass telemetry test output to the transform agent (LOW — CONTEXT)
+
+**Problem**: The telemetry job captures live unit test output and behaviour test results, but this data only reaches the supervisor prompt. The transform agent has to burn tool calls running tests itself to discover what's currently failing — it could be told upfront.
+
+**Fix**: Pass the telemetry test results (unit test exit code, pass/fail counts, and optionally truncated output) to the dev job via the telemetry outputs. Include a "## Current Test State" section in the transform prompt showing what tests pass/fail before any changes.
+
+**Files**: `.github/workflows/agentic-lib-workflow.yml`, `src/actions/agentic-step/tasks/transform.js`
+
+**Status**: pending
+
+### W20: Fix-stuck should immediately attempt merge after resolving conflicts (MEDIUM — THROUGHPUT)
+
+**Problem**: After fix-stuck resolves a PR's conflicts (Tier 1/2/3), it pushes the fix but then relies on the next pr-cleanup cycle to actually merge the PR. This wastes a full cycle.
+
+**Fix**: After successfully pushing conflict resolution, immediately attempt to merge the PR in the same step (wait for checks, then squash-merge). Use the same merge logic as pr-cleanup. If merge succeeds, also label the associated issue with `merged`.
+
+**Files**: `.github/workflows/agentic-lib-workflow.yml`
+
+**Status**: pending
+
+### W21: Change default profile to max and verify no truncation with gpt-5 (HIGH)
+
+**Problem**: The default distributed profile is `recommended`, which is conservative. With gpt-5-mini's large context window, the `max` profile's higher limits (30 issues, 128 budget, 8 features, 64 library) are safe and give the LLM more to work with.
+
+**Fix**: Change the `#@dist` marker on the profile setting from `"recommended"` to `"max"`. Verify all truncation points are safe: telemetry output at 60K chars (within GitHub Actions 1MB output limit), `MAX_READ_CHARS = 20000` (reasonable per-file cap), initial test output at 4K chars (adequate), file listing cap at 30 (adequate for max). No truncation changes needed — the existing limits are safe for gpt-5-mini's context.
+
+**Files**: `agentic-lib.toml`
+
+**Status**: DONE
+
+---
+
+## Overarching Theme
+
+**"Try and do everything you can to complete the mission at each stage."**
+
+Tackle the coarsest grain where success can reasonably be expected. Every job should ask: "can I advance the mission further right now?" rather than "is my specific step done?" This means:
+- Don't waste cycles on work that's already done (W2/W3/W4/W11/W14/W15)
+- Don't create work that already exists (W5/W6)
+- Give the LLM all available context upfront (W8/W9/W10/W12/W13/W17/W18/W19)
+- Do more per cycle (W7/W20)
+- Close the loop immediately when the mission is done (W14/W16)
+- Use the most capable settings available (W21)
+
 ---
 
 ## Implementation Order
@@ -177,6 +261,13 @@ All fixes target `agentic-lib/` (mastered here, distributed to repository0 via i
 | 12 | W12 | MEDIUM | None | pending |
 | 13 | W13 | MEDIUM | W12 | pending |
 | 14 | W14 | HIGH | W4 | DONE |
+| 15 | W15 | MEDIUM | None | pending |
+| 16 | W16 | MEDIUM | None | pending |
+| 17 | W17 | MEDIUM | None | pending |
+| 18 | W18 | LOW | W14, W17 | pending |
+| 19 | W19 | LOW | None | pending |
+| 20 | W20 | MEDIUM | None | pending |
+| 21 | W21 | HIGH | None | DONE |
 
 **Branch**: `claude/benchmark-011-fixes`
 
@@ -225,3 +316,22 @@ Added a post-merge director check to the `post-merge` job in `agentic-lib-workfl
 - Can fully declare mission-complete: writes `MISSION_COMPLETE.md`, updates state, disables schedule, dispatches bot
 - **No refactoring of `direct.js` needed** — it's completely self-contained and designed for exactly this use case
 - Eliminates the "wasted cycle" problem where the mission is complete but only detected on the next scheduled run
+
+### W21: Change default profile to max — DONE
+
+Changed `#@dist` marker in `agentic-lib.toml` from `"recommended"` to `"max"`.
+
+Truncation safety check for gpt-5-mini with max profile:
+- Telemetry output: `PROFILE_LIMITS.max = 60000` chars (~60KB) — within GitHub Actions 1MB output limit
+- `MAX_READ_CHARS = 20000` in copilot-session.js — reasonable per-file cap, prevents context flooding
+- `initialTestOutput.substring(0, 4000)` — adequate for test output summary
+- File listing cap: 30 files per directory — adequate
+- `agentMessage.substring(0, 500)` — return value only, not session content
+- `infiniteSessions: true` — enabled in max profile, handles long sessions via compaction
+
+Max profile values now distributed to consumer repos:
+- `reasoning-effort: "high"` (gpt-5-mini supports this)
+- `transformation-budget: 128`
+- `max-issues: 30`, `max-feature-issues: 4`, `max-maintenance-issues: 2`
+- `max-attempts-per-branch: 5`, `max-attempts-per-issue: 4`
+- `features-limit: 8`, `library-limit: 64`
