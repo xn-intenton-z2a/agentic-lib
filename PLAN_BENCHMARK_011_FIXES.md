@@ -302,12 +302,12 @@ Tackle the coarsest grain where success can reasonably be expected. Every job sh
 | 12 | W12 | MEDIUM | None | DONE (seed already has @vitest/coverage-v8) |
 | 13 | W13 | MEDIUM | W12 | DONE |
 | 14 | W14 | HIGH | W4 | DONE |
-| 15 | W15 | MEDIUM | None | deferred (requires telemetry output changes) |
+| 15 | W15 | MEDIUM | None | DONE |
 | 16 | W16 | MEDIUM | None | DONE |
 | 17 | W17 | MEDIUM | None | DONE |
 | 18 | W18 | LOW | W14, W17 | DONE |
-| 19 | W19 | LOW | None | deferred (telemetry outputs not yet routed to dev) |
-| 20 | W20 | MEDIUM | None | deferred (merge logic in fix-stuck is complex) |
+| 19 | W19 | LOW | None | DONE |
+| 20 | W20 | MEDIUM | None | DONE |
 | 21 | W21 | HIGH | None | DONE |
 | 22 | W22 | HIGH | W21 | DONE |
 

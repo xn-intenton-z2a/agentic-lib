@@ -581,6 +581,17 @@ jobs:
             const summary = JSON.stringify(telemetry);
             core.setOutput('telemetry', summary.slice(0, maxTelemetryChars));
 
+            // W15: Output counts for downstream job gating
+            core.setOutput('open-issue-count', String(issuesSummary.length));
+            core.setOutput('open-pr-count', String(prsSummary.length));
+
+            // W19: Output unit test summary for transform prompt
+            const unitSummary = `exit=${telemetry.liveTests.unit.exitCode} pass=${telemetry.liveTests.unit.passCount} fail=${telemetry.liveTests.unit.failCount}`;
+            core.setOutput('unit-test-summary', unitSummary);
+            // Truncated unit test output for transform (first 4000 chars)
+            const unitOutput = (telemetry.liveTests?.unit?.output || '').substring(0, 4000);
+            core.setOutput('unit-test-output', unitOutput);
+
       - name: Output telemetry summary
         shell: bash
         run: |
@@ -590,6 +601,10 @@ jobs:
 
     outputs:
       telemetry: ${{ steps.gather.outputs.telemetry }}
+      open-issue-count: ${{ steps.gather.outputs.open-issue-count }}
+      open-pr-count: ${{ steps.gather.outputs.open-pr-count }}
+      unit-test-summary: ${{ steps.gather.outputs.unit-test-summary }}
+      unit-test-output: ${{ steps.gather.outputs.unit-test-output }}
 
   # ─── Maintain: features + library (push to main) ───────────────────
   # Runs early (parallel with pr-cleanup/telemetry) so supervisor sees features.
@@ -1262,6 +1277,63 @@ jobs:
             echo "No additional changes to push"
           fi
 
+      # W20: Immediately attempt merge after fix-stuck resolves conflicts
+      - name: "W20: Immediate merge attempt after fix"
+        if: |
+          github.repository != 'xn-intenton-z2a/agentic-lib' &&
+          env.FIX_PR_NUMBER != '' &&
+          steps.fix-mission-check.outputs.mission-complete != 'true' &&
+          needs.params.outputs.dry-run != 'true'
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const prNumber = parseInt('${{ env.FIX_PR_NUMBER }}');
+            if (!prNumber) return;
+
+            // Wait for checks to register
+            await new Promise(r => setTimeout(r, 15000));
+
+            for (let attempt = 0; attempt < 3; attempt++) {
+              const { data: pr } = await github.rest.pulls.get({
+                owner, repo, pull_number: prNumber,
+              });
+
+              if (pr.mergeable && pr.mergeable_state === 'clean') {
+                try {
+                  await github.rest.pulls.merge({
+                    owner, repo, pull_number: prNumber, merge_method: 'squash',
+                  });
+                  core.info(`W20: Merged PR #${prNumber} immediately after fix`);
+                  try {
+                    await github.rest.git.deleteRef({ owner, repo, ref: `heads/${pr.head.ref}` });
+                  } catch (e) { /* branch may already be deleted */ }
+                  // Label associated issue
+                  const branchPrefix = 'agentic-lib-issue-';
+                  if (pr.head.ref.startsWith(branchPrefix)) {
+                    const issueNum = parseInt(pr.head.ref.replace(branchPrefix, ''));
+                    if (issueNum) {
+                      try {
+                        await github.rest.issues.addLabels({ owner, repo, issue_number: issueNum, labels: ['merged'] });
+                        await github.rest.issues.removeLabel({ owner, repo, issue_number: issueNum, name: 'in-progress' });
+                      } catch (e) { /* label may not exist */ }
+                    }
+                  }
+                  return;
+                } catch (e) {
+                  core.info(`W20: Merge attempt ${attempt + 1} failed: ${e.message}`);
+                }
+              } else if (pr.mergeable_state === 'unstable' || pr.mergeable === null) {
+                core.info(`W20: PR not ready yet (${pr.mergeable_state}), waiting...`);
+                await new Promise(r => setTimeout(r, 15000));
+              } else {
+                core.info(`W20: PR not mergeable (${pr.mergeable_state}), leaving for pr-cleanup`);
+                break;
+              }
+            }
+            core.info(`W20: PR #${prNumber} left open for next cycle`);
+
       - name: Commit, push, and open PR for main build fix
         if: github.repository != 'xn-intenton-z2a/agentic-lib' && env.FIX_MAIN_BUILD == 'true' && steps.fix-mission-check.outputs.mission-complete != 'true'
         env:
@@ -1282,12 +1354,14 @@ jobs:
             --label automerge
 
   # ─── Review: close resolved issues, enhance with criteria ──────────
+  # W15: Skip review when there are no open issues to review
   review-features:
-    needs: [params, maintain, supervisor]
+    needs: [params, maintain, supervisor, telemetry]
     if: |
       !cancelled() &&
       (needs.params.outputs.mode == 'full' || needs.params.outputs.mode == 'review-only') &&
-      needs.params.result == 'success'
+      needs.params.result == 'success' &&
+      needs.telemetry.outputs.open-issue-count != '0'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -1334,9 +1408,9 @@ jobs:
           instructions: ".github/agents/agent-ready-issue.md"
           model: ${{ needs.params.outputs.model }}
 
-  # ─── Dev: sequential issue resolution ──────────────────────────────
+  # ─── Dev: issue resolution (W7: multiple issues per session) ──────
   dev:
-    needs: [params, maintain, review-features]
+    needs: [params, maintain, review-features, telemetry, implementation-review]
     if: |
       !cancelled() &&
       (needs.params.outputs.mode == 'full' || needs.params.outputs.mode == 'dev-only') &&
@@ -1469,6 +1543,8 @@ jobs:
           COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
           REVIEW_ADVICE: ${{ needs.implementation-review.outputs.review-advice }}
           REVIEW_GAPS: ${{ needs.implementation-review.outputs.review-gaps }}
+          TELEMETRY_UNIT_TEST_SUMMARY: ${{ needs.telemetry.outputs.unit-test-summary }}
+          TELEMETRY_UNIT_TEST_OUTPUT: ${{ needs.telemetry.outputs.unit-test-output }}
         with:
           task: "transform"
           config: ${{ needs.params.outputs.config-path }}

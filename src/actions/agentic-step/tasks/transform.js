@@ -145,6 +145,10 @@ export async function transform(context) {
   const reviewAdvice = process.env.REVIEW_ADVICE || "";
   const reviewGapsRaw = process.env.REVIEW_GAPS || "";
 
+  // W19: Telemetry test output from upstream
+  const telemetryTestSummary = process.env.TELEMETRY_UNIT_TEST_SUMMARY || "";
+  const telemetryTestOutput = process.env.TELEMETRY_UNIT_TEST_OUTPUT || "";
+
   const prompt = [
     "## Instructions",
     agentInstructions,
@@ -181,6 +185,13 @@ export async function transform(context) {
       "",
       `## Worktree Files (${worktreeFiles.length} non-ignored files)`,
       worktreeFiles.join("\n"),
+    ] : []),
+    // W19: Current test state from telemetry
+    ...(telemetryTestSummary ? [
+      "",
+      "## Current Test State (from telemetry)",
+      `Summary: ${telemetryTestSummary}`,
+      ...(telemetryTestOutput ? [`\`\`\`\n${telemetryTestOutput}\n\`\`\``] : []),
     ] : []),
     // W17: Implementation review
     ...(reviewAdvice ? [
