@@ -231,6 +231,43 @@ All fixes target `agentic-lib/` (mastered here, distributed to repository0 via i
 
 **Status**: DONE
 
+### W22: Make LLM-facing truncation limits profile-configurable (HIGH)
+
+**Problem**: Several truncation limits that directly affect what the LLM can reason about are hardcoded, sized conservatively for an era when context windows were small. gpt-5-mini has **264K token context** (~900K chars for code). Current limits waste most of this capacity:
+
+| Limit | Current | Location | Impact |
+|-------|---------|----------|--------|
+| `MAX_READ_CHARS` | 20,000 | copilot-session.js:195 | A 500-line source file gets chopped. LLM can't see the code it's modifying. |
+| Test output | 4,000 | copilot-session.js:299 | Failing test error messages get lost. |
+| File listing | 30 files | transform.js:35 | Larger repos miss files. |
+| Library index | 2,000 chars | transform.js:57 | Reference material truncated. |
+| Fix-code test output | 8,000 | fix-code.js:35 | Diagnosis info chopped. |
+
+**Fix**: Add these as profile-configurable values in `agentic-lib.toml`, parsed in `config.js`, passed through to task handlers and `copilot-session.js`.
+
+Proposed profile values (sized against model context windows from MODELS.md):
+
+| Limit | min | med | max | Reasoning |
+|-------|-----|-----|-----|-----------|
+| `max-read-chars` | 20,000 | 50,000 | 100,000 | Max ≈ 25K tokens, ~10% of gpt-5-mini's 264K context. Allows full view of any normal source file. |
+| `max-test-output` | 4,000 | 10,000 | 20,000 | Max ≈ 5K tokens. Enough for full error traces. |
+| `max-file-listing` | 30 | 100 | 0 (unlimited) | Filenames are tiny (~50 chars each). Even 200 files is ~10K chars. No reason to cap at max. |
+| `max-library-index` | 2,000 | 5,000 | 10,000 | Reference material summaries. 10K ≈ 2.5K tokens. |
+| `max-fix-test-output` | 8,000 | 15,000 | 30,000 | Fix-code needs full diagnosis. 30K ≈ 7.5K tokens. |
+
+For gpt-4.1 (128K context), users should use min or med profile. For claude-sonnet-4 (216K context), med is safe. Max is sized for gpt-5-mini (264K) with headroom.
+
+**Implementation**:
+1. Add `[profiles.*.context-limits]` section to `agentic-lib.toml` with the 5 values above
+2. Parse in `config.js` → `resolveTuning()` or new `resolveContextLimits()`
+3. Pass `config.contextLimits` to `runCopilotSession()` (for `MAX_READ_CHARS` and test output)
+4. Pass to task handlers (for file listing, library index, fix-test output)
+5. Update MODELS.md with context window guidance per profile
+
+**Files**: `agentic-lib.toml`, `src/copilot/config.js`, `src/copilot/copilot-session.js`, `src/actions/agentic-step/tasks/transform.js`, `src/actions/agentic-step/tasks/fix-code.js`, `src/actions/agentic-step/tasks/maintain-library.js`, `src/actions/agentic-step/tasks/maintain-features.js`, `MODELS.md`
+
+**Status**: pending
+
 ---
 
 ## Overarching Theme
@@ -272,6 +309,7 @@ Tackle the coarsest grain where success can reasonably be expected. Every job sh
 | 19 | W19 | LOW | None | pending |
 | 20 | W20 | MEDIUM | None | pending |
 | 21 | W21 | HIGH | None | DONE |
+| 22 | W22 | HIGH | W21 | pending |
 
 **Branch**: `claude/benchmark-011-fixes`
 
@@ -330,7 +368,7 @@ Two changes:
 Truncation analysis — what actually reaches the LLM prompt vs what doesn't:
 
 LLM-facing truncations (these limit what the model can reason about):
-- `MAX_READ_CHARS = 20000` in copilot-session.js — per-file read cap. Most impactful: large source files get chopped. Conservative for gpt-5-mini's ~1M token context.
+- `MAX_READ_CHARS = 20000` in copilot-session.js — per-file read cap. Most impactful: large source files get chopped. Conservative for gpt-5-mini's 264K token context (~900K chars).
 - `initialTestOutput.substring(0, 4000)` — test output in mission-mode prompt
 - File listing `.slice(0, 30)` — caps directory listings at 30 files
 - Library index cap at 2000 chars
@@ -342,7 +380,7 @@ NOT in LLM prompts (workflow outputs / logging only — safe to ignore):
 - `agentMessage.substring(0, 500)` — return value, not session content
 - `analysis/reasoning.substring()` — log entries and step outputs
 
-With `infiniteSessions: true` and gpt-5-mini's ~1M token context, all LLM-facing truncations are conservative and could be raised. The 20K per-file-read is the most likely to cost us — a 500-line source file (~20K chars) would be truncated.
+With `infiniteSessions: true` and gpt-5-mini's 264K token context (~900K chars), all LLM-facing truncations are very conservative. The 20K per-file-read is the most likely to cost us — a 500-line source file gets truncated. W22 addresses this by making all limits profile-configurable.
 
 Max profile values now distributed to consumer repos:
 - `reasoning-effort: "high"` (gpt-5-mini supports this)
