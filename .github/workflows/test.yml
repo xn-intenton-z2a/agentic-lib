@@ -43,6 +43,8 @@ name: test
 run-name: "test [${{ github.ref_name }}]"
 
 on:
+  schedule:
+    - cron: "17 5,17 * * *"
   push:
     branches:
       - main
