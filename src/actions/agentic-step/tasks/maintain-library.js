@@ -57,7 +57,7 @@ export async function maintainLibrary(context) {
   const sourcesPath = config.paths.librarySources.path;
   const sources = readOptionalFile(sourcesPath);
   const mission = readOptionalFile(config.paths.mission.path);
-  const hasUrls = /https?:\/\//.test(sources);
+  const hasUrls = /https?:\/\//.test(sources); // used in prompt to guide Step 1 wording
 
   const libraryPath = config.paths.library.path;
   const libraryLimit = config.paths.library.limit;
@@ -80,83 +80,53 @@ export async function maintainLibrary(context) {
 
   const agentInstructions = instructions || "Maintain the library by updating documents from sources.";
 
-  let prompt;
-  if (!hasUrls) {
-    // SOURCES.md has no URLs — ask the LLM to find relevant sources based on the mission
-    core.info("SOURCES.md has no URLs — asking LLM to discover relevant sources from the mission.");
-    prompt = [
-      "## Instructions",
-      agentInstructions,
+  const prompt = [
+    "## Instructions",
+    agentInstructions,
+    "",
+    "## Mission",
+    mission || "(no mission file found)",
+    "",
+    "## Current SOURCES.md",
+    sources || "(empty — no URLs yet)",
+    "",
+    `## Current Library Documents (${libraryFiles.length}/${libraryLimit} max)`,
+    libraryFiles.length > 0 ? libraryFiles.join(", ") : "(none — library is empty)",
+    "",
+    ...(featureFiles.length > 0 ? [
+      `## Active Features (${featureFiles.length})`,
+      featureFiles.join(", "),
       "",
-      "## Mission",
-      mission || "(no mission file found)",
+    ] : []),
+    ...(openIssuesSummary.length > 0 ? [
+      `## Open Issues (${openIssuesSummary.length})`,
+      openIssuesSummary.join("\n"),
       "",
-      "## Current SOURCES.md",
-      sources || "(empty)",
-      "",
-      ...(featureFiles.length > 0 ? [
-        `## Active Features (${featureFiles.length})`,
-        featureFiles.join(", "),
-        "",
-      ] : []),
-      ...(openIssuesSummary.length > 0 ? [
-        `## Open Issues (${openIssuesSummary.length})`,
-        openIssuesSummary.join("\n"),
-        "",
-      ] : []),
-      "## Your Task",
-      `SOURCES.md has no URLs yet. Do BOTH steps in this single session:`,
-      "",
-      `**Step 1:** Research the mission and populate ${sourcesPath} with 3-8 relevant reference URLs.`,
-      "Find documentation, tutorials, API references, Wikipedia articles, or npm packages related to the mission's core topic.",
-      "Prioritise sources relevant to the active features and open issues listed above.",
-      "Use web search to discover high-quality, stable URLs (prefer official docs, Wikipedia, MDN, npm).",
-      `Write the URLs as a markdown list in ${sourcesPath}, keeping the existing header text.`,
-      "",
-      `**Step 2:** After writing URLs, fetch each one and create library documents in \`${libraryPath}\`.`,
-      `Each library document should be a markdown file summarising the key technical content from the source.`,
-      `Create up to ${libraryLimit} documents. Name them descriptively (e.g. \`MDN_ARRAY_METHODS.md\`).`,
-      "",
-      formatPathsSection(writablePaths, config.readOnlyPaths, config),
-      "",
-      "## Constraints",
-      `- Token budget: ~${maxTokens} tokens. Be concise — avoid verbose explanations or unnecessary tool calls.`,
-    ].join("\n");
-  } else {
-    prompt = [
-      "## Instructions",
-      agentInstructions,
-      "",
-      "## Sources",
-      sources,
-      "",
-      `## Current Library Documents (${libraryFiles.length}/${libraryLimit} max)`,
-      libraryFiles.length > 0 ? libraryFiles.join(", ") : "none",
-      "",
-      ...(featureFiles.length > 0 ? [
-        `## Active Features (${featureFiles.length})`,
-        featureFiles.join(", "),
-        "",
-      ] : []),
-      ...(openIssuesSummary.length > 0 ? [
-        `## Open Issues (${openIssuesSummary.length})`,
-        openIssuesSummary.join("\n"),
-        "",
-      ] : []),
-      "## Your Task",
-      "Use read_file to read existing library documents.",
-      "1. Read each URL in SOURCES.md and extract technical content.",
-      "2. Create or update library documents based on the source content.",
-      "3. Remove library documents that no longer have corresponding sources.",
-      "4. If active features or open issues suggest topics not covered by current sources, add relevant URLs to SOURCES.md.",
-      "",
-      formatPathsSection(writablePaths, config.readOnlyPaths, config),
-      "",
-      "## Constraints",
-      `- Maximum ${libraryLimit} library documents`,
-      `- Token budget: ~${maxTokens} tokens. Be concise — avoid verbose explanations or unnecessary tool calls.`,
-    ].join("\n");
-  }
+    ] : []),
+    "## Your Task — Two Steps (always do both)",
+    "",
+    `**Step 1: Update ${sourcesPath}**`,
+    "Review the current SOURCES.md against the mission, features, and open issues.",
+    hasUrls
+      ? "Add URLs for topics not yet covered. Remove URLs that are no longer relevant. Keep existing URLs that are still useful."
+      : "SOURCES.md has no URLs yet. Research the mission and add 3-8 relevant reference URLs.",
+    "Find documentation, tutorials, API references, Wikipedia articles, or npm packages.",
+    "Prioritise sources relevant to the active features and open issues listed above.",
+    "Use web search to discover high-quality, stable URLs (prefer official docs, Wikipedia, MDN, npm).",
+    `Write the URLs as a markdown list in ${sourcesPath}.`,
+    "",
+    `**Step 2: Update library documents in \`${libraryPath}\`**`,
+    "After updating SOURCES.md, read it back and maintain the library:",
+    "- Fetch each URL and create or update a library document with the key technical content.",
+    "- Remove library documents whose sources have been removed.",
+    "- Name documents descriptively (e.g. `MDN_ARRAY_METHODS.md`, `WIKIPEDIA_HAMMING_DISTANCE.md`).",
+    "",
+    formatPathsSection(writablePaths, config.readOnlyPaths, config),
+    "",
+    "## Constraints",
+    `- Maximum ${libraryLimit} library documents`,
+    `- Token budget: ~${maxTokens} tokens. Be concise — avoid verbose explanations or unnecessary tool calls.`,
+  ].join("\n");
 
   const systemPrompt =
     "You are a knowledge librarian. Maintain a library of technical documents extracted from web sources." +
@@ -182,13 +152,10 @@ export async function maintainLibrary(context) {
     logger: { info: core.info, warning: core.warning, error: core.error, debug: core.debug },
   });
 
-  const outcomeLabel = hasUrls ? "library-maintained" : "sources-discovered";
-  const detailsMsg = hasUrls
-    ? `Maintained library (${libraryFiles.length} docs, limit ${libraryLimit})`
-    : `Discovered sources for SOURCES.md from mission`;
+  const detailsMsg = `Maintained sources and library (${libraryFiles.length} existing docs, limit ${libraryLimit})`;
 
   return {
-    outcome: outcomeLabel,
+    outcome: "library-maintained",
     tokensUsed: result.tokensIn + result.tokensOut,
     inputTokens: result.tokensIn,
     outputTokens: result.tokensOut,
