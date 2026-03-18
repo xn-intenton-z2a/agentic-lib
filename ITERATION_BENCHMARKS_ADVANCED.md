@@ -65,7 +65,7 @@ For advanced scenarios (3-1 kyu), additionally watch for:
 
 ## Notes
 
-- All scenarios use `schedule=off` — init auto-dispatches the first `agentic-lib-workflow` run (same as ITERATION_BENCHMARKS_SIMPLE.md)
+- All scenarios use `schedule=off` and manual dispatch for subsequent cycles — init auto-dispatches the first `agentic-lib-workflow` run (same as ITERATION_BENCHMARKS_SIMPLE.md). Always pass `-f schedule=off` to init to prevent residual cron schedules from previous runs interfering with benchmark dispatches
 - The default distributed profile is **`max`**. To use `min` or `med`, pass `-f profile=min` or `-f profile=med` to the init workflow
 - Record the same data points as ITERATION_BENCHMARKS_SIMPLE.md Step 3 (including state file, logs, screenshot, and website)
 - Use the same report template from ITERATION_BENCHMARKS_SIMPLE.md

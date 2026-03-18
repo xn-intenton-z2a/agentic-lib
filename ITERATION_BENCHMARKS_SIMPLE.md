@@ -113,6 +113,8 @@ Standard scenarios for benchmarking. Pick one or more per report.
 
 Init now **automatically dispatches `agentic-lib-workflow`** after completing (controlled by `run-workflow` input, default `true`). No separate Step 2 dispatch is needed.
 
+**Important**: Always pass `-f schedule=off` when running benchmarks. This disables the cron schedule so that only your manually dispatched workflow runs execute. Without this, residual cron schedules from previous runs may fire concurrently with your benchmark dispatches, causing confusing interleaved results.
+
 ```bash
 gh workflow run agentic-lib-init -R xn-intenton-z2a/repository0 \
   -f mode=purge \
@@ -140,15 +142,24 @@ gh run list -R xn-intenton-z2a/repository0 -w agentic-lib-init -L 1
 
 Record the init run ID and completion time.
 
-### Step 2: (Optional) Manual dispatch or schedule
+### Step 2: Manual dispatch for subsequent cycles
 
-Init auto-dispatches `agentic-lib-workflow` by default. Use this step only if you set `run-workflow=false` above, or want to set a recurring schedule:
+Init auto-dispatches the **first** `agentic-lib-workflow` run. For subsequent cycles (when `schedule=off`), dispatch manually:
 
 ```bash
-# Manual single dispatch
 gh workflow run agentic-lib-workflow -R xn-intenton-z2a/repository0
+```
 
-# Or set a schedule for continuous iteration
+**Tip**: Before each manual dispatch, verify the schedule is still off. If a previous run's director set it to something else, reset it:
+
+```bash
+gh workflow run agentic-lib-schedule -R xn-intenton-z2a/repository0 \
+  -f frequency=off
+```
+
+For automated continuous iteration instead of manual dispatch:
+
+```bash
 gh workflow run agentic-lib-schedule -R xn-intenton-z2a/repository0 \
   -f frequency=hourly
 ```
