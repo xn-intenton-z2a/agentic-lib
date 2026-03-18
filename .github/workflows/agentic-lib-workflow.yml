@@ -1357,12 +1357,14 @@ jobs:
   # ─── Review: close resolved issues, enhance with criteria ──────────
   # W15: Skip review when there are no open issues to review
   review-features:
-    needs: [params, maintain, supervisor, telemetry]
+    needs: [params, maintain, supervisor, telemetry, director]
     if: |
       !cancelled() &&
       (needs.params.outputs.mode == 'full' || needs.params.outputs.mode == 'review-only') &&
       needs.params.result == 'success' &&
-      needs.telemetry.outputs.open-issue-count != '0'
+      needs.telemetry.outputs.open-issue-count != '0' &&
+      needs.director.outputs.decision != 'mission-complete' &&
+      needs.director.outputs.decision != 'mission-failed'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -1716,7 +1718,7 @@ jobs:
 
   # ─── Post-merge: stats, schedule, mission check ────────────────────
   post-merge:
-    needs: [params, maintain, dev, pr-cleanup, implementation-review]
+    needs: [params, maintain, dev, pr-cleanup, implementation-review, director]
     if: ${{ !cancelled() && needs.params.result == 'success' }}
     runs-on: ubuntu-latest
     steps:
@@ -1743,6 +1745,8 @@ jobs:
         if: |
           needs.params.outputs.mission-complete != 'true' &&
           needs.params.outputs.dry-run != 'true' &&
+          needs.director.outputs.decision != 'mission-complete' &&
+          needs.director.outputs.decision != 'mission-failed' &&
           github.repository != 'xn-intenton-z2a/agentic-lib'
         env:
           LOG_BRANCH: ${{ needs.params.outputs.log-branch }}
@@ -1756,6 +1760,8 @@ jobs:
         if: |
           needs.params.outputs.mission-complete != 'true' &&
           needs.params.outputs.dry-run != 'true' &&
+          needs.director.outputs.decision != 'mission-complete' &&
+          needs.director.outputs.decision != 'mission-failed' &&
           github.repository != 'xn-intenton-z2a/agentic-lib'
         with:
           node-version: "24"
@@ -1764,6 +1770,8 @@ jobs:
         if: |
           needs.params.outputs.mission-complete != 'true' &&
           needs.params.outputs.dry-run != 'true' &&
+          needs.director.outputs.decision != 'mission-complete' &&
+          needs.director.outputs.decision != 'mission-failed' &&
           hashFiles('scripts/self-init.sh') != '' && hashFiles('.github/agentic-lib/actions/agentic-step/package.json') == ''
         run: bash scripts/self-init.sh
 
@@ -1771,6 +1779,8 @@ jobs:
         if: |
           needs.params.outputs.mission-complete != 'true' &&
           needs.params.outputs.dry-run != 'true' &&
+          needs.director.outputs.decision != 'mission-complete' &&
+          needs.director.outputs.decision != 'mission-failed' &&
           github.repository != 'xn-intenton-z2a/agentic-lib'
         working-directory: .github/agentic-lib/actions/agentic-step
         run: |
@@ -1784,6 +1794,8 @@ jobs:
         if: |
           needs.params.outputs.mission-complete != 'true' &&
           needs.params.outputs.dry-run != 'true' &&
+          needs.director.outputs.decision != 'mission-complete' &&
+          needs.director.outputs.decision != 'mission-failed' &&
           github.repository != 'xn-intenton-z2a/agentic-lib'
         timeout-minutes: 10
         uses: ./.github/agentic-lib/actions/agentic-step
@@ -1802,6 +1814,8 @@ jobs:
         if: |
           needs.params.outputs.mission-complete != 'true' &&
           needs.params.outputs.dry-run != 'true' &&
+          needs.director.outputs.decision != 'mission-complete' &&
+          needs.director.outputs.decision != 'mission-failed' &&
           github.repository != 'xn-intenton-z2a/agentic-lib'
         env:
           LOG_BRANCH: ${{ needs.params.outputs.log-branch }}
