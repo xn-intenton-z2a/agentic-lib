@@ -43,7 +43,7 @@ function buildFileListing(dirPath, extension, maxFiles = 30) {
  * @returns {Promise<Object>} Result with outcome, tokensUsed, model
  */
 export async function maintainLibrary(context) {
-  const { config, instructions, writablePaths, model, logFilePath, screenshotFilePath } = context;
+  const { config, instructions, writablePaths, model, logFilePath, screenshotFilePath, octokit, repo } = context;
   const t = config.tuning || {};
 
   // Check mission-complete signal (skip in maintenance mode)
@@ -63,6 +63,21 @@ export async function maintainLibrary(context) {
   const libraryLimit = config.paths.library.limit;
   const libraryFiles = buildFileListing(libraryPath, ".md");
 
+  // Read feature specs and open issues so library sources reflect active work
+  const featureFiles = buildFileListing(config.paths.features?.path || "features/", ".md");
+  let openIssuesSummary = [];
+  try {
+    if (octokit && repo) {
+      const { data: issues } = await octokit.rest.issues.listForRepo({
+        ...repo, state: "open", labels: "automated", per_page: 10,
+        sort: "created", direction: "desc",
+      });
+      openIssuesSummary = issues
+        .filter((i) => !i.pull_request)
+        .map((i) => `#${i.number}: ${i.title}`);
+    }
+  } catch { /* no issues access */ }
+
   const agentInstructions = instructions || "Maintain the library by updating documents from sources.";
 
   let prompt;
@@ -79,9 +94,20 @@ export async function maintainLibrary(context) {
       "## Current SOURCES.md",
       sources || "(empty)",
       "",
+      ...(featureFiles.length > 0 ? [
+        `## Active Features (${featureFiles.length})`,
+        featureFiles.join(", "),
+        "",
+      ] : []),
+      ...(openIssuesSummary.length > 0 ? [
+        `## Open Issues (${openIssuesSummary.length})`,
+        openIssuesSummary.join("\n"),
+        "",
+      ] : []),
       "## Your Task",
       `SOURCES.md has no URLs yet. Research the mission above and populate ${sourcesPath} with 3-8 relevant reference URLs.`,
       "Find documentation, tutorials, API references, Wikipedia articles, or npm packages related to the mission's core topic.",
+      "Prioritise sources relevant to the active features and open issues listed above.",
       "Use web search to discover high-quality, stable URLs (prefer official docs, Wikipedia, MDN, npm).",
       `Write the URLs as a markdown list in ${sourcesPath}, keeping the existing header text.`,
       "",
@@ -101,11 +127,22 @@ export async function maintainLibrary(context) {
       `## Current Library Documents (${libraryFiles.length}/${libraryLimit} max)`,
       libraryFiles.length > 0 ? libraryFiles.join(", ") : "none",
       "",
+      ...(featureFiles.length > 0 ? [
+        `## Active Features (${featureFiles.length})`,
+        featureFiles.join(", "),
+        "",
+      ] : []),
+      ...(openIssuesSummary.length > 0 ? [
+        `## Open Issues (${openIssuesSummary.length})`,
+        openIssuesSummary.join("\n"),
+        "",
+      ] : []),
       "## Your Task",
       "Use read_file to read existing library documents.",
       "1. Read each URL in SOURCES.md and extract technical content.",
       "2. Create or update library documents based on the source content.",
       "3. Remove library documents that no longer have corresponding sources.",
+      "4. If active features or open issues suggest topics not covered by current sources, add relevant URLs to SOURCES.md.",
       "",
       formatPathsSection(writablePaths, config.readOnlyPaths, config),
       "",
