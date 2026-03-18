@@ -74,13 +74,13 @@ Each mission is a self-contained MISSION.md in `src/seeds/missions/`. Missions a
 
 ## Profiles
 
-Profiles control context quality, budget, and limits. Set in `agentic-lib.toml` via `[tuning] profile = "..."`.
+Profiles control context quality, budget, and limits. Set in `agentic-lib.toml` via `[tuning] profile = "..."`. The default distributed profile is **`max`**.
 
-| Profile | Budget | Reasoning | Source Chars | Test Chars | Feature Issues | Use Case |
-|---------|--------|-----------|-------------|------------|----------------|----------|
-| `min` | 16 | low | 1000 | 500 | 1 | Fast, cheap. CI testing. |
-| `recommended` | 32 | medium | 5000 | 3000 | 2 | Balanced. Default for consumers. |
-| `max` | 128 | high | 20000 | 15000 | 4 | Thorough. Complex missions. |
+| Profile | Budget | Reasoning | Read Chars | Test Output | Feature Issues | Use Case |
+|---------|--------|-----------|-----------|-------------|----------------|----------|
+| `min` | 16 | low | 20,000 | 4,000 | 1 | Fast, cheap. CI testing. |
+| `med` | 32 | medium | 50,000 | 10,000 | 2 | Balanced. Middle ground. |
+| `max` | 128 | high | 100,000 | 20,000 | 4 | Thorough. Default for consumers. |
 
 ## Models
 
@@ -98,12 +98,12 @@ Standard scenarios for benchmarking. Pick one or more per report.
 
 | ID | Mission | Model | Profile     | Budget | Purpose                                          |
 |----|---------|-------|-------------|--------|--------------------------------------------------|
-| S1 | 7-kyu-understand-fizz-buzz | gpt-5-mini | recommended | 32 | Baseline. Default config on simplest mission.    |
-| S2 | 7-kyu-understand-fizz-buzz | gpt-5-mini | max         | 128 | Profile comparison (max vs recommended).         |
-| S3 | 6-kyu-understand-hamming-distance | gpt-5-mini | recommended | 32 | Medium complexity baseline.                      |
-| S4 | 6-kyu-understand-hamming-distance | claude-sonnet-4 | recommended | 128 | Model comparison (gpt-5-mini vs claude-sonnet-4). |
-| S5 | 6-kyu-understand-roman-numerals | gpt-5-mini | recommended | 32 | Medium complexity baseline.                              |
-| S6 | 6-kyu-understand-roman-numerals | claude-sonnet-4 | max | 128 | Model comparison (gpt-5-mini vs claude-sonnet-4).          |
+| S1 | 7-kyu-understand-fizz-buzz | gpt-5-mini | med | 32 | Baseline. Default config on simplest mission.    |
+| S2 | 7-kyu-understand-fizz-buzz | gpt-5-mini | max         | 128 | Profile comparison (max vs med).         |
+| S3 | 6-kyu-understand-hamming-distance | gpt-5-mini | med | 32 | Medium complexity baseline.                      |
+| S4 | 6-kyu-understand-hamming-distance | claude-sonnet-4 | max | 128 | Model comparison (gpt-5-mini vs claude-sonnet-4). |
+| S5 | 6-kyu-understand-roman-numerals | gpt-5-mini | med | 32 | Medium complexity baseline.                              |
+| S6 | 6-kyu-understand-roman-numerals | claude-sonnet-4 | max | 128 | Model comparison (gpt-5-mini vs claude-sonnet-4). |
 
 ---
 
@@ -111,11 +111,25 @@ Standard scenarios for benchmarking. Pick one or more per report.
 
 ### Step 1: Init repository0 with purge
 
+Init now **automatically dispatches `agentic-lib-workflow`** after completing (controlled by `run-workflow` input, default `true`). No separate Step 2 dispatch is needed.
+
 ```bash
 gh workflow run agentic-lib-init -R xn-intenton-z2a/repository0 \
   -f mode=purge \
   -f mission-seed=MISSION_NAME \
   -f schedule=off
+```
+
+To override defaults (e.g. set a specific model or profile, or skip the auto-dispatch):
+
+```bash
+gh workflow run agentic-lib-init -R xn-intenton-z2a/repository0 \
+  -f mode=purge \
+  -f mission-seed=MISSION_NAME \
+  -f schedule=off \
+  -f model=gpt-5-mini \
+  -f profile=max \
+  -f run-workflow=false
 ```
 
 Wait for init to complete:
@@ -126,15 +140,15 @@ gh run list -R xn-intenton-z2a/repository0 -w agentic-lib-init -L 1
 
 Record the init run ID and completion time.
 
-### Step 2: Dispatch the first workflow run
+### Step 2: (Optional) Manual dispatch or schedule
+
+Init auto-dispatches `agentic-lib-workflow` by default. Use this step only if you set `run-workflow=false` above, or want to set a recurring schedule:
 
 ```bash
+# Manual single dispatch
 gh workflow run agentic-lib-workflow -R xn-intenton-z2a/repository0
-```
 
-Or set a schedule for continuous iteration:
-
-```bash
+# Or set a schedule for continuous iteration
 gh workflow run agentic-lib-schedule -R xn-intenton-z2a/repository0 \
   -f frequency=hourly
 ```
@@ -415,5 +429,5 @@ These are the known patterns to look for and report on:
 8. **Discussions bot actions** — If the bot is tested, does it execute create-issue, request-supervisor, stop?
 9. **Screenshot assessment** — Does `SCREENSHOT_INDEX.png` show a functional website? Does it reflect the mission's implemented features? Compare across iterations for visual regression.
 10. **Website front-end** — Does the GitHub Pages deployment render correctly? Does it include mission-specific interactive content (function demos, forms, visualizations)?
-11. **Profile impact** — How does min vs recommended vs max affect outcome quality and iteration count?
+11. **Profile impact** — How does min vs med vs max affect outcome quality and iteration count?
 12. **Model impact** — How do different models compare on the same mission?
