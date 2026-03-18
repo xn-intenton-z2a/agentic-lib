@@ -11,6 +11,7 @@
 1. Fix issues identified in BENCHMARK_REPORT_011.md
 2. Use a single branch (`claude/benchmark-011-fixes`) for all fixes
 3. Release, then init to have repository0 use the fixes
+4. W1 rejected by user — maintain tasks should count against budget
 
 ---
 
@@ -34,53 +35,115 @@ Both missions (fizz-buzz, hamming-distance) completed successfully with all acce
 
 All fixes target `agentic-lib/` (mastered here, distributed to repository0 via init).
 
-### W1: Exclude maintain transforms from budget (HIGH — FINDING-1)
+### W1: ~~Exclude maintain transforms from budget~~ — REJECTED
 
-**Problem**: Maintain-features and maintain-library transforms count against the transformation budget. In S1, 6 of 11 budget units (55%) were maintain overhead. In S3, 4 of 7 (57%).
-
-**Fix**: In the budget increment logic, only increment `transformation-budget-used` when the task type is `transform` (dev), not `maintain-features` or `maintain-library`.
-
-**Files**: `src/actions/agentic-step/index.js` (budget tracking)
-
-**Status**: pending
+**Decision**: User decided against this. Maintain tasks should count against the transformation budget. Change was reverted.
 
 ### W2: Director updates state file on mission-complete (HIGH — FINDING-3)
 
-**Problem**: Director writes `MISSION_COMPLETE.md` but does not set `mission-complete = true` in `agentic-lib-state.toml` on the logs branch. Both S1 and S3 showed this inconsistency.
-
-**Fix**: In the director task handler, after writing MISSION_COMPLETE.md (or MISSION_FAILED.md), also update the state file's `[status]` section.
-
-**Files**: `src/actions/agentic-step/tasks/direct.js`
-
-**Status**: pending
+**Status**: DONE
 
 ### W3: Director disables schedule on mission-complete (HIGH — FINDING-4)
 
-**Problem**: After mission-complete, the hourly schedule continued running, producing 9 wasted CI runs in S3. The director doesn't disable the schedule.
-
-**Fix**: When the director declares mission-complete or mission-failed, set the schedule to "off" by dispatching the schedule workflow or updating the config.
-
-**Files**: `src/actions/agentic-step/tasks/direct.js`, possibly `.github/workflows/agentic-lib-workflow.yml` (add early exit check)
-
-**Status**: pending
+**Status**: DONE
 
 ### W4: Workflow-level mission-complete early exit (MEDIUM — FINDING-4)
 
-**Problem**: Even after MISSION_COMPLETE.md exists, workflow runs proceed through all jobs. S1 iteration 6 was only cancelled by concurrency, not by design.
+**Problem**: Even after MISSION_COMPLETE.md exists, workflow runs proceed through all jobs. S1 iteration 6 was only cancelled by concurrency, not by design. S3 had 9 wasted schedule runs.
 
-**Fix**: In the workflow's telemetry or params job, check for MISSION_COMPLETE.md or MISSION_FAILED.md. If found, set an output that causes all downstream jobs to be skipped.
+**Fix**: In the `params` job, add sparse-checkout of `MISSION_COMPLETE.md` and `MISSION_FAILED.md`. Check for their existence and output `mission-complete=true`. Gate `behaviour-telemetry`, `telemetry`, `maintain`, `implementation-review`, and `director` jobs on `needs.params.outputs.mission-complete != 'true'`. Only `pr-cleanup` and `post-merge` continue running (for cleanup).
 
 **Files**: `.github/workflows/agentic-lib-workflow.yml`
 
-**Status**: pending
+**Status**: DONE
 
 ### W5: Deduplicate issue creation (MEDIUM — FINDING-5)
 
-**Problem**: S3 had 5 near-identical "dedicated tests" issues (#3070-#3074). The supervisor creates issues without checking for existing duplicates.
+**Problem**: S3 had 5 near-identical "dedicated tests" issues (#3070-#3074). The supervisor creates issues without checking for existing open duplicates.
 
-**Fix**: Before creating an issue in the supervisor, search for open/recently-closed issues with similar titles. Skip creation if a match exists.
+**Fix**: Added open-issue dedup guard in `executeCreateIssue()`. Before creating, fetches open issues with `automated` label, checks for title prefix overlap (30-char prefix match, bidirectional). Skips creation if a similar open issue exists. This complements the existing closed-issue dedup guard.
 
 **Files**: `src/actions/agentic-step/tasks/supervise.js`
+
+**Status**: DONE
+
+### W6: Supervisor should open as many distinct issues as needed (MEDIUM)
+
+**Problem**: The supervisor tends to open one narrow issue at a time. For missions with clear multi-part gaps, it should create as many distinct issues as needed — ideally one comprehensive issue covering the full gap, or multiple issues if the work is naturally separable. Up to what's achievable in a single tool loop.
+
+**Fix**: Update the supervisor agent prompt (`src/agents/agent-supervisor.md` / `.github/agents/agent-supervisor.md`) to instruct the LLM to assess the full gap between current state and mission, then create issues covering the entire gap. Also update the `report_supervisor_plan` tool description to encourage multiple `github:create-issue` actions. Review `featureIssuesWipLimit` — ensure it doesn't artificially cap issue creation below what's useful.
+
+**Files**: `.github/agents/agent-supervisor.md`, `src/actions/agentic-step/tasks/supervise.js`
+
+**Status**: pending
+
+### W7: Dev job should work on multiple open issues concurrently (MEDIUM)
+
+**Problem**: The dev job picks a single `ready`-labelled issue and works on it. If multiple issues are ready, it only addresses one per workflow run.
+
+**Fix**: In the `dev` job of `agentic-lib-workflow.yml`, change the "Find target issue" step to collect all ready issues (up to a configured concurrency limit from `max-feature-issues`). Use a matrix strategy or sequential loop to resolve multiple issues in one run. Each issue gets its own branch and PR.
+
+**Files**: `.github/workflows/agentic-lib-workflow.yml`, possibly `src/actions/agentic-step/tasks/transform.js`
+
+**Status**: pending
+
+### W8: Add behaviour test dry-run tool for Copilot (MEDIUM)
+
+**Problem**: Copilot has no way to check if code would pass behaviour tests without actually running Playwright in a browser container. This leads to wasted cycles when behaviour tests fail after commit.
+
+**Fix**: Add a `defineTool("dry_run_behaviour_tests", ...)` custom tool in the transform/fix-code task handlers. The tool reads the test files (e.g. `tests/behaviour/*.spec.js`), extracts expected behaviours, reads the relevant source code, and uses the LLM's reasoning to confirm whether the code would satisfy those test expectations. Returns a structured pass/fail analysis. This acts as a fast pre-check before the real Playwright run.
+
+**Files**: `src/copilot/github-tools.js` or `src/actions/agentic-step/tasks/transform.js`
+
+**Status**: pending
+
+### W9: Include worktree file listing in Copilot session prompts (LOW)
+
+**Problem**: Copilot tasks operate without a complete picture of what files exist in the worktree. The model must discover files via `list_files` tool calls, which consumes tool budget.
+
+**Fix**: Before each Copilot session (transform, fix-code, maintain-*, etc.), generate a listing of all non-ignored files in the working directory (using `git ls-files` or equivalent) and include it in the prompt. Cap at reasonable size (e.g. 200 files, 5000 chars).
+
+**Files**: `src/actions/agentic-step/copilot.js` (new helper), `src/actions/agentic-step/tasks/transform.js`, `src/actions/agentic-step/tasks/supervise.js`
+
+**Status**: pending
+
+### W10: Include explicit writable/available paths in session prompts (LOW)
+
+**Problem**: Copilot sessions have writable-path restrictions enforced by tools, but the model doesn't see an explicit list of what paths are writable vs read-only. This leads to wasted attempts to write outside allowed paths.
+
+**Fix**: In the prompt assembly for each task handler, add a section listing the writable paths (already passed to `runCopilotSession`) and read-only paths explicitly. Mirror the tool-level setting in the prompt so the model can plan accordingly. Note: `formatPathsSection()` in `copilot.js` already does this for transform — ensure all task handlers use it consistently.
+
+**Files**: `src/actions/agentic-step/copilot.js`, all task handlers in `src/actions/agentic-step/tasks/`
+
+**Status**: pending
+
+### W11: Add 10-minute timeout for LLM tool-loop steps (HIGH)
+
+**Problem**: Copilot SDK sessions can loop indefinitely on tool calls. The existing `timeoutMs` default is 600000ms (10 min) in `copilot-session.js`, but individual workflow steps and jobs don't have explicit timeouts. A runaway session could consume the entire 6-hour GitHub Actions job limit.
+
+**Fix**: Add `timeout-minutes: 10` to all workflow steps that invoke `agentic-step` with LLM tasks (transform, fix-code, supervise, direct, maintain-*, review-issue, enhance-issue, implementation-review). Also verify the `copilot-session.js` timeoutMs is enforced correctly.
+
+**Files**: `.github/workflows/agentic-lib-workflow.yml`, `src/copilot/copilot-session.js`
+
+**Status**: pending
+
+### W12: Add code coverage check to npm test (MEDIUM)
+
+**Problem**: No code coverage metrics are collected. The LLM has no visibility into test coverage when making changes, and there's no quality gate.
+
+**Fix**: Configure vitest to collect coverage (c8/istanbul provider) against `src/lib/` files. Set a basic threshold (e.g. 50% lines, 30% branches). Include coverage in `npm test` output. Add line/branch coverage as completeness metrics in the mission-complete evaluation. State the coverage level in all prompts where code is being changed (transform, fix-code agent prompts).
+
+**Files**: `vitest.config.js` or `package.json` (vitest config), `.github/agents/agent-issue-resolution.md`, `.github/agents/agent-apply-fix.md`, `agentic-lib.toml`
+
+**Status**: pending
+
+### W13: Add code coverage threshold to agentic-lib.toml goals (MEDIUM)
+
+**Problem**: No coverage standard is configured or communicated to the LLM agents.
+
+**Fix**: Add a `[goals]` section to `agentic-lib.toml` with `min-line-coverage` and `min-branch-coverage` thresholds. Read these values in the config loader. Include them prominently in the prompts for all code-changing tasks (transform, fix-code). The prompt should state: "Required code coverage: ≥X% lines, ≥Y% branches. Run tests with coverage to verify."
+
+**Files**: `agentic-lib.toml`, `src/actions/agentic-step/config-loader.js`, `src/actions/agentic-step/copilot.js`, agent prompt files
 
 **Status**: pending
 
@@ -88,13 +151,21 @@ All fixes target `agentic-lib/` (mastered here, distributed to repository0 via i
 
 ## Implementation Order
 
-| # | Work Item | Priority | Dependencies |
-|---|-----------|----------|--------------|
-| 1 | W1 | HIGH | None |
-| 2 | W2 | HIGH | None |
-| 3 | W3 | HIGH | W2 (director handles mission-complete) |
-| 4 | W4 | MEDIUM | None |
-| 5 | W5 | MEDIUM | None |
+| # | Work Item | Priority | Dependencies | Status |
+|---|-----------|----------|--------------|--------|
+| 1 | ~~W1~~ | ~~HIGH~~ | — | REJECTED |
+| 2 | W2 | HIGH | None | DONE |
+| 3 | W3 | HIGH | W2 | DONE |
+| 4 | W4 | MEDIUM | None | DONE |
+| 5 | W5 | MEDIUM | None | DONE |
+| 6 | W6 | MEDIUM | None | pending |
+| 7 | W7 | MEDIUM | W6 | pending |
+| 8 | W8 | MEDIUM | None | pending |
+| 9 | W9 | LOW | None | pending |
+| 10 | W10 | LOW | None | pending |
+| 11 | W11 | HIGH | None | pending |
+| 12 | W12 | MEDIUM | None | pending |
+| 13 | W13 | MEDIUM | W12 | pending |
 
 **Branch**: `claude/benchmark-011-fixes`
 
@@ -102,9 +173,9 @@ All fixes target `agentic-lib/` (mastered here, distributed to repository0 via i
 
 ## Implementation Notes
 
-### W1: Exclude maintain transforms from budget — DONE
+### W1: Exclude maintain transforms from budget — REJECTED
 
-Changed `COST_TASKS` in both `src/copilot/telemetry.js` (`computeTransformationCost()`) and `src/actions/agentic-step/index.js` from `["transform", "fix-code", "maintain-features", "maintain-library"]` to `["transform", "fix-code"]`. Maintain tasks no longer count against the mission budget.
+User decided against this change. Reverted `COST_TASKS` in both `src/copilot/telemetry.js` and `src/actions/agentic-step/index.js` back to `["transform", "fix-code", "maintain-features", "maintain-library"]`.
 
 ### W2: Director updates state file on mission-complete — DONE
 
@@ -114,10 +185,21 @@ Added state update block to `executeMissionComplete()` in `src/actions/agentic-s
 
 Added schedule dispatch to `executeMissionComplete()` in `src/actions/agentic-step/tasks/direct.js`. Now dispatches `agentic-lib-schedule.yml` with `frequency: "off"` on mission-complete. Mirrors the pattern in `executeMissionFailed()` but uses "off" instead of "weekly".
 
-### W4: Workflow-level early exit — NOT STARTED
+### W4: Workflow-level mission-complete early exit — DONE
 
-The workflow already has mission-complete checks at multiple points (telemetry, fix-stuck, dev jobs). Investigation showed extensive `mission-complete` gating already exists. The 9 wasted runs in S3 were from maintain jobs that run regardless. Needs further investigation to determine if maintain jobs should also be gated.
+Added mission-complete check to the `params` job in `agentic-lib-workflow.yml`:
+- Extended sparse-checkout to include `MISSION_COMPLETE.md` and `MISSION_FAILED.md`
+- New `mission-check` step reads supervisor mode from config, checks for signal files
+- New `mission-complete` output from params job
+- Added `needs.params.outputs.mission-complete != 'true'` gate to: `behaviour-telemetry`, `telemetry`, `maintain`, `implementation-review`, `director`
+- Downstream jobs (`supervisor`, `dev`, `review-features`, `fix-stuck`) are transitively skipped via their dependency chains
+- `pr-cleanup` and `post-merge` remain ungated (cleanup should always run)
 
-### W5: Deduplicate issue creation — NOT STARTED
+### W5: Deduplicate issue creation — DONE
 
-Needs supervisor code review to understand issue creation flow.
+Added open-issue dedup guard to `executeCreateIssue()` in `src/actions/agentic-step/tasks/supervise.js`:
+- Before creating, fetches up to 20 open issues with `automated` label
+- Compares first 30 chars of title (bidirectional — new title prefix in existing, or existing prefix in new)
+- Skips creation with `skipped:duplicate-open-#N` if match found
+- This runs before the existing closed-issue dedup guard
+- Combined with the W10 (from Report 010) same-session dedup in `report_supervisor_plan`, there are now 3 layers of dedup: same-session, open issues, recently-closed issues

@@ -140,7 +140,10 @@ jobs:
       - uses: actions/checkout@v6
         with:
           ref: ${{ inputs.ref || github.sha }}
-          sparse-checkout: ${{ env.configPath }}
+          sparse-checkout: |
+            ${{ env.configPath }}
+            MISSION_COMPLETE.md
+            MISSION_FAILED.md
           sparse-checkout-cone-mode: false
       - name: Normalise params
         id: normalise
@@ -190,6 +193,23 @@ jobs:
           echo "log-prefix=${LOG_PREFIX:-agent-log-}" >> $GITHUB_OUTPUT
           echo "log-branch=${LOG_BRANCH:-agentic-lib-logs}" >> $GITHUB_OUTPUT
           echo "screenshot-file=${SCREENSHOT:-SCREENSHOT_INDEX.png}" >> $GITHUB_OUTPUT
+      - name: Check mission-complete signal (W4)
+        id: mission-check
+        shell: bash
+        run: |
+          SUPERVISOR=""
+          if [ -f "${{ env.configPath }}" ]; then
+            SUPERVISOR=$(grep '^\s*supervisor\s*=' "${{ env.configPath }}" 2>/dev/null | head -1 | sed 's/.*=\s*"\([^"]*\)".*/\1/' || true)
+          fi
+          if [ -f MISSION_COMPLETE.md ] && [ "$SUPERVISOR" != "maintenance" ]; then
+            echo "mission-complete=true" >> $GITHUB_OUTPUT
+            echo "::notice::Mission is complete — most jobs will be skipped"
+          elif [ -f MISSION_FAILED.md ]; then
+            echo "mission-complete=true" >> $GITHUB_OUTPUT
+            echo "::notice::Mission has failed — most jobs will be skipped"
+          else
+            echo "mission-complete=false" >> $GITHUB_OUTPUT
+          fi
     outputs:
       model: ${{ steps.normalise.outputs.model }}
       profile: ${{ steps.normalise.outputs.profile }}
@@ -203,6 +223,7 @@ jobs:
       log-prefix: ${{ steps.normalise.outputs.log-prefix }}
       log-branch: ${{ steps.normalise.outputs.log-branch }}
       screenshot-file: ${{ steps.normalise.outputs.screenshot-file }}
+      mission-complete: ${{ steps.mission-check.outputs.mission-complete }}
 
   # ─── PR Cleanup: merge/close/delete stale PRs and branches ─────────
   pr-cleanup:
@@ -280,7 +301,8 @@ jobs:
   behaviour-telemetry:
     needs: params
     if: |
-      needs.params.outputs.mode == 'full' || needs.params.outputs.mode == 'dev-only' || needs.params.outputs.mode == 'review-only'
+      needs.params.outputs.mission-complete != 'true' &&
+      (needs.params.outputs.mode == 'full' || needs.params.outputs.mode == 'dev-only' || needs.params.outputs.mode == 'review-only')
     runs-on: ubuntu-latest
     container: mcr.microsoft.com/playwright:v1.58.2-noble
     steps:
@@ -323,6 +345,7 @@ jobs:
     needs: [params, behaviour-telemetry]
     if: |
       !cancelled() &&
+      needs.params.outputs.mission-complete != 'true' &&
       (needs.params.outputs.mode == 'full' || needs.params.outputs.mode == 'dev-only' || needs.params.outputs.mode == 'review-only')
     runs-on: ubuntu-latest
     steps:
@@ -574,6 +597,7 @@ jobs:
     needs: [params]
     if: |
       !cancelled() &&
+      needs.params.outputs.mission-complete != 'true' &&
       (needs.params.outputs.mode == 'full' || needs.params.outputs.mode == 'maintain-only') &&
       needs.params.result == 'success' &&
       inputs.skipMaintain != 'true' && inputs.skipMaintain != true
@@ -710,6 +734,7 @@ jobs:
     needs: [params]
     if: |
       !cancelled() &&
+      needs.params.outputs.mission-complete != 'true' &&
       (needs.params.outputs.mode == 'full' || needs.params.outputs.mode == 'maintain-only') &&
       needs.params.result == 'success'
     runs-on: ubuntu-latest
@@ -776,6 +801,7 @@ jobs:
     needs: [params, telemetry, maintain, implementation-review]
     if: |
       !cancelled() &&
+      needs.params.outputs.mission-complete != 'true' &&
       (needs.params.outputs.mode == 'full' || needs.params.outputs.mode == 'dev-only') &&
       needs.params.result == 'success'
     runs-on: ubuntu-latest
