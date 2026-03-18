@@ -2,7 +2,7 @@
 
 **Source**: Workflow run analysis from [repository0 Actions](https://github.com/xn-intenton-z2a/repository0/actions) on 2026-03-18
 **Created**: 2026-03-18
-**Status**: pending
+**Status**: completed
 
 ---
 
@@ -145,7 +145,7 @@ Alternatively, configure vitest with `passWithNoTests: true` in the consumer rep
 
 **Files**: `src/actions/commit-if-changed/action.yml` or `.github/workflows/agentic-lib-workflow.yml` (dev job step 14)
 
-**Status**: pending
+**Status**: DONE
 
 ### W2: On rebase conflict, skip maintain commit instead of failing (HIGH)
 
@@ -165,7 +165,7 @@ This requires a new input on the `commit-if-changed` action: `fail-on-conflict: 
 
 **Files**: `src/actions/commit-if-changed/action.yml`, `.github/workflows/agentic-lib-workflow.yml` (maintain step)
 
-**Status**: pending
+**Status**: DONE
 
 ### W3: Increase retry backoff with jitter (LOW)
 
@@ -175,7 +175,7 @@ This requires a new input on the `commit-if-changed` action: `fail-on-conflict: 
 
 **Files**: `src/actions/commit-if-changed/action.yml`
 
-**Status**: pending
+**Status**: DONE (subsumed into W4 tiered resolution)
 
 ### W4: Apply fix-stuck-style tiered conflict resolution to ALL commit+push locations (MEDIUM)
 
@@ -218,7 +218,7 @@ For locations 2-4 (schedule, init, update), the inline retry loops should be rep
 
 **Files**: `src/actions/commit-if-changed/action.yml`, `.github/workflows/agentic-lib-schedule.yml`, `.github/workflows/agentic-lib-init.yml`, `.github/workflows/agentic-lib-update.yml`, `.github/workflows/agentic-lib-flow.yml`
 
-**Status**: pending
+**Status**: DONE
 
 ### ~~W5: Serialize maintain job pushes with concurrency group~~ — INVALID
 
@@ -300,7 +300,7 @@ These 6 `createWorkflowDispatch` calls in `direct.js` (lines 235, 248, 322, 335)
 
 **Files**: `.github/workflows/agentic-lib-workflow.yml`, `.github/workflows/agentic-lib-bot.yml`
 
-**Status**: pending
+**Status**: DONE
 
 ### W6: Reduce bot cycle push frequency (LOW)
 
@@ -310,7 +310,7 @@ These 6 `createWorkflowDispatch` calls in `direct.js` (lines 235, 248, 322, 335)
 
 **Files**: `.github/workflows/agentic-lib-workflow.yml` (schedule-off step), `src/actions/agentic-step/tasks/direct.js` (mission-complete dedup)
 
-**Status**: pending
+**Status**: DONE
 
 ### W7: Flow benchmark should tolerate pre-existing test failures (LOW)
 
@@ -320,7 +320,7 @@ These 6 `createWorkflowDispatch` calls in `direct.js` (lines 235, 248, 322, 335)
 
 **Files**: `.github/workflows/agentic-lib-flow.yml` (update job)
 
-**Status**: pending
+**Status**: DONE
 
 ---
 
@@ -328,14 +328,14 @@ These 6 `createWorkflowDispatch` calls in `direct.js` (lines 235, 248, 322, 335)
 
 | # | Work Item | Priority | Dependencies | Status |
 |---|-----------|----------|--------------|--------|
-| 1 | W8 | HIGH | None | pending |
-| 2 | W2 | HIGH | None | pending |
-| 3 | W4 | MEDIUM | W2 | pending |
-| 4 | W1 | MEDIUM | None | pending |
+| 1 | W8 | HIGH | None | DONE |
+| 2 | W2 | HIGH | None | DONE |
+| 3 | W4 | MEDIUM | W2 | DONE |
+| 4 | W1 | MEDIUM | None | DONE |
 | 5 | ~~W5~~ | — | — | N/A (invalid — already serialized) |
-| 6 | W3 | LOW | W2 | pending |
-| 7 | W6 | LOW | None | pending |
-| 8 | W7 | LOW | None | pending |
+| 6 | W3 | LOW | W2 | DONE |
+| 7 | W6 | LOW | None | DONE |
+| 8 | W7 | LOW | None | DONE |
 
 **Branch**: `claude/benchmark-012-fixes`
 
