@@ -239,6 +239,19 @@ async function executeMissionComplete(octokit, repo, reason) {
   } catch (err) {
     core.warning(`Could not dispatch schedule change: ${err.message}`);
   }
+
+  // W16: Notify bot about mission-complete
+  try {
+    await octokit.rest.actions.createWorkflowDispatch({
+      ...repo,
+      workflow_id: "agentic-lib-bot.yml",
+      ref: "main",
+      inputs: { message: `Mission complete: ${reason.substring(0, 200)}` },
+    });
+    core.info("Dispatched bot notification for mission-complete");
+  } catch (err) {
+    core.warning(`Could not dispatch bot notification: ${err.message}`);
+  }
 }
 
 /**
@@ -312,6 +325,19 @@ async function executeMissionFailed(octokit, repo, reason, metricAssessment) {
     core.info("Dispatched schedule change to weekly after mission-failed");
   } catch (err) {
     core.warning(`Could not dispatch schedule change: ${err.message}`);
+  }
+
+  // W16: Notify bot about mission-failed
+  try {
+    await octokit.rest.actions.createWorkflowDispatch({
+      ...repo,
+      workflow_id: "agentic-lib-bot.yml",
+      ref: "main",
+      inputs: { message: `Mission failed: ${metricDetail.substring(0, 200)}` },
+    });
+    core.info("Dispatched bot notification for mission-failed");
+  } catch (err) {
+    core.warning(`Could not dispatch bot notification: ${err.message}`);
   }
 }
 

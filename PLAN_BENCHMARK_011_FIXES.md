@@ -293,23 +293,23 @@ Tackle the coarsest grain where success can reasonably be expected. Every job sh
 | 3 | W3 | HIGH | W2 | DONE |
 | 4 | W4 | MEDIUM | None | DONE |
 | 5 | W5 | MEDIUM | None | DONE |
-| 6 | W6 | MEDIUM | None | pending |
-| 7 | W7 | MEDIUM | W6 | pending |
-| 8 | W8 | MEDIUM | None | pending |
-| 9 | W9 | LOW | None | pending |
-| 10 | W10 | LOW | None | pending |
-| 11 | W11 | HIGH | None | pending |
-| 12 | W12 | MEDIUM | None | pending |
-| 13 | W13 | MEDIUM | W12 | pending |
+| 6 | W6 | MEDIUM | None | DONE |
+| 7 | W7 | MEDIUM | W6 | DONE |
+| 8 | W8 | MEDIUM | None | DONE |
+| 9 | W9 | LOW | None | DONE |
+| 10 | W10 | LOW | None | DONE (already present in code-writing handlers) |
+| 11 | W11 | HIGH | None | DONE |
+| 12 | W12 | MEDIUM | None | DONE (seed already has @vitest/coverage-v8) |
+| 13 | W13 | MEDIUM | W12 | DONE |
 | 14 | W14 | HIGH | W4 | DONE |
-| 15 | W15 | MEDIUM | None | pending |
-| 16 | W16 | MEDIUM | None | pending |
-| 17 | W17 | MEDIUM | None | pending |
-| 18 | W18 | LOW | W14, W17 | pending |
-| 19 | W19 | LOW | None | pending |
-| 20 | W20 | MEDIUM | None | pending |
+| 15 | W15 | MEDIUM | None | deferred (requires telemetry output changes) |
+| 16 | W16 | MEDIUM | None | DONE |
+| 17 | W17 | MEDIUM | None | DONE |
+| 18 | W18 | LOW | W14, W17 | DONE |
+| 19 | W19 | LOW | None | deferred (telemetry outputs not yet routed to dev) |
+| 20 | W20 | MEDIUM | None | deferred (merge logic in fix-stuck is complex) |
 | 21 | W21 | HIGH | None | DONE |
-| 22 | W22 | HIGH | W21 | pending |
+| 22 | W22 | HIGH | W21 | DONE |
 
 **Branch**: `claude/benchmark-011-fixes`
 

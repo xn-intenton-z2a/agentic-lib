@@ -680,6 +680,7 @@ jobs:
       - name: Maintain library
         id: maintain-library
         if: steps.mission-check.outputs.mission-complete != 'true'
+        timeout-minutes: 10
         uses: ./.github/agentic-lib/actions/agentic-step
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -694,6 +695,7 @@ jobs:
       - name: Maintain features
         id: maintain-features
         if: steps.mission-check.outputs.mission-complete != 'true'
+        timeout-minutes: 10
         uses: ./.github/agentic-lib/actions/agentic-step
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -780,6 +782,7 @@ jobs:
       - name: Run implementation review
         id: review
         if: github.repository != 'xn-intenton-z2a/agentic-lib'
+        timeout-minutes: 10
         uses: ./.github/agentic-lib/actions/agentic-step
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -842,6 +845,7 @@ jobs:
       - name: Run director
         id: director
         if: github.repository != 'xn-intenton-z2a/agentic-lib'
+        timeout-minutes: 10
         uses: ./.github/agentic-lib/actions/agentic-step
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -929,6 +933,7 @@ jobs:
 
       - name: Run supervisor
         if: github.repository != 'xn-intenton-z2a/agentic-lib'
+        timeout-minutes: 10
         uses: ./.github/agentic-lib/actions/agentic-step
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -1205,6 +1210,7 @@ jobs:
           env.FIX_PR_NUMBER != '' &&
           steps.fix-mission-check.outputs.mission-complete != 'true' &&
           env.FIX_REASON == 'requested'
+        timeout-minutes: 10
         uses: ./.github/agentic-lib/actions/agentic-step
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -1222,6 +1228,7 @@ jobs:
         if: |
           env.FIX_MAIN_BUILD == 'true' &&
           steps.fix-mission-check.outputs.mission-complete != 'true'
+        timeout-minutes: 10
         uses: ./.github/agentic-lib/actions/agentic-step
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -1304,6 +1311,7 @@ jobs:
           fi
 
       - name: Review issues
+        timeout-minutes: 10
         uses: ./.github/agentic-lib/actions/agentic-step
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -1315,6 +1323,7 @@ jobs:
           model: ${{ needs.params.outputs.model }}
 
       - name: Enhance issues
+        timeout-minutes: 10
         uses: ./.github/agentic-lib/actions/agentic-step
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -1409,25 +1418,32 @@ jobs:
               core.setOutput('issue-number', specificIssue);
               return;
             }
-            // W7: Mechanical instability override — prioritise instability issues
-            // before any other ready issues, regardless of supervisor decisions
+            // W7: Collect ALL ready issues for concurrent resolution in one session
+            const collected = [];
+            // Instability issues first (mechanical priority override)
             const { data: instabilityIssues } = await github.rest.issues.listForRepo({
               ...context.repo, state: 'open', labels: 'instability',
-              sort: 'created', direction: 'asc', per_page: 1,
+              sort: 'created', direction: 'asc', per_page: 10,
             });
-            if (instabilityIssues.length > 0) {
-              core.setOutput('issue-number', String(instabilityIssues[0].number));
-              core.info(`Instability override: targeting issue #${instabilityIssues[0].number}: ${instabilityIssues[0].title}`);
-              return;
+            for (const i of instabilityIssues) {
+              collected.push(i.number);
+              core.info(`Instability issue: #${i.number}: ${i.title}`);
             }
-            // Find oldest open issue with 'ready' label
-            const { data: issues } = await github.rest.issues.listForRepo({
+            // Then ready issues
+            const { data: readyIssues } = await github.rest.issues.listForRepo({
               ...context.repo, state: 'open', labels: 'ready',
-              sort: 'created', direction: 'asc', per_page: 1,
+              sort: 'created', direction: 'asc', per_page: 10,
             });
-            if (issues.length > 0) {
-              core.setOutput('issue-number', String(issues[0].number));
-              core.info(`Targeting issue #${issues[0].number}: ${issues[0].title}`);
+            for (const i of readyIssues) {
+              if (!collected.includes(i.number)) {
+                collected.push(i.number);
+                core.info(`Ready issue: #${i.number}: ${i.title}`);
+              }
+            }
+            if (collected.length > 0) {
+              // W7: Pass all issues as comma-separated list
+              core.setOutput('issue-number', collected.join(','));
+              core.info(`Targeting ${collected.length} issue(s): ${collected.join(', ')}`);
             } else {
               core.setOutput('issue-number', '');
               core.info('No ready issues found');
@@ -1437,17 +1453,22 @@ jobs:
         if: steps.issue.outputs.issue-number != ''
         id: branch
         run: |
-          ISSUE_NUMBER="${{ steps.issue.outputs.issue-number }}"
+          # W7: Use first issue number for branch name (may be comma-separated list)
+          ISSUE_LIST="${{ steps.issue.outputs.issue-number }}"
+          ISSUE_NUMBER="${ISSUE_LIST%%,*}"
           BRANCH="agentic-lib-issue-${ISSUE_NUMBER}"
           git checkout -b "${BRANCH}" 2>/dev/null || git checkout "${BRANCH}"
           echo "branchName=${BRANCH}" >> $GITHUB_OUTPUT
 
       - name: Run transformation
         if: steps.issue.outputs.issue-number != ''
+        timeout-minutes: 10
         uses: ./.github/agentic-lib/actions/agentic-step
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
+          REVIEW_ADVICE: ${{ needs.implementation-review.outputs.review-advice }}
+          REVIEW_GAPS: ${{ needs.implementation-review.outputs.review-gaps }}
         with:
           task: "transform"
           config: ${{ needs.params.outputs.config-path }}
@@ -1527,7 +1548,10 @@ jobs:
             const owner = context.repo.owner;
             const repo = context.repo.repo;
             const branchName = '${{ steps.branch.outputs.branchName }}';
-            const issueNumber = '${{ steps.issue.outputs.issue-number }}';
+            const issueList = '${{ steps.issue.outputs.issue-number }}';
+            // W7: issueNumber may be comma-separated list
+            const issueNumbers = issueList.split(',').map(n => n.trim()).filter(Boolean);
+            const issueNumber = issueNumbers[0] || '';
 
             if (!branchName) return;
 
@@ -1551,6 +1575,12 @@ jobs:
               head: `${owner}:${branchName}`, per_page: 1,
             });
 
+            // W7: Build PR body with Closes for all issues
+            const closesLines = issueNumbers.map(n => `Closes #${n}`).join('\n');
+            const prTitle = issueNumbers.length > 1
+              ? `fix: resolve issues ${issueNumbers.map(n => '#' + n).join(', ')}`
+              : `fix: resolve issue #${issueNumber}`;
+
             let prNumber;
             if (existingPRs.length > 0) {
               prNumber = existingPRs[0].number;
@@ -1558,8 +1588,8 @@ jobs:
             } else {
               const { data: pr } = await github.rest.pulls.create({
                 owner, repo,
-                title: `fix: resolve issue #${issueNumber}`,
-                body: `Closes #${issueNumber}\n\nAutomated transformation.`,
+                title: prTitle,
+                body: `${closesLines}\n\nAutomated transformation.`,
                 head: branchName, base: 'main',
               });
               prNumber = pr.number;
@@ -1609,7 +1639,7 @@ jobs:
 
   # ─── Post-merge: stats, schedule, mission check ────────────────────
   post-merge:
-    needs: [params, maintain, dev, pr-cleanup]
+    needs: [params, maintain, dev, pr-cleanup, implementation-review]
     if: ${{ !cancelled() && needs.params.result == 'success' }}
     runs-on: ubuntu-latest
     steps:
@@ -1678,10 +1708,13 @@ jobs:
           needs.params.outputs.mission-complete != 'true' &&
           needs.params.outputs.dry-run != 'true' &&
           github.repository != 'xn-intenton-z2a/agentic-lib'
+        timeout-minutes: 10
         uses: ./.github/agentic-lib/actions/agentic-step
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
+          REVIEW_ADVICE: ${{ needs.implementation-review.outputs.review-advice }}
+          REVIEW_GAPS: ${{ needs.implementation-review.outputs.review-gaps }}
         with:
           task: "direct"
           config: ${{ needs.params.outputs.config-path }}

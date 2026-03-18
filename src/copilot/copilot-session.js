@@ -192,7 +192,7 @@ export async function runCopilotSession({
         // Truncate large read_file results to prevent context overflow
         if (input.toolName === "read_file" || input.toolName === "view") {
           const resultText = input.toolResult?.textResultForLlm || "";
-          const MAX_READ_CHARS = 20000;
+          const MAX_READ_CHARS = tuning.maxReadChars || 20000;
           if (resultText.length > MAX_READ_CHARS) {
             hookOutput.modifiedResult = {
               ...input.toolResult,
@@ -296,7 +296,7 @@ export async function runCopilotSession({
 
   const prompt = userPrompt || [
     `# Mission\n\n${missionText}`,
-    `# Current test state\n\n\`\`\`\n${initialTestOutput.substring(0, 4000)}\n\`\`\``,
+    `# Current test state\n\n\`\`\`\n${initialTestOutput.substring(0, tuning.maxTestOutput || 4000)}\n\`\`\``,
     "",
     "Implement this mission. Read the existing source code and tests,",
     "make the required changes, run run_tests to verify, and iterate until all tests pass.",

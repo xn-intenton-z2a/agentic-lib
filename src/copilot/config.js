@@ -92,6 +92,11 @@ function parseTuningProfile(profileSection) {
     issuesScan: profileSection["max-issues"] || 20,
     staleDays: profileSection["stale-days"] || 30,
     discussionComments: profileSection["max-discussion-comments"] || 10,
+    maxReadChars: profileSection["max-read-chars"] || 20000,
+    maxTestOutput: profileSection["max-test-output"] || 4000,
+    maxFileListing: profileSection["max-file-listing"] ?? 30,
+    maxLibraryIndex: profileSection["max-library-index"] || 2000,
+    maxFixTestOutput: profileSection["max-fix-test-output"] || 8000,
   };
 }
 
@@ -149,6 +154,11 @@ function resolveTuning(tuningSection, profilesSection) {
     "max-issues": "issuesScan",
     "stale-days": "staleDays",
     "max-discussion-comments": "discussionComments",
+    "max-read-chars": "maxReadChars",
+    "max-test-output": "maxTestOutput",
+    "max-file-listing": "maxFileListing",
+    "max-library-index": "maxLibraryIndex",
+    "max-fix-test-output": "maxFixTestOutput",
   };
   for (const [tomlKey, jsKey] of Object.entries(numericOverrides)) {
     if (tuningSection[tomlKey] > 0) tuning[jsKey] = tuningSection[tomlKey];
@@ -239,6 +249,13 @@ export function loadConfig(configPath) {
   const execution = toml.execution || {};
   const bot = toml.bot || {};
 
+  // W13: Code coverage goals
+  const goals = toml.goals || {};
+  const coverageGoals = {
+    minLineCoverage: goals["min-line-coverage"] ?? 50,
+    minBranchCoverage: goals["min-branch-coverage"] ?? 30,
+  };
+
   // Mission-complete thresholds (with safe defaults)
   // C6: Removed minDedicatedTests and requireDedicatedTests
   const mc = toml["mission-complete"] || {};
@@ -267,6 +284,7 @@ export function loadConfig(configPath) {
     init: toml.init || null,
     tdd: toml.tdd === true,
     missionCompleteThresholds,
+    coverageGoals,
     maxTokensPerMaintain: resolvedLimits.maxTokensPerMaintain || 200000,
     writablePaths,
     readOnlyPaths,

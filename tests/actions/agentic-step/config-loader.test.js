@@ -22,6 +22,11 @@ max-attempts-per-branch = 2
 max-attempts-per-issue = 1
 features-limit = 2
 library-limit = 8
+max-read-chars = 20000
+max-test-output = 4000
+max-file-listing = 30
+max-library-index = 2000
+max-fix-test-output = 8000
 `;
 
 const PROFILE_RECOMMENDED = `
@@ -38,6 +43,11 @@ max-attempts-per-branch = 3
 max-attempts-per-issue = 2
 features-limit = 4
 library-limit = 32
+max-read-chars = 50000
+max-test-output = 10000
+max-file-listing = 100
+max-library-index = 5000
+max-fix-test-output = 15000
 `;
 
 const PROFILE_MAX = `
@@ -54,6 +64,11 @@ max-attempts-per-branch = 5
 max-attempts-per-issue = 4
 features-limit = 8
 library-limit = 64
+max-read-chars = 100000
+max-test-output = 20000
+max-file-listing = 0
+max-library-index = 10000
+max-fix-test-output = 30000
 `;
 
 describe("config-loader", () => {
@@ -241,6 +256,21 @@ describe("config-loader", () => {
       const config = loadConfig(configPath);
       expect(config.tuning.reasoningEffort).toBe("high");
       expect(config.tuning.issuesScan).toBe(100);
+      // W22: context limits from max profile
+      expect(config.tuning.maxReadChars).toBe(100000);
+      expect(config.tuning.maxTestOutput).toBe(20000);
+      expect(config.tuning.maxFileListing).toBe(0);
+      expect(config.tuning.maxLibraryIndex).toBe(10000);
+      expect(config.tuning.maxFixTestOutput).toBe(30000);
+    });
+
+    it("parses coverage goals from [goals] section", () => {
+      const configPath = join(tmpDir, "config.toml");
+      writeFileSync(configPath, '[goals]\nmin-line-coverage = 80\nmin-branch-coverage = 60\n');
+
+      const config = loadConfig(configPath);
+      expect(config.coverageGoals.minLineCoverage).toBe(80);
+      expect(config.coverageGoals.minBranchCoverage).toBe(60);
     });
 
     it("overrides individual tuning knobs", () => {

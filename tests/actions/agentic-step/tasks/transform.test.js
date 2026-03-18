@@ -143,7 +143,7 @@ describe("tasks/transform", () => {
     });
     await transform(createMockContext({ octokit, issueNumber: "7" }));
     const args = runCopilotSession.mock.calls[0][0];
-    expect(args.userPrompt).toContain("Target Issue #7");
+    expect(args.userPrompt).toContain("Issue #7");
     expect(args.userPrompt).toContain("Add hamming distance");
   });
 

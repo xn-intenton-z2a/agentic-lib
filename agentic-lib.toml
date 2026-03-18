@@ -75,6 +75,11 @@ max-attempts-per-branch = 2               # max transform attempts before abando
 max-attempts-per-issue = 1                 # max transform attempts before abandoning an issue
 features-limit = 2                     # max feature files in features/ directory
 library-limit = 8                      # max library entries in library/ directory
+max-read-chars = 20000                 # max chars returned from read_file tool
+max-test-output = 4000                 # max chars of test output in prompts
+max-file-listing = 30                  # max files in directory listings (0 = unlimited)
+max-library-index = 2000               # max chars for library index in prompts
+max-fix-test-output = 8000             # max chars of failed run log in fix-code
 
 [profiles.med]
 # Balanced — good results, middle ground.
@@ -90,6 +95,11 @@ max-attempts-per-branch = 3               # max transform attempts before abando
 max-attempts-per-issue = 2                 # max transform attempts before abandoning an issue
 features-limit = 4                     # max feature files in features/ directory
 library-limit = 32                     # max library entries in library/ directory
+max-read-chars = 50000                 # max chars returned from read_file tool
+max-test-output = 10000                # max chars of test output in prompts
+max-file-listing = 100                 # max files in directory listings (0 = unlimited)
+max-library-index = 5000               # max chars for library index in prompts
+max-fix-test-output = 15000            # max chars of failed run log in fix-code
 
 [profiles.max]
 # Thorough — maximum context for complex missions.
@@ -105,6 +115,16 @@ max-attempts-per-branch = 5               # max transform attempts before abando
 max-attempts-per-issue = 4                 # max transform attempts before abandoning an issue
 features-limit = 8                     # max feature files in features/ directory
 library-limit = 64                     # max library entries in library/ directory
+max-read-chars = 100000                # max chars returned from read_file tool
+max-test-output = 20000                # max chars of test output in prompts
+max-file-listing = 0                   # max files in directory listings (0 = unlimited)
+max-library-index = 10000              # max chars for library index in prompts
+max-fix-test-output = 30000            # max chars of failed run log in fix-code
+
+[goals]
+# W12/W13: Code coverage thresholds — stated in all code-changing prompts
+min-line-coverage = 50             # minimum % line coverage required
+min-branch-coverage = 30           # minimum % branch coverage required
 
 [mission-complete]
 # Thresholds for deterministic mission-complete declaration.
