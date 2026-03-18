@@ -2,7 +2,7 @@
 
 **Source**: Workflow run analysis from [repository0 Actions](https://github.com/xn-intenton-z2a/repository0/actions) on 2026-03-18 22:28–23:23 UTC
 **Created**: 2026-03-18
-**Status**: pending
+**Status**: DONE (W2, W3, W4 implemented; W1 deferred as operator behaviour)
 
 ---
 
@@ -115,7 +115,7 @@ Gate: only dispatch if (a) mission not complete, (b) not dry-run, (c) budget not
 
 **Files**: `.github/workflows/agentic-lib-workflow.yml` (new job or step in post-merge)
 
-**Status**: pending
+**Status**: N/A (operator behaviour)
 
 ### W2: Prevent double mission-complete dispatch (LOW)
 
@@ -127,7 +127,7 @@ Alternatively, the `executeMissionComplete` function could check if `MISSION_COM
 
 **Files**: `.github/workflows/agentic-lib-workflow.yml` (post-merge job condition), `src/actions/agentic-step/tasks/direct.js` (optional dedup)
 
-**Status**: pending
+**Status**: DONE
 
 ### W3: Fix state file mission-complete persistence (MEDIUM)
 
@@ -139,7 +139,7 @@ Potential fix: ensure the push-to-logs script does a fetch + merge before pushin
 
 **Files**: `src/scripts/push-to-logs.sh`, possibly `src/actions/agentic-step/tasks/direct.js`
 
-**Status**: pending
+**Status**: DONE
 
 ### W4: Skip review-features when mission is complete (LOW)
 
@@ -149,7 +149,7 @@ Potential fix: ensure the push-to-logs script does a fetch + merge before pushin
 
 **Files**: `.github/workflows/agentic-lib-workflow.yml` (review-features condition)
 
-**Status**: pending — needs investigation
+**Status**: DONE
 
 ---
 
@@ -157,10 +157,10 @@ Potential fix: ensure the push-to-logs script does a fetch + merge before pushin
 
 | # | Work Item | Priority | Dependencies | Status |
 |---|-----------|----------|--------------|--------|
-| 1 | W1 | MEDIUM | None | pending |
-| 2 | W3 | MEDIUM | None | pending |
-| 3 | W2 | LOW | None | pending |
-| 4 | W4 | LOW | None | pending |
+| 1 | W1 | MEDIUM | None | N/A (operator behaviour) |
+| 2 | W3 | MEDIUM | None | DONE |
+| 3 | W2 | LOW | None | DONE |
+| 4 | W4 | LOW | None | DONE |
 
 **Branch**: `claude/benchmark-013-fixes`
 
