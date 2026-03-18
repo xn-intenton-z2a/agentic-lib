@@ -213,7 +213,7 @@ jobs:
     needs: params
     if: needs.params.outputs.hasCopilotToken == 'true'
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 3
     permissions:
       contents: write
       issues: write
@@ -249,7 +249,7 @@ jobs:
       - name: "CLI: transform"
         env:
           COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
-        run: node bin/agentic-lib.js transform --model ${{ needs.params.outputs.model }} --target /tmp/test-workspace 2>&1 | tee /tmp/cli-output.log
+        run: node bin/agentic-lib.js transform --model ${{ needs.params.outputs.model }} --timeout 60000 --target /tmp/test-workspace 2>&1 | tee /tmp/cli-output.log
 
       - name: Verify tests pass after transform
         working-directory: /tmp/test-workspace
@@ -276,7 +276,7 @@ jobs:
     needs: params
     if: needs.params.outputs.hasCopilotToken == 'true'
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 3
     permissions:
       contents: write
       issues: write
@@ -309,7 +309,7 @@ jobs:
       - name: "CLI: maintain-features"
         env:
           COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
-        run: node bin/agentic-lib.js maintain-features --model ${{ needs.params.outputs.model }} --target /tmp/test-workspace 2>&1 | tee /tmp/cli-output.log
+        run: node bin/agentic-lib.js maintain-features --model ${{ needs.params.outputs.model }} --timeout 60000 --target /tmp/test-workspace 2>&1 | tee /tmp/cli-output.log
 
       - name: Show agent changes
         run: |
@@ -332,7 +332,7 @@ jobs:
     needs: params
     if: needs.params.outputs.hasCopilotToken == 'true'
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 3
     permissions:
       contents: write
       issues: write
@@ -365,7 +365,7 @@ jobs:
       - name: "CLI: maintain-library"
         env:
           COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
-        run: node bin/agentic-lib.js maintain-library --model ${{ needs.params.outputs.model }} --target /tmp/test-workspace 2>&1 | tee /tmp/cli-output.log
+        run: node bin/agentic-lib.js maintain-library --model ${{ needs.params.outputs.model }} --timeout 60000 --target /tmp/test-workspace 2>&1 | tee /tmp/cli-output.log
 
       - name: Show agent changes
         run: |
