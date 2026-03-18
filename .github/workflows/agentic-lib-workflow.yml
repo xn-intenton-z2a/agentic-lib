@@ -589,8 +589,8 @@ jobs:
             const unitSummary = `exit=${telemetry.liveTests.unit.exitCode} pass=${telemetry.liveTests.unit.passCount} fail=${telemetry.liveTests.unit.failCount}`;
             core.setOutput('unit-test-summary', unitSummary);
             // Truncated unit test output for transform (first 4000 chars)
-            const unitOutput = (telemetry.liveTests?.unit?.output || '').substring(0, 4000);
-            core.setOutput('unit-test-output', unitOutput);
+            const unitOutputForTransform = (telemetry.liveTests?.unit?.output || '').substring(0, 4000);
+            core.setOutput('unit-test-output', unitOutputForTransform);
 
       - name: Output telemetry summary
         shell: bash
