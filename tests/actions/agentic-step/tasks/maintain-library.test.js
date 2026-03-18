@@ -95,12 +95,14 @@ describe("tasks/maintain-library", () => {
     });
     const result = await maintainLibrary(createMockContext());
 
-    expect(result.outcome).toBe("sources-discovered");
-    expect(result.details).toContain("Discovered sources");
+    expect(result.outcome).toBe("library-maintained");
+    expect(result.details).toContain("Maintained sources and library");
     expect(runCopilotSession).toHaveBeenCalledTimes(1);
     const args = runCopilotSession.mock.calls[0][0];
-    expect(args.userPrompt).toContain("SOURCES.md has no URLs");
+    expect(args.userPrompt).toContain("no URLs yet");
     expect(args.userPrompt).toContain("Hamming distance");
+    expect(args.userPrompt).toContain("Step 1");
+    expect(args.userPrompt).toContain("Step 2");
   });
 
   it("discovers sources when SOURCES.md has no URLs", async () => {
@@ -109,7 +111,7 @@ describe("tasks/maintain-library", () => {
       return "# Sources\n\n";
     });
     const result = await maintainLibrary(createMockContext());
-    expect(result.outcome).toBe("sources-discovered");
+    expect(result.outcome).toBe("library-maintained");
     expect(runCopilotSession).toHaveBeenCalledTimes(1);
   });
 
