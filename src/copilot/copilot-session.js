@@ -74,7 +74,7 @@ export async function runCopilotSession({
   model = "gpt-5-mini",
   githubToken,
   tuning = {},
-  timeoutMs = 600000,
+  timeoutMs,
   agentPrompt,
   userPrompt,
   writablePaths,
@@ -93,6 +93,11 @@ export async function runCopilotSession({
   }
 
   const wsPath = resolve(workspacePath);
+
+  // W11: Session timeout — defaults to 480s (8 min), leaving 2 min headroom
+  // below the 10-min workflow step timeout for graceful shutdown.
+  // Callers can override via timeoutMs parameter or tuning.sessionTimeoutMs.
+  const effectiveTimeoutMs = timeoutMs || tuning.sessionTimeoutMs || 480000;
 
   // ── Writable paths ──────────────────────────────────────────────────
   // Default: entire workspace is writable (local CLI mode)
@@ -154,7 +159,7 @@ export async function runCopilotSession({
   const systemPrompt = basePrompt + NARRATIVE_INSTRUCTION;
 
   // ── Session config ─────────────────────────────────────────────────
-  logger.info(`[agentic-lib] Creating session (model=${model}, workspace=${wsPath})`);
+  logger.info(`[agentic-lib] Creating session (model=${model}, workspace=${wsPath}, timeout=${Math.round(effectiveTimeoutMs / 1000)}s)`);
 
   const client = new CopilotClient({
     env: { ...process.env, GITHUB_TOKEN: copilotToken, GH_TOKEN: copilotToken },
@@ -315,7 +320,7 @@ export async function runCopilotSession({
   }
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     try {
-      response = await session.sendAndWait(sendOptions, timeoutMs);
+      response = await session.sendAndWait(sendOptions, effectiveTimeoutMs);
       break;
     } catch (err) {
       if (isRateLimitError(err) && attempt < maxRetries) {
