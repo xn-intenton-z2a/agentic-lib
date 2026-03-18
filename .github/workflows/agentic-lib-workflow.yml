@@ -735,6 +735,7 @@ jobs:
         with:
           commit-message: "agentic-step: maintain features and library"
           push-ref: ${{ github.ref_name }}
+          fail-on-conflict: "false"
 
       - name: Capture commit SHA
         id: get-sha
