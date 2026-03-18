@@ -327,13 +327,22 @@ Two changes:
 
 **1. Default profile changed to max**: Changed `#@dist` marker from `"recommended"` to `"max"`.
 
-Truncation safety check for gpt-5-mini with max profile:
-- Telemetry output: `PROFILE_LIMITS.max = 60000` chars (~60KB) — within GitHub Actions 1MB output limit
-- `MAX_READ_CHARS = 20000` in copilot-session.js — reasonable per-file cap, prevents context flooding
-- `initialTestOutput.substring(0, 4000)` — adequate for test output summary
-- File listing cap: 30 files per directory — adequate
-- `agentMessage.substring(0, 500)` — return value only, not session content
-- `infiniteSessions: true` — enabled in max profile, handles long sessions via compaction
+Truncation analysis — what actually reaches the LLM prompt vs what doesn't:
+
+LLM-facing truncations (these limit what the model can reason about):
+- `MAX_READ_CHARS = 20000` in copilot-session.js — per-file read cap. Most impactful: large source files get chopped. Conservative for gpt-5-mini's ~1M token context.
+- `initialTestOutput.substring(0, 4000)` — test output in mission-mode prompt
+- File listing `.slice(0, 30)` — caps directory listings at 30 files
+- Library index cap at 2000 chars
+- Fix-code test output at 8000 chars
+- Supervisor recent activity: last 40 lines from 5 log files
+
+NOT in LLM prompts (workflow outputs / logging only — safe to ignore):
+- `PROFILE_LIMITS.max = 60000` — workflow step output, NOT injected into LLM
+- `agentMessage.substring(0, 500)` — return value, not session content
+- `analysis/reasoning.substring()` — log entries and step outputs
+
+With `infiniteSessions: true` and gpt-5-mini's ~1M token context, all LLM-facing truncations are conservative and could be raised. The 20K per-file-read is the most likely to cost us — a 500-line source file (~20K chars) would be truncated.
 
 Max profile values now distributed to consumer repos:
 - `reasoning-effort: "high"` (gpt-5-mini supports this)
