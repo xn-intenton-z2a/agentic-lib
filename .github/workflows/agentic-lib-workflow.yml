@@ -1831,6 +1831,8 @@ jobs:
     uses: ./.github/workflows/agentic-lib-test.yml
     with:
       ref: ${{ needs.maintain.outputs.commit-sha || github.ref }}
+      push-screenshot: "true"
+      log-branch: ${{ needs.params.outputs.log-branch }}
     secrets: inherit
 
   # ─── Schedule change (if requested) ────────────────────────────────
