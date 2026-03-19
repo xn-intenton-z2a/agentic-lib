@@ -1,133 +1,265 @@
-# Plan: Always-On Supervisor Controller
+# Plan: Supervisor Service
 
-## Problem
+## What the Supervisor Does
 
-The current benchmark/iteration workflow is driven by GitHub Actions workflows, which are:
-- **Slow**: Each workflow run takes 10-20min wall-clock, with most time spent in queue/setup/teardown
-- **Cumbersome**: Dispatching runs, polling for completion, reading logs from the API, deciding next steps — all manual or requires a Claude Code session
-- **Stateless between runs**: Each workflow run starts fresh. The supervisor agent within the workflow has limited context about what happened in previous runs
-- **Expensive orchestration**: A Claude Code session costing ~$10/hr in API tokens just to poll `gh run watch` and dispatch the next cycle
+The supervisor is the composite of every skill needed to run benchmarks, diagnose issues, fix them, release fixes, and re-run benchmarks — end to end, without human intervention. It is defined by what a Claude Code session actually does today when executing ITERATION_BENCHMARKS_SIMPLE.md.
 
-## Use Cases
+## Skills Observed Across Benchmark Sessions 014
 
-The supervisor should be a **service** that can:
-1. **Run missions**: `supervise --mission hamming-distance --profile med` — dispatch, iterate, declare complete
-2. **Run benchmarks**: `supervise --benchmarks ITERATION_BENCHMARKS_SIMPLE.md` — execute all scenarios, produce a numbered report
-3. **Continuous monitoring**: `supervise --watch` — respond to events, keep the pipeline healthy
-4. **Multi-repo**: Orchestrate across repository0 and other consumers
+These are the discrete capabilities exercised during the benchmark 014 session and fix cycle. The supervisor must implement all of them.
 
-## Vision
+### Skill Group 1: Benchmark Execution
 
-An **always-on supervisor controller** that:
-1. Orchestrates iteration cycles without workflow overhead
-2. Makes intelligent decisions about what to do next (dispatch, wait, fix, declare complete)
-3. Responds to events (PR merged, test failed, issue created) in real-time
-4. Runs cheaply between active decisions (not burning tokens while waiting)
+| Skill | What it does | Tools used today |
+|-------|-------------|------------------|
+| **Parse benchmark spec** | Read ITERATION_BENCHMARKS_SIMPLE.md, extract scenario matrix, objectives, procedures | File read |
+| **Dispatch init** | `gh workflow run agentic-lib-init` with mission, profile, model, schedule=off | GitHub CLI |
+| **Wait for init** | Poll `gh run list` until init completes | GitHub CLI + sleep |
+| **Wait for workflow** | Watch auto-dispatched or manually dispatched workflow run until completion | `gh run watch` or polling |
+| **Dispatch next iteration** | `gh workflow run agentic-lib-workflow` when mission not yet complete | GitHub CLI |
+| **Read state file** | Fetch `agentic-lib-state.toml` from `agentic-lib-logs` branch via API | `gh api` + base64 decode |
+| **Read agent logs** | List and fetch `agent-log-*.md` files from logs branch | `gh api` |
+| **Read source code** | Fetch `src/lib/main.js` and other files from main branch | `gh api` |
+| **Read test files** | List test directory contents | `gh api` |
+| **Verify acceptance criteria** | Compare MISSION.md criteria against source code, tests, README | `gh api` + analysis |
+| **Check mission signals** | Look for MISSION_COMPLETE.md or MISSION_FAILED.md on main | `gh api` |
+| **Fetch website** | `curl` the GitHub Pages deployment | HTTP fetch |
+| **Download screenshot** | Fetch SCREENSHOT_INDEX.png from logs branch | `gh api` + base64 |
+| **Determine outcome** | Mission-complete / mission-failed / budget-exhausted / converged / timeout | State analysis |
+| **Stop schedule** | `gh workflow run agentic-lib-schedule -f frequency=off` | GitHub CLI |
 
-## Architecture Options
+### Skill Group 2: Report Generation
 
-### Option A: Long-Running MCP Session
+| Skill | What it does |
+|-------|-------------|
+| **Pick report number** | Scan existing BENCHMARK_REPORT_NNN.md files, pick next number |
+| **Write scenario config** | Record init run ID, time, parameters |
+| **Write iteration table** | Map workflow runs to iterations with run IDs, times, durations, transforms, PRs |
+| **Write acceptance table** | Verify each criterion and record PASS/FAIL with evidence |
+| **Write state file section** | Paste final state file contents |
+| **Write website assessment** | Describe screenshot contents, website HTML, rendering quality |
+| **Write scenario summary** | Compute totals: iterations, transforms, tokens, time, acceptance pass rate |
+| **Write findings** | Identify patterns: POSITIVE, CONCERN, REGRESSION with descriptions |
+| **Write comparison** | Compare against baseline reports (007, 014) |
+| **Write recommendations** | Actionable next steps derived from findings |
 
-Use the existing MCP server (`npx @xn-intenton-z2a/agentic-lib mcp`) as the always-on process.
+### Skill Group 3: Diagnosis
 
-**How it works:**
-- Claude Code connects to the MCP server
-- The server provides tools: `prepare_iteration`, `workspace_write_file`, `run_tests`, `iterate`
-- A new `supervise` tool would: dispatch workflow, poll for completion, read results, decide next action
-- Claude Code stays connected and the MCP server does the heavy lifting
+| Skill | What it does |
+|-------|-------------|
+| **Identify failing metric** | Notice when acceptance criteria counter shows 0/N, state file shows wrong value, screenshot missing |
+| **Trace root cause** | Read source code, workflow YAML, shell scripts to find where the bug is |
+| **Assess impact** | Determine if the bug affects benchmark accuracy or just reporting |
+| **Prioritise fixes** | Rank by impact: HIGH (affects outcomes) > MEDIUM (affects accuracy) > LOW (cosmetic) |
 
-**Pros:** Already exists. Claude Code provides the LLM intelligence.
-**Cons:** Still needs a Claude Code session running. Doesn't survive session disconnects.
+### Skill Group 4: Fix Implementation
 
-### Option B: GitHub App / Webhook Listener
+| Skill | What it does |
+|-------|-------------|
+| **Create fix branch** | `git checkout -b claude/<description>` from fresh main |
+| **Edit source files** | Modify JS, YAML, shell scripts to fix identified issues |
+| **Edit workflow YAML** | Add inputs, change conditions, pass parameters between jobs |
+| **Edit shell scripts** | Fix merge strategies, add post-rebase recovery |
+| **Edit LLM prompts** | Add instructions to agent prompts, extend tool schemas |
+| **Run tests** | `npm test` to verify no regressions |
+| **Commit changes** | Stage specific files, write descriptive commit messages |
+| **Push branch** | `git push -u origin` |
+| **Create PR** | `gh pr create` with summary, test plan |
+| **Watch CI** | Monitor PR checks until pass/fail |
+| **Fix CI failures** | Diagnose workflow file issues, amend commits |
 
-A lightweight Node.js service that listens to GitHub webhook events.
+### Skill Group 5: Release and Deploy
 
-**How it works:**
-- Deployed as a small service (e.g. on AWS Lambda, Fly.io, or a VPS)
-- Subscribes to: `workflow_run.completed`, `pull_request.closed`, `issues.opened`
-- On each event, evaluates the current state and decides the next action
-- Uses a cheap/fast model (gpt-5-mini) for decisions, not a full Claude session
-- Dispatches workflows via GitHub API when needed
+| Skill | What it does |
+|-------|-------------|
+| **Merge PR** | After CI passes (needs explicit permission today) |
+| **Wait for release** | Monitor release.yml for auto-version-bump and npm publish |
+| **Init repository0** | `gh workflow run agentic-lib-init -f mode=purge` to distribute new code |
+| **Verify deployment** | Run a quick benchmark scenario to confirm fixes work |
 
-**Pros:** Event-driven (no polling). Survives disconnects. Very cheap between events.
-**Cons:** Needs deployment infrastructure. New codebase to maintain.
+### Skill Group 6: Documentation and State
 
-### Option C: GitHub Actions with Recursive Dispatch (Current Model, Refined)
+| Skill | What it does |
+|-------|-------------|
+| **Update benchmark docs** | Modify ITERATION_BENCHMARKS_SIMPLE.md with new scenarios, objectives, comparison baselines |
+| **Write fix plan** | Create PLAN_BENCHMARK_NNN_FIXES.md documenting issues found and fixes applied |
+| **Archive reports** | Move completed reports to `_developers/archive/` |
+| **Update PLAN_SUPERVISOR.md** | Capture learnings and evolve the supervisor design |
 
-Keep GitHub Actions but make the workflow self-continuing.
+## What the Supervisor Session Looks Like (Benchmark 014 Trace)
 
-**How it works:**
-- The `agentic-lib-workflow` already has a director that can dispatch the next run
-- Add a `dispatch-next` job at the end of each workflow that auto-dispatches another run if mission isn't complete
-- The workflow becomes a self-sustaining loop until mission-complete or budget-exhausted
+This is the actual sequence of events from the benchmark 014 session, numbered as a supervisor would execute them:
 
-**Pros:** No new infrastructure. Works today. Already partially implemented (schedule dispatch).
-**Cons:** Still slow (10-20min per cycle). Each run is stateless. GitHub may rate-limit recursive dispatches.
+```
+ 1. Read ITERATION_BENCHMARKS_SIMPLE.md
+ 2. Read previous report (007) for comparison baseline
+ 3. For each scenario in matrix:
+    a. Dispatch init (mission, model, profile, schedule=off)
+    b. Wait for init completion
+    c. Wait for auto-dispatched workflow
+    d. While not (mission-complete or budget-exhausted or converged):
+       i.   Wait for current workflow run to complete
+       ii.  Read state file from logs branch
+       iii. Read latest agent logs
+       iv.  Check for MISSION_COMPLETE.md / MISSION_FAILED.md
+       v.   If not complete: dispatch next iteration
+    e. Collect final data:
+       - State file, source code, tests, issues, PRs
+       - Website HTML, screenshot
+       - Verify each acceptance criterion
+    f. Write scenario section to report
+ 4. Write findings section (compare patterns across scenarios)
+ 5. Write comparison section (vs baseline reports)
+ 6. Write recommendations
+ 7. For each HIGH-priority finding:
+    a. Investigate root cause (read code, trace flow)
+    b. Create fix branch
+    c. Implement fix
+    d. Run tests
+    e. Push, create PR, wait for CI
+    f. If CI fails: diagnose and fix
+ 8. Release and init:
+    a. Merge PR (with permission)
+    b. Wait for npm release
+    c. Init repository0 with new version
+ 9. Re-run affected scenarios to verify fixes
+10. Update report with fix verification results
+```
 
-### Option D: Hybrid — CLI Supervisor + Workflow Execution
+## Architecture: What Changes
 
-A local CLI process (or CI job) that acts as the supervisor brain, while workflows do the heavy lifting.
+The supervisor is NOT a new codebase. It is the **extraction of the Claude Code session into a repeatable, autonomous process**. The skills above map to concrete tool calls:
 
-**How it works:**
-- A new `npx @xn-intenton-z2a/agentic-lib supervise` command
-- Runs in a loop: dispatch workflow → poll → read results → decide → repeat
-- Uses a local LLM call (cheap model) for decisions
-- Can also run as a GitHub Actions job with a long timeout (6hr max)
-- Maintains state in a local file or on the logs branch
+| Skill Group | Implementation |
+|-------------|---------------|
+| Benchmark Execution | `gh` CLI commands, `gh api` calls, HTTP fetches — all scriptable |
+| Report Generation | Template-driven markdown writing — deterministic |
+| Diagnosis | LLM analysis of code + metrics — needs intelligence |
+| Fix Implementation | Code editing + git operations — needs intelligence |
+| Release and Deploy | `gh` CLI commands — scriptable, needs permission gates |
+| Documentation | File writing — deterministic |
 
-**Pros:** Cheap (one LLM call per decision, not a full session). Can run locally or in CI.
-**Cons:** Polling-based. Needs a process running somewhere.
+**Only Groups 3 and 4 need LLM intelligence.** Everything else is mechanical.
 
-### Option E: GitHub Actions Composite with Wait (Recommended Starting Point)
+## Proposed Interface
 
-The simplest evolution: make `agentic-lib-workflow` self-dispatch at the end if mission isn't complete.
+```bash
+# Run all scenarios from a benchmark spec
+npx @xn-intenton-z2a/agentic-lib supervise \
+  --benchmarks ITERATION_BENCHMARKS_SIMPLE.md \
+  --repo xn-intenton-z2a/repository0 \
+  --report BENCHMARK_REPORT_015.md
 
-**How it works:**
-- At the end of each workflow run, the `post-merge` or `director` job checks: is mission complete?
-- If not, and budget isn't exhausted, dispatch another `agentic-lib-workflow` run
-- The chain continues until mission-complete, mission-failed, or budget-exhausted
-- A safety counter prevents infinite loops (max N dispatches per init)
+# Run a single mission
+npx @xn-intenton-z2a/agentic-lib supervise \
+  --mission 6-kyu-understand-hamming-distance \
+  --profile med \
+  --repo xn-intenton-z2a/repository0
 
-**Already partially exists:** The `update-schedule` job can set `hourly` which triggers cron. But cron is unreliable (GitHub caches it). Direct dispatch is better.
+# Run benchmarks with fix mode (diagnose + fix + re-run)
+npx @xn-intenton-z2a/agentic-lib supervise \
+  --benchmarks ITERATION_BENCHMARKS_SIMPLE.md \
+  --fix \
+  --repo xn-intenton-z2a/repository0
+```
 
-## Recommendation
+## Implementation Phases
 
-**Start with Option E** (self-dispatching workflow chain) because:
-1. Zero new infrastructure
-2. The director already has the logic — just needs to dispatch at the end
-3. Combined with Fix #2 (state persistence), the chain has reliable state
-4. The `schedule=off` benchmark mode already prevents unwanted cron interference
+### Phase 1: Scriptable Benchmark Runner (no LLM needed)
 
-**Then evolve to Option D** (CLI supervisor) for benchmarks:
-- `npx @xn-intenton-z2a/agentic-lib supervise --mission hamming-distance --profile med`
-- Dispatches init, then loops: dispatch workflow → poll → read state → decide
-- Produces a benchmark report automatically
-- Can run locally or in a CI job
+Extract the mechanical parts of the benchmark session into a CLI command:
 
-## Implementation Steps
+1. Parse benchmark spec (scenario matrix, objectives)
+2. For each scenario: dispatch init → poll → dispatch iterations → poll → collect data
+3. Generate report from collected data using template
+4. Compare against baseline reports
+5. Output: `BENCHMARK_REPORT_NNN.md` with all scenario data filled in
 
-### Phase 1: Self-Dispatching Chain (Option E)
-1. Add `dispatch-next` job to `agentic-lib-workflow.yml`
-2. Conditions: mission not complete, budget not exhausted, dispatch count < max
-3. Track dispatch count in state file (new field: `chain-dispatches`)
-4. Add `max-chain-dispatches` to config (default: 10)
+**What's missing:** Findings, recommendations, acceptance criteria verification (these need judgement). Leave those sections as `(to be filled by reviewer)`.
 
-### Phase 2: CLI Supervisor (Option D)
-1. Add `supervise` command to the CLI (`src/bin/cli.js`)
-2. Implement dispatch → poll → read state → decide loop
-3. Use gpt-5-mini for cheap decision calls
-4. Output progress to console and optionally to a report file
-5. Support `--max-iterations`, `--timeout`, `--report` flags
+**Estimated effort:** ~200 lines of JS in `src/bin/cli.js`. Uses existing `gh` commands.
 
-### Phase 3: Event-Driven (Option B, future)
-1. Deploy a webhook listener
-2. Replace polling with event-driven decisions
-3. Support multiple concurrent missions across repos
+### Phase 2: Intelligent Report Writer (cheap LLM)
 
-## Open Questions
+Add a single LLM call after data collection to:
+1. Verify acceptance criteria against source code
+2. Identify findings (compare patterns across scenarios)
+3. Write comparison with baseline reports
+4. Generate recommendations
 
-1. **Dispatch rate limiting**: Does GitHub throttle recursive workflow dispatches? What's the limit?
-2. **Budget tracking across chains**: The state file tracks budget — is it reliable enough for chain termination?
-3. **Error recovery**: If a workflow fails mid-chain, how does the next dispatch know to retry vs skip?
-4. **Concurrent missions**: Can we support multiple missions on different branches simultaneously?
+**Model:** gpt-5-mini (cheap, fast). One call per report, not per iteration.
+
+### Phase 3: Fix Mode (full LLM)
+
+When `--fix` is passed:
+1. After report generation, analyse HIGH-priority findings
+2. Investigate root causes by reading source code
+3. Create fix branch, implement fixes, run tests
+4. Push, create PR, wait for CI
+5. (Optionally) merge, release, re-init, re-run
+
+**Model:** gpt-5-mini for investigation, or claude-sonnet-4 for complex fixes.
+
+### Phase 4: Always-On Mode
+
+For `--watch` mode:
+1. Listen for workflow_run.completed events (via polling or webhook)
+2. On each event: read state, decide next action
+3. Auto-dispatch next iteration if needed
+4. Detect stuck pipelines and intervene
+
+## Benchmark 014 Fixes (Applied This Session)
+
+These fixes were identified during the benchmark 014 session and implemented on branch `claude/benchmark-014-fixes` (PR #1969):
+
+### Fix #1: Screenshot Persistence
+- **Problem:** SCREENSHOT_INDEX.png not pushed to logs branch on manual dispatches (only on schedule runs)
+- **Root cause:** `Push screenshot to log branch` step in agentic-lib-test.yml required `github.event_name == 'schedule'` or `inputs.push-screenshot == 'true'`. Post-commit-test didn't pass `push-screenshot`.
+- **Fix:** Pass `push-screenshot: "true"` and `log-branch` from post-commit-test to agentic-lib-test. Added `log-branch` as a declared input to the test workflow.
+- **Files:** `agentic-lib-workflow.yml`, `agentic-lib-test.yml`
+
+### Fix #2: State File mission-complete Persistence
+- **Problem:** `agentic-lib-state.toml` on logs branch shows `mission-complete = false` after MISSION_COMPLETE.md exists on main
+- **Root cause:** Race condition — post-merge director pushes stale state (read before director's update) that overwrites the director's `true` value. The W3 conflict merge only works on rebase conflicts, not clean pushes with old data.
+- **Fix:** After successful rebase in push-to-logs.sh, re-apply boolean `true` values from saved local state. If any values were downgraded from true to false, amend the commit.
+- **Files:** `push-to-logs.sh`
+
+### Fix #6: Acceptance Criteria Counter Always 0/N
+- **Problem:** All agent logs show `Acceptance criteria | 0/N` even when criteria are met
+- **Root cause:** `countAcceptanceCriteria()` in telemetry.js counts `- [x]` vs `- [ ]` checkboxes in MISSION.md. Nobody updates the checkboxes — the LLM implements the code but doesn't check the boxes.
+- **Fix:** Added `acceptanceCriteriaMet` field to the `report_implementation_review` tool schema. The LLM reports which criteria it verified as implemented+tested. The handler updates MISSION.md checkboxes (`- [ ]` → `- [x]`). The telemetry counter then reads accurate values.
+- **Files:** `implementation-review.js`
+
+## Achievability Assessment for Current Benchmarks
+
+Based on benchmark 014 data, with the fixes above:
+
+| Scenario | Target | Assessment | Limiting Factor |
+|----------|--------|-----------|-----------------|
+| S1: hamming/min/1 run | 1 run | **Unlikely** | Pipeline has structural 2-run minimum: implement → verify+declare. Post-merge director has never declared mission-complete on the same run as the first transform. |
+| S2: dense-encoding/min/3 runs | 3 runs | **Unlikely** | min profile (20K read-chars) too small for 4-kyu multi-scheme encoding. LLM may not implement all schemes in one transform. |
+| S3: dense-encoding/med/3 runs | 3 runs | **Possible** | 50K read-chars is enough. 3 runs = implement + refine + declare. Matches 6-kyu pattern but 4-kyu may need more. |
+| S4: dense-encoding/max/3 runs | 3 runs | **Best chance** | 100K read-chars, 128 budget. Most likely to one-shot implementation. |
+
+### Structural Bottleneck: 2-Run Minimum
+
+The biggest limiting factor is not the fixes — it's that the pipeline needs at least 2 workflow runs to complete any mission:
+
+1. **Run 1:** Review finds nothing → supervisor creates issue → dev transforms → PR merges → post-merge director says "in-progress" (because it hasn't verified tests and acceptance criteria in the merged code yet)
+2. **Run 2:** Review finds everything implemented → director evaluates → declares mission-complete
+
+To achieve 1-run completion for 6-kyu, the post-merge director needs to be more decisive — if all metrics are MET and the implementation-review found no gaps, declare complete immediately. Fix #6 (acceptance criteria) helps here: if the director sees 7/7 criteria met instead of 0/7, it has stronger evidence to declare complete in run 1.
+
+### What Would Make 1-Run Achievable
+
+1. Fix #6 lands (acceptance criteria counter) ✓ (in PR #1969)
+2. Post-merge director prompt is updated to: "If all mechanical metrics are MET AND acceptance criteria > 50% met AND implementation review shows no critical gaps → declare mission-complete"
+3. The 6-kyu mission seed is simple enough that one transform covers everything (already true for hamming-distance in report 014)
+
+### What Would Make 3-Run Achievable for 4-kyu
+
+1. Single transform covers core functionality (run 1)
+2. Second transform covers edge cases, tests, website (run 2)
+3. Third run: review + declare mission-complete (run 3)
+4. This requires no Playwright instability issues (fixed since report 007)
+5. And sufficient context for the LLM (med or max profile)
