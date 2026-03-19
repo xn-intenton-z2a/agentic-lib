@@ -92,18 +92,29 @@ Profiles control context quality, budget, and limits. Set in `agentic-lib.toml` 
 
 ---
 
+## Objective
+
+Establish "on-sight" doability benchmarks — the number of `agentic-lib-workflow` runs needed to reach mission-complete for each kyu tier:
+
+| Kyu | Target runs to mission-complete | Rationale |
+|-----|--------------------------------|-----------|
+| 8, 7, 6 | **1 run** | Simple missions should complete in a single workflow cycle (init auto-dispatches the first run). |
+| 5, 4 | **3 runs** | Medium missions may need a review/maintain cycle and a second transform. Init + 2 manual dispatches. |
+
+A scenario **passes** if it reaches mission-complete within the target run count. A scenario **fails** if it exceeds the target or hits budget exhaustion / mission-failed.
+
+---
+
 ## Scenario Matrix
 
 Standard scenarios for benchmarking. Pick one or more per report.
 
-| ID | Mission | Model | Profile     | Budget | Purpose                                          |
-|----|---------|-------|-------------|--------|--------------------------------------------------|
-| S1 | 7-kyu-understand-fizz-buzz | gpt-5-mini | med | 32 | Baseline. Default config on simplest mission.    |
-| S2 | 7-kyu-understand-fizz-buzz | gpt-5-mini | max         | 128 | Profile comparison (max vs med).         |
-| S3 | 6-kyu-understand-hamming-distance | gpt-5-mini | med | 32 | Medium complexity baseline.                      |
-| S4 | 6-kyu-understand-hamming-distance | claude-sonnet-4 | max | 128 | Model comparison (gpt-5-mini vs claude-sonnet-4). |
-| S5 | 6-kyu-understand-roman-numerals | gpt-5-mini | med | 32 | Medium complexity baseline.                              |
-| S6 | 6-kyu-understand-roman-numerals | claude-sonnet-4 | max | 128 | Model comparison (gpt-5-mini vs claude-sonnet-4). |
+| ID | Mission | Model | Profile | Budget | Target Runs | Purpose |
+|----|---------|-------|---------|--------|-------------|---------|
+| S1 | 6-kyu-understand-hamming-distance | gpt-5-mini | min | 16 | 1 | 6 kyu at min profile — can the cheapest config still one-shot a 6 kyu? |
+| S2 | 4-kyu-apply-dense-encoding | gpt-5-mini | min | 16 | 3 | 4 kyu at min — stress test: can min profile handle medium complexity? |
+| S3 | 4-kyu-apply-dense-encoding | gpt-5-mini | med | 32 | 3 | 4 kyu at med — balanced profile on medium complexity. |
+| S4 | 4-kyu-apply-dense-encoding | gpt-5-mini | max | 128 | 3 | 4 kyu at max — does more context help on a harder mission? Profile comparison across S2/S3/S4. |
 
 ---
 
@@ -402,9 +413,15 @@ Description of what was observed and why it matters.
 
 ## Comparison with Previous Reports
 
-| Metric | Report MMM | This Report |
-|--------|-----------|-------------|
-| metric | value | value |
+Compare against these baseline reports (archived in `_developers/archive/`):
+- **BENCHMARK_REPORT_007.md** (v7.2.1, 2026-03-10) — roman-numerals, string-utils, cron-engine on `recommended` profile
+- **BENCHMARK_REPORT_014.md** (v7.4.31, 2026-03-19) — fizz-buzz, hamming-distance, roman-numerals on `med` profile
+
+For missions that overlap with 007 or 014, include a direct comparison table.
+
+| Metric | Report 007 | Report 014 | This Report |
+|--------|-----------|-------------|-------------|
+| metric | value | value | value |
 
 ---
 

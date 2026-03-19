@@ -70,3 +70,4 @@ For advanced scenarios (3-1 kyu), additionally watch for:
 - Record the same data points as ITERATION_BENCHMARKS_SIMPLE.md Step 3 (including state file, logs, screenshot, and website)
 - Use the same report template from ITERATION_BENCHMARKS_SIMPLE.md
 - Include screenshots and website assessment in each scenario's report section
+- **Comparison baselines**: Compare against `_developers/archive/BENCHMARK_REPORT_007.md` (v7.2.1, 2026-03-10 — roman-numerals, string-utils, cron-engine on `recommended` profile) and `BENCHMARK_REPORT_014.md` (v7.4.31, 2026-03-19 — fizz-buzz, hamming-distance, roman-numerals on `med` profile). For overlapping missions include a direct comparison table
