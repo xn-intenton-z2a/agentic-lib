@@ -411,19 +411,16 @@ jobs:
 
       - name: Verify no diff
         run: |
-          # Exclude timestamp-bearing files (agentic-lib.toml [init].timestamp and intentïon.md init timestamp)
-          DIFF=$(diff -rN --exclude=.git --exclude=node_modules --exclude=agentic-lib.toml --exclude='intenti*n.md' /tmp/after-first /tmp/test-workspace || true)
-          if [ -n "$DIFF" ]; then
-            echo "ERROR: init --purge is not idempotent"
-            echo "$DIFF"
-            exit 1
-          fi
-          # Also verify the toml diff is only the timestamp line
-          TOML_DIFF=$(diff /tmp/after-first/agentic-lib.toml /tmp/test-workspace/agentic-lib.toml || true)
-          TOML_NON_TS=$(echo "$TOML_DIFF" | grep -v '^[<>-]' | grep -v '^[0-9]' | grep -v 'timestamp' || true)
-          if [ -n "$TOML_NON_TS" ]; then
-            echo "ERROR: agentic-lib.toml has non-timestamp differences"
-            echo "$TOML_DIFF"
+          # Compare all files except timestamp-bearing ones
+          # agentic-lib.toml has [init].timestamp, intentïon.md has init timestamp
+          DIFF=$(diff -rN --exclude=.git --exclude=node_modules /tmp/after-first /tmp/test-workspace || true)
+          # Filter out lines that are purely timestamp differences
+          SIGNIFICANT=$(echo "$DIFF" | grep -v 'timestamp\|init purge.*at 20' || true)
+          # Check if any non-header diff lines remain (exclude diff file headers and range markers)
+          NON_TS=$(echo "$SIGNIFICANT" | grep '^[<>]' || true)
+          if [ -n "$NON_TS" ]; then
+            echo "ERROR: init --purge is not idempotent (non-timestamp differences)"
+            echo "$NON_TS"
             exit 1
           fi
           echo "init --purge is idempotent"
