@@ -83,7 +83,6 @@ on:
         options:
           - ""
           - gpt-5-mini
-          - claude-sonnet-4
           - gpt-4.1
 
 concurrency:
