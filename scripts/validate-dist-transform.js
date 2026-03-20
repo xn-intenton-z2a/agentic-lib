@@ -55,10 +55,11 @@ if (mode === "compare" || mode === "all") {
   const expected = applyDistTransform(source);
   // Strip runtime sections and purge-modified values before comparing
   const stripRuntime = (s) => s
-    .replace(/\n*\[acceptance-criteria\][^\[]*/g, "")
-    .replace(/\n*\[init\][^\[]*$/g, "\n")
+    // [acceptance-criteria] values contain [] in text — match to next section header or EOF
+    .replace(/\n*\[acceptance-criteria\]\n(?:(?!\n\[)[^\n]*\n?)*/g, "")
+    .replace(/\n*\[init\]\n(?:(?!\n\[)[^\n]*\n?)*/g, "\n")
     // Purge sets acceptance-criteria-threshold based on mission difficulty — normalise both sides
-    .replace(/^acceptance-criteria-threshold\s*=\s*\d+.*$/m, "acceptance-criteria-threshold = NORMALIZED");
+    .replace(/^acceptance-criteria-threshold\s*=\s*\d+.*$/gm, "acceptance-criteria-threshold = NORMALIZED");
   const actual = stripRuntime(readFileSync(targetToml, "utf8"));
   const normalizedExpected = stripRuntime(expected);
   if (normalizedExpected !== actual) {
