@@ -752,7 +752,7 @@ jobs:
         if: github.repository != 'xn-intenton-z2a/agentic-lib' && needs.params.outputs.dry-run != 'true'
         uses: ./.github/agentic-lib/actions/commit-if-changed
         with:
-          commit-message: ${{ steps.health.outputs.summary || 'agentic-step: maintain features and library' }}
+          commit-message: "${{ steps.health.outputs.summary || 'agentic-step: maintain features and library' }}"
           push-ref: ${{ github.ref_name }}
           fail-on-conflict: "false"
 
