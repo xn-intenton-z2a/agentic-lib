@@ -17,7 +17,7 @@ run-name: "agentic-lib-test [${{ github.ref_name }}]"
 
 on:
   #@dist schedule:
-  #@dist   - cron: "0 0 31 2 *"
+  #@dist   - cron: "0 0 28 2 *"
   #@dist push:
   #@dist   branches: [main]
   #@dist   paths:
