@@ -20,41 +20,50 @@
 # Common parameters
 mode=purge
 schedule=off
-model=gpt-5-mini
 workflow_runs=4
+skipMaintain=true
+create_seed_issues=false
+generate_report=true
 
 # S1: repository0 — fizz-buzz / min (target: 1 run)
 date
 time gh workflow run agentic-lib-flow -R xn-intenton-z2a/repository0 \
-  -f mission-seed=7-kyu-understand-fizz-buzz \
-  -f mode=${mode?} -f schedule=${schedule?} -f model=${model?} -f generate-report=true -f profile=min -f workflow-runs=${workflow_runs?}
+  -f mode=${mode?} -f schedule=${schedule?} -f workflow-runs=${workflow_runs?} \
+  -f skipMaintain=${skipMaintain} -f create-seed-issues=${create_seed_issues?} -f generate-report=${generate_report?} \
+  -f mission-seed=7-kyu-understand-fizz-buzz -f model=gpt-5-mini -f profile=min
 
 # S2: repository0-string-utils — string-utils / med (target: 3 runs)
 date
 time gh workflow run agentic-lib-flow -R xn-intenton-z2a/repository0-string-utils \
-  -f mission-seed=5-kyu-apply-string-utils \
-  -f mode=${mode?} -f schedule=${schedule?} -f model=${model?} -f generate-report=true -f profile=med -f workflow-runs=${workflow_runs?}
+  -f mode=${mode?} -f schedule=${schedule?} -f workflow-runs=${workflow_runs?} \
+  -f skipMaintain=${skipMaintain} -f create-seed-issues=${create_seed_issues?} -f generate-report=${generate_report?} \
+  -f mission-seed=5-kyu-apply-string-utils -f model=gpt-5-mini -f profile=med
 
 # S3: repository0-dense-encoder — hamming-distance / min (target: 1 run)
 date
 time gh workflow run agentic-lib-flow -R xn-intenton-z2a/repository0-dense-encoder \
-  -f mission-seed=6-kyu-understand-hamming-distance \
-  -f mode=${mode?} -f schedule=${schedule?} -f model=${model?} -f generate-report=true -f profile=min -f workflow-runs=${workflow_runs?}
+  -f mode=${mode?} -f schedule=${schedule?} -f workflow-runs=${workflow_runs?} \
+  -f skipMaintain=${skipMaintain} -f create-seed-issues=${create_seed_issues?} -f generate-report=${generate_report?} \
+  -f mission-seed=6-kyu-understand-hamming-distance -f model=gpt-5-mini -f profile=min
 
 # S4: repository0-random — hamming-distance / med (target: 1 run)
 date
 time gh workflow run agentic-lib-flow -R xn-intenton-z2a/repository0-random \
-  -f mission-seed=6-kyu-understand-hamming-distance \
-  -f mode=${mode?} -f schedule=${schedule?} -f model=${model?} -f generate-report=true -f profile=med -f workflow-runs=${workflow_runs?}
+  -f mode=${mode?} -f schedule=${schedule?} -f workflow-runs=${workflow_runs?} \
+  -f skipMaintain=${skipMaintain} -f create-seed-issues=${create_seed_issues?} -f generate-report=${generate_report?} \
+  -f mission-seed=6-kyu-understand-hamming-distance -f model=gpt-5-mini -f profile=med
+
 
 # S5: repository0-crucible — roman-numerals / med (target: 1 run)
 date
 time gh workflow run agentic-lib-flow -R xn-intenton-z2a/repository0-crucible \
-  -f mission-seed=6-kyu-understand-roman-numerals \
-  -f mode=${mode?} -f schedule=${schedule?} -f model=${model?} -f generate-report=true -f profile=med -f workflow-runs=${workflow_runs?}
+  -f mode=${mode?} -f schedule=${schedule?} -f workflow-runs=${workflow_runs?} \
+  -f skipMaintain=${skipMaintain} -f create-seed-issues=${create_seed_issues?} -f generate-report=${generate_report?} \
+  -f mission-seed=6-kyu-understand-roman-numerals -f model=gpt-5-mini -f profile=med
 
 # S6: repository0-plot-code-lib — roman-numerals / max (target: 1 run)
 date
 time gh workflow run agentic-lib-flow -R xn-intenton-z2a/repository0-plot-code-lib \
-  -f mission-seed=6-kyu-understand-roman-numerals \
-  -f mode=${mode?} -f schedule=${schedule?} -f model=${model?} -f generate-report=true -f profile=max -f workflow-runs=${workflow_runs?}
+  -f mode=${mode?} -f schedule=${schedule?} -f workflow-runs=${workflow_runs?} \
+  -f skipMaintain=${skipMaintain} -f create-seed-issues=${create_seed_issues?} -f generate-report=${generate_report?} \
+  -f mission-seed=6-kyu-understand-roman-numerals -f model=gpt-5-mini -f profile=max

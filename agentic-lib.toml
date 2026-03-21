@@ -70,7 +70,6 @@ infinite-sessions = false        # set to true for long sessions with compaction
 # [tuning] or [limits] to deviate from the active profile.
 
 [profiles.min]
-# Fast, cheap — CI testing, quick validation.
 reasoning-effort = "low"                # low | medium | high | none
 infinite-sessions = false               # enable session compaction for long runs
 transformation-budget = 16             # max code-changing cycles per run
@@ -93,12 +92,11 @@ max-fix-test-output = 8000             # max chars of failed run log in fix-code
 review-issues-cap = 2                  # max issues reviewed per batch (conservative for 10 min timeout)
 min-resolved-issues = 1                # mission-complete: minimum closed-as-RESOLVED issues
 min-cumulative-transforms = 1          # mission-complete: minimum transform cycles
-max-source-todos = 2                   # mission-complete: max TODO comments in src
-acceptance-criteria-threshold = 30     # mission-complete: % acceptance criteria required
+max-source-todos = 1                   # mission-complete: max TODO comments in src
+acceptance-criteria-threshold = 80     # mission-complete: % acceptance criteria required
 
 [profiles.med]
-# Balanced — good results, middle ground.
-reasoning-effort = "medium"            # low | medium | high | none
+reasoning-effort = "high"            # low | medium | high | none
 infinite-sessions = true               # enable session compaction for long runs
 transformation-budget = 32             # max code-changing cycles per run
 max-issues = 15                       # max open issues fetched from GitHub
@@ -118,13 +116,12 @@ max-file-listing = 100                 # max files in directory listings (0 = un
 max-library-index = 5000               # max chars for library index in prompts
 max-fix-test-output = 15000            # max chars of failed run log in fix-code
 review-issues-cap = 3                  # max issues reviewed per batch
-min-resolved-issues = 2                # mission-complete: minimum closed-as-RESOLVED issues
+min-resolved-issues = 1                # mission-complete: minimum closed-as-RESOLVED issues
 min-cumulative-transforms = 1          # mission-complete: minimum transform cycles
 max-source-todos = 1                   # mission-complete: max TODO comments in src
-acceptance-criteria-threshold = 50     # mission-complete: % acceptance criteria required
+acceptance-criteria-threshold = 80     # mission-complete: % acceptance criteria required
 
 [profiles.max]
-# Thorough — maximum context for complex missions.
 reasoning-effort = "high"              # low | medium | high | none
 infinite-sessions = true               # enable session compaction for long runs
 transformation-budget = 128           # max code-changing cycles per run
@@ -145,10 +142,10 @@ max-file-listing = 0                   # max files in directory listings (0 = un
 max-library-index = 10000              # max chars for library index in prompts
 max-fix-test-output = 30000            # max chars of failed run log in fix-code
 review-issues-cap = 4                  # max issues reviewed per batch (may need step timeout awareness)
-min-resolved-issues = 3                # mission-complete: minimum closed-as-RESOLVED issues
-min-cumulative-transforms = 2          # mission-complete: minimum transform cycles
+min-resolved-issues = 1                # mission-complete: minimum closed-as-RESOLVED issues
+min-cumulative-transforms = 1          # mission-complete: minimum transform cycles
 max-source-todos = 0                   # mission-complete: max TODO comments in src
-acceptance-criteria-threshold = 75     # mission-complete: % acceptance criteria required
+acceptance-criteria-threshold = 80     # mission-complete: % acceptance criteria required
 
 [goals]
 # W12/W13: Code coverage thresholds — stated in all code-changing prompts
@@ -160,7 +157,7 @@ min-branch-coverage = 30           # minimum % branch coverage required
 # All conditions must be met simultaneously.
 min-resolved-issues = 1            # minimum closed-as-RESOLVED issues since init
 max-source-todos = 0               # max TODO comments allowed in ./src (0 = none)
-acceptance-criteria-threshold = 50 # percentage of acceptance criteria that must be met (0-100)
+acceptance-criteria-threshold = 80 # percentage of acceptance criteria that must be met (0-100)
 min-cumulative-transforms = 1      # minimum transform cycles completed
 require-no-open-issues = true      # all issues must be closed
 require-no-open-prs = true         # all PRs must be merged/closed
