@@ -98,33 +98,51 @@ jobs:
 
   params:
     runs-on: ubuntu-latest
+    outputs:
+      skipLinter: ${{ steps.resolve.outputs.skipLinter }}
+      model: ${{ steps.resolve.outputs.model }}
+      hasCopilotToken: ${{ steps.secrets.outputs.hasCopilotToken }}
     steps:
       - uses: actions/checkout@v6
         with:
           sparse-checkout: agentic-lib.toml
           sparse-checkout-cone-mode: false
-      - name: Normalise params
-        id: normalise
-        shell: bash
-        run: |
-          SKIP_LINTER='${{ inputs.skipLinter }}'
-          echo "skipLinter=${SKIP_LINTER:-true}" >> $GITHUB_OUTPUT
-          MODEL='${{ inputs.model }}'
-          if [ -z "$MODEL" ] && [ -f "agentic-lib.toml" ]; then
-            TOML_MODEL=$(grep '^\s*model' "agentic-lib.toml" | head -1 | sed 's/.*= *"\([^"]*\)".*/\1/')
-            MODEL="${TOML_MODEL}"
-          fi
-          echo "model=${MODEL:-gpt-5-mini}" >> $GITHUB_OUTPUT
+      - id: resolve
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const fs = require('fs');
+            const configPath = 'agentic-lib.toml';
+            let toml = '';
+            if (fs.existsSync(configPath)) toml = fs.readFileSync(configPath, 'utf8');
+            const readToml = (key) => {
+              const m = toml.match(new RegExp(`^\\s*${key}\\s*=\\s*"([^"]*)"`, 'm'));
+              return m ? m[1] : '';
+            };
+            const resolve = (name, input, configKey, defaultValue) => {
+              let value = input || '';
+              let source = 'input';
+              if (!value && configKey) {
+                value = readToml(configKey);
+                source = value ? 'config' : '';
+              }
+              if (!value) {
+                value = defaultValue;
+                source = 'default';
+              }
+              const configVal = configKey ? readToml(configKey) : 'N/A';
+              core.info(`param ${name}: input='${input}' config='${configVal}' default='${defaultValue}' → '${value}' (source: ${source})`);
+              core.setOutput(name, value);
+              return value;
+            };
+            resolve('skipLinter', '${{ inputs.skipLinter }}', null, 'true');
+            resolve('model', '${{ inputs.model }}', 'model', 'gpt-5-mini');
       - name: Check COPILOT_GITHUB_TOKEN availability
         id: secrets
         shell: bash
         env:
           HAS_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN != '' }}
         run: echo "hasCopilotToken=${HAS_TOKEN}" >> $GITHUB_OUTPUT
-    outputs:
-      skipLinter: ${{ steps.normalise.outputs.skipLinter }}
-      model: ${{ steps.normalise.outputs.model }}
-      hasCopilotToken: ${{ steps.secrets.outputs.hasCopilotToken }}
 
   # ─── CI: each check as its own job ─────────────────────────────────
 

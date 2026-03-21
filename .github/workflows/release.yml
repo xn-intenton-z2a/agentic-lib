@@ -60,7 +60,21 @@ jobs:
         uses: actions/github-script@v8
         with:
           script: |
-            core.setOutput('bump-type', context.payload.inputs?.['versionIncrement'] || 'patch');
+            const resolve = (name, input, configKey, defaultValue) => {
+              let value = input || '';
+              let source = 'input';
+              if (!value && configKey) {
+                source = '';
+              }
+              if (!value) {
+                value = defaultValue;
+                source = 'default';
+              }
+              core.info(`param ${name}: input='${input}' default='${defaultValue}' → '${value}' (source: ${source})`);
+              core.setOutput(name, value);
+              return value;
+            };
+            resolve('bump-type', '${{ inputs.versionIncrement }}', null, 'patch');
 
   test:
     needs: [params]
