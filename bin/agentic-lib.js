@@ -110,7 +110,7 @@ const target = resolve(targetPath);
 const modelIdx = flags.indexOf("--model");
 const model = modelIdx >= 0 ? flags[modelIdx + 1] : "claude-sonnet-4";
 const missionIdx = flags.indexOf("--mission");
-const mission = missionIdx >= 0 ? flags[missionIdx + 1] : "6-kyu-understand-hamming-distance";
+const mission = missionIdx >= 0 ? flags[missionIdx + 1] : "7-kyu-understand-fizz-buzz";
 const cyclesIdx = flags.indexOf("--cycles");
 const cycles = cyclesIdx >= 0 ? parseInt(flags[cyclesIdx + 1], 10) : 0;
 const stepsIdx = flags.indexOf("--steps");
@@ -734,7 +734,7 @@ function clearAndRecreateDir(dirPath, label) {
   if (!dryRun) mkdirSync(fullPath, { recursive: true });
 }
 
-function initPurge(seedsDir, missionName, initTimestamp) {
+async function initPurge(seedsDir, missionName, initTimestamp) {
   console.log("\n--- Purge: Reset Source Files to Seed State ---");
 
   const { sourcePath, testsPath, behaviourPath, examplesPath, webPath } = readTomlPaths();
@@ -779,10 +779,50 @@ function initPurge(seedsDir, missionName, initTimestamp) {
     console.log("  CREATE: docs/.nojekyll");
   }
 
+  // W10: Preserve TOML values through purge
+  const tomlTarget = resolve(target, "agentic-lib.toml");
+  let preservedTomlValues = {};
+  if (existsSync(tomlTarget)) {
+    const existingToml = readFileSync(tomlTarget, "utf8");
+    const readTomlValue = (key) => {
+      const m = existingToml.match(new RegExp(`^\\s*${key.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\s*=\\s*"([^"]*)"`, "m"));
+      return m ? m[1] : null;
+    };
+    const readTomlNum = (key) => {
+      const m = existingToml.match(new RegExp(`^\\s*${key.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\s*=\\s*(\\d+)`, "m"));
+      return m ? parseInt(m[1], 10) : null;
+    };
+    preservedTomlValues = {
+      supervisor: readTomlValue("supervisor"),
+      focus: readTomlValue("focus"),
+      model: readTomlValue("model"),
+      profile: readTomlValue("profile"),
+      "acceptance-criteria-threshold": readTomlNum("acceptance-criteria-threshold"),
+      "min-resolved-issues": readTomlNum("min-resolved-issues"),
+      "mission-type": readTomlValue("mission-type"),
+    };
+    console.log("  PRESERVE: saved TOML values for restoration after purge");
+  }
+
   // Force-overwrite agentic-lib.toml during purge (transformed from root)
   const tomlSource = resolve(pkgRoot, "agentic-lib.toml");
   if (existsSync(tomlSource)) {
     initTransformFile(tomlSource, resolve(target, "agentic-lib.toml"), "SEED: agentic-lib.toml (transformed)");
+  }
+
+  // Restore preserved values into the new TOML
+  if (existsSync(tomlTarget) && Object.values(preservedTomlValues).some(v => v !== null)) {
+    let toml = readFileSync(tomlTarget, "utf8");
+    for (const [key, value] of Object.entries(preservedTomlValues)) {
+      if (value === null) continue;
+      const isNum = typeof value === "number";
+      const regex = new RegExp(`^(\\s*${key.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\s*=\\s*)${isNum ? "\\d+" : '"[^"]*"'}`, "m");
+      if (regex.test(toml)) {
+        toml = toml.replace(regex, `$1${isNum ? value : `"${value}"`}`);
+        console.log(`  RESTORE: ${key} = ${value}`);
+      }
+    }
+    if (!dryRun) writeFileSync(tomlTarget, toml);
   }
 
   // Clear agent log files (written by implementation-review and other tasks)
@@ -798,27 +838,133 @@ function initPurge(seedsDir, missionName, initTimestamp) {
     if (agentLogs.length > 0) console.log(`  Cleared ${agentLogs.length} agent log file(s)`);
   } catch { /* ignore — directory may not have agent logs */ }
 
-  // Copy mission seed file as MISSION.md
+  // Copy mission seed file as MISSION.md (with random/generate support)
   const missionsDir = resolve(seedsDir, "missions");
-  const missionFile = resolve(missionsDir, `${missionName}.md`);
-  if (existsSync(missionFile)) {
-    initCopyFile(missionFile, resolve(target, "MISSION.md"), `MISSION: missions/${missionName}.md → MISSION.md`);
-  } else {
-    // List available missions and error
+  let resolvedMission = missionName;
+  let missionType = missionName; // "random", "generate", or the specific seed name
+
+  if (missionName === "random") {
+    // W11: Pick a random mission from available seeds
     const available = existsSync(missionsDir)
-      ? readdirSync(missionsDir)
-          .filter((f) => f.endsWith(".md"))
-          .map((f) => f.replace(/\.md$/, ""))
+      ? readdirSync(missionsDir).filter((f) => f.endsWith(".md")).map((f) => f.replace(/\.md$/, ""))
       : [];
-    console.error(`\nERROR: Unknown mission "${missionName}".`);
-    if (available.length > 0) {
-      console.error(`Available missions: ${available.join(", ")}`);
+    if (available.length === 0) {
+      console.error("\nERROR: No missions available for random selection.");
+      process.exit(1);
     }
-    process.exit(1);
+    resolvedMission = available[Math.floor(Math.random() * available.length)];
+    console.log(`  RANDOM: selected mission "${resolvedMission}" from ${available.length} available`);
+  } else if (missionName === "generate") {
+    // W12: Generate a mission using LLM
+    console.log("  GENERATE: Creating LLM-generated mission...");
+    try {
+      const { runCopilotSession } = await import("../src/copilot/copilot-session.js");
+      const available = existsSync(missionsDir)
+        ? readdirSync(missionsDir).filter((f) => f.endsWith(".md")).map((f) => f.replace(/\.md$/, ""))
+        : [];
+      const sampleMission = existsSync(resolve(missionsDir, "7-kyu-understand-fizz-buzz.md"))
+        ? readFileSync(resolve(missionsDir, "7-kyu-understand-fizz-buzz.md"), "utf8")
+        : "";
+      const prompt = [
+        "Generate a novel JavaScript library mission for an autonomous coding pipeline.",
+        "The mission should follow this exact structure (use the example as a template):",
+        "",
+        sampleMission,
+        "",
+        "Requirements:",
+        "- Be distinct from all existing missions: " + available.join(", "),
+        "- Difficulty should be between 8-kyu (trivial) and 2-kyu (expert)",
+        "- Include 5-10 acceptance criteria as markdown checkboxes (- [ ] ...)",
+        "- The library must be implementable in a single src/lib/main.js file",
+        "- Include edge cases and error handling in the requirements",
+        "",
+        "Write the mission to MISSION.md using the write_file tool.",
+      ].join("\n");
+      await runCopilotSession({
+        task: "generate-mission",
+        model,
+        target,
+        prompt,
+        timeoutMs: 120000,
+        dryRun,
+      });
+      resolvedMission = "generated";
+      console.log("  GENERATE: Mission written to MISSION.md");
+    } catch (err) {
+      console.error(`  GENERATE: LLM generation failed (${err.message}), falling back to fizz-buzz`);
+      resolvedMission = "7-kyu-understand-fizz-buzz";
+      missionType = "generate-fallback";
+    }
+  }
+
+  if (missionName !== "generate" || resolvedMission !== "generated") {
+    const selectedMissionFile = resolve(missionsDir, `${resolvedMission}.md`);
+    if (existsSync(selectedMissionFile)) {
+      initCopyFile(selectedMissionFile, resolve(target, "MISSION.md"), `MISSION: missions/${resolvedMission}.md → MISSION.md`);
+    } else {
+      const available = existsSync(missionsDir)
+        ? readdirSync(missionsDir).filter((f) => f.endsWith(".md")).map((f) => f.replace(/\.md$/, ""))
+        : [];
+      console.error(`\nERROR: Unknown mission "${resolvedMission}".`);
+      if (available.length > 0) {
+        console.error(`Available missions: ${available.join(", ")}`);
+      }
+      process.exit(1);
+    }
+  }
+
+  // W17: Generate structured acceptance criteria in TOML
+  const missionTargetPath = resolve(target, "MISSION.md");
+  if (existsSync(missionTargetPath)) {
+    const missionContent = readFileSync(missionTargetPath, "utf8");
+    const checkboxes = missionContent.match(/- \[ \] (.+)/g) || [];
+    if (checkboxes.length > 0) {
+      const criteriaEntries = checkboxes.map((line, i) => {
+        const text = line.replace(/^- \[ \] /, "").trim();
+        return `${i + 1} = { text = ${JSON.stringify(text)}, met = false }`;
+      });
+      const criteriaSection = [
+        "",
+        "[acceptance-criteria]",
+        `# Auto-generated from MISSION.md on init. Updated by implementation-review.`,
+        `total = ${checkboxes.length}`,
+        ...criteriaEntries,
+      ].join("\n");
+      const tomlFile = resolve(target, "agentic-lib.toml");
+      if (existsSync(tomlFile)) {
+        let toml = readFileSync(tomlFile, "utf8");
+        if (/^\[acceptance-criteria\]/m.test(toml)) {
+          toml = toml.replace(/\n?\[acceptance-criteria\][^\[]*/, criteriaSection);
+        } else {
+          toml = toml.trimEnd() + "\n" + criteriaSection + "\n";
+        }
+        if (!dryRun) writeFileSync(tomlFile, toml);
+        console.log(`  WRITE: [acceptance-criteria] section (${checkboxes.length} criteria)`);
+        initChanges++;
+      }
+    }
+  }
+
+  // Set acceptance criteria threshold based on mission difficulty
+  const difficultyMatch = resolvedMission.match(/^(\d+)-(?:kyu|dan)/);
+  if (difficultyMatch) {
+    const level = parseInt(difficultyMatch[1], 10);
+    const isDan = resolvedMission.includes("-dan-");
+    const THRESHOLD_MAP = { 8: 100, 7: 75, 6: 60, 5: 50, 4: 50, 3: 40, 2: isDan ? 30 : 35, 1: 30 };
+    const threshold = THRESHOLD_MAP[level] || 50;
+    const tomlFile = resolve(target, "agentic-lib.toml");
+    if (existsSync(tomlFile)) {
+      let toml = readFileSync(tomlFile, "utf8");
+      const regex = /^(\s*acceptance-criteria-threshold\s*=\s*)\d+/m;
+      if (regex.test(toml)) {
+        toml = toml.replace(regex, `$1${threshold}`);
+        if (!dryRun) writeFileSync(tomlFile, toml);
+        console.log(`  SET: acceptance-criteria-threshold = ${threshold} (${resolvedMission})`);
+      }
+    }
   }
 
   // Write init metadata to agentic-lib.toml
-  const tomlTarget = resolve(target, "agentic-lib.toml");
   if (existsSync(tomlTarget)) {
     let toml = readFileSync(tomlTarget, "utf8");
     const pkg = JSON.parse(readFileSync(resolve(pkgRoot, "package.json"), "utf8"));
@@ -827,7 +973,8 @@ function initPurge(seedsDir, missionName, initTimestamp) {
       "[init]",
       `timestamp = "${initTimestamp}"`,
       `mode = "purge"`,
-      `mission = "${missionName}"`,
+      `mission = "${resolvedMission}"`,
+      `mission-type = "${missionType}"`,
       `version = "${pkg.version}"`,
     ].join("\n");
     // Replace existing [init] section or append
@@ -1260,7 +1407,7 @@ function initPurgeGitHub() {
   }
 }
 
-function runInit() {
+async function runInit() {
   if (!existsSync(target)) {
     console.error(`Target directory does not exist: ${target}`);
     process.exit(1);
@@ -1316,7 +1463,7 @@ function runInit() {
   initScripts(agenticDir);
   initConfig(seedsDir);
   if (reseed) initReseed(initTimestamp);
-  if (purge) initPurge(seedsDir, mission, initTimestamp);
+  if (purge) await initPurge(seedsDir, mission, initTimestamp);
   if (purge) initPurgeGitHub();
 
   console.log(`\n${initChanges} change(s)${dryRun ? " (dry run)" : ""}`);

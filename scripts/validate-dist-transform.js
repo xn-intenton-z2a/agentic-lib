@@ -53,13 +53,20 @@ if (mode === "compare" || mode === "all") {
   }
   const source = readFileSync("agentic-lib.toml", "utf8");
   const expected = applyDistTransform(source);
-  // Strip [init] section — it's runtime metadata added by init --purge, not part of the template
-  const actual = readFileSync(targetToml, "utf8").replace(/\n*\[init\][^\[]*$/, "\n");
-  if (expected !== actual) {
+  // Strip runtime sections and purge-modified values before comparing
+  const stripRuntime = (s) => s
+    // [acceptance-criteria] values contain [] in text — match to next section header or EOF
+    .replace(/\n*\[acceptance-criteria\]\n(?:(?!\n\[)[^\n]*\n?)*/g, "")
+    .replace(/\n*\[init\]\n(?:(?!\n\[)[^\n]*\n?)*/g, "\n")
+    // Purge sets acceptance-criteria-threshold based on mission difficulty — normalise both sides
+    .replace(/^acceptance-criteria-threshold\s*=\s*\d+.*$/gm, "acceptance-criteria-threshold = NORMALIZED");
+  const actual = stripRuntime(readFileSync(targetToml, "utf8"));
+  const normalizedExpected = stripRuntime(expected);
+  if (normalizedExpected !== actual) {
     console.error("ERROR: distributed agentic-lib.toml does not match source defaults");
-    console.error("--- Expected (transformed source) ---");
-    console.error(expected);
-    console.error("--- Actual (in workspace) ---");
+    console.error("--- Expected (transformed source, normalised) ---");
+    console.error(normalizedExpected);
+    console.error("--- Actual (in workspace, normalised) ---");
     console.error(actual);
     errors++;
   } else {

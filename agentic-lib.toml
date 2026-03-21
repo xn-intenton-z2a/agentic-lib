@@ -6,7 +6,8 @@
 # During init: #@dist transforms restore standard paths for consumer repos.
 
 [schedule]
-supervisor = "daily"              # off | weekly | daily | hourly | continuous
+supervisor = "daily"              #@dist "off"       # off | weekly | daily | hourly | continuous
+focus = "mission"                 # mission | maintenance
 
 [paths]
 mission = "test/MISSION.md"                     #@dist "MISSION.md"
@@ -89,6 +90,11 @@ max-test-output = 4000                 # max chars of test output in prompts
 max-file-listing = 30                  # max files in directory listings (0 = unlimited)
 max-library-index = 2000               # max chars for library index in prompts
 max-fix-test-output = 8000             # max chars of failed run log in fix-code
+review-issues-cap = 2                  # max issues reviewed per batch (conservative for 10 min timeout)
+min-resolved-issues = 1                # mission-complete: minimum closed-as-RESOLVED issues
+min-cumulative-transforms = 1          # mission-complete: minimum transform cycles
+max-source-todos = 2                   # mission-complete: max TODO comments in src
+acceptance-criteria-threshold = 30     # mission-complete: % acceptance criteria required
 
 [profiles.med]
 # Balanced — good results, middle ground.
@@ -111,6 +117,11 @@ max-test-output = 10000                # max chars of test output in prompts
 max-file-listing = 100                 # max files in directory listings (0 = unlimited)
 max-library-index = 5000               # max chars for library index in prompts
 max-fix-test-output = 15000            # max chars of failed run log in fix-code
+review-issues-cap = 3                  # max issues reviewed per batch
+min-resolved-issues = 2                # mission-complete: minimum closed-as-RESOLVED issues
+min-cumulative-transforms = 1          # mission-complete: minimum transform cycles
+max-source-todos = 1                   # mission-complete: max TODO comments in src
+acceptance-criteria-threshold = 50     # mission-complete: % acceptance criteria required
 
 [profiles.max]
 # Thorough — maximum context for complex missions.
@@ -133,6 +144,11 @@ max-test-output = 20000                # max chars of test output in prompts
 max-file-listing = 0                   # max files in directory listings (0 = unlimited)
 max-library-index = 10000              # max chars for library index in prompts
 max-fix-test-output = 30000            # max chars of failed run log in fix-code
+review-issues-cap = 4                  # max issues reviewed per batch (may need step timeout awareness)
+min-resolved-issues = 3                # mission-complete: minimum closed-as-RESOLVED issues
+min-cumulative-transforms = 2          # mission-complete: minimum transform cycles
+max-source-todos = 0                   # mission-complete: max TODO comments in src
+acceptance-criteria-threshold = 75     # mission-complete: % acceptance criteria required
 
 [goals]
 # W12/W13: Code coverage thresholds — stated in all code-changing prompts
@@ -144,7 +160,11 @@ min-branch-coverage = 30           # minimum % branch coverage required
 # All conditions must be met simultaneously.
 min-resolved-issues = 1            # minimum closed-as-RESOLVED issues since init
 max-source-todos = 0               # max TODO comments allowed in ./src (0 = none)
-# C6: Removed min-dedicated-tests (replaced by cumulative transforms and acceptance criteria)
+acceptance-criteria-threshold = 50 # percentage of acceptance criteria that must be met (0-100)
+min-cumulative-transforms = 1      # minimum transform cycles completed
+require-no-open-issues = true      # all issues must be closed
+require-no-open-prs = true         # all PRs must be merged/closed
+require-no-critical-gaps = true    # no critical implementation gaps
 
 [bot]
 log-prefix = "tmp/agent-log-"                  #@dist "agent-log-"

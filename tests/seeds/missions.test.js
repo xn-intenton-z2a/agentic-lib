@@ -104,9 +104,9 @@ describe("src/seeds/missions", () => {
     expect(content).toContain("Describe your project");
   });
 
-  it("zero-MISSION.md matches 6-kyu-understand-hamming-distance.md", () => {
+  it("zero-MISSION.md matches 7-kyu-understand-fizz-buzz.md", () => {
     const zeroMission = readFileSync(join(MISSIONS_DIR, "../zero-MISSION.md"), "utf8");
-    const hammingDistance = readFileSync(join(MISSIONS_DIR, "6-kyu-understand-hamming-distance.md"), "utf8");
-    expect(zeroMission).toBe(hammingDistance);
+    const fizzBuzz = readFileSync(join(MISSIONS_DIR, "7-kyu-understand-fizz-buzz.md"), "utf8");
+    expect(zeroMission).toBe(fizzBuzz);
   });
 });

@@ -83,7 +83,6 @@ on:
         options:
           - ""
           - gpt-5-mini
-          - claude-sonnet-4
           - gpt-4.1
 
 concurrency:
@@ -412,10 +411,16 @@ jobs:
 
       - name: Verify no diff
         run: |
+          # Compare all files except timestamp-bearing ones
+          # agentic-lib.toml has [init].timestamp, intentïon.md has init timestamp
           DIFF=$(diff -rN --exclude=.git --exclude=node_modules /tmp/after-first /tmp/test-workspace || true)
-          if [ -n "$DIFF" ]; then
-            echo "ERROR: init --purge is not idempotent"
-            echo "$DIFF"
+          # Filter out lines that are purely timestamp differences
+          SIGNIFICANT=$(echo "$DIFF" | grep -v 'timestamp\|init purge.*at 20' || true)
+          # Check if any non-header diff lines remain (exclude diff file headers and range markers)
+          NON_TS=$(echo "$SIGNIFICANT" | grep '^[<>]' || true)
+          if [ -n "$NON_TS" ]; then
+            echo "ERROR: init --purge is not idempotent (non-timestamp differences)"
+            echo "$NON_TS"
             exit 1
           fi
           echo "init --purge is idempotent"
