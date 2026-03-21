@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # SPDX-License-Identifier: GPL-3.0-only
 # Copyright (C) 2025-2026 Polycode Limited
-# scripts/init-all.sh — Initialize all agentic-lib repos by running the init workflow with purge mode and create-seed-issues=true.
+# scripts/all-repositories-flow.sh — Run the main workflow for all agentic-lib repos with purge mode and create-seed-issues=true, effectively re-initializing them.
 #
 
 # Execution parameters for all repositories
