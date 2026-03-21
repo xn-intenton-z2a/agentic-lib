@@ -589,6 +589,7 @@ function initScripts(agenticDir) {
     "initialise.sh",
     "md-to-html.js",
     "push-to-logs.sh",
+    "schedule-utils.cjs",
     "update.sh",
   ];
   if (!existsSync(scriptsDir)) return;
