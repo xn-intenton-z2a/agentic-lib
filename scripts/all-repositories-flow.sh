@@ -1,21 +1,53 @@
 #!/usr/bin/env bash
 # SPDX-License-Identifier: GPL-3.0-only
 # Copyright (C) 2025-2026 Polycode Limited
-# scripts/all-repositories-flow.sh — Run the main workflow for all agentic-lib repos with purge mode and create-seed-issues=true, effectively re-initializing them.
+# scripts/all-repositories-flow.sh — Run the full flow pipeline for all agentic-lib repos.
+# Dispatches agentic-lib-flow which runs: update → init → (test + bot + N×workflow) × rounds → verify → report.
+#
+# agentic-lib-flow workflow_dispatch inputs:
+#   mode, mission-seed, model, profile, workflow-runs, schedule,
+#   dry-run, message, config-path, generate-report
 #
 
-# Execution parameters for all repositories
+# Common parameters
 mode=purge
 schedule=hourly
 model=gpt-5-mini
 profile=max
-create_seed_issues=true
-run_workflow=true
+workflow_runs=4
 
-# Initialize each repository by running the GitHub workflow with the specified parameters
-gh workflow run agentic-lib-init -R xn-intenton-z2a/repository0               -f mission-seed=7-kyu-understand-fizz-buzz -f mode=${mode?} -f schedule=${schedule?} -f model=${model?} -f profile=${profile?} -f create-seed-issues=${create_seed_issues?} -f run-workflow=${run_workflow?}
-gh workflow run agentic-lib-init -R xn-intenton-z2a/repository0-string-utils  -f mission-seed=5-kyu-apply-string-utils   -f mode=${mode?} -f schedule=${schedule?} -f model=${model?} -f profile=${profile?} -f create-seed-issues=${create_seed_issues?} -f run-workflow=${run_workflow?}
-gh workflow run agentic-lib-init -R xn-intenton-z2a/repository0-dense-encoder -f mission-seed=4-kyu-apply-dense-encoding -f mode=${mode?} -f schedule=${schedule?} -f model=${model?} -f profile=${profile?} -f create-seed-issues=${create_seed_issues?} -f run-workflow=${run_workflow?}
-gh workflow run agentic-lib-init -R xn-intenton-z2a/repository0-random        -f mission-seed=random                     -f mode=${mode?} -f schedule=${schedule?} -f model=${model?} -f profile=${profile?} -f create-seed-issues=${create_seed_issues?} -f run-workflow=${run_workflow?}
-gh workflow run agentic-lib-init -R xn-intenton-z2a/repository0-crucible      -f mission-seed=generate                   -f mode=${mode?} -f schedule=${schedule?} -f model=${model?} -f profile=${profile?} -f create-seed-issues=${create_seed_issues?} -f run-workflow=${run_workflow?}
-gh workflow run agentic-lib-init -R xn-intenton-z2a/repository0-plot-code-lib -f mission-seed=2-kyu-create-plot-code-lib -f mode=${mode?} -f schedule=${schedule?} -f model=${model?} -f profile=${profile?} -f create-seed-issues=${create_seed_issues?} -f run-workflow=${run_workflow?}
+# repository0 — fizz-buzz
+gh workflow run agentic-lib-flow -R xn-intenton-z2a/repository0 \
+  -f mission-seed=7-kyu-understand-fizz-buzz \
+  -f mode=${mode?} -f schedule=${schedule?} -f model=${model?} -f profile=${profile?} \
+  -f workflow-runs=${workflow_runs?}
+
+# repository0-string-utils — string-utils
+gh workflow run agentic-lib-flow -R xn-intenton-z2a/repository0-string-utils \
+  -f mission-seed=5-kyu-apply-string-utils \
+  -f mode=${mode?} -f schedule=${schedule?} -f model=${model?} -f profile=${profile?} \
+  -f workflow-runs=${workflow_runs?}
+
+# repository0-dense-encoder — dense-encoding
+gh workflow run agentic-lib-flow -R xn-intenton-z2a/repository0-dense-encoder \
+  -f mission-seed=4-kyu-apply-dense-encoding \
+  -f mode=${mode?} -f schedule=${schedule?} -f model=${model?} -f profile=${profile?} \
+  -f workflow-runs=${workflow_runs?}
+
+# repository0-random — random
+gh workflow run agentic-lib-flow -R xn-intenton-z2a/repository0-random \
+  -f mission-seed=random \
+  -f mode=${mode?} -f schedule=${schedule?} -f model=${model?} -f profile=${profile?} \
+  -f workflow-runs=${workflow_runs?}
+
+# repository0-crucible — generate
+gh workflow run agentic-lib-flow -R xn-intenton-z2a/repository0-crucible \
+  -f mission-seed=generate \
+  -f mode=${mode?} -f schedule=${schedule?} -f model=${model?} -f profile=${profile?} \
+  -f workflow-runs=${workflow_runs?}
+
+# repository0-plot-code-lib — plot-code-lib
+gh workflow run agentic-lib-flow -R xn-intenton-z2a/repository0-plot-code-lib \
+  -f mission-seed=2-kyu-create-plot-code-lib \
+  -f mode=${mode?} -f schedule=${schedule?} -f model=${model?} -f profile=${profile?} \
+  -f workflow-runs=${workflow_runs?}

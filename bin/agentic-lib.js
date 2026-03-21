@@ -29,12 +29,13 @@ const command = args[0];
 const flags = args.slice(1);
 
 let initChanges = 0;
-const TASK_COMMANDS = ["transform", "maintain-features", "maintain-library", "fix-code"];
+const TASK_COMMANDS = ["transform", "maintain-features", "maintain-library", "fix-code", "report"];
 const TASK_AGENT_MAP = {
   "transform": "agent-issue-resolution",
   "fix-code": "agent-apply-fix",
   "maintain-features": "agent-maintain-features",
   "maintain-library": "agent-maintain-library",
+  "report": "agent-report",
 };
 const INIT_COMMANDS = ["init", "update", "reset"];
 const ALL_COMMANDS = [...INIT_COMMANDS, ...TASK_COMMANDS, "version", "iterate"];
@@ -55,6 +56,7 @@ Tasks (run Copilot SDK transformations):
   maintain-features    Generate feature files from mission
   maintain-library     Update library docs from SOURCES.md
   fix-code             Fix failing tests
+  report               Generate benchmark report for a time period
 
 Iterator:
   iterate              Single Copilot SDK session — reads, writes, tests, iterates autonomously
@@ -129,6 +131,10 @@ const prIdx = flags.indexOf("--pr");
 const prNumber = prIdx >= 0 ? parseInt(flags[prIdx + 1], 10) : 0;
 const discussionIdx = flags.indexOf("--discussion");
 const discussionUrl = discussionIdx >= 0 ? flags[discussionIdx + 1] : "";
+const periodStartIdx = flags.indexOf("--period-start");
+const periodStart = periodStartIdx >= 0 ? flags[periodStartIdx + 1] : "";
+const periodEndIdx = flags.indexOf("--period-end");
+const periodEnd = periodEndIdx >= 0 ? flags[periodEndIdx + 1] : "";
 
 // ─── Task Commands ───────────────────────────────────────────────────
 

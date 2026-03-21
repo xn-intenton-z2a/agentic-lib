@@ -10,8 +10,8 @@ const allFiles = readdirSync(AGENTS_DIR).sort();
 const mdFiles = allFiles.filter((f) => f.endsWith(".md"));
 
 describe(".github/agents", () => {
-  it("has 12 agent prompt files", () => {
-    expect(mdFiles).toHaveLength(12);
+  it("has 13 agent prompt files", () => {
+    expect(mdFiles).toHaveLength(13);
   });
 
   it("contains only .md files", () => {

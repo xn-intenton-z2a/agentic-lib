@@ -14,15 +14,16 @@ const EXPECTED_AGENTS = [
   "agent-maintain-features",
   "agent-maintain-library",
   "agent-ready-issue",
+  "agent-report",
   "agent-review-issue",
   "agent-supervisor",
 ];
 
 describe("copilot/agents.js", () => {
   describe("listAgents", () => {
-    it("returns all 12 agent names", () => {
+    it("returns all 13 agent names", () => {
       const agents = listAgents();
-      expect(agents).toHaveLength(12);
+      expect(agents).toHaveLength(13);
     });
 
     it("returns sorted agent names", () => {
