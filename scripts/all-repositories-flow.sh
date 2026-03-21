@@ -17,37 +17,43 @@ profile=max
 workflow_runs=4
 
 # repository0 — fizz-buzz
-gh workflow run agentic-lib-flow -R xn-intenton-z2a/repository0 \
+date
+time gh workflow run agentic-lib-flow -R xn-intenton-z2a/repository0 \
   -f mission-seed=7-kyu-understand-fizz-buzz \
   -f mode=${mode?} -f schedule=${schedule?} -f model=${model?} -f profile=${profile?} \
   -f workflow-runs=${workflow_runs?}
 
 # repository0-string-utils — string-utils
-gh workflow run agentic-lib-flow -R xn-intenton-z2a/repository0-string-utils \
+date
+time gh workflow run agentic-lib-flow -R xn-intenton-z2a/repository0-string-utils \
   -f mission-seed=5-kyu-apply-string-utils \
   -f mode=${mode?} -f schedule=${schedule?} -f model=${model?} -f profile=${profile?} \
   -f workflow-runs=${workflow_runs?}
 
 # repository0-dense-encoder — dense-encoding
-gh workflow run agentic-lib-flow -R xn-intenton-z2a/repository0-dense-encoder \
+date
+time gh workflow run agentic-lib-flow -R xn-intenton-z2a/repository0-dense-encoder \
   -f mission-seed=4-kyu-apply-dense-encoding \
   -f mode=${mode?} -f schedule=${schedule?} -f model=${model?} -f profile=${profile?} \
   -f workflow-runs=${workflow_runs?}
 
 # repository0-random — random
-gh workflow run agentic-lib-flow -R xn-intenton-z2a/repository0-random \
+date
+time gh workflow run agentic-lib-flow -R xn-intenton-z2a/repository0-random \
   -f mission-seed=random \
   -f mode=${mode?} -f schedule=${schedule?} -f model=${model?} -f profile=${profile?} \
   -f workflow-runs=${workflow_runs?}
 
 # repository0-crucible — generate
-gh workflow run agentic-lib-flow -R xn-intenton-z2a/repository0-crucible \
+date
+time gh workflow run agentic-lib-flow -R xn-intenton-z2a/repository0-crucible \
   -f mission-seed=generate \
   -f mode=${mode?} -f schedule=${schedule?} -f model=${model?} -f profile=${profile?} \
   -f workflow-runs=${workflow_runs?}
 
 # repository0-plot-code-lib — plot-code-lib
-gh workflow run agentic-lib-flow -R xn-intenton-z2a/repository0-plot-code-lib \
+date
+time gh workflow run agentic-lib-flow -R xn-intenton-z2a/repository0-plot-code-lib \
   -f mission-seed=2-kyu-create-plot-code-lib \
   -f mode=${mode?} -f schedule=${schedule?} -f model=${model?} -f profile=${profile?} \
   -f workflow-runs=${workflow_runs?}

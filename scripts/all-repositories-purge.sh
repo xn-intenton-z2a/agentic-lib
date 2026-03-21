@@ -1,21 +1,21 @@
 #!/usr/bin/env bash
 # SPDX-License-Identifier: GPL-3.0-only
 # Copyright (C) 2025-2026 Polycode Limited
-# scripts/all-repositories-init.sh — Initialize all agentic-lib repos with purge mode and create-seed-issues.
+# scripts/all-repositories-init-off.sh — Initialize all agentic-lib repos with purge mode and create-seed-issues.
 # Dispatches agentic-lib-init which runs: update → init → dispatch-workflow.
 #
-# agentic-lib-init workflow_dispatch inputs:
+# agentic-lib-init-off workflow_dispatch inputs:
 #   mode, dry-run, mission-seed, mission-text, schedule, model, profile,
 #   create-seed-issues, run-workflow
 #
 
 # Common parameters
 mode=purge
-schedule=hourly
+schedule=off
 model=gpt-5-mini
 profile=max
-create_seed_issues=true
-run_workflow=true
+create_seed_issues=false
+run_workflow=false
 
 # repository0 — fizz-buzz
 date

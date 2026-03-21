@@ -109,6 +109,9 @@ jobs:
           sparse-checkout-cone-mode: false
       - id: resolve
         uses: actions/github-script@v8
+        env:
+          INPUT_SKIP_LINTER: ${{ inputs.skipLinter }}
+          INPUT_MODEL: ${{ inputs.model }}
         with:
           script: |
             const fs = require('fs');
@@ -135,8 +138,8 @@ jobs:
               core.setOutput(name, value);
               return value;
             };
-            resolve('skipLinter', '${{ inputs.skipLinter }}', null, 'true');
-            resolve('model', '${{ inputs.model }}', 'model', 'gpt-5-mini');
+            resolve('skipLinter', process.env.INPUT_SKIP_LINTER, null, 'true');
+            resolve('model', process.env.INPUT_MODEL, 'model', 'gpt-5-mini');
       - name: Check COPILOT_GITHUB_TOKEN availability
         id: secrets
         shell: bash

@@ -9,25 +9,31 @@
 #
 
 # repository0
-gh workflow run agentic-lib-update \
+date
+time gh workflow run agentic-lib-update \
   -R xn-intenton-z2a/repository0
 
 # repository0-string-utils
-gh workflow run agentic-lib-update \
+date
+time gh workflow run agentic-lib-update \
   -R xn-intenton-z2a/repository0-string-utils
 
 # repository0-dense-encoder
-gh workflow run agentic-lib-update \
+date
+time gh workflow run agentic-lib-update \
   -R xn-intenton-z2a/repository0-dense-encoder
 
 # repository0-random
-gh workflow run agentic-lib-update \
+date
+time gh workflow run agentic-lib-update \
   -R xn-intenton-z2a/repository0-random
 
 # repository0-crucible
-gh workflow run agentic-lib-update \
+date
+time gh workflow run agentic-lib-update \
   -R xn-intenton-z2a/repository0-crucible
 
 # repository0-plot-code-lib
-gh workflow run agentic-lib-update \
+date
+time gh workflow run agentic-lib-update \
   -R xn-intenton-z2a/repository0-plot-code-lib

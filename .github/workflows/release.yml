@@ -58,6 +58,8 @@ jobs:
     steps:
       - id: resolve
         uses: actions/github-script@v8
+        env:
+          INPUT_VERSION_INCREMENT: ${{ inputs.versionIncrement }}
         with:
           script: |
             const resolve = (name, input, configKey, defaultValue) => {
@@ -74,7 +76,7 @@ jobs:
               core.setOutput(name, value);
               return value;
             };
-            resolve('bump-type', '${{ inputs.versionIncrement }}', null, 'patch');
+            resolve('bump-type', process.env.INPUT_VERSION_INCREMENT, null, 'patch');
 
   test:
     needs: [params]
