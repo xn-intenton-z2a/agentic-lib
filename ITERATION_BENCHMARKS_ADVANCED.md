@@ -1,73 +1,133 @@
 # Advanced Iteration Benchmarks
 
-Benchmarks that explore higher complexity missions (3 kyu through 1 kyu), elevated profiles, and model comparisons. Builds on ITERATION_BENCHMARKS.md — same procedures, target repository, and conventions apply.
+Benchmarks that explore higher complexity missions (5 kyu through 1 kyu), elevated profiles, and kyu-scaling analysis. Builds on `ITERATION_BENCHMARKS_SIMPLE.md` — same 6 target repositories, procedures, report template, and conventions apply.
 
 ```text
 Please read ITERATION_BENCHMARKS_ADVANCED.md and ask for any permissions that may be required before you start executing the tests so that benchmarks can be gathered without asking for further permissions.
 Please perform the exercises in ITERATION_BENCHMARKS_ADVANCED.md and create a report in the project root similar to _developers/archive/BENCHMARK_REPORT_007.md
-The session should run hands free but you can stary working on a fix plan like _developers/archive/PLAN_BENCHMARK_007_FIXES.md and work on those fixes in a branch test, merge then use your release and init skill to have repository0 use it.
-Re-use the same branch for multiple fixes as part of the same benchmarking session and keep updating what has been found and/or fixed in the fixes plan document. 
+The session should run hands free but you can start working on a fix plan like _developers/archive/PLAN_BENCHMARK_007_FIXES.md and work on those fixes in a branch test, merge then use your release and init skill to have all 6 repos use it.
+Re-use the same branch for multiple fixes as part of the same benchmarking session and keep updating what has been found and/or fixed in the fixes plan document.
 
 ```
 
 ## Scenario Matrix
 
-| ID | Mission | Model | Profile | Budget | Purpose |
-|----|---------|-------|---------|--------|---------|
-| A1 | 3-kyu-analyze-lunar-lander | gpt-5-mini | med | 32 | 3 kyu — physics simulation, autopilot controller |
-| A2 | 3-kyu-analyze-lunar-lander | gpt-5-mini | max | 128 | Profile comparison: does max produce better convergence? |
-| A3 | 3-kyu-evaluate-time-series-lab | gpt-5-mini | med | 32 | 3 kyu — data science, forecasting, ongoing mission |
-| A4 | 3-kyu-evaluate-time-series-lab | gpt-5-mini | max | 128 | Profile comparison on 3 kyu: can max handle domain-specific algorithms? |
-| A5 | 4-kyu-apply-owl-ontology | claude-sonnet-4 | med | 32 | Model comparison: claude-sonnet-4 vs gpt-5-mini on ontology |
-| A6 | 2-kyu-create-markdown-compiler | gpt-5-mini | med | 32 | 2 kyu — Markdown compiler, XSS safety, structured tests |
-| A7 | 2-kyu-create-markdown-compiler | gpt-5-mini | max | 128 | Profile comparison on parser mission |
-| A8 | 2-kyu-create-plot-code-lib | gpt-5-mini | med | 32 | 2 kyu — expression parsing, SVG/PNG rendering |
-| A9 | 1-kyu-create-ray-tracer | gpt-5-mini | max | 128 | 1 kyu — 3D geometry, optics, stress test |
+6 concurrent scenarios across 6 repos. All use `gpt-5-mini` model. All run simultaneously — follow the concurrent procedure from `ITERATION_BENCHMARKS_SIMPLE.md`.
+
+| ID | Repo | Mission | Profile | Budget | Target Runs | Purpose |
+|----|------|---------|---------|--------|-------------|---------|
+| A1 | repository0 | 4-kyu-apply-cron-engine | med | 32 | 3 | 4-kyu baseline at med |
+| A2 | repository0-string-utils | 5-kyu-apply-string-utils | max | 128 | 3 | Name affinity. Compare with SIMPLE S2 (med) |
+| A3 | repository0-dense-encoder | 4-kyu-apply-dense-encoding | max | 128 | 3 | Name affinity. Dense encoding at max |
+| A4 | repository0-random | 3-kyu-analyze-lunar-lander | max | 128 | 5 | 3-kyu stress test: physics simulation |
+| A5 | repository0-crucible | 2-kyu-create-markdown-compiler | max | 128 | 5 | 2-kyu: parser, XSS safety |
+| A6 | repository0-plot-code-lib | 2-kyu-create-plot-code-lib | max | 128 | 5 | Name affinity. Matches Benchmark 016 |
+
+**Built-in comparisons:**
+- **A2 vs SIMPLE S2**: String-utils at max vs med — does profile matter for 5-kyu?
+- **A1 vs A3**: Two different 4-kyu missions at med vs max — does profile or mission difficulty dominate?
+- **A5 vs A6**: Two different 2-kyu missions — which is harder for the LLM?
+- **A6 vs Report 016**: Plot-code-lib rerun — regression test against the prior benchmark
 
 ## What We're Testing
 
-1. **Kyu scaling** — How does iteration count and success rate change from 3 kyu → 2 kyu → 1 kyu?
-2. **Profile impact on complex missions** — Does max profile produce meaningfully better results than med for harder problems?
-3. **Model impact** — Does claude-sonnet-4 outperform gpt-5-mini on domain-specific or algorithmic missions?
-4. **Test generation** — Report 006 found no dedicated tests were created for hamming-distance. Do harder missions prompt better test coverage?
-5. **Convergence behaviour** — Do 3-1 kyu missions converge or get stuck in code/test mismatch loops?
+1. **Kyu scaling** — How does iteration count, token cost, and success rate change from 5 kyu → 4 kyu → 3 kyu → 2 kyu?
+2. **Profile impact on complex missions** — Does max profile produce meaningfully better results than med for 4-kyu and harder?
+3. **Mission type difficulty** — Which missions are hardest for the LLM: domain-specific algorithms (lunar-lander), parsers (markdown-compiler), or multi-output libraries (plot-code-lib)?
+4. **Test generation quality** — Do harder missions prompt better test coverage than simple ones?
+5. **Convergence behaviour** — Do 3-2 kyu missions converge or get stuck in code/test mismatch loops?
+6. **Regression** — Does A6 (plot-code-lib) match or improve on Benchmark 016 results?
 
-## Execution Order
+## Init Commands
 
-Run scenarios in this order (each builds evidence for the next):
+Follow `ITERATION_BENCHMARKS_SIMPLE.md` Step 0 (Save Original State) first, then dispatch all 6:
 
-1. **A1** — Lunar lander baseline (3 kyu, physics simulation)
-2. **A3** — Time series lab at med (3 kyu, data science)
-3. **A6** — Markdown compiler at med (2 kyu, parser)
-4. **A2** — Lunar lander at max (compare with A1)
-5. **A4** — Time series lab at max (compare with A3)
-6. **A5** — Owl ontology with claude-sonnet-4 (model comparison at 3 kyu)
-7. **A7** — Markdown compiler at max (compare with A6)
-8. **A8** — Plot code lib (additional 2 kyu data point)
-9. **A9** — Ray tracer (1 kyu stress test)
+```bash
+# A1: repository0 — cron-engine / med
+gh workflow run agentic-lib-init -R xn-intenton-z2a/repository0 \
+  -f mode=purge -f mission-seed=4-kyu-apply-cron-engine \
+  -f schedule=off -f model=gpt-5-mini -f profile=med -f run-workflow=true
 
-Stop early if a scenario exceeds 2 hours wall clock or exhausts its budget.
+# A2: repository0-string-utils — string-utils / max
+gh workflow run agentic-lib-init -R xn-intenton-z2a/repository0-string-utils \
+  -f mode=purge -f mission-seed=5-kyu-apply-string-utils \
+  -f schedule=off -f model=gpt-5-mini -f profile=max -f run-workflow=true
+
+# A3: repository0-dense-encoder — dense-encoding / max
+gh workflow run agentic-lib-init -R xn-intenton-z2a/repository0-dense-encoder \
+  -f mode=purge -f mission-seed=4-kyu-apply-dense-encoding \
+  -f schedule=off -f model=gpt-5-mini -f profile=max -f run-workflow=true
+
+# A4: repository0-random — lunar-lander / max
+gh workflow run agentic-lib-init -R xn-intenton-z2a/repository0-random \
+  -f mode=purge -f mission-seed=3-kyu-analyze-lunar-lander \
+  -f schedule=off -f model=gpt-5-mini -f profile=max -f run-workflow=true
+
+# A5: repository0-crucible — markdown-compiler / max
+gh workflow run agentic-lib-init -R xn-intenton-z2a/repository0-crucible \
+  -f mode=purge -f mission-seed=2-kyu-create-markdown-compiler \
+  -f schedule=off -f model=gpt-5-mini -f profile=max -f run-workflow=true
+
+# A6: repository0-plot-code-lib — plot-code-lib / max
+gh workflow run agentic-lib-init -R xn-intenton-z2a/repository0-plot-code-lib \
+  -f mode=purge -f mission-seed=2-kyu-create-plot-code-lib \
+  -f schedule=off -f model=gpt-5-mini -f profile=max -f run-workflow=true
+```
 
 ## Monitoring
 
-All monitoring follows ITERATION_BENCHMARKS_SIMPLE.md Step 3. The primary sources of truth are:
+All monitoring follows `ITERATION_BENCHMARKS_SIMPLE.md` Step 3. Use the same dashboard check, state file reads, and screenshot/website commands.
 
-1. **State file** (`agentic-lib-state.toml` on `agentic-lib-logs` branch) — cumulative counters, budget tracking, mission status
-2. **Agent log files** (`agent-log-*-NNN.md` on `agentic-lib-logs` branch) — per-task metrics, narratives, sequence numbers
-3. **Screenshot** (`SCREENSHOT_INDEX.png` on `agentic-lib-logs` branch) — visual state of the deployed website after each test cycle
-4. **Live website** (`https://xn-intenton-z2a.github.io/repository0/`) — front-end assessment: does the page render, does it include mission-specific content
+For advanced scenarios (3-2 kyu), additionally watch for:
+- **Multi-file source growth** — Complex missions may produce code across multiple files, not just `src/lib/main.js`. Check for files in `src/lib/` beyond main.js.
+- **Convergence stalls** — Harder missions may get stuck in code/test mismatch loops. Watch for rising `cumulative-nop-cycles` in the state file with no corresponding `cumulative-transforms` increase.
+- **Token consumption scaling** — Compare `total-tokens` across kyu levels to understand cost scaling. A4-A6 may use 5-10x more tokens than A1-A2.
+- **Website complexity** — Do harder missions produce richer front-end experiences? Compare screenshots across repos.
+- **Lockfile desync** — Benchmark 016 found that the LLM adding dependencies without lockfile regeneration breaks CI. Watch for `npm ci` failures in post-commit-test jobs, especially on A5 (markdown-compiler) and A6 (plot-code-lib) which may need external dependencies.
 
-For advanced scenarios (3-1 kyu), additionally watch for:
-- **Multi-file source growth** — complex missions may produce code across multiple files, not just `src/lib/main.js`
-- **Convergence stalls** — harder missions may get stuck in code/test mismatch loops visible as rising `cumulative-nop-cycles` in the state file
-- **Token consumption scaling** — compare `total-tokens` across kyu levels to understand cost scaling
-- **Website complexity** — do harder missions produce richer front-end experiences? Compare screenshots across scenarios
+## Restore
 
-## Notes
+After benchmarking, follow `ITERATION_BENCHMARKS_SIMPLE.md` Step 6 to restore all repos to their original state.
 
-- All scenarios use `schedule=off` and manual dispatch for subsequent cycles — init auto-dispatches the first `agentic-lib-workflow` run (same as ITERATION_BENCHMARKS_SIMPLE.md). Always pass `-f schedule=off` to init to prevent residual cron schedules from previous runs interfering with benchmark dispatches
-- The default distributed profile is **`max`**. To use `min` or `med`, pass `-f profile=min` or `-f profile=med` to the init workflow
-- Record the same data points as ITERATION_BENCHMARKS_SIMPLE.md Step 3 (including state file, logs, screenshot, and website)
-- Use the same report template from ITERATION_BENCHMARKS_SIMPLE.md
-- Include screenshots and website assessment in each scenario's report section
-- **Comparison baselines**: Compare against `_developers/archive/BENCHMARK_REPORT_007.md` (v7.2.1, 2026-03-10 — roman-numerals, string-utils, cron-engine on `recommended` profile) and `BENCHMARK_REPORT_014.md` (v7.4.31, 2026-03-19 — fizz-buzz, hamming-distance, roman-numerals on `med` profile). For overlapping missions include a direct comparison table
+## Report Template
+
+Use the same report template from `ITERATION_BENCHMARKS_SIMPLE.md`, with these additions:
+
+### Kyu Scaling Analysis
+
+```markdown
+## Kyu Scaling
+
+| Metric | A2 (5-kyu) | A1/A3 (4-kyu) | A4 (3-kyu) | A5/A6 (2-kyu) |
+|--------|-----------|---------------|-----------|---------------|
+| Iterations | N | N / N | N | N / N |
+| Transforms | N | N / N | N | N / N |
+| Time | Xmin | Xmin / Xmin | Xmin | Xmin / Xmin |
+| Tokens | N | N / N | N | N / N |
+| Source lines | N | N / N | N | N / N |
+| Tests | N | N / N | N | N / N |
+| Acceptance | N/M | N/M / N/M | N/M | N/M / N/M |
+| Outcome | ... | ... / ... | ... | ... / ... |
+```
+
+### Regression Check (A6 vs Report 016)
+
+```markdown
+## Regression: plot-code-lib (A6 vs Report 016)
+
+| Metric | Report 016 (v7.4.32) | A6 (vX.Y.Z) |
+|--------|---------------------|-------------|
+| Transforms to complete | 4 | N |
+| Time to complete | ~3h 45m | Xmin |
+| Unit tests | 28 | N |
+| Acceptance criteria | 8/8 in code, 0 ticked | N/M |
+| Lockfile desync | YES (PR #32) | YES / NO |
+```
+
+## Comparison Baselines
+
+Compare against these archived reports:
+- **BENCHMARK_REPORT_007.md** (v7.2.1) — roman-numerals, string-utils, cron-engine on `recommended`
+- **BENCHMARK_REPORT_014.md** (v7.4.31) — fizz-buzz, hamming-distance, roman-numerals on `med`
+- **BENCHMARK_REPORT_015.md** (v7.4.32) — hamming, dense-encoding across min/med/max
+- **BENCHMARK_REPORT_016.md** (v7.4.32) — plot-code-lib 2-kyu on max (primary regression target)

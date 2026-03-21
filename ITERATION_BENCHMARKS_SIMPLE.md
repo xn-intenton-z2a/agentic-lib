@@ -1,45 +1,53 @@
 # Iteration Benchmarks
 
-Self-contained guide for running agentic-lib pipeline benchmarks on repository0. A Claude Code session can execute these benchmarks end-to-end and produce a numbered report file.
+Self-contained guide for running agentic-lib pipeline benchmarks concurrently across 6 repositories. A Claude Code session can execute these benchmarks end-to-end and produce a numbered report file.
 
 ```text
 Please read ITERATION_BENCHMARKS_SIMPLE.md and ask for any permissions that may be required before you start executing the tests so that benchmarks can be gathered without asking for further permissions.
 Please perform the exercises in ITERATION_BENCHMARKS_SIMPLE.md and create a report in the project root similar to _developers/archive/BENCHMARK_REPORT_007.md
-The session should run hands free but you can stary working on a fix plan like _developers/archive/PLAN_BENCHMARK_007_FIXES.md and work on those fixes in a branch test, merge then use your release and init skill to have repository0 use it.
-Re-use the same branch for multiple fixes as part of the same benchmarking session and keep updating what has been found and/or fixed in the fixes plan document. 
+The session should run hands free but you can start working on a fix plan like _developers/archive/PLAN_BENCHMARK_007_FIXES.md and work on those fixes in a branch test, merge then use your release and init skill to have all 6 repos use it.
+Re-use the same branch for multiple fixes as part of the same benchmarking session and keep updating what has been found and/or fixed in the fixes plan document.
 
 ```
 
 ## Quick Start
 
-To run a benchmark, say: **"Create a report for ITERATION_BENCHMARKS.md"**
+To run a benchmark, say: **"Create a report for ITERATION_BENCHMARKS_SIMPLE.md"**
 
 The operator should:
 1. Read this file
 2. Pick the next report number (check for existing `BENCHMARK_REPORT_NNN.md` files)
-3. Pick a scenario from the Scenario Matrix (or all of them)
-4. Execute the scenario using the procedures below
-5. Write results to `BENCHMARK_REPORT_NNN.md` in the project root
+3. Execute the full procedure (save state, init all 6, monitor, collect, restore)
+4. Write results to `BENCHMARK_REPORT_NNN.md` in the project root
 
 ---
 
-## Target Repository
+## Target Repositories
 
-| Field | Value |
-|-------|-------|
-| Repository | `xn-intenton-z2a/repository0` |
-| GitHub CLI flag | `-R xn-intenton-z2a/repository0` |
-| Website | `https://xn-intenton-z2a.github.io/repository0/` |
-| Config file | `agentic-lib.toml` |
-| Activity log | `intenti\u00f6n.md` |
+All 6 repos run concurrently, one scenario per repo.
+
+| Short Name | Repository | GitHub CLI Flag | Website |
+|-----------|-----------|----------------|---------|
+| `repository0` | `xn-intenton-z2a/repository0` | `-R xn-intenton-z2a/repository0` | `https://xn-intenton-z2a.github.io/repository0/` |
+| `string-utils` | `xn-intenton-z2a/repository0-string-utils` | `-R xn-intenton-z2a/repository0-string-utils` | `https://xn-intenton-z2a.github.io/repository0-string-utils/` |
+| `dense-encoder` | `xn-intenton-z2a/repository0-dense-encoder` | `-R xn-intenton-z2a/repository0-dense-encoder` | `https://xn-intenton-z2a.github.io/repository0-dense-encoder/` |
+| `random` | `xn-intenton-z2a/repository0-random` | `-R xn-intenton-z2a/repository0-random` | `https://xn-intenton-z2a.github.io/repository0-random/` |
+| `crucible` | `xn-intenton-z2a/repository0-crucible` | `-R xn-intenton-z2a/repository0-crucible` | `https://xn-intenton-z2a.github.io/repository0-crucible/` |
+| `plot-code-lib` | `xn-intenton-z2a/repository0-plot-code-lib` | `-R xn-intenton-z2a/repository0-plot-code-lib` | `https://xn-intenton-z2a.github.io/repository0-plot-code-lib/` |
+
+**Shell variable for loops** (used throughout this guide):
+
+```bash
+REPOS="repository0 repository0-string-utils repository0-dense-encoder repository0-random repository0-crucible repository0-plot-code-lib"
+```
 
 ## Permissions Granted
 
 The operator has pre-approved these operations (no confirmation needed):
 
-- All `gh` read commands (pr list, issue list, run list, api GET, etc.)
-- `gh workflow run` dispatches on repository0
-- `gh api` mutations on repository0 (issues, PRs)
+- All `gh` read commands on all 6 repos (pr list, issue list, run list, api GET, etc.)
+- `gh workflow run` dispatches on all 6 repos
+- `gh api` mutations on all 6 repos (issues, PRs)
 - Reading/writing report files in this project root
 - Pushing branches and opening PRs on agentic-lib
 
@@ -87,14 +95,13 @@ Profiles control context quality, budget, and limits. Set in `agentic-lib.toml` 
 | Model | Notes |
 |-------|-------|
 | `gpt-5-mini` | Fast, cheap, supports reasoning-effort. Default. |
-| `claude-sonnet-4` | Strong code quality. Note: reasoning-effort is auto-skipped for this model. |
 | `gpt-4.1` | High capability, large context. |
 
 ---
 
 ## Objective
 
-Establish "on-sight" doability benchmarks — the number of `agentic-lib-workflow` runs needed to reach mission-complete for each kyu tier:
+Establish "on-sight" doability benchmarks — the number of `agentic-lib-workflow` runs needed to reach mission-complete for each kyu tier, running all scenarios concurrently across 6 repos:
 
 | Kyu | Target runs to mission-complete | Rationale |
 |-----|--------------------------------|-----------|
@@ -107,254 +114,373 @@ A scenario **passes** if it reaches mission-complete within the target run count
 
 ## Scenario Matrix
 
-Standard scenarios for benchmarking. Pick one or more per report.
+6 concurrent scenarios, one per repo. All use `gpt-5-mini` model.
 
-| ID | Mission | Model | Profile | Budget | Target Runs | Purpose |
-|----|---------|-------|---------|--------|-------------|---------|
-| S1 | 6-kyu-understand-hamming-distance | gpt-5-mini | min | 16 | 1 | 6 kyu at min profile — can the cheapest config still one-shot a 6 kyu? |
-| S2 | 4-kyu-apply-dense-encoding | gpt-5-mini | min | 16 | 3 | 4 kyu at min — stress test: can min profile handle medium complexity? |
-| S3 | 4-kyu-apply-dense-encoding | gpt-5-mini | med | 32 | 3 | 4 kyu at med — balanced profile on medium complexity. |
-| S4 | 4-kyu-apply-dense-encoding | gpt-5-mini | max | 128 | 3 | 4 kyu at max — does more context help on a harder mission? Profile comparison across S2/S3/S4. |
+| ID | Repo | Mission | Profile | Budget | Target Runs | Purpose |
+|----|------|---------|---------|--------|-------------|---------|
+| S1 | repository0 | 7-kyu-understand-fizz-buzz | min | 16 | 1 | Baseline: simplest mission, cheapest profile |
+| S2 | repository0-string-utils | 5-kyu-apply-string-utils | med | 32 | 3 | Name affinity. 5-kyu stretch goal at med |
+| S3 | repository0-dense-encoder | 6-kyu-understand-hamming-distance | min | 16 | 1 | Profile comparison: hamming at min |
+| S4 | repository0-random | 6-kyu-understand-hamming-distance | med | 32 | 1 | Profile comparison: hamming at med |
+| S5 | repository0-crucible | 6-kyu-understand-roman-numerals | med | 32 | 1 | Profile comparison: roman at med |
+| S6 | repository0-plot-code-lib | 6-kyu-understand-roman-numerals | max | 128 | 1 | Profile comparison: roman at max |
+
+**Built-in comparisons:**
+- **S3 vs S4**: Hamming distance at min vs med — does profile matter for 6-kyu?
+- **S5 vs S6**: Roman numerals at med vs max — does max help for 6-kyu?
+- **S2**: 5-kyu stretch — can med handle medium complexity?
 
 ---
 
 ## Procedure
 
-### Step 1: Init repository0 with purge
+### Step 0: Save Original State
 
-Init now **automatically dispatches `agentic-lib-workflow`** after completing (controlled by `run-workflow` input, default `true`). No separate Step 2 dispatch is needed.
-
-**Important**: Always pass `-f schedule=off` when running benchmarks. This disables the cron schedule so that only your manually dispatched workflow runs execute. Without this, residual cron schedules from previous runs may fire concurrently with your benchmark dispatches, causing confusing interleaved results.
+Before overwriting repos with benchmark scenarios, record each repo's current configuration for later restoration.
 
 ```bash
+REPOS="repository0 repository0-string-utils repository0-dense-encoder repository0-random repository0-crucible repository0-plot-code-lib"
+
+for REPO in $REPOS; do
+  echo "=== $REPO ==="
+  gh api "repos/xn-intenton-z2a/$REPO/contents/agentic-lib.toml" \
+    --jq '.content' | base64 -d | grep -A5 '^\[init\]'
+  gh api "repos/xn-intenton-z2a/$REPO/contents/agentic-lib.toml" \
+    --jq '.content' | base64 -d | grep -A2 '^\[schedule\]'
+  echo ""
+done
+```
+
+Record the results in this table (pre-filled with known state as of 2026-03-21):
+
+| Repo | Original Mission Seed | Original Mission Type | Original Schedule | Original Model | Original Profile |
+|------|-----------------------|----------------------|-------------------|----------------|------------------|
+| repository0 | 7-kyu-understand-fizz-buzz | 7-kyu-understand-fizz-buzz | off | gpt-5-mini | max |
+| repository0-string-utils | 5-kyu-apply-string-utils | 5-kyu-apply-string-utils | hourly | gpt-5-mini | max |
+| repository0-dense-encoder | 4-kyu-apply-dense-encoding | 4-kyu-apply-dense-encoding | hourly | gpt-5-mini | max |
+| repository0-random | 7-kyu-understand-fizz-buzz | random | hourly | gpt-5-mini | max |
+| repository0-crucible | 7-kyu-understand-fizz-buzz | generate-fallback | hourly | gpt-5-mini | max |
+| repository0-plot-code-lib | 7-kyu-understand-fizz-buzz | 7-kyu-understand-fizz-buzz | continuous | gpt-5-mini | max |
+
+**Important**: Verify the table above against live data before proceeding. The pre-filled values may be stale.
+
+### Step 1: Concurrent Init (all 6 repos)
+
+Init now **automatically dispatches `agentic-lib-workflow`** after completing (controlled by `run-workflow` input, default `true`). Always pass `-f schedule=off` to prevent residual crons from interfering.
+
+All 6 `gh workflow run` calls return immediately (they're async dispatches), so they run concurrently:
+
+```bash
+# S1: repository0 — fizz-buzz / min
 gh workflow run agentic-lib-init -R xn-intenton-z2a/repository0 \
-  -f mode=purge \
-  -f mission-seed=MISSION_NAME \
-  -f schedule=off
+  -f mode=purge -f mission-seed=7-kyu-understand-fizz-buzz \
+  -f schedule=off -f model=gpt-5-mini -f profile=min -f run-workflow=true
+
+# S2: repository0-string-utils — string-utils / med
+gh workflow run agentic-lib-init -R xn-intenton-z2a/repository0-string-utils \
+  -f mode=purge -f mission-seed=5-kyu-apply-string-utils \
+  -f schedule=off -f model=gpt-5-mini -f profile=med -f run-workflow=true
+
+# S3: repository0-dense-encoder — hamming-distance / min
+gh workflow run agentic-lib-init -R xn-intenton-z2a/repository0-dense-encoder \
+  -f mode=purge -f mission-seed=6-kyu-understand-hamming-distance \
+  -f schedule=off -f model=gpt-5-mini -f profile=min -f run-workflow=true
+
+# S4: repository0-random — hamming-distance / med
+gh workflow run agentic-lib-init -R xn-intenton-z2a/repository0-random \
+  -f mode=purge -f mission-seed=6-kyu-understand-hamming-distance \
+  -f schedule=off -f model=gpt-5-mini -f profile=med -f run-workflow=true
+
+# S5: repository0-crucible — roman-numerals / med
+gh workflow run agentic-lib-init -R xn-intenton-z2a/repository0-crucible \
+  -f mode=purge -f mission-seed=6-kyu-understand-roman-numerals \
+  -f schedule=off -f model=gpt-5-mini -f profile=med -f run-workflow=true
+
+# S6: repository0-plot-code-lib — roman-numerals / max
+gh workflow run agentic-lib-init -R xn-intenton-z2a/repository0-plot-code-lib \
+  -f mode=purge -f mission-seed=6-kyu-understand-roman-numerals \
+  -f schedule=off -f model=gpt-5-mini -f profile=max -f run-workflow=true
 ```
 
-To override defaults (e.g. set a specific model or profile, or skip the auto-dispatch):
+Wait for all init workflows to complete:
 
 ```bash
-gh workflow run agentic-lib-init -R xn-intenton-z2a/repository0 \
-  -f mode=purge \
-  -f mission-seed=MISSION_NAME \
-  -f schedule=off \
-  -f model=gpt-5-mini \
-  -f profile=max \
-  -f run-workflow=false
+REPOS="repository0 repository0-string-utils repository0-dense-encoder repository0-random repository0-crucible repository0-plot-code-lib"
+
+for REPO in $REPOS; do
+  echo -n "$REPO: "
+  gh run list -R xn-intenton-z2a/$REPO -w agentic-lib-init -L 1 \
+    --json status,conclusion --jq '.[0] | "\(.status) \(.conclusion)"'
+done
 ```
 
-Wait for init to complete:
-
-```bash
-gh run list -R xn-intenton-z2a/repository0 -w agentic-lib-init -L 1
-```
-
-Record the init run ID and completion time.
+Record each init run ID and completion time.
 
 ### Step 2: Manual dispatch for subsequent cycles
 
-Init auto-dispatches the **first** `agentic-lib-workflow` run. For subsequent cycles (when `schedule=off`), dispatch manually:
+Init auto-dispatches the **first** `agentic-lib-workflow` run per repo. For subsequent cycles (when `schedule=off`), dispatch manually to repos that haven't completed:
 
 ```bash
-gh workflow run agentic-lib-workflow -R xn-intenton-z2a/repository0
+REPOS="repository0 repository0-string-utils repository0-dense-encoder repository0-random repository0-crucible repository0-plot-code-lib"
+
+for REPO in $REPOS; do
+  COMPLETE=$(gh api "repos/xn-intenton-z2a/$REPO/contents/MISSION_COMPLETE.md" \
+    -q '.name' 2>/dev/null || echo "no")
+  FAILED=$(gh api "repos/xn-intenton-z2a/$REPO/contents/MISSION_FAILED.md" \
+    -q '.name' 2>/dev/null || echo "no")
+  if [ "$COMPLETE" = "no" ] && [ "$FAILED" = "no" ]; then
+    echo "Dispatching $REPO..."
+    gh workflow run agentic-lib-workflow -R xn-intenton-z2a/$REPO
+  else
+    echo "Skipping $REPO (complete=$COMPLETE, failed=$FAILED)"
+  fi
+done
 ```
 
-**Tip**: Before each manual dispatch, verify the schedule is still off. If a previous run's director set it to something else, reset it:
+**Tip**: Before each dispatch round, verify schedules are still off. If a previous run's director set a schedule, reset it:
 
 ```bash
-gh workflow run agentic-lib-schedule -R xn-intenton-z2a/repository0 \
-  -f frequency=off
+gh workflow run agentic-lib-schedule -R xn-intenton-z2a/REPO_NAME -f frequency=off
 ```
 
-For automated continuous iteration instead of manual dispatch:
+### Step 3: Monitor all repos
+
+For each iteration round, collect data from all 6 repos. The **primary** source of truth is the persistent state file and individual agent log files on the `agentic-lib-logs` branch.
+
+#### 3a: Dashboard check (quick status of all 6)
 
 ```bash
-gh workflow run agentic-lib-schedule -R xn-intenton-z2a/repository0 \
-  -f frequency=hourly
+REPOS="repository0 repository0-string-utils repository0-dense-encoder repository0-random repository0-crucible repository0-plot-code-lib"
+
+for REPO in $REPOS; do
+  COMPLETE=$(gh api "repos/xn-intenton-z2a/$REPO/contents/MISSION_COMPLETE.md" \
+    -q '.name' 2>/dev/null || echo "no")
+  FAILED=$(gh api "repos/xn-intenton-z2a/$REPO/contents/MISSION_FAILED.md" \
+    -q '.name' 2>/dev/null || echo "no")
+  LAST_RUN=$(gh run list -R xn-intenton-z2a/$REPO -w agentic-lib-workflow -L 1 \
+    --json status,conclusion --jq '.[0] | "\(.status)/\(.conclusion)"' 2>/dev/null || echo "none")
+  echo "$REPO: complete=$COMPLETE failed=$FAILED last_run=$LAST_RUN"
+done
 ```
 
-### Step 3: Monitor iterations
-
-For each iteration, collect data from these sources. The **primary** source of truth is the persistent state file and individual agent log files on the `agentic-lib-logs` branch — these contain accurate cumulative metrics. The GitHub API provides supplementary context (issues, PRs, source code).
-
-#### 3a: Read the persistent state file
-
-The state file tracks cumulative counters across all workflow runs:
+#### 3b: Read persistent state files
 
 ```bash
-# Read agentic-lib-state.toml from the logs branch
-gh api "repos/xn-intenton-z2a/repository0/contents/agentic-lib-state.toml" \
-  --jq '.content' -H "Accept: application/vnd.github.v3+json" \
-  --method GET -f ref=agentic-lib-logs | base64 -d
+REPOS="repository0 repository0-string-utils repository0-dense-encoder repository0-random repository0-crucible repository0-plot-code-lib"
+
+for REPO in $REPOS; do
+  echo "=== $REPO ==="
+  gh api "repos/xn-intenton-z2a/$REPO/contents/agentic-lib-state.toml" \
+    --jq '.content' -H "Accept: application/vnd.github.v3+json" \
+    --method GET -f ref=agentic-lib-logs 2>/dev/null | base64 -d || echo "no state file"
+  echo ""
+done
 ```
 
-Key fields: `log-sequence` (total tasks executed), `cumulative-transforms`, `total-tokens`, `total-duration-ms`, `transformation-budget-used`/`cap`, `mission-complete`, `mission-failed`.
+Key fields: `log-sequence`, `cumulative-transforms`, `total-tokens`, `transformation-budget-used`/`cap`, `mission-complete`, `mission-failed`.
 
-#### 3b: Read individual agent log files
-
-Each agentic-step invocation writes a standalone log file with a sequence number. List all logs, then read the latest:
+#### 3c: Read individual agent log files
 
 ```bash
-# List all log files on the logs branch
-gh api repos/xn-intenton-z2a/repository0/git/trees/agentic-lib-logs \
+# List log files for a specific repo
+gh api repos/xn-intenton-z2a/REPO_NAME/git/trees/agentic-lib-logs \
   -q '.tree[].path' | grep '^agent-log-' | sort
 
-# Read the latest log file (replace FILENAME with the last entry)
-gh api "repos/xn-intenton-z2a/repository0/contents/FILENAME" \
+# Read a specific log file
+gh api "repos/xn-intenton-z2a/REPO_NAME/contents/FILENAME" \
   --jq '.content' -H "Accept: application/vnd.github.v3+json" \
   --method GET -f ref=agentic-lib-logs | base64 -d
 ```
 
-Each log contains: Sequence, Task, Outcome, Model, Tokens, Duration, Mission Metrics table (with per-task and cumulative values), and a Narrative.
-
-#### 3c: Download and view the screenshot
-
-The `SCREENSHOT_INDEX.png` on the logs branch is a Playwright screenshot of the deployed website after each test cycle:
+#### 3d: Download and view screenshots
 
 ```bash
-# Download the screenshot for visual inspection
-gh api "repos/xn-intenton-z2a/repository0/contents/SCREENSHOT_INDEX.png" \
-  --jq '.content' -H "Accept: application/vnd.github.v3+json" \
-  --method GET -f ref=agentic-lib-logs | base64 -d > /tmp/screenshot.png
+REPOS="repository0 repository0-string-utils repository0-dense-encoder repository0-random repository0-crucible repository0-plot-code-lib"
+
+for REPO in $REPOS; do
+  gh api "repos/xn-intenton-z2a/$REPO/contents/SCREENSHOT_INDEX.png" \
+    --jq '.content' -H "Accept: application/vnd.github.v3+json" \
+    --method GET -f ref=agentic-lib-logs 2>/dev/null | base64 -d > "/tmp/screenshot-$REPO.png" \
+    && echo "$REPO: screenshot saved" || echo "$REPO: no screenshot"
+done
 ```
 
-The operator should view this image (use the Read tool on the downloaded file) to assess the website's visual state — does it render correctly? Does it show the mission-specific content?
+View each screenshot to assess the website's visual state.
 
-#### 3d: Fetch the live website
-
-The repository's GitHub Pages deployment is the user-facing product. Fetch it to assess the front-end:
+#### 3e: Fetch live websites
 
 ```bash
-# Fetch the live website HTML
-curl -sL https://xn-intenton-z2a.github.io/repository0/ > /tmp/website.html
+REPOS="repository0 repository0-string-utils repository0-dense-encoder repository0-random repository0-crucible repository0-plot-code-lib"
+
+for REPO in $REPOS; do
+  curl -sL "https://xn-intenton-z2a.github.io/$REPO/" > "/tmp/website-$REPO.html" \
+    && echo "$REPO: website fetched" || echo "$REPO: no website"
+done
 ```
 
-Check: Does the page load? Does it contain mission-specific content (function demos, interactive elements)? Does it match the screenshot?
-
-#### 3e: GitHub API context (supplementary)
+#### 3f: GitHub API context (per-repo, use as needed)
 
 ```bash
+REPO=REPO_NAME
+
 # Latest workflow runs
-gh run list -R xn-intenton-z2a/repository0 -w agentic-lib-workflow -L 5
+gh run list -R xn-intenton-z2a/$REPO -w agentic-lib-workflow -L 5
 
 # Source code size
-gh api repos/xn-intenton-z2a/repository0/contents/src/lib/main.js \
+gh api repos/xn-intenton-z2a/$REPO/contents/src/lib/main.js \
   -q '.content' | base64 -d | wc -l
 
 # Test files
-gh api repos/xn-intenton-z2a/repository0/contents/tests/unit \
+gh api repos/xn-intenton-z2a/$REPO/contents/tests/unit \
   -q '.[].name' 2>/dev/null || echo "no test dir"
 
 # Recent commits
-gh api repos/xn-intenton-z2a/repository0/commits \
+gh api repos/xn-intenton-z2a/$REPO/commits \
   -q '.[0:5] | .[] | .sha[0:8] + " " + (.commit.message | split("\n")[0])'
 
 # Issues (all states)
-gh api 'repos/xn-intenton-z2a/repository0/issues?state=all&per_page=10&sort=created&direction=desc' \
+gh api "repos/xn-intenton-z2a/$REPO/issues?state=all&per_page=10&sort=created&direction=desc" \
   -q '.[] | select(.pull_request == null) | "#\(.number) \(.state) \(.title)"'
 
 # PRs (all states)
-gh api 'repos/xn-intenton-z2a/repository0/pulls?state=all&per_page=10&sort=created&direction=desc' \
+gh api "repos/xn-intenton-z2a/$REPO/pulls?state=all&per_page=10&sort=created&direction=desc" \
   -q '.[] | "#\(.number) \(.state) merged=\(.merged_at // "no") \(.title)"'
 
-# Mission complete signal
-gh api repos/xn-intenton-z2a/repository0/contents/MISSION_COMPLETE.md \
-  -q '.name' 2>/dev/null || echo "not yet"
-
-# Mission failed signal
-gh api repos/xn-intenton-z2a/repository0/contents/MISSION_FAILED.md \
-  -q '.name' 2>/dev/null || echo "not yet"
-
-# Activity log (last 30 lines)
-gh api repos/xn-intenton-z2a/repository0/contents/intenti%C3%B6n.md \
+# Activity log
+gh api repos/xn-intenton-z2a/$REPO/contents/intenti%C3%B6n.md \
   -q '.content' 2>/dev/null | base64 -d | tail -30
 ```
 
-### Step 4: Determine outcome
+### Step 4: Determine outcome (per-repo)
 
-An iteration is complete when one of:
+A scenario is complete when one of:
 - `MISSION_COMPLETE.md` exists (supervisor declared mission complete)
 - `MISSION_FAILED.md` exists (supervisor declared mission failed)
-- Transformation budget is exhausted (check activity log limits table)
+- Transformation budget is exhausted (check state file)
 - 3+ consecutive nop iterations with no transform (manual convergence detection)
-- Schedule is set to off
+- Schedule is set to off by the director
 
-### Step 5: Verify acceptance criteria
+### Step 5: Verify acceptance criteria (per-repo)
 
-For each acceptance criterion in the mission seed, verify the final codebase, website, and screenshot:
+For each repo, verify the final codebase, website, and screenshot against the mission's acceptance criteria:
 
 ```bash
-# Read source to check function exports
-gh api repos/xn-intenton-z2a/repository0/contents/src/lib/main.js \
+REPO=REPO_NAME
+
+# Read source
+gh api repos/xn-intenton-z2a/$REPO/contents/src/lib/main.js \
   -q '.content' | base64 -d
 
-# Read tests to check coverage
-gh api repos/xn-intenton-z2a/repository0/contents/tests/unit \
-  -q '.[].name'
+# Read tests
+gh api repos/xn-intenton-z2a/$REPO/contents/tests/unit -q '.[].name'
 
 # Read README
-gh api repos/xn-intenton-z2a/repository0/contents/README.md \
+gh api repos/xn-intenton-z2a/$REPO/contents/README.md \
   -q '.content' | base64 -d | head -50
 
-# Download and view the final screenshot
-gh api "repos/xn-intenton-z2a/repository0/contents/SCREENSHOT_INDEX.png" \
+# Download final screenshot
+gh api "repos/xn-intenton-z2a/$REPO/contents/SCREENSHOT_INDEX.png" \
   --jq '.content' -H "Accept: application/vnd.github.v3+json" \
-  --method GET -f ref=agentic-lib-logs | base64 -d > /tmp/screenshot-final.png
+  --method GET -f ref=agentic-lib-logs | base64 -d > "/tmp/screenshot-final-$REPO.png"
 
-# Fetch the live website for front-end verification
-curl -sL https://xn-intenton-z2a.github.io/repository0/ > /tmp/website-final.html
+# Fetch final website
+curl -sL "https://xn-intenton-z2a.github.io/$REPO/" > "/tmp/website-final-$REPO.html"
 ```
 
-**Include in the report:** A description of the screenshot (what's visible, any rendering issues) and a summary of the website HTML content (does it include mission-specific elements like function demos, interactive widgets, or documentation).
+**Include in the report:** A description of each screenshot and a summary of each website's HTML content.
 
-### Step 6: Stop the schedule
+### Step 6: Restore Original State
+
+After collecting all benchmark data, restore each repo to its pre-benchmark configuration. Use the values recorded in Step 0.
 
 ```bash
-gh workflow run agentic-lib-schedule -R xn-intenton-z2a/repository0 \
-  -f frequency=off
+# Restore repository0 — fizz-buzz / off
+gh workflow run agentic-lib-init -R xn-intenton-z2a/repository0 \
+  -f mode=purge -f mission-seed=7-kyu-understand-fizz-buzz \
+  -f schedule=off -f model=gpt-5-mini -f profile=max
+
+# Restore repository0-string-utils — string-utils / hourly
+gh workflow run agentic-lib-init -R xn-intenton-z2a/repository0-string-utils \
+  -f mode=purge -f mission-seed=5-kyu-apply-string-utils \
+  -f schedule=off -f model=gpt-5-mini -f profile=max
+# Then set schedule:
+gh workflow run agentic-lib-schedule -R xn-intenton-z2a/repository0-string-utils \
+  -f frequency=hourly
+
+# Restore repository0-dense-encoder — dense-encoding / hourly
+gh workflow run agentic-lib-init -R xn-intenton-z2a/repository0-dense-encoder \
+  -f mode=purge -f mission-seed=4-kyu-apply-dense-encoding \
+  -f schedule=off -f model=gpt-5-mini -f profile=max
+gh workflow run agentic-lib-schedule -R xn-intenton-z2a/repository0-dense-encoder \
+  -f frequency=hourly
+
+# Restore repository0-random — random mission / hourly
+gh workflow run agentic-lib-init -R xn-intenton-z2a/repository0-random \
+  -f mode=purge -f mission-seed=random \
+  -f schedule=off -f model=gpt-5-mini -f profile=max
+gh workflow run agentic-lib-schedule -R xn-intenton-z2a/repository0-random \
+  -f frequency=hourly
+
+# Restore repository0-crucible — fizz-buzz (generate-fallback) / hourly
+# Note: original was generate-fallback; use fizz-buzz seed since generate needs Copilot token
+gh workflow run agentic-lib-init -R xn-intenton-z2a/repository0-crucible \
+  -f mode=purge -f mission-seed=7-kyu-understand-fizz-buzz \
+  -f schedule=off -f model=gpt-5-mini -f profile=max
+gh workflow run agentic-lib-schedule -R xn-intenton-z2a/repository0-crucible \
+  -f frequency=hourly
+
+# Restore repository0-plot-code-lib — fizz-buzz / continuous
+gh workflow run agentic-lib-init -R xn-intenton-z2a/repository0-plot-code-lib \
+  -f mode=purge -f mission-seed=7-kyu-understand-fizz-buzz \
+  -f schedule=off -f model=gpt-5-mini -f profile=max
+gh workflow run agentic-lib-schedule -R xn-intenton-z2a/repository0-plot-code-lib \
+  -f frequency=continuous
 ```
+
+**Verify restoration**: After all init+schedule workflows complete, re-run the Step 0 commands to confirm each repo is back to its original state.
 
 ---
 
 ## Report Template
 
-Reports are saved as `BENCHMARK_REPORT_NNN.md` in the project root (this directory). Use zero-padded 3-digit numbers starting from 001.
-
-Use this template exactly for consistency across reports:
+Reports are saved as `BENCHMARK_REPORT_NNN.md` in the project root. Use zero-padded 3-digit numbers.
 
 ```markdown
 # Benchmark Report NNN
 
 **Date**: YYYY-MM-DD
 **Operator**: Claude Code (model-id)
-**agentic-lib version**: X.Y.Z (check package.json or npm)
+**agentic-lib version**: X.Y.Z
 **Previous report**: BENCHMARK_REPORT_MMM.md (or "none")
 
 ---
 
-## Scenarios Run
+## Dashboard
 
-| ID | Mission | Model | Profile | Budget | Outcome |
-|----|---------|-------|---------|--------|---------|
-| S? | name | model | profile | N | mission-complete / mission-failed / converged / budget-exhausted / timeout |
+| ID | Repo | Mission | Profile | Iterations | Transforms | Outcome | Time |
+|----|------|---------|---------|------------|------------|---------|------|
+| S1 | repository0 | fizz-buzz | min | N | N | ... | Xmin |
+| S2 | repository0-string-utils | string-utils | med | N | N | ... | Xmin |
+| S3 | repository0-dense-encoder | hamming | min | N | N | ... | Xmin |
+| S4 | repository0-random | hamming | med | N | N | ... | Xmin |
+| S5 | repository0-crucible | roman | med | N | N | ... | Xmin |
+| S6 | repository0-plot-code-lib | roman | max | N | N | ... | Xmin |
 
 ---
 
-## Scenario S?: mission-name / model / profile
+## Scenario S?: mission-name / repo / profile
 
 ### Configuration
 
 | Parameter | Value |
 |-----------|-------|
+| Repo | repo-name |
 | Mission seed | mission-name |
 | Model | model |
 | Profile | profile |
 | Budget | N |
 | Init run | [#ID](url) |
 | Init time | HH:MM UTC |
-| Schedule | off / hourly / continuous |
 
 ### Iterations
 
@@ -368,23 +494,17 @@ Use this template exactly for consistency across reports:
 |-----------|--------|----------|
 | criterion text | PASS / FAIL / NOT TESTED | file:line or description |
 
-### Issues
-
-| Issue | State | Title |
-|-------|-------|-------|
-| #N | open/closed | title |
-
 ### State File (final)
 
-```toml
+\```toml
 # Paste the final agentic-lib-state.toml contents here
-```
+\```
 
 ### Website & Screenshot
 
-**Screenshot:** Description of the SCREENSHOT_INDEX.png — what is visible, does the page render correctly, any visual issues.
+**Screenshot:** Description of SCREENSHOT_INDEX.png.
 
-**Website (GitHub Pages):** Summary of the live website HTML. Does it contain mission-specific content? Interactive elements? Function demos? Does it match the screenshot?
+**Website (GitHub Pages):** Summary of the live website HTML.
 
 ### Scenario Summary
 
@@ -392,14 +512,38 @@ Use this template exactly for consistency across reports:
 |--------|-------|
 | Total iterations | N |
 | Transforms | N |
-| Convergence | Iteration N / NOT converged |
 | Final source lines | N |
 | Final test count | N |
 | Acceptance criteria | N/M PASS |
 | Mission complete | YES / NO |
 | Time (init to outcome) | ~Xmin |
-| Total tokens | N (from state file) |
-| Total duration | Ns (from state file) |
+| Total tokens | N |
+
+---
+
+## Profile Comparisons
+
+### Hamming Distance: min (S3) vs med (S4)
+
+| Metric | S3 (min) | S4 (med) |
+|--------|----------|----------|
+| Iterations | N | N |
+| Transforms | N | N |
+| Time | Xmin | Xmin |
+| Tokens | N | N |
+| Acceptance | N/M | N/M |
+| Outcome | ... | ... |
+
+### Roman Numerals: med (S5) vs max (S6)
+
+| Metric | S5 (med) | S6 (max) |
+|--------|----------|----------|
+| Iterations | N | N |
+| Transforms | N | N |
+| Time | Xmin | Xmin |
+| Tokens | N | N |
+| Acceptance | N/M | N/M |
+| Outcome | ... | ... |
 
 ---
 
@@ -407,55 +551,66 @@ Use this template exactly for consistency across reports:
 
 ### FINDING-N: Title (POSITIVE / CONCERN / REGRESSION)
 
-Description of what was observed and why it matters.
+Description.
 
 ---
 
 ## Comparison with Previous Reports
 
-Compare against these baseline reports (archived in `_developers/archive/`):
-- **BENCHMARK_REPORT_007.md** (v7.2.1, 2026-03-10) — roman-numerals, string-utils, cron-engine on `recommended` profile
-- **BENCHMARK_REPORT_014.md** (v7.4.31, 2026-03-19) — fizz-buzz, hamming-distance, roman-numerals on `med` profile
+Compare against baseline reports (archived in `_developers/archive/`):
+- **BENCHMARK_REPORT_007.md** (v7.2.1, 2026-03-10) — roman-numerals, string-utils, cron-engine on `recommended`
+- **BENCHMARK_REPORT_014.md** (v7.4.31, 2026-03-19) — fizz-buzz, hamming-distance, roman-numerals on `med`
+- **BENCHMARK_REPORT_015.md** (v7.4.32, 2026-03-19) — hamming, dense-encoding across min/med/max
+- **BENCHMARK_REPORT_016.md** (v7.4.32, 2026-03-20) — plot-code-lib 2-kyu on max
 
-For missions that overlap with 007 or 014, include a direct comparison table.
-
-| Metric | Report 007 | Report 014 | This Report |
-|--------|-----------|-------------|-------------|
-| metric | value | value | value |
+| Metric | Prior Report | This Report |
+|--------|-------------|-------------|
+| metric | value | value |
 
 ---
 
 ## Recommendations
 
-Numbered list of actionable next steps based on findings.
+Numbered list of actionable next steps.
+
+---
+
+## Restoration Checklist
+
+| Repo | Restored? | Verified? |
+|------|-----------|-----------|
+| repository0 | YES / NO | YES / NO |
+| repository0-string-utils | YES / NO | YES / NO |
+| repository0-dense-encoder | YES / NO | YES / NO |
+| repository0-random | YES / NO | YES / NO |
+| repository0-crucible | YES / NO | YES / NO |
+| repository0-plot-code-lib | YES / NO | YES / NO |
 ```
 
 ---
 
 ## Conventions
 
-- **Iteration numbering**: Start at 1 for the first workflow run after init. If two runs fire concurrently, label them 1a and 1b.
+- **Iteration numbering**: Start at 1 for the first workflow run after init per repo. If two runs fire concurrently on the same repo, label them 1a and 1b.
 - **Transform?**: YES if the dev job produced a merged PR with code changes. NO if maintain-only, review-only, or nop.
 - **Source lines**: Count of `src/lib/main.js` lines. If multi-file, note the total.
-- **Tests**: Count of test lines or test count, whichever is available. Note which.
+- **Tests**: Count of test lines or test count, whichever is available.
 - **Duration**: Wall-clock time from workflow start to completion.
-- **Convergence**: Detected when 2+ consecutive iterations produce no transform.
 - **Time format**: Use UTC throughout.
-- **Run IDs**: Link to `https://github.com/xn-intenton-z2a/repository0/actions/runs/RUN_ID`.
+- **Run IDs**: Link to `https://github.com/xn-intenton-z2a/REPO_NAME/actions/runs/RUN_ID`.
+- **Repo shortnames**: Use the short names from the Target Repositories table in prose (e.g. "dense-encoder" not "repository0-dense-encoder").
 
 ## What to Watch For
 
-These are the known patterns to look for and report on:
-
-1. **Mission complete declaration** — Does the supervisor use `mission-complete`? Does it write MISSION_COMPLETE.md? Does it set schedule to off?
-2. **Mission failed declaration** — Does the supervisor detect budget exhaustion or stuck pipeline and use `mission-failed`?
+1. **Mission complete declaration** — Does the supervisor write MISSION_COMPLETE.md and set schedule to off?
+2. **Mission failed declaration** — Does the supervisor detect budget exhaustion or stuck pipeline?
 3. **Issue churn** — Are near-identical issues created each cycle? The dedup guard should prevent this.
-4. **Test/code consistency** — Do tests match the implementation? Does the pre-merge test gate catch mismatches?
-5. **State file accuracy** — Does `agentic-lib-state.toml` on the `agentic-lib-logs` branch show correct cumulative values? Does `log-sequence` increment across iterations? Do transforms, tokens, and duration accumulate correctly?
-6. **Agent log quality** — Do individual agent-log files contain meaningful narratives? Are sequence numbers sequential? Do Mission Metrics tables show both per-task and cumulative values?
-7. **Recently-closed issues in context** — Does the supervisor see them and avoid re-creating resolved issues?
-8. **Discussions bot actions** — If the bot is tested, does it execute create-issue, request-supervisor, stop?
-9. **Screenshot assessment** — Does `SCREENSHOT_INDEX.png` show a functional website? Does it reflect the mission's implemented features? Compare across iterations for visual regression.
-10. **Website front-end** — Does the GitHub Pages deployment render correctly? Does it include mission-specific interactive content (function demos, forms, visualizations)?
-11. **Profile impact** — How does min vs med vs max affect outcome quality and iteration count?
-12. **Model impact** — How do different models compare on the same mission?
+4. **Test/code consistency** — Do tests match the implementation?
+5. **State file accuracy** — Does `agentic-lib-state.toml` show correct cumulative values?
+6. **Agent log quality** — Do individual agent-log files contain meaningful narratives?
+7. **Screenshot assessment** — Does `SCREENSHOT_INDEX.png` show a functional website?
+8. **Website front-end** — Does the GitHub Pages deployment render correctly with mission-specific content?
+9. **Profile impact** — How does min vs med vs max affect outcome quality and iteration count? (S3 vs S4, S5 vs S6)
+10. **Cross-repo consistency** — Do repos running the same mission (S3/S4, S5/S6) produce similar code quality?
+11. **Concurrent interference** — Any signs that 6 simultaneous runs cause GitHub API rate limiting or runner contention?
+12. **Restoration completeness** — After restoring, is each repo back to its original state?
