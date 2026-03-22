@@ -4,8 +4,8 @@ Self-contained guide for running agentic-lib pipeline benchmarks concurrently ac
 
 ```text
 Please read ITERATION_BENCHMARKS_SIMPLE.md and ask for any permissions that may be required before you start executing the tests so that benchmarks can be gathered without asking for further permissions.
-Please perform the exercises in ITERATION_BENCHMARKS_SIMPLE.md and create a report in the project root similar to _developers/archive/BENCHMARK_REPORT_007.md
-The session should run hands free but you can start working on a fix plan like _developers/archive/PLAN_BENCHMARK_007_FIXES.md and work on those fixes in a branch test, merge then use your release and init skill to have all 4 repos use it.
+Please perform the exercises in ITERATION_BENCHMARKS_SIMPLE.md and create a report in the project root similar to _developers/archive/BENCHMARK_REPORT_018.md
+The session should run hands free but you can start working on a fix plan like _developers/archive/PLAN_BENCHMARK_015_FIXES.md and work on those fixes in a branch test, merge then use your release and init skill to have all 4 repos use it.
 Re-use the same branch for multiple fixes as part of the same benchmarking session and keep updating what has been found and/or fixed in the fixes plan document.
 
 ```
@@ -500,10 +500,7 @@ Description.
 ## Comparison with Previous Reports
 
 Compare against baseline reports (archived in `_developers/archive/`):
-- **BENCHMARK_REPORT_007.md** (v7.2.1, 2026-03-10) — roman-numerals, string-utils, cron-engine on `recommended`
-- **BENCHMARK_REPORT_014.md** (v7.4.31, 2026-03-19) — fizz-buzz, hamming-distance, roman-numerals on `med`
-- **BENCHMARK_REPORT_015.md** (v7.4.32, 2026-03-19) — hamming, dense-encoding across min/med/max
-- **BENCHMARK_REPORT_016.md** (v7.4.32, 2026-03-20) — plot-code-lib 2-kyu on max
+- **BENCHMARK_REPORT_018.md** (v7.4.53, 2026-03-22)
 
 | Metric | Prior Report | This Report |
 |--------|-------------|-------------|

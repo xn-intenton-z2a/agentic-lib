@@ -4,6 +4,34 @@
 
 The supervisor is the composite of every skill needed to run benchmarks, diagnose issues, fix them, release fixes, and re-run benchmarks — end to end, without human intervention. It is defined by what a Claude Code session actually does today when executing ITERATION_BENCHMARKS_SIMPLE.md.
 
+## Primary Use Case: Producer Schedule
+
+Run init with `schedule=producer`. The producer handles all workflow executions through to posting a summary on the discussions thread. This is the "always-on" mode: init once, and the supervisor drives the mission to completion autonomously, then reports results.
+
+```bash
+# The primary use case — fully autonomous mission execution
+npx @xn-intenton-z2a/agentic-lib supervise \
+  --mission 6-kyu-understand-hamming-distance \
+  --profile med \
+  --schedule producer \
+  --repo xn-intenton-z2a/repository0
+```
+
+The supervisor:
+1. Dispatches init with purge
+2. Watches the auto-dispatched workflow
+3. On completion: reads state, checks mission signals, decides next action
+4. If not complete: dispatches another workflow run
+5. Repeats until mission-complete, mission-failed, or budget-exhausted
+6. Posts a summary to the repository's Discussions thread
+7. Generates a benchmark report if `--report` flag is set
+
+## Other Use Cases
+
+- **Run benchmarks**: `supervise --benchmarks ITERATION_BENCHMARKS_SIMPLE.md` — execute all scenarios, produce a numbered report
+- **Continuous monitoring**: `supervise --watch` — respond to events, keep the pipeline healthy
+- **Multi-repo**: Orchestrate across repository0 and other consumers
+
 ## Skills Observed Across Benchmark Sessions 014
 
 These are the discrete capabilities exercised during the benchmark 014 session and fix cycle. The supervisor must implement all of them.
