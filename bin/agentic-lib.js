@@ -888,12 +888,11 @@ async function initPurge(seedsDir, missionName, initTimestamp) {
         "Write the mission to MISSION.md using the write_file tool.",
       ].join("\n");
       await runCopilotSession({
-        task: "generate-mission",
+        workspacePath: target,
         model,
-        target,
-        prompt,
+        userPrompt: prompt,
         timeoutMs: 120000,
-        dryRun,
+        writablePaths: [resolve(target, "MISSION.md")],
       });
       resolvedMission = "generated";
       console.log("  GENERATE: Mission written to MISSION.md");
