@@ -10,6 +10,13 @@ Re-use the same branch for multiple fixes as part of the same benchmarking sessi
 
 ```
 
+And if we do the benchmark by running `scripts/all-repositories-benchmarks-advanced.sh `:
+```
+Please could prepare the report for this ITERATION_BENCHMARKS_ADVANCED.md using the latest individual repository reports generated each of the workflows run from       
+  scripts/all-repositories-benchmarks-advanced.sh 
+```
+
+
 ## Scenario Matrix
 
 4 concurrent scenarios across 4 repos. All use `gpt-5-mini` model and `max` profile. All run simultaneously — follow the concurrent procedure from `ITERATION_BENCHMARKS_SIMPLE.md`.
