@@ -26,7 +26,7 @@ The **core SDK** of the intentïon project — a collection of reusable GitHub A
 - **Package**: `@xn-intenton-z2a/agentic-lib`
 - **License**: GPL (with MIT-licensed examples in `sandbox/`)
 - **Entry point**: `sandbox/source/main.js`
-- **Consumers**: `repository0`, `repository0-crucible`, `repository0-plot-code-lib`, `repository0-xn--intenton-z2a.com`
+- **Consumers**: `repository0`, `repository0-plot-code-lib`, `repository0-xn--intenton-z2a.com`
 
 ## Code Review Philosophy
 

@@ -848,7 +848,7 @@ async function initPurge(seedsDir, missionName, initTimestamp) {
   // Copy mission seed file as MISSION.md (with random/generate support)
   const missionsDir = resolve(seedsDir, "missions");
   let resolvedMission = missionName;
-  let missionType = missionName; // "random", "generate", or the specific seed name
+  let missionType = missionName; // "random" or the specific seed name
 
   if (missionName === "random") {
     // W11: Pick a random mission from available seeds
@@ -861,62 +861,20 @@ async function initPurge(seedsDir, missionName, initTimestamp) {
     }
     resolvedMission = available[Math.floor(Math.random() * available.length)];
     console.log(`  RANDOM: selected mission "${resolvedMission}" from ${available.length} available`);
-  } else if (missionName === "generate") {
-    // W12: Generate a mission using LLM
-    console.log("  GENERATE: Creating LLM-generated mission...");
-    try {
-      const { runCopilotSession } = await import("../src/copilot/copilot-session.js");
-      const available = existsSync(missionsDir)
-        ? readdirSync(missionsDir).filter((f) => f.endsWith(".md")).map((f) => f.replace(/\.md$/, ""))
-        : [];
-      const sampleMission = existsSync(resolve(missionsDir, "7-kyu-understand-fizz-buzz.md"))
-        ? readFileSync(resolve(missionsDir, "7-kyu-understand-fizz-buzz.md"), "utf8")
-        : "";
-      const prompt = [
-        "Generate a novel JavaScript library mission for an autonomous coding pipeline.",
-        "The mission should follow this exact structure (use the example as a template):",
-        "",
-        sampleMission,
-        "",
-        "Requirements:",
-        "- Be distinct from all existing missions: " + available.join(", "),
-        "- Difficulty should be between 8-kyu (trivial) and 2-kyu (expert)",
-        "- Include 5-10 acceptance criteria as markdown checkboxes (- [ ] ...)",
-        "- The library must be implementable in a single src/lib/main.js file",
-        "- Include edge cases and error handling in the requirements",
-        "",
-        "Write the mission to MISSION.md using the write_file tool.",
-      ].join("\n");
-      await runCopilotSession({
-        workspacePath: target,
-        model,
-        userPrompt: prompt,
-        timeoutMs: 120000,
-        writablePaths: [resolve(target, "MISSION.md")],
-      });
-      resolvedMission = "generated";
-      console.log("  GENERATE: Mission written to MISSION.md");
-    } catch (err) {
-      console.error(`  GENERATE: LLM generation failed (${err.message}), falling back to fizz-buzz`);
-      resolvedMission = "7-kyu-understand-fizz-buzz";
-      missionType = "generate-fallback";
-    }
   }
 
-  if (missionName !== "generate" || resolvedMission !== "generated") {
-    const selectedMissionFile = resolve(missionsDir, `${resolvedMission}.md`);
-    if (existsSync(selectedMissionFile)) {
-      initCopyFile(selectedMissionFile, resolve(target, "MISSION.md"), `MISSION: missions/${resolvedMission}.md → MISSION.md`);
-    } else {
-      const available = existsSync(missionsDir)
-        ? readdirSync(missionsDir).filter((f) => f.endsWith(".md")).map((f) => f.replace(/\.md$/, ""))
-        : [];
-      console.error(`\nERROR: Unknown mission "${resolvedMission}".`);
-      if (available.length > 0) {
-        console.error(`Available missions: ${available.join(", ")}`);
-      }
-      process.exit(1);
+  const selectedMissionFile = resolve(missionsDir, `${resolvedMission}.md`);
+  if (existsSync(selectedMissionFile)) {
+    initCopyFile(selectedMissionFile, resolve(target, "MISSION.md"), `MISSION: missions/${resolvedMission}.md → MISSION.md`);
+  } else {
+    const available = existsSync(missionsDir)
+      ? readdirSync(missionsDir).filter((f) => f.endsWith(".md")).map((f) => f.replace(/\.md$/, ""))
+      : [];
+    console.error(`\nERROR: Unknown mission "${resolvedMission}".`);
+    if (available.length > 0) {
+      console.error(`Available missions: ${available.join(", ")}`);
     }
+    process.exit(1);
   }
 
   // W17: Generate structured acceptance criteria in TOML

@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 # SPDX-License-Identifier: GPL-3.0-only
 # Copyright (C) 2025-2026 Polycode Limited
-# scripts/all-repositories-workflows-enable.sh — Enable all agentic-lib-* workflows in the 6 repos.
+# scripts/all-repositories-workflows-enable.sh — Enable all agentic-lib-* workflows in the 5 repos.
 #
 
-REPOS="repository0 repository0-string-utils repository0-dense-encoder repository0-random repository0-crucible repository0-plot-code-lib"
+REPOS="repository0 repository0-string-utils repository0-dense-encoder repository0-random repository0-plot-code-lib"
 
 for REPO in $REPOS; do
   echo "=== $REPO ==="

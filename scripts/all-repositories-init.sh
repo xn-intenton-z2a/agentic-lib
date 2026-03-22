@@ -45,13 +45,6 @@ time gh workflow run agentic-lib-init -R xn-intenton-z2a/repository0-random \
   -f mode=${mode?} -f schedule=${schedule?} -f model=${model?} -f profile=${profile?} \
   -f create-seed-issues=${create_seed_issues?} -f run-workflow=${run_workflow?}
 
-# repository0-crucible — generate
-date
-time gh workflow run agentic-lib-init -R xn-intenton-z2a/repository0-crucible \
-  -f mission-seed=generate \
-  -f mode=${mode?} -f schedule=${schedule?} -f model=${model?} -f profile=${profile?} \
-  -f create-seed-issues=${create_seed_issues?} -f run-workflow=${run_workflow?}
-
 # repository0-plot-code-lib — plot-code-lib
 date
 time gh workflow run agentic-lib-init -R xn-intenton-z2a/repository0-plot-code-lib \

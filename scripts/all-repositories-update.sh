@@ -28,11 +28,6 @@ date
 time gh workflow run agentic-lib-update \
   -R xn-intenton-z2a/repository0-random
 
-# repository0-crucible
-date
-time gh workflow run agentic-lib-update \
-  -R xn-intenton-z2a/repository0-crucible
-
 # repository0-plot-code-lib
 date
 time gh workflow run agentic-lib-update \

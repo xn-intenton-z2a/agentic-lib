@@ -47,13 +47,6 @@ time gh workflow run agentic-lib-flow -R xn-intenton-z2a/repository0-random \
   -f skipMaintain=${skipMaintain} -f create-seed-issues=${create_seed_issues?} -f generate-report=${generate_report?} \
   -f mission-seed=random -f model=${model?} -f profile=${profile?}
 
-# repository0-crucible — generate
-date
-time gh workflow run agentic-lib-flow -R xn-intenton-z2a/repository0-crucible \
-  -f mode=${mode?} -f schedule=${schedule?} -f workflow-runs=${workflow_runs?} \
-  -f skipMaintain=${skipMaintain} -f create-seed-issues=${create_seed_issues?} -f generate-report=${generate_report?} \
-  -f mission-seed=generate -f model=${model?} -f profile=${profile?}
-
 # repository0-plot-code-lib — plot-code-lib
 date
 time gh workflow run agentic-lib-flow -R xn-intenton-z2a/repository0-plot-code-lib \

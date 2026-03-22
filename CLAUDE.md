@@ -77,7 +77,6 @@ Stale workflows (in consumer but not in template) are automatically removed.
 | Repository                         | Relationship                                          |
 | ---------------------------------- | ----------------------------------------------------- |
 | `repository0`                      | Template that consumes these workflows                |
-| `repository0-crucible`             | Experiment using these workflows                      |
 | `repository0-plot-code-lib`        | Experiment using these workflows                      |
 | `repository0-xn--intenton-z2a.com` | Experiment using these workflows                      |
 | `intention-agentic-lib`            | Earlier intentïon-specific version (being superseded) |
