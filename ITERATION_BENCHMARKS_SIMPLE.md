@@ -122,7 +122,7 @@ A scenario **passes** if it reaches mission-complete within the target run count
 
 | ID | Repo | Mission | Profile | Budget | Target Runs | Purpose |
 |----|------|---------|---------|--------|-------------|---------|
-| S1 | repository0-random | 7-kyu-understand-fizz-buzz | max | 128 | 1 | Baseline: simplest mission |
+| S1 | repository0-random | 6-kyu-understand-roman-numerals | max | 128 | 1 | 6-kyu with round-trip property, subtractive notation |
 | S2 | repository0-string-utils | 5-kyu-apply-string-utils | max | 128 | 3 | Name affinity. 5-kyu medium complexity |
 | S3 | repository0-dense-encoder | 6-kyu-understand-hamming-distance | max | 128 | 1 | 6-kyu with Unicode/BigInt edge cases |
 | S4 | repository0-plot-code-lib | 6-kyu-understand-roman-numerals | max | 128 | 1 | 6-kyu with round-trip property |
@@ -166,9 +166,9 @@ Init now **automatically dispatches `agentic-lib-workflow`** after completing (c
 All 4 `gh workflow run` calls return immediately (they're async dispatches), so they run concurrently:
 
 ```bash
-# S1: repository0-random — fizz-buzz / max
+# S1: repository0-random — roman-numerals / max
 gh workflow run agentic-lib-init -R xn-intenton-z2a/repository0-random \
-  -f mode=purge -f mission-seed=7-kyu-understand-fizz-buzz \
+  -f mode=purge -f mission-seed=6-kyu-understand-roman-numerals \
   -f schedule=off -f model=gpt-5-mini -f profile=max -f run-workflow=true
 
 # S2: repository0-string-utils — string-utils / max
@@ -429,7 +429,7 @@ Reports are saved as `BENCHMARK_REPORT_NNN.md` in the project root. Use zero-pad
 
 | ID | Repo | Mission | Profile | Iterations | Transforms | Outcome | Time |
 |----|------|---------|---------|------------|------------|---------|------|
-| S1 | repository0-random | fizz-buzz | max | N | N | ... | Xmin |
+| S1 | repository0-random | roman-numerals | max | N | N | ... | Xmin |
 | S2 | repository0-string-utils | string-utils | max | N | N | ... | Xmin |
 | S3 | repository0-dense-encoder | hamming | max | N | N | ... | Xmin |
 | S4 | repository0-plot-code-lib | roman | max | N | N | ... | Xmin |

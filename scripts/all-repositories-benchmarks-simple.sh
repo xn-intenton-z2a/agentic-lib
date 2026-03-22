@@ -5,7 +5,7 @@
 # Dispatches agentic-lib-flow which runs: update → init → (test + bot + N×workflow) × rounds → verify → report.
 #
 # Scenario matrix (from ITERATION_BENCHMARKS_SIMPLE.md):
-#   S1: repository0               — 7-kyu-understand-fizz-buzz       / max
+#   S1: repository0-random        — 6-kyu-understand-roman-numerals   / max
 #   S2: repository0-string-utils  — 5-kyu-apply-string-utils         / max
 #   S3: repository0-dense-encoder — 6-kyu-understand-hamming-distance / max
 #   S4: repository0-plot-code-lib — 6-kyu-understand-roman-numerals   / max
@@ -23,12 +23,12 @@ skipMaintain=true
 create_seed_issues=false
 generate_report=true
 
-# S1: repository0-random — fizz-buzz / max (target: 1 run)
+# S1: repository0-random — roman-numerals / max (target: 1 run)
 date
 time gh workflow run agentic-lib-flow -R xn-intenton-z2a/repository0-random \
   -f mode=${mode?} -f schedule=${schedule?} -f workflow-runs=${workflow_runs?} \
   -f skipMaintain=${skipMaintain} -f create-seed-issues=${create_seed_issues?} -f generate-report=${generate_report?} \
-  -f mission-seed=7-kyu-understand-fizz-buzz -f model=gpt-5-mini -f profile=max
+  -f mission-seed=6-kyu-understand-roman-numerals -f model=gpt-5-mini -f profile=max
 
 # S2: repository0-string-utils — string-utils / max (target: 3 runs)
 date
