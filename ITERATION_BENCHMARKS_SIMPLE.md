@@ -34,7 +34,7 @@ All 4 repos run concurrently, one scenario per repo.
 
 | Short Name | Repository | GitHub CLI Flag | Website |
 |-----------|-----------|----------------|---------|
-| `repository0` | `xn-intenton-z2a/repository0` | `-R xn-intenton-z2a/repository0` | `https://xn-intenton-z2a.github.io/repository0/` |
+| `repository0-random` | `xn-intenton-z2a/repository0` | `-R xn-intenton-z2a/repository0-random` | `https://xn-intenton-z2a.github.io/repository0-random/` |
 | `string-utils` | `xn-intenton-z2a/repository0-string-utils` | `-R xn-intenton-z2a/repository0-string-utils` | `https://xn-intenton-z2a.github.io/repository0-string-utils/` |
 | `dense-encoder` | `xn-intenton-z2a/repository0-dense-encoder` | `-R xn-intenton-z2a/repository0-dense-encoder` | `https://xn-intenton-z2a.github.io/repository0-dense-encoder/` |
 | `plot-code-lib` | `xn-intenton-z2a/repository0-plot-code-lib` | `-R xn-intenton-z2a/repository0-plot-code-lib` | `https://xn-intenton-z2a.github.io/repository0-plot-code-lib/` |
@@ -42,7 +42,7 @@ All 4 repos run concurrently, one scenario per repo.
 **Shell variable for loops** (used throughout this guide):
 
 ```bash
-REPOS="repository0 repository0-string-utils repository0-dense-encoder repository0-plot-code-lib"
+REPOS="repository0-random repository0-string-utils repository0-dense-encoder repository0-plot-code-lib"
 ```
 
 ## Permissions Granted
@@ -122,7 +122,7 @@ A scenario **passes** if it reaches mission-complete within the target run count
 
 | ID | Repo | Mission | Profile | Budget | Target Runs | Purpose |
 |----|------|---------|---------|--------|-------------|---------|
-| S1 | repository0 | 7-kyu-understand-fizz-buzz | max | 128 | 1 | Baseline: simplest mission |
+| S1 | repository0-random | 7-kyu-understand-fizz-buzz | max | 128 | 1 | Baseline: simplest mission |
 | S2 | repository0-string-utils | 5-kyu-apply-string-utils | max | 128 | 3 | Name affinity. 5-kyu medium complexity |
 | S3 | repository0-dense-encoder | 6-kyu-understand-hamming-distance | max | 128 | 1 | 6-kyu with Unicode/BigInt edge cases |
 | S4 | repository0-plot-code-lib | 6-kyu-understand-roman-numerals | max | 128 | 1 | 6-kyu with round-trip property |
@@ -136,7 +136,7 @@ A scenario **passes** if it reaches mission-complete within the target run count
 Before overwriting repos with benchmark scenarios, record each repo's current configuration for later restoration.
 
 ```bash
-REPOS="repository0 repository0-string-utils repository0-dense-encoder repository0-plot-code-lib"
+REPOS="repository0-random repository0-string-utils repository0-dense-encoder repository0-plot-code-lib"
 
 for REPO in $REPOS; do
   echo "=== $REPO ==="
@@ -152,7 +152,7 @@ Record the results in this table (pre-filled with known state as of 2026-03-21):
 
 | Repo | Original Mission Seed | Original Mission Type | Original Schedule | Original Model | Original Profile |
 |------|-----------------------|----------------------|-------------------|----------------|------------------|
-| repository0 | 7-kyu-understand-fizz-buzz | 7-kyu-understand-fizz-buzz | off | gpt-5-mini | max |
+| repository0-random | 7-kyu-understand-fizz-buzz | 7-kyu-understand-fizz-buzz | off | gpt-5-mini | max |
 | repository0-string-utils | 5-kyu-apply-string-utils | 5-kyu-apply-string-utils | hourly | gpt-5-mini | max |
 | repository0-dense-encoder | 4-kyu-apply-dense-encoding | 4-kyu-apply-dense-encoding | hourly | gpt-5-mini | max |
 | repository0-plot-code-lib | 7-kyu-understand-fizz-buzz | 7-kyu-understand-fizz-buzz | continuous | gpt-5-mini | max |
@@ -166,8 +166,8 @@ Init now **automatically dispatches `agentic-lib-workflow`** after completing (c
 All 4 `gh workflow run` calls return immediately (they're async dispatches), so they run concurrently:
 
 ```bash
-# S1: repository0 — fizz-buzz / max
-gh workflow run agentic-lib-init -R xn-intenton-z2a/repository0 \
+# S1: repository0-random — fizz-buzz / max
+gh workflow run agentic-lib-init -R xn-intenton-z2a/repository0-random \
   -f mode=purge -f mission-seed=7-kyu-understand-fizz-buzz \
   -f schedule=off -f model=gpt-5-mini -f profile=max -f run-workflow=true
 
@@ -190,7 +190,7 @@ gh workflow run agentic-lib-init -R xn-intenton-z2a/repository0-plot-code-lib \
 Wait for all init workflows to complete:
 
 ```bash
-REPOS="repository0 repository0-string-utils repository0-dense-encoder repository0-plot-code-lib"
+REPOS="repository0-random repository0-string-utils repository0-dense-encoder repository0-plot-code-lib"
 
 for REPO in $REPOS; do
   echo -n "$REPO: "
@@ -206,7 +206,7 @@ Record each init run ID and completion time.
 Init auto-dispatches the **first** `agentic-lib-workflow` run per repo. For subsequent cycles (when `schedule=off`), dispatch manually to repos that haven't completed:
 
 ```bash
-REPOS="repository0 repository0-string-utils repository0-dense-encoder repository0-plot-code-lib"
+REPOS="repository0-random repository0-string-utils repository0-dense-encoder repository0-plot-code-lib"
 
 for REPO in $REPOS; do
   COMPLETE=$(gh api "repos/xn-intenton-z2a/$REPO/contents/MISSION_COMPLETE.md" \
@@ -235,7 +235,7 @@ For each iteration round, collect data from all 4 repos. The **primary** source 
 #### 3a: Dashboard check (quick status of all 4)
 
 ```bash
-REPOS="repository0 repository0-string-utils repository0-dense-encoder repository0-plot-code-lib"
+REPOS="repository0-random repository0-string-utils repository0-dense-encoder repository0-plot-code-lib"
 
 for REPO in $REPOS; do
   COMPLETE=$(gh api "repos/xn-intenton-z2a/$REPO/contents/MISSION_COMPLETE.md" \
@@ -251,7 +251,7 @@ done
 #### 3b: Read persistent state files
 
 ```bash
-REPOS="repository0 repository0-string-utils repository0-dense-encoder repository0-plot-code-lib"
+REPOS="repository0-random repository0-string-utils repository0-dense-encoder repository0-plot-code-lib"
 
 for REPO in $REPOS; do
   echo "=== $REPO ==="
@@ -280,7 +280,7 @@ gh api "repos/xn-intenton-z2a/REPO_NAME/contents/FILENAME" \
 #### 3d: Download and view screenshots
 
 ```bash
-REPOS="repository0 repository0-string-utils repository0-dense-encoder repository0-plot-code-lib"
+REPOS="repository0-random repository0-string-utils repository0-dense-encoder repository0-plot-code-lib"
 
 for REPO in $REPOS; do
   gh api "repos/xn-intenton-z2a/$REPO/contents/SCREENSHOT_INDEX.png" \
@@ -295,7 +295,7 @@ View each screenshot to assess the website's visual state.
 #### 3e: Fetch live websites
 
 ```bash
-REPOS="repository0 repository0-string-utils repository0-dense-encoder repository0-plot-code-lib"
+REPOS="repository0-random repository0-string-utils repository0-dense-encoder repository0-plot-code-lib"
 
 for REPO in $REPOS; do
   curl -sL "https://xn-intenton-z2a.github.io/$REPO/" > "/tmp/website-$REPO.html" \
@@ -379,8 +379,8 @@ curl -sL "https://xn-intenton-z2a.github.io/$REPO/" > "/tmp/website-final-$REPO.
 After collecting all benchmark data, restore each repo to its pre-benchmark configuration. Use the values recorded in Step 0.
 
 ```bash
-# Restore repository0 — fizz-buzz / off
-gh workflow run agentic-lib-init -R xn-intenton-z2a/repository0 \
+# Restore repository0-random — fizz-buzz / off
+gh workflow run agentic-lib-init -R xn-intenton-z2a/repository0-random \
   -f mode=purge -f mission-seed=7-kyu-understand-fizz-buzz \
   -f schedule=off -f model=gpt-5-mini -f profile=max
 
@@ -429,7 +429,7 @@ Reports are saved as `BENCHMARK_REPORT_NNN.md` in the project root. Use zero-pad
 
 | ID | Repo | Mission | Profile | Iterations | Transforms | Outcome | Time |
 |----|------|---------|---------|------------|------------|---------|------|
-| S1 | repository0 | fizz-buzz | max | N | N | ... | Xmin |
+| S1 | repository0-random | fizz-buzz | max | N | N | ... | Xmin |
 | S2 | repository0-string-utils | string-utils | max | N | N | ... | Xmin |
 | S3 | repository0-dense-encoder | hamming | max | N | N | ... | Xmin |
 | S4 | repository0-plot-code-lib | roman | max | N | N | ... | Xmin |
@@ -518,7 +518,7 @@ Numbered list of actionable next steps.
 
 | Repo | Restored? | Verified? |
 |------|-----------|-----------|
-| repository0 | YES / NO | YES / NO |
+| repository0-random | YES / NO | YES / NO |
 | repository0-string-utils | YES / NO | YES / NO |
 | repository0-dense-encoder | YES / NO | YES / NO |
 | repository0-plot-code-lib | YES / NO | YES / NO |

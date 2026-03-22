@@ -16,7 +16,7 @@ Re-use the same branch for multiple fixes as part of the same benchmarking sessi
 
 | ID | Repo | Mission | Profile | Budget | Target Runs | Purpose |
 |----|------|---------|---------|--------|-------------|---------|
-| A1 | repository0 | 4-kyu-apply-dense-encoding | max | 128 | 3 | 4-kyu: multiple encoding schemes, round-trip correctness |
+| A1 | repository0-random | 4-kyu-apply-dense-encoding | max | 128 | 3 | 4-kyu: multiple encoding schemes, round-trip correctness |
 | A2 | repository0-string-utils | 4-kyu-analyze-json-schema-diff | max | 128 | 3 | 4-kyu: structural diffing, path tracking |
 | A3 | repository0-dense-encoder | 3-kyu-analyze-lunar-lander | max | 128 | 5 | 3-kyu stress test: physics simulation |
 | A4 | repository0-plot-code-lib | 2-kyu-create-plot-code-lib | max | 128 | 5 | Name affinity. Regression test vs Benchmark 016 |
@@ -39,8 +39,8 @@ Re-use the same branch for multiple fixes as part of the same benchmarking sessi
 Follow `ITERATION_BENCHMARKS_SIMPLE.md` Step 0 (Save Original State) first, then dispatch all 4:
 
 ```bash
-# A1: repository0 — dense-encoding / max
-gh workflow run agentic-lib-init -R xn-intenton-z2a/repository0 \
+# A1: repository0-random — dense-encoding / max
+gh workflow run agentic-lib-init -R xn-intenton-z2a/repository0-random \
   -f mode=purge -f mission-seed=4-kyu-apply-dense-encoding \
   -f schedule=off -f model=gpt-5-mini -f profile=max -f run-workflow=true
 

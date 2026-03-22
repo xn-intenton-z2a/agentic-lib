@@ -23,9 +23,9 @@ skipMaintain=true
 create_seed_issues=false
 generate_report=true
 
-# S1: repository0 — fizz-buzz / max (target: 1 run)
+# S1: repository0-random — fizz-buzz / max (target: 1 run)
 date
-time gh workflow run agentic-lib-flow -R xn-intenton-z2a/repository0 \
+time gh workflow run agentic-lib-flow -R xn-intenton-z2a/repository0-random \
   -f mode=${mode?} -f schedule=${schedule?} -f workflow-runs=${workflow_runs?} \
   -f skipMaintain=${skipMaintain} -f create-seed-issues=${create_seed_issues?} -f generate-report=${generate_report?} \
   -f mission-seed=7-kyu-understand-fizz-buzz -f model=gpt-5-mini -f profile=max

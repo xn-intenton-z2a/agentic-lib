@@ -23,9 +23,9 @@ skipMaintain=false
 create_seed_issues=false
 generate_report=true
 
-# A1: repository0 — dense-encoding / max (target: 3 runs)
+# A1: repository0-random — dense-encoding / max (target: 3 runs)
 date
-time gh workflow run agentic-lib-flow -R xn-intenton-z2a/repository0 \
+time gh workflow run agentic-lib-flow -R xn-intenton-z2a/repository0-random \
   -f mode=${mode?} -f schedule=${schedule?} -f workflow-runs=${workflow_runs?} \
   -f skipMaintain=${skipMaintain} -f create-seed-issues=${create_seed_issues?} -f generate-report=${generate_report?} \
   -f mission-seed=4-kyu-apply-dense-encoding -f model=gpt-5-mini -f profile=max
