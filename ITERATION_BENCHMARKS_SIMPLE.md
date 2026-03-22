@@ -10,6 +10,12 @@ Re-use the same branch for multiple fixes as part of the same benchmarking sessi
 
 ```
 
+And if we do the benchmark by running `scripts/all-repositories-benchmarks-simple.sh `:
+```
+Please could prepare the report for this ITERATION_BENCHMARKS_SIMPLE.md using the latest individual repository reports generated each of the workflows run from       
+  scripts/all-repositories-benchmarks-simple.sh 
+```
+
 ## Quick Start
 
 To run a benchmark, say: **"Create a report for ITERATION_BENCHMARKS_SIMPLE.md"**

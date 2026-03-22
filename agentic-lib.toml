@@ -93,7 +93,7 @@ review-issues-cap = 2                  # max issues reviewed per batch (conserva
 min-resolved-issues = 1                # mission-complete: minimum closed-as-RESOLVED issues
 min-cumulative-transforms = 1          # mission-complete: minimum transform cycles
 max-source-todos = 1                   # mission-complete: max TODO comments in src
-acceptance-criteria-threshold = 80     # mission-complete: % acceptance criteria required
+acceptance-criteria-threshold = 90     # mission-complete: % acceptance criteria required
 
 [profiles.med]
 reasoning-effort = "high"            # low | medium | high | none
@@ -119,7 +119,7 @@ review-issues-cap = 3                  # max issues reviewed per batch
 min-resolved-issues = 1                # mission-complete: minimum closed-as-RESOLVED issues
 min-cumulative-transforms = 1          # mission-complete: minimum transform cycles
 max-source-todos = 1                   # mission-complete: max TODO comments in src
-acceptance-criteria-threshold = 80     # mission-complete: % acceptance criteria required
+acceptance-criteria-threshold = 90     # mission-complete: % acceptance criteria required
 
 [profiles.max]
 reasoning-effort = "high"              # low | medium | high | none
@@ -145,7 +145,7 @@ review-issues-cap = 4                  # max issues reviewed per batch (may need
 min-resolved-issues = 1                # mission-complete: minimum closed-as-RESOLVED issues
 min-cumulative-transforms = 1          # mission-complete: minimum transform cycles
 max-source-todos = 0                   # mission-complete: max TODO comments in src
-acceptance-criteria-threshold = 80     # mission-complete: % acceptance criteria required
+acceptance-criteria-threshold = 90     # mission-complete: % acceptance criteria required
 
 [goals]
 # W12/W13: Code coverage thresholds — stated in all code-changing prompts
